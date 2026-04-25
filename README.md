@@ -1,6 +1,8 @@
 # ETRix — Durable Control. Portable Records.
 Transfer, endorsement, and enforcement—without dependence on systems.
 
+![image](./assets/images/etrix.png)
+
 ## Overview
 
 ETRix is an open source project to define and implement a minimal, interoperable layer for electronic transferable records—records whose control can be exercised, proven, and transferred without reliance on any single institution, platform, or registry.
