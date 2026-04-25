@@ -12,10 +12,12 @@ The result is a portable, durable foundation for digital instruments such as bil
 ## Problem
 
 Digital records today are typically:
-System-bound — tied to specific platforms, vendors, or registries
-Non-transferable by design — movement requires intermediaries or reissuance
-Difficult to verify independently — validation depends on the originating system
-Fragile over time — persistence depends on institutional continuity
+
+* System-bound — tied to specific platforms, vendors, or registries
+* Non-transferable by design — movement requires intermediaries or reissuance
+* Difficult to verify independently — validation depends on the originating system
+* Fragile over time — persistence depends on institutional continuity
+
 This creates friction for any record that must function like a thing that can be held, transferred, and relied upon.
 
 ## Proposal
