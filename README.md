@@ -111,7 +111,7 @@ shasum -a 256 ./README.md
 That prints the SHA-256 digest for `README.md` locally so you can inspect or compare it before publishing.
 
 ```bash
-poetry run etrix publish-probe \
+poetry run etrix publish-object \
   --relay wss://relay.getsafebox.app/ \
   --digest-file ./README.md
 ```

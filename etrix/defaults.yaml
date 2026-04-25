@@ -1,0 +1,6 @@
+relays: "wss://relay.getsafebox.app/"
+kind: 31415
+query_timeout: 10
+publish_wait: 2.0
+limit: 20
+query_output: "full"

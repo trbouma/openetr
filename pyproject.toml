@@ -5,11 +5,13 @@ description = "etrix - durable control portable records"
 authors = ["trbouma <trbouma@gmail.com>"]
 license = "MIT License"
 readme = "README.md"
+include = ["etrix/defaults.yaml"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 click = "^8.1.8"
 monstr = "^0.1.9"
+pyyaml = "^6.0.2"
 
 [tool.poetry.scripts]
 etrix = "etrix.cli:main"
