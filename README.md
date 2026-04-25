@@ -67,6 +67,10 @@ Reference implementations (e.g., Python, TypeScript)
 
 Integration patterns for systems such as decentralized networks and traditional registries
 
+## Specifications
+
+Draft specifications and supporting documents live in [docs/specs/INDEX.md](/Users/trbouma/projects/etrix/docs/specs/INDEX.md).
+
 ## Use Cases
 
 * Electronic bills of lading and trade documents
