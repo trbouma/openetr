@@ -1,7 +1,7 @@
 # OpenETR — Durable Control. Portable Records.
 Transfer, endorsement, and enforcement—without dependence on systems.
 
-![OpenETR logo](./assets/images/etrix-readme.png)
+![OpenETR logo](./assets/images/openetr-readme.png)
 
 ## Overview
 
