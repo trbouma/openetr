@@ -29,7 +29,7 @@ from openetr.helpers import (
 
 
 async def _run_query_object(
-    relay: str,
+    relays: str,
     digest: str,
     authors: list[str] | None,
     limit: int,
@@ -53,7 +53,7 @@ async def _run_query_object(
         click.echo(f"Digest source: sha256({digest_file})")
 
     async with ClientPool(
-        relay.split(","),
+        relays.split(","),
         query_timeout=timeout,
         timeout=timeout,
         ssl=ssl,
@@ -99,7 +99,7 @@ def _resolve_profile_pubkey(author: str | None, as_user: str | None) -> str:
 
 
 async def _run_query_profile(
-    relay: str,
+    relays: str,
     pubkey_hex: str,
     timeout: int,
     ssl_disable_verify: bool,
@@ -116,7 +116,7 @@ async def _run_query_profile(
     click.echo(f"Relay filter: {query_filter}")
 
     async with ClientPool(
-        relay.split(","),
+        relays.split(","),
         query_timeout=timeout,
         timeout=timeout,
         ssl=ssl,
@@ -168,7 +168,7 @@ async def _run_query_profile(
 
 
 @click.command("query-object")
-@click.option("--relay", default=DEFAULT_RELAYS, show_default=True, help="Comma separated relay URLs to query.")
+@click.option("--relays", default=DEFAULT_RELAYS, show_default=True, help="Comma separated relay URLs to query.")
 @click.option("--digest", default=None, help="nobj or 64-character hex digest to query for.")
 @click.option(
     "--digest-file",
@@ -205,7 +205,7 @@ async def _run_query_profile(
 @click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def query_object(
-    relay: str,
+    relays: str,
     digest: str | None,
     digest_file: Path | None,
     authors: str | None,
@@ -223,7 +223,7 @@ def query_object(
 
     asyncio.run(
         _run_query_object(
-            relay=relay,
+            relays=relays,
             digest=resolved_digest,
             authors=parsed_authors,
             limit=limit,
@@ -236,7 +236,7 @@ def query_object(
 
 
 @click.command("query-profile")
-@click.option("--relay", default=DEFAULT_RELAYS, show_default=True, help="Comma separated relay URLs to query.")
+@click.option("--relays", default=DEFAULT_RELAYS, show_default=True, help="Comma separated relay URLs to query.")
 @click.option(
     "--as-user",
     default=None,
@@ -257,20 +257,20 @@ def query_object(
 @click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def query_profile(
-    relay: str,
+    relays: str,
     as_user: str | None,
     author: str | None,
     timeout: int,
     ssl_disable_verify: bool,
     debug: bool,
 ) -> None:
-    """Look up the Nostr kind 0 social profile for an npub or nsec."""
+    """Look up the Nostr kind 0 social profile for an npub, NIP-05 name, or nsec."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
     pubkey_hex = _resolve_profile_pubkey(author, as_user)
     asyncio.run(
         _run_query_profile(
-            relay=relay,
+            relays=relays,
             pubkey_hex=pubkey_hex,
             timeout=timeout,
             ssl_disable_verify=ssl_disable_verify,

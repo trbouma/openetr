@@ -1,7 +1,10 @@
 import hashlib
+import json
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 import bech32
 import click
@@ -162,13 +165,47 @@ def parse_authors(authors: str | None) -> list[str] | None:
 
 
 def resolve_author(author: str) -> str:
-    if not author.startswith("npub"):
-        raise click.ClickException("author must be supplied in npub bech32 format")
+    if author.startswith("npub"):
+        author_hex = Keys.bech32_to_hex(author)
+        if author_hex is None:
+            raise click.ClickException(f"invalid npub author key: {author}")
+        return author_hex
 
-    author_hex = Keys.bech32_to_hex(author)
-    if author_hex is None:
-        raise click.ClickException(f"invalid npub author key: {author}")
-    return author_hex
+    if "@" not in author:
+        raise click.ClickException("author must be supplied in npub bech32 or NIP-05 format")
+
+    local_part, domain = author.split("@", 1)
+    if not local_part or not domain:
+        raise click.ClickException(f"invalid NIP-05 identifier: {author}")
+
+    lookup_url = f"https://{domain}/.well-known/nostr.json?{urlencode({'name': local_part})}"
+    request = Request(
+        lookup_url,
+        headers={
+            "User-Agent": "openetr/0.1 (+https://github.com/trbouma/openetr)",
+            "Accept": "application/json",
+        },
+    )
+    try:
+        with urlopen(request, timeout=10) as response:
+            payload = json.load(response)
+    except Exception as exc:
+        raise click.ClickException(f"failed to resolve NIP-05 identifier {author}: {exc}") from exc
+
+    names = payload.get("names", {})
+    author_hex = names.get(local_part)
+    if not author_hex:
+        raise click.ClickException(f"NIP-05 identifier not found: {author}")
+
+    if len(author_hex) != 64:
+        raise click.ClickException(f"NIP-05 identifier resolved to an invalid pubkey: {author}")
+
+    try:
+        int(author_hex, 16)
+    except ValueError as exc:
+        raise click.ClickException(f"NIP-05 identifier resolved to an invalid pubkey: {author}") from exc
+
+    return author_hex.lower()
 
 
 def format_pubkey(pubkey_hex: str) -> str:
