@@ -29,12 +29,30 @@ def _normalize_relays(relay: str) -> str:
 
 
 @click.command()
-def version() -> None:
+@click.option("--banner", is_flag=True, help="Display the OpenETR banner.")
+def version(banner: bool) -> None:
     """Show the CLI version."""
     try:
         current_version = package_version("openetr")
     except PackageNotFoundError:
         current_version = "0.1.0"
+
+    if banner:
+        click.echo(
+            "\n".join(
+                [
+                    "  ____                   ______ _______ ____  ",
+                    " / __ \\____  ___  ____  / ____//_  __// __ \\ ",
+                    "/ / / / __ \\/ _ \\/ __ \\/ __/    / /  / /_/ / ",
+                    "/ /_/ / /_/ /  __/ / / / /___   / /  / _, _/  ",
+                    "\\____/ .___/\\___/_/ /_/_____/  /_/  /_/ |_|   ",
+                    "    /_/                                        ",
+                    "",
+                    f"OpenETR {current_version}",
+                ]
+            )
+        )
+        return
 
     click.echo(f"openetr {current_version}")
 
