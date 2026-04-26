@@ -249,7 +249,7 @@ Limitations:
 
 - history may still need to be collected across relays
 - relay retention is not guaranteed
-- governance and trust remain external to the protocol
+- governance and trust remain external to the scheme
 - current state is only meaningful relative to recognized TTA pubkeys
 
 ## Path Toward an Open MLETR-Style System
@@ -298,7 +298,7 @@ This approach can become an open system if the following properties are preserve
 
 - the artifact identifier is based on an open digest standard
 - the event format is publicly documented
-- the title and transfer records are published over an open relay protocol
+- the title and transfer records are published over an open relay network and event transport
 - validation rules are transparent and implementable by any participant
 - multiple clients can independently query and verify current title state
 

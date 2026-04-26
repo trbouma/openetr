@@ -102,7 +102,7 @@ A world where:
 
 OpenETR includes an initial implementation on Nostr to demonstrate durable control and portable records using existing open infrastructure.
 
-Nostr provides a simple model of signed events + relay distribution + independent verification. OpenETR builds on this by defining how those events represent records, control, and transfer.
+Nostr provides a simple model of signed events + relay distribution + independent verification. OpenETR is best understood as a scheme built on the Nostr protocol, defining how those events represent records, control, and transfer.
 
 ## CLI Example
 
