@@ -30,6 +30,10 @@ from openetr.helpers import (
 )
 
 
+def _normalize_nip05(value: str) -> str:
+    return value.strip().lower()
+
+
 async def _fetch_profile(
     relays: str,
     pubkey_hex: str,
@@ -68,6 +72,43 @@ async def _fetch_profile(
         return None
 
     return profile
+
+
+async def _run_verify_nip05(
+    relays: str,
+    nip05: str,
+    timeout: int,
+    ssl_disable_verify: bool,
+) -> None:
+    try:
+        resolved_pubkey_hex = resolve_author(nip05)
+    except click.ClickException:
+        click.echo("fail")
+        raise SystemExit(1)
+    resolved_nip05 = _normalize_nip05(nip05)
+
+    profile = await _fetch_profile(
+        relays=relays,
+        pubkey_hex=resolved_pubkey_hex,
+        timeout=timeout,
+        ssl_disable_verify=ssl_disable_verify,
+    )
+    if not profile:
+        click.echo("fail")
+        raise SystemExit(1)
+
+    profile_nip05 = profile.get("nip05")
+    if not profile_nip05:
+        click.echo("fail")
+        raise SystemExit(1)
+
+    normalized_profile_nip05 = _normalize_nip05(str(profile_nip05))
+
+    if normalized_profile_nip05 != resolved_nip05:
+        click.echo("fail")
+        raise SystemExit(1)
+
+    click.echo("pass")
 
 
 def _print_profile(profile: dict) -> None:
@@ -310,6 +351,46 @@ def query_profile(
         _run_query_profile(
             relays=resolved_relays,
             pubkey_hex=pubkey_hex,
+            timeout=resolved_timeout,
+            ssl_disable_verify=ssl_disable_verify,
+        )
+    )
+
+
+@click.command("verify")
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to query.")
+@click.option("--nip05", default=None, help="NIP-05 address to resolve and verify against kind 0 metadata.")
+@click.option(
+    "--timeout",
+    type=int,
+    default=None,
+    help="Query timeout in seconds.",
+)
+@click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def verify(
+    profile: str | None,
+    relays: str | None,
+    nip05: str | None,
+    timeout: int | None,
+    ssl_disable_verify: bool,
+    debug: bool,
+) -> None:
+    """Verify a NIP-05 identifier against the resolved pubkey and its kind 0 profile metadata."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+
+    if not nip05:
+        raise click.ClickException("supply --nip05 with the NIP-05 identifier to verify")
+
+    profile_config = get_profile_config(profile or get_active_profile_name())
+    resolved_relays = relays or profile_config.get("relays", DEFAULT_RELAYS)
+    resolved_timeout = timeout if timeout is not None else profile_config.get("query_timeout", DEFAULT_QUERY_TIMEOUT)
+
+    asyncio.run(
+        _run_verify_nip05(
+            relays=resolved_relays,
+            nip05=nip05,
             timeout=resolved_timeout,
             ssl_disable_verify=ssl_disable_verify,
         )

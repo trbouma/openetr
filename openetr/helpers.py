@@ -246,10 +246,12 @@ def resolve_author(author: str) -> str:
             raise click.ClickException(f"invalid npub author key: {author}")
         return author_hex
 
-    if "@" not in author:
+    normalized_author = author.strip().lower()
+
+    if "@" not in normalized_author:
         raise click.ClickException("author must be supplied in npub bech32 or NIP-05 format")
 
-    local_part, domain = author.split("@", 1)
+    local_part, domain = normalized_author.split("@", 1)
     if not local_part or not domain:
         raise click.ClickException(f"invalid NIP-05 identifier: {author}")
 

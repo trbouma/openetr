@@ -1,7 +1,7 @@
 import click
 from openetr.commands.core import get_object_id, info, init_config, profile_group, set_config, trivia, validate, version
 from openetr.commands.publish import publish_object, publish_profile
-from openetr.commands.query import query_object, query_profile
+from openetr.commands.query import query_object, query_profile, verify
 
 
 @click.group()
@@ -21,3 +21,4 @@ main.add_command(publish_object)
 main.add_command(publish_profile)
 main.add_command(query_object)
 main.add_command(query_profile)
+main.add_command(verify)
