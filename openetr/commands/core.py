@@ -297,9 +297,12 @@ def init_config(force: bool) -> None:
     click.echo(f"Wrote config to {USER_CONFIG_PATH}")
 
 
-@click.group("profile")
-def profile_group() -> None:
+@click.group("profile", invoke_without_command=True)
+@click.pass_context
+def profile_group(ctx: click.Context) -> None:
     """Manage OpenETR profiles."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(profile_show, profile=None)
 
 
 @profile_group.command("list")

@@ -187,6 +187,92 @@ async def _run_query_object(
         click.echo(f"o values: {[format_object_identifier(value) for value in o_values]}")
         print_event(evt, output)
 
+
+async def _run_query_etr(
+    relays: str,
+    digest: str,
+    limit: int,
+    timeout: int,
+    output: str,
+    ssl_disable_verify: bool,
+    digest_file: Path | None,
+) -> None:
+    ssl = False if ssl_disable_verify else None
+    query_filter = {
+        "kinds": [DEFAULT_KIND],
+        "#o": [digest],
+        "limit": limit,
+    }
+
+    click.echo(f"Relays: {relays}")
+    click.echo(f"Relay filter: {query_filter}")
+    if digest_file is not None:
+        click.echo(f"Digest source: sha256({digest_file})")
+
+    async with ClientPool(
+        relays.split(","),
+        query_timeout=timeout,
+        timeout=timeout,
+        ssl=ssl,
+    ) as client:
+        events = await client.query(
+            query_filter,
+            emulate_single=True,
+            wait_connect=True,
+            timeout=timeout,
+        )
+
+    Event.sort(events, inplace=True, reverse=False)
+    click.echo(f"Returned {len(events)} event(s)")
+
+    if not events:
+        click.echo("0 events found")
+        return
+
+    initial_event = events[0]
+    click.echo("initial record:")
+    click.echo(f"object query tag: #o={format_object_identifier(digest)}")
+    click.echo(f"issuer: {format_pubkey(initial_event.pub_key)}")
+    profile = await _fetch_profile(
+        relays=relays,
+        pubkey_hex=initial_event.pub_key,
+        timeout=timeout,
+        ssl_disable_verify=ssl_disable_verify,
+    )
+    if profile:
+        _print_profile(profile)
+    else:
+        click.echo("profile: none found")
+
+    d_values = initial_event.get_tags_value("d")
+    o_values = initial_event.get_tags_value("o")
+    click.echo(f"d values: {[format_object_identifier(value) for value in d_values]}")
+    click.echo(f"o values: {[format_object_identifier(value) for value in o_values]}")
+    print_event(initial_event, output)
+
+    if len(events) > 1:
+        click.echo()
+        click.echo("all matching etr events:")
+        for evt in events:
+            click.echo(f"- event:  {evt.id}")
+            click.echo(f"  issuer: {format_pubkey(evt.pub_key)}")
+            click.echo(f"  created_at: {evt.created_at}")
+            click.echo(f"  object: {format_object_identifier(digest)}")
+            issuer_profile = await _fetch_profile(
+                relays=relays,
+                pubkey_hex=evt.pub_key,
+                timeout=timeout,
+                ssl_disable_verify=ssl_disable_verify,
+            )
+            if issuer_profile:
+                click.echo("  social profile:")
+                for field in ["name", "display_name", "about", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
+                    value = issuer_profile.get(field)
+                    if value:
+                        click.echo(f"    {field}: {value}")
+            else:
+                click.secho("  WARNING: no social profile found for this issuer.", fg="yellow", bold=True)
+
 def _resolve_profile_pubkey(profile: str, author: str | None, as_user: str | None) -> str:
     if author is not None:
         return resolve_author(author)
@@ -299,6 +385,71 @@ def query_object(
             relays=resolved_relays,
             digest=resolved_digest,
             authors=parsed_authors,
+            limit=resolved_limit,
+            timeout=resolved_timeout,
+            output=resolved_output,
+            ssl_disable_verify=ssl_disable_verify,
+            digest_file=resolved_file,
+        )
+    )
+
+
+@click.command("query-etr")
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to query.")
+@click.option("--digest", default=None, help="nobj or 64-character hex digest to query for.")
+@click.option(
+    "--digest-file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Path to a file to hash with SHA-256 and use as the d filter value.",
+)
+@click.option(
+    "--limit",
+    type=int,
+    default=None,
+    help="Result limit.",
+)
+@click.option(
+    "--timeout",
+    type=int,
+    default=None,
+    help="Query timeout in seconds.",
+)
+@click.option(
+    "--output",
+    type=click.Choice(["heads", "full", "raw", "tags"]),
+    default=None,
+    help="Output format.",
+)
+@click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def query_etr(
+    profile: str | None,
+    relays: str | None,
+    digest: str | None,
+    digest_file: Path | None,
+    limit: int | None,
+    timeout: int | None,
+    output: str | None,
+    ssl_disable_verify: bool,
+    debug: bool,
+) -> None:
+    """Query an ETR object and display its initial record and issuer profile."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+
+    profile_config = get_profile_config(profile or get_active_profile_name())
+    resolved_relays = relays or profile_config.get("relays", DEFAULT_RELAYS)
+    resolved_limit = limit if limit is not None else profile_config.get("limit", DEFAULT_LIMIT)
+    resolved_timeout = timeout if timeout is not None else profile_config.get("query_timeout", DEFAULT_QUERY_TIMEOUT)
+    resolved_output = output or profile_config.get("query_output", DEFAULT_QUERY_OUTPUT)
+
+    resolved_digest, resolved_file = resolve_query_digest(digest, digest_file)
+
+    asyncio.run(
+        _run_query_etr(
+            relays=resolved_relays,
+            digest=resolved_digest,
             limit=resolved_limit,
             timeout=resolved_timeout,
             output=resolved_output,
