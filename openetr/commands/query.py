@@ -263,8 +263,8 @@ async def _run_query_object(
         )
         if profile:
             _print_profile(profile)
-        click.echo(f"d values: {d_values}")
-        click.echo(f"o values: {o_values}")
+        click.echo(f"d value: {d_values}")
+        click.echo(f"o value: {o_values}")
         print_event(evt, output)
 
 
@@ -372,18 +372,18 @@ async def _run_query_etr(
         ssl_disable_verify=ssl_disable_verify,
     )
     if profile:
-        click.echo("originator social profile:")
+        click.echo("issuer social profile:")
         for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
             value = profile.get(field)
             if value:
                 click.echo(f"  {field}: {value}")
     else:
-        click.echo("originator social profile: none found")
+        click.echo("issuer social profile: none found")
 
     d_values = initial_event.get_tags_value("d")
     o_values = initial_event.get_tags_value("o")
-    click.echo(f"d values: {d_values}")
-    click.echo(f"o values: {o_values}")
+    click.echo(f"d value: {d_values}")
+    click.echo(f"o value: {o_values}")
     print_event(initial_event, output)
     _print_separator()
 
@@ -406,13 +406,13 @@ async def _run_query_etr(
                 ssl_disable_verify=ssl_disable_verify,
             )
             if issuer_profile:
-                click.echo("originator social profile:")
+                click.echo("issuer social profile:")
                 for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
                     value = issuer_profile.get(field)
                     if value:
                         click.echo(f"  {field}: {value}")
             else:
-                click.secho("WARNING: no originator social profile found for this issuer.", fg="yellow", bold=True)
+                click.secho("WARNING: no issuer social profile found for this issuer.", fg="yellow", bold=True)
             _print_separator()
 
     if origin_only:
@@ -477,8 +477,8 @@ async def _run_query_etr(
                         click.echo(f"{indent}    {field}: {value}")
             else:
                 click.secho(f"{indent}  WARNING: no social profile found for the transferee.", fg="yellow", bold=True)
-        click.echo(f"{indent}  d values: {d_values}")
-        click.echo(f"{indent}  o values: {o_values}")
+        click.echo(f"{indent}  d value: {d_values}")
+        click.echo(f"{indent}  o value: {o_values}")
         _print_event_details(evt, output, indent=f"{indent}  ")
         _print_separator(indent)
 
