@@ -191,12 +191,16 @@ def _print_event_details(evt: Event, output: str, indent: str = "") -> None:
 
     click.echo(f"{indent}event: {evt}")
     if output == "full":
-        click.echo(f"{indent}content payload:")
+        click.echo(f"{indent}content:")
         for line in evt.content.splitlines() or [""]:
             click.echo(f"{indent}  {line}")
         return
 
     click.echo(f"{indent}content: {evt.content}")
+
+
+def _print_separator(indent: str = "", width: int = 72, char: str = "-") -> None:
+    click.echo(f"{indent}{char * width}")
 
 
 async def _run_query_object(
@@ -270,6 +274,7 @@ async def _run_query_etr(
     author_pubkey_hex: str | None,
     highlight_profile_author: bool,
     origin_only: bool,
+    verbose: bool,
     limit: int,
     timeout: int,
     output: str,
@@ -300,12 +305,13 @@ async def _run_query_etr(
     if author_pubkey_hex is not None:
         transfer_events_filter["authors"] = [author_pubkey_hex]
 
-    click.echo(f"Relays: {relays}")
-    click.echo(f"Scope: {'all matching authors' if author_pubkey_hex is None else format_pubkey(author_pubkey_hex)}")
-    click.echo(f"Relay filter: {query_filter}")
-    click.echo(f"Transfer filter: {transfer_events_filter}")
-    if digest_file is not None:
-        click.echo(f"Digest source: sha256({digest_file})")
+    if verbose:
+        click.echo(f"Relays: {relays}")
+        click.echo(f"Scope: {'all matching authors' if author_pubkey_hex is None else format_pubkey(author_pubkey_hex)}")
+        click.echo(f"Relay filter: {query_filter}")
+        click.echo(f"Transfer filter: {transfer_events_filter}")
+        if digest_file is not None:
+            click.echo(f"Digest source: sha256({digest_file})")
 
     async with ClientPool(
         relays.split(","),
@@ -335,7 +341,8 @@ async def _run_query_etr(
     Event.sort(all_events, inplace=True, reverse=False)
     Event.sort(events, inplace=True, reverse=False)
     Event.sort(transfer_events, inplace=True, reverse=False)
-    click.echo(f"Returned {len(events)} event(s)")
+    if verbose:
+        click.echo(f"Returned {len(events)} event(s)")
 
     if not events:
         click.echo("0 events found")
@@ -352,7 +359,7 @@ async def _run_query_etr(
 
     initial_event = events[0]
     click.echo("initial etr origin event (kind 31415):")
-    click.echo("-" * 72)
+    _print_separator()
     click.echo(f"object id: {format_object_identifier(digest)}")
     click.echo(f"origin event id: {format_event_reference(initial_event.id)}")
     click.echo(f"issuer: {format_pubkey(initial_event.pub_key)}")
@@ -378,12 +385,13 @@ async def _run_query_etr(
     click.echo(f"d values: {d_values}")
     click.echo(f"o values: {o_values}")
     print_event(initial_event, output)
+    _print_separator()
 
     if len(events) > 1:
         click.echo()
         click.echo("matching etr origin events (kind 31415) for these control events:")
         for index, evt in enumerate(events, start=1):
-            click.echo("-" * 72)
+            _print_separator()
             click.echo(f"row: {index}")
             click.echo(f"origin event id: {format_event_reference(evt.id)}")
             click.echo(f"issuer: {format_pubkey(evt.pub_key)}")
@@ -405,6 +413,7 @@ async def _run_query_etr(
                         click.echo(f"  {field}: {value}")
             else:
                 click.secho("WARNING: no originator social profile found for this issuer.", fg="yellow", bold=True)
+            _print_separator()
 
     if origin_only:
         return
@@ -419,6 +428,7 @@ async def _run_query_etr(
 
     async def _print_transfer_event(evt: Event, row_label: str, depth: int) -> None:
         indent = "  " * depth
+        _print_separator(indent)
         click.echo(f"{indent}event {row_label}:")
         click.echo(f"{indent}  event id: {format_event_reference(evt.id)}")
         click.echo(f"{indent}  author: {format_pubkey(evt.pub_key)}")
@@ -470,6 +480,7 @@ async def _run_query_etr(
         click.echo(f"{indent}  d values: {d_values}")
         click.echo(f"{indent}  o values: {o_values}")
         _print_event_details(evt, output, indent=f"{indent}  ")
+        _print_separator(indent)
 
         for child_index, child_evt in enumerate(children.get(evt.id, []), start=1):
             await _print_transfer_event(child_evt, f"{row_label}.{child_index}", depth + 1)
@@ -662,6 +673,7 @@ def query_object(
     default=None,
     help="Output format.",
 )
+@click.option("--verbose", is_flag=True, help="Show relay, filter, and query diagnostics.")
 @click.option("--origin", is_flag=True, help="Restrict output to origin records only.")
 @click.option("--all", "show_all", is_flag=True, help="Show ETR events from all authors instead of only the current profile.")
 @click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
@@ -674,6 +686,7 @@ def query_etr(
     limit: int | None,
     timeout: int | None,
     output: str | None,
+    verbose: bool,
     origin: bool,
     show_all: bool,
     ssl_disable_verify: bool,
@@ -709,6 +722,7 @@ def query_etr(
             author_pubkey_hex=author_pubkey_hex,
             highlight_profile_author=show_all,
             origin_only=origin,
+            verbose=verbose,
             limit=resolved_limit,
             timeout=resolved_timeout,
             output=resolved_output,

@@ -363,8 +363,11 @@ def print_event(evt: Event, output: str) -> None:
         return
 
     click.echo(evt)
-    click.echo(f"content: {evt.content}")
     if output == "full":
-        click.echo("-" * 80)
-        click.echo(evt.content)
+        click.echo("content:")
+        for line in evt.content.splitlines() or [""]:
+            click.echo(f"  {line}")
         click.echo()
+        return
+
+    click.echo(f"content: {evt.content}")

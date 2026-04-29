@@ -356,6 +356,29 @@ h1 {
   font-size: 0.96rem;
 }
 
+.demo-panel {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 28px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.demo-gif {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+}
+
+.demo-panel figcaption {
+  margin-top: 0.85rem;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 0.96rem;
+}
+
 .feature-card,
 .pillar,
 .use-case {
