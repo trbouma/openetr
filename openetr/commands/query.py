@@ -252,6 +252,14 @@ def _format_elapsed_compact(previous_value, current_value) -> str:
     return f"{days:.1f}d" if days < 10 or days % 1 else f"{days:.0f}d"
 
 
+def _summary_token_for_control_event(action: str | None, elapsed: str, label: str) -> str:
+    if action == "accept":
+        return f"transfer accept/{elapsed}:{label}"
+    if action == "terminate":
+        return f"terminate/{elapsed}:{label}"
+    return f"transfer initiate/{elapsed}:{label}"
+
+
 async def _run_query_object(
     relays: str,
     digest: str,
@@ -516,7 +524,10 @@ async def _run_query_etr(
 
     async def _print_summary_control_chain() -> None:
         click.echo()
-        click.echo("summary control chain:")
+        if digest_file is not None:
+            click.echo(f"summary control chain for {digest_file}:")
+        else:
+            click.echo("summary control chain:")
         click.echo("  legend: ++ origin, -> transfer initiate/accept, -- terminate, => attest initiate/accept")
         issuer_profile = await _cached_profile(initial_event.pub_key)
         issuer_label = _profile_chain_label(initial_event.pub_key, issuer_profile)
@@ -533,12 +544,13 @@ async def _run_query_etr(
                 previous_controller_pubkey_hex = initial_event.pub_key
                 for evt in event_path:
                     transferee_pubkey_hex = _transfer_party_from_p_tag(evt) or evt.pub_key
-                    if transferee_pubkey_hex == previous_controller_pubkey_hex:
+                    action = _first_tag_value(evt, "action")
+                    if action != "terminate" and transferee_pubkey_hex == previous_controller_pubkey_hex:
                         previous_event = evt
                         continue
                     label = _profile_chain_label(transferee_pubkey_hex, await _cached_profile(transferee_pubkey_hex))
                     elapsed = _format_elapsed_compact(previous_event.created_at, evt.created_at)
-                    labels.append(f"transfer initiate/{elapsed}:{label}")
+                    labels.append(_summary_token_for_control_event(action, elapsed, label))
                     previous_event = evt
                     previous_controller_pubkey_hex = transferee_pubkey_hex
                 prefix = f"  control chain {group_index}"
@@ -549,7 +561,12 @@ async def _run_query_etr(
                     if label_index == 0:
                         click.echo(f"    ++ {label}")
                     else:
-                        click.echo(f"    -> {label}")
+                        marker = "->"
+                        if label.startswith("terminate/"):
+                            marker = "--"
+                        elif label.startswith("attest "):
+                            marker = "=>"
+                        click.echo(f"    {marker} {label}")
 
     async def _print_transfer_event(evt: Event, row_label: str, depth: int) -> None:
         indent = "  " * depth
@@ -615,23 +632,35 @@ async def _run_query_etr(
         transfer_events,
         key=lambda evt: ((evt.created_at or 0), evt.id),
     )
-    current_controller_pubkey_hex = _transfer_party_from_p_tag(latest_transfer_event)
-    current_controller_basis = "latest control event transferee"
-    if current_controller_pubkey_hex is None:
-        current_controller_pubkey_hex = latest_transfer_event.pub_key
-        current_controller_basis = "latest control event signer (no p tag present)"
+    latest_action = _first_tag_value(latest_transfer_event, "action")
+    if latest_action == "terminate":
+        current_controller_pubkey_hex = None
+        current_controller_basis = "latest control event is a termination"
+    else:
+        current_controller_pubkey_hex = _transfer_party_from_p_tag(latest_transfer_event)
+        current_controller_basis = "latest control event transferee"
+        if current_controller_pubkey_hex is None:
+            current_controller_pubkey_hex = latest_transfer_event.pub_key
+            current_controller_basis = "latest control event signer (no p tag present)"
 
     click.echo()
     click.echo("current controller:")
-    click.echo(f"  npub: {format_pubkey(current_controller_pubkey_hex)}")
-    click.echo(f"  basis: {current_controller_basis}")
-    current_controller_profile = await _cached_profile(current_controller_pubkey_hex)
-    if current_controller_profile:
-        click.echo("  current controller social profile:")
-        for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
-            value = current_controller_profile.get(field)
-            if value:
-                click.echo(f"    {field}: {value}")
+    if current_controller_pubkey_hex is None:
+        click.secho("  npub: none", fg="yellow", bold=True)
+    else:
+        click.echo(f"  npub: {format_pubkey(current_controller_pubkey_hex)}")
+    if current_controller_pubkey_hex is None:
+        click.secho(f"  basis: {current_controller_basis}", fg="yellow", bold=True)
+    else:
+        click.echo(f"  basis: {current_controller_basis}")
+    if current_controller_pubkey_hex is not None:
+        current_controller_profile = await _cached_profile(current_controller_pubkey_hex)
+        if current_controller_profile:
+            click.echo("  current controller social profile:")
+            for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
+                value = current_controller_profile.get(field)
+                if value:
+                    click.echo(f"    {field}: {value}")
 
 def _resolve_profile_pubkey(profile: str, author: str | None, as_user: str | None) -> str:
     if author is not None:

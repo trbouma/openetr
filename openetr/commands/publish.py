@@ -32,6 +32,7 @@ from openetr.helpers import (
     format_pubkey,
     normalize_event_reference,
     parse_authors,
+    resolve_query_digest,
     resolve_keys,
     resolve_lei,
 )
@@ -200,6 +201,33 @@ async def _find_existing_object_records(
     return events
 
 
+async def _find_existing_origin_records_for_object(
+    relays: str,
+    digest: str,
+    query_timeout: int,
+    limit: int,
+) -> list[Event]:
+    assert_hex_object_identifier(digest)
+    async with ClientPool(
+        relays.split(","),
+        timeout=query_timeout,
+        query_timeout=query_timeout,
+    ) as client:
+        events = await client.query(
+            {
+                "kinds": [DEFAULT_KIND],
+                "#o": [digest],
+                "limit": limit,
+            },
+            emulate_single=True,
+            wait_connect=True,
+            timeout=query_timeout,
+        )
+
+    Event.sort(events, inplace=True, reverse=True)
+    return events
+
+
 async def _find_existing_transfer_records(
     relays: str,
     d_value: str,
@@ -227,6 +255,168 @@ async def _find_existing_transfer_records(
 
     Event.sort(events, inplace=True, reverse=True)
     return events
+
+
+async def _find_control_events_for_object(
+    relays: str,
+    object_digest: str,
+    query_timeout: int,
+    limit: int,
+) -> list[Event]:
+    assert_hex_object_identifier(object_digest)
+    async with ClientPool(
+        relays.split(","),
+        timeout=query_timeout,
+        query_timeout=query_timeout,
+    ) as client:
+        events = await client.query(
+            {
+                "kinds": [CONTROL_TRANSFER_KIND],
+                "#o": [object_digest],
+                "limit": limit,
+            },
+            emulate_single=True,
+            wait_connect=True,
+            timeout=query_timeout,
+        )
+
+    Event.sort(events, inplace=True, reverse=False)
+    return events
+
+
+async def _find_origin_events_for_object(
+    relays: str,
+    object_digest: str,
+    query_timeout: int,
+    limit: int,
+) -> list[Event]:
+    assert_hex_object_identifier(object_digest)
+    async with ClientPool(
+        relays.split(","),
+        timeout=query_timeout,
+        query_timeout=query_timeout,
+    ) as client:
+        events = await client.query(
+            {
+                "kinds": [DEFAULT_KIND],
+                "#o": [object_digest],
+                "limit": limit,
+            },
+            emulate_single=True,
+            wait_connect=True,
+            timeout=query_timeout,
+        )
+
+    Event.sort(events, inplace=True, reverse=False)
+    return events
+
+
+def _warn_if_missing_prior_accept(referenced_event: Event) -> None:
+    if referenced_event.kind != CONTROL_TRANSFER_KIND:
+        return
+    prior_action = _event_tag_value(referenced_event, "action")
+    if prior_action != "initiate":
+        return
+    click.secho(
+        "WARNING: the referenced prior transfer event is an initiate event and no corresponding "
+        "accept check is being enforced here. Publication may continue, but later attestors or "
+        "assessors may require an accept event for full validity.",
+        fg="yellow",
+        bold=True,
+    )
+
+
+def _resolve_root_origin_id_for_event(
+    event: Event,
+    origin_events_by_id: dict[str, Event],
+    all_events_by_id: dict[str, Event],
+) -> str | None:
+    current_event = event
+    visited_ids: set[str] = set()
+    while True:
+        if current_event.id in visited_ids:
+            return None
+        visited_ids.add(current_event.id)
+
+        if current_event.kind == DEFAULT_KIND:
+            return current_event.id if current_event.id in origin_events_by_id else None
+        if current_event.kind != CONTROL_TRANSFER_KIND:
+            return None
+
+        previous_event_id = _event_tag_value(current_event, "e")
+        if previous_event_id is None:
+            return None
+        previous_event = all_events_by_id.get(previous_event_id)
+        if previous_event is None:
+            return None
+        current_event = previous_event
+
+
+async def _resolve_termination_chain_for_controller(
+    relays: str,
+    object_digest: str,
+    author_pubkey_hex: str,
+    query_timeout: int,
+    limit: int,
+) -> tuple[Event, Event]:
+    origin_events = await _find_origin_events_for_object(
+        relays=relays,
+        object_digest=object_digest,
+        query_timeout=query_timeout,
+        limit=limit,
+    )
+    if not origin_events:
+        raise click.ClickException("no origin event was found for this object on the configured relays")
+
+    transfer_events = await _find_control_events_for_object(
+        relays=relays,
+        object_digest=object_digest,
+        query_timeout=query_timeout,
+        limit=limit,
+    )
+
+    origin_events_by_id = {event.id: event for event in origin_events}
+    all_events_by_id = {event.id: event for event in origin_events + transfer_events}
+    transfers_by_origin_id: dict[str, list[Event]] = {}
+    for event in transfer_events:
+        root_origin_id = _resolve_root_origin_id_for_event(event, origin_events_by_id, all_events_by_id)
+        if root_origin_id is not None:
+            transfers_by_origin_id.setdefault(root_origin_id, []).append(event)
+
+    candidates: list[tuple[Event, Event]] = []
+    for origin_event in origin_events:
+        chain_transfers = transfers_by_origin_id.get(origin_event.id, [])
+        if not chain_transfers:
+            current_controller_pubkey_hex = assert_hex_pubkey(origin_event.pub_key)
+            latest_event: Event = origin_event
+        else:
+            latest_event = max(
+                chain_transfers,
+                key=lambda evt: ((evt.created_at or 0), evt.id),
+            )
+            latest_action = _event_tag_value(latest_event, "action")
+            if latest_action == "terminate":
+                continue
+            current_controller_pubkey_hex = _event_tag_value(latest_event, "p")
+            if current_controller_pubkey_hex is None:
+                current_controller_pubkey_hex = latest_event.pub_key
+            current_controller_pubkey_hex = assert_hex_pubkey(current_controller_pubkey_hex)
+
+        if current_controller_pubkey_hex == author_pubkey_hex:
+            candidates.append((origin_event, latest_event))
+
+    if not candidates:
+        raise click.ClickException(
+            "the current signer is not the current controller of any active control chain for this object"
+        )
+
+    if len(candidates) > 1:
+        raise click.ClickException(
+            "multiple active control chains for this object are currently controlled by this signer; "
+            "termination is ambiguous"
+        )
+
+    return candidates[0]
 
 
 async def _fetch_current_profile(
@@ -864,23 +1054,28 @@ def issue_etr(
     )
 
     existing_events = asyncio.run(
-        _find_existing_object_records(
+        _find_existing_origin_records_for_object(
             relays=resolved_relays,
             digest=resolved_digest,
-            pubkey_hex=keys.public_key_hex(),
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
         )
     )
     if existing_events:
         latest = existing_events[0]
-        click.secho(
-            "WARNING: an ETR record for this object already exists from the same author; "
-            "you may be overwriting an original ETR record.",
-            fg="yellow",
-            bold=True,
+        same_author = latest.pub_key == keys.public_key_hex()
+        warning_message = (
+            "WARNING: this file has already been issued as an ETR. "
+            "Issuing it again may create a competing or conflicting origin record for the same object."
         )
-        click.echo(f"Existing event: {latest.id}")
+        if same_author:
+            warning_message = (
+                "WARNING: this file has already been issued as an ETR by the current signer. "
+                "Issuing it again may overwrite or conflict with the existing origin record."
+            )
+        click.secho(warning_message, fg="yellow", bold=True)
+        click.echo(f"Existing event:  {latest.id}")
+        click.echo(f"Existing issuer: {format_pubkey(latest.pub_key)}")
         click.echo(f"Existing object: {format_object_identifier(resolved_digest)}")
         click.confirm(
             click.style("Continue issuing this ETR record?", fg="yellow", bold=True),
@@ -1008,6 +1203,7 @@ def transfer_initiate(
             raise click.ClickException(
                 f"prior event must be kind {DEFAULT_KIND} (origin) or {CONTROL_TRANSFER_KIND} (control transfer)"
             )
+        _warn_if_missing_prior_accept(referenced_event)
         d_value = f"{object_digest}:initiate"
         resolved_comment = comment or (
             "transfer initiate; "
@@ -1050,6 +1246,141 @@ def transfer_initiate(
                 ["origin", resolved_origin.id],
                 ["p", transferee_pubkey_hex],
                 ["action", "initiate"],
+            ],
+        )
+        event.sign(keys.private_key_hex())
+        await _run_publish_transfer_event(
+            relays=resolved_relays,
+            event=event,
+            publish_wait=resolved_publish_wait,
+            query_timeout=resolved_query_timeout,
+            verify=verify,
+        )
+
+    asyncio.run(_publish())
+
+
+@click.command("terminate-etr")
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to use.")
+@click.option(
+    "--digest",
+    default=None,
+    help="nobj or 32-byte hex digest for the ETR object to terminate.",
+)
+@click.option(
+    "--digest-file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Path to a file to hash with SHA-256 and use as the ETR object identifier.",
+)
+@click.option(
+    "--as-user",
+    default=None,
+    help="nsec private key to publish with; loaded from config or generated if omitted.",
+)
+@click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
+@click.option(
+    "--comment",
+    default=None,
+    help="Optional event content. If omitted, a descriptive termination comment is generated.",
+)
+@click.option("--publish-wait", type=float, default=None, help="Seconds to wait after publish before querying.")
+@click.option("--query-timeout", type=int, default=None, help="Seconds to wait for the query to complete.")
+@click.option("--limit", type=int, default=None, help="Query result limit.")
+@click.option(
+    "--verify",
+    default="any",
+    help="Verification mode after publish: any, majority, all, or a specific relay URL.",
+)
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def terminate_etr(
+    profile: str | None,
+    relays: str | None,
+    digest: str | None,
+    digest_file: Path | None,
+    as_user: str | None,
+    force: bool,
+    comment: str | None,
+    publish_wait: float | None,
+    query_timeout: int | None,
+    limit: int | None,
+    verify: str,
+    debug: bool,
+) -> None:
+    """Terminate the active ETR control chain for an object."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+
+    profile_name = profile or get_active_profile_name()
+    profile_config = get_profile_config(profile_name)
+    resolved_relays = relays or profile_config.get("relays", DEFAULT_RELAYS)
+    resolved_publish_wait = (
+        publish_wait if publish_wait is not None else profile_config.get("publish_wait", DEFAULT_PUBLISH_WAIT)
+    )
+    resolved_query_timeout = (
+        query_timeout if query_timeout is not None else profile_config.get("query_timeout", DEFAULT_QUERY_TIMEOUT)
+    )
+    resolved_limit = limit if limit is not None else profile_config.get("limit", DEFAULT_LIMIT)
+
+    keys = _resolve_publish_key(profile_name, as_user, force)
+    if (digest is None) == (digest_file is None):
+        raise click.ClickException("supply exactly one of --digest or --digest-file")
+    object_digest, resolved_digest_file = resolve_query_digest(digest, digest_file)
+
+    async def _publish() -> None:
+        author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
+        resolved_origin, referenced_event = await _resolve_termination_chain_for_controller(
+            relays=resolved_relays,
+            object_digest=object_digest,
+            author_pubkey_hex=author_pubkey_hex,
+            query_timeout=resolved_query_timeout,
+            limit=resolved_limit,
+        )
+
+        _warn_if_missing_prior_accept(referenced_event)
+        d_value = f"{object_digest}:terminate"
+        resolved_comment = comment or (
+            "terminate etr; "
+            f"object={format_object_identifier(object_digest)}; "
+            f"prior_event={referenced_event.id}; "
+            f"origin_event={resolved_origin.id}; "
+            f"terminator={format_pubkey(author_pubkey_hex)}"
+        )
+        existing_events = await _find_existing_transfer_records(
+            relays=resolved_relays,
+            d_value=d_value,
+            pubkey_hex=author_pubkey_hex,
+            query_timeout=resolved_query_timeout,
+            limit=resolved_limit,
+        )
+        if existing_events:
+            latest = existing_events[0]
+            click.secho(
+                "WARNING: a terminate event already exists for this author and object; "
+                "you may be overwriting an existing replaceable termination record.",
+                fg="yellow",
+                bold=True,
+            )
+            click.echo(f"Existing event: {latest.id}")
+            click.echo(f"Object:         {format_object_identifier(object_digest)}")
+            if resolved_digest_file is not None:
+                click.echo(f"Source:         sha256({resolved_digest_file})")
+            click.confirm(
+                click.style("Continue publishing this termination event?", fg="yellow", bold=True),
+                default=False,
+                abort=True,
+            )
+
+        event = Event(
+            kind=CONTROL_TRANSFER_KIND,
+            content=resolved_comment,
+            pub_key=author_pubkey_hex,
+            tags=[
+                ["d", d_value],
+                ["o", object_digest],
+                ["e", referenced_event.id],
+                ["origin", resolved_origin.id],
+                ["action", "terminate"],
             ],
         )
         event.sign(keys.private_key_hex())

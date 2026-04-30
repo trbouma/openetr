@@ -1,6 +1,6 @@
 import click
 from openetr.commands.core import get_object_id, info, init_config, profile_group, set_config, trivia, validate, version, whoami
-from openetr.commands.publish import issue_etr, publish_object, publish_profile, transfer_group
+from openetr.commands.publish import issue_etr, publish_object, publish_profile, terminate_etr, transfer_group
 from openetr.commands.query import query_etr, query_object, query_profile, verify
 
 
@@ -22,6 +22,7 @@ main.add_command(set_config)
 main.add_command(trivia)
 main.add_command(publish_object)
 main.add_command(issue_etr)
+main.add_command(terminate_etr)
 main.add_command(transfer_group)
 main.add_command(query_etr)
 main.add_command(query_object)
