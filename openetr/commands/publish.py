@@ -926,6 +926,7 @@ def transfer_group() -> None:
     default=None,
     help="nsec private key to publish with; loaded from config or generated if omitted.",
 )
+@click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
 @click.option(
     "--comment",
     default=None,
@@ -984,6 +985,29 @@ def transfer_initiate(
 
         object_digest = _derive_origin_object_digest(resolved_origin)
         author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
+        if referenced_event.kind == DEFAULT_KIND:
+            origin_author_pubkey_hex = assert_hex_pubkey(resolved_origin.pub_key)
+            if author_pubkey_hex != origin_author_pubkey_hex:
+                raise click.ClickException(
+                    "transfer initiate signer must match the issuer of the referenced origin event "
+                    f"({format_pubkey(origin_author_pubkey_hex)})"
+                )
+        elif referenced_event.kind == CONTROL_TRANSFER_KIND:
+            prior_transferee_pubkey_hex = _event_tag_value(referenced_event, "p")
+            if prior_transferee_pubkey_hex is None:
+                raise click.ClickException(
+                    "referenced prior transfer event does not contain a p tag for the prior transferee"
+                )
+            prior_transferee_pubkey_hex = assert_hex_pubkey(prior_transferee_pubkey_hex)
+            if author_pubkey_hex != prior_transferee_pubkey_hex:
+                raise click.ClickException(
+                    "transfer initiate signer must match the transferee named in the referenced prior transfer event "
+                    f"({format_pubkey(prior_transferee_pubkey_hex)})"
+                )
+        else:
+            raise click.ClickException(
+                f"prior event must be kind {DEFAULT_KIND} (origin) or {CONTROL_TRANSFER_KIND} (control transfer)"
+            )
         d_value = f"{object_digest}:initiate"
         resolved_comment = comment or (
             "transfer initiate; "

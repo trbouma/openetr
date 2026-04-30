@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from pathlib import Path
+from datetime import datetime
 
 import click
 from monstr.client.client import ClientPool
@@ -172,7 +173,7 @@ def _group_transfer_events(transfer_events: list[Event]) -> tuple[list[Event], d
     return roots, children
 
 
-def _print_event_details(evt: Event, output: str, indent: str = "") -> None:
+def _print_event_details(evt: Event, output: str, indent: str = "", verbose: bool = False) -> None:
     if output == "raw":
         click.echo(f"{indent}event:")
         click.echo(f"{indent}{evt.event_data()}")
@@ -189,7 +190,8 @@ def _print_event_details(evt: Event, output: str, indent: str = "") -> None:
         click.echo(f"{indent}total {len(evt.tags)}")
         return
 
-    click.echo(f"{indent}event: {evt}")
+    if verbose:
+        click.echo(f"{indent}event: {evt}")
     if output == "full":
         click.echo(f"{indent}content:")
         for line in evt.content.splitlines() or [""]:
@@ -201,6 +203,53 @@ def _print_event_details(evt: Event, output: str, indent: str = "") -> None:
 
 def _print_separator(indent: str = "", width: int = 72, char: str = "-") -> None:
     click.echo(f"{indent}{char * width}")
+
+
+def _profile_chain_label(pubkey_hex: str, profile: dict | None) -> str:
+    name = None
+    if profile:
+        name = profile.get("display_name") or profile.get("name")
+    if not name:
+        name = "Unknown"
+    return f"{name}({format_pubkey(pubkey_hex)})"
+
+
+def _event_timestamp_seconds(value) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.timestamp()
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def _format_event_date_compact(value) -> str:
+    if isinstance(value, datetime):
+        return value.strftime("%Y%m%d")
+    return "unknown"
+
+
+def _format_elapsed_compact(previous_value, current_value) -> str:
+    previous_seconds = _event_timestamp_seconds(previous_value)
+    current_seconds = _event_timestamp_seconds(current_value)
+    if previous_seconds is None or current_seconds is None:
+        return "?"
+
+    delta = max(0.0, current_seconds - previous_seconds)
+    if delta < 60:
+        return f"{delta:.0f}s"
+
+    minutes = delta / 60
+    if minutes < 60:
+        return f"{minutes:.1f}m" if minutes < 10 and minutes % 1 else f"{minutes:.0f}m"
+
+    hours = delta / 3600
+    if hours < 24:
+        return f"{hours:.1f}h" if hours < 10 or hours % 1 else f"{hours:.0f}h"
+
+    days = delta / 86400
+    return f"{days:.1f}d" if days < 10 or days % 1 else f"{days:.0f}d"
 
 
 async def _run_query_object(
@@ -295,19 +344,17 @@ async def _run_query_etr(
         "#o": [digest],
         "limit": limit,
     }
-    if author_pubkey_hex is not None:
-        query_filter["authors"] = [author_pubkey_hex]
     transfer_events_filter = {
         "kinds": [CONTROL_TRANSFER_KIND],
         "#o": [digest],
         "limit": limit,
     }
-    if author_pubkey_hex is not None:
-        transfer_events_filter["authors"] = [author_pubkey_hex]
 
     if verbose:
         click.echo(f"Relays: {relays}")
-        click.echo(f"Scope: {'all matching authors' if author_pubkey_hex is None else format_pubkey(author_pubkey_hex)}")
+        click.echo("Scope: object-wide")
+        if author_pubkey_hex is not None:
+            click.echo(f"Current profile: {format_pubkey(author_pubkey_hex)}")
         click.echo(f"Relay filter: {query_filter}")
         click.echo(f"Transfer filter: {transfer_events_filter}")
         if digest_file is not None:
@@ -338,6 +385,18 @@ async def _run_query_etr(
             timeout=timeout,
         )
 
+    profile_cache: dict[str, dict | None] = {}
+
+    async def _cached_profile(pubkey_hex: str) -> dict | None:
+        if pubkey_hex not in profile_cache:
+            profile_cache[pubkey_hex] = await _fetch_profile(
+                relays=relays,
+                pubkey_hex=pubkey_hex,
+                timeout=timeout,
+                ssl_disable_verify=ssl_disable_verify,
+            )
+        return profile_cache[pubkey_hex]
+
     Event.sort(all_events, inplace=True, reverse=False)
     Event.sort(events, inplace=True, reverse=False)
     Event.sort(transfer_events, inplace=True, reverse=False)
@@ -365,12 +424,7 @@ async def _run_query_etr(
     click.echo(f"issuer: {format_pubkey(initial_event.pub_key)}")
     if highlight_profile_author and author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex:
         click.secho("current profile author", fg="blue", bold=True)
-    profile = await _fetch_profile(
-        relays=relays,
-        pubkey_hex=initial_event.pub_key,
-        timeout=timeout,
-        ssl_disable_verify=ssl_disable_verify,
-    )
+    profile = await _cached_profile(initial_event.pub_key)
     if profile:
         click.echo("issuer social profile:")
         for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
@@ -399,12 +453,7 @@ async def _run_query_etr(
                 click.secho("current profile author", fg="blue", bold=True)
             click.echo(f"created_at: {evt.created_at}")
             click.echo(f"object id: {format_object_identifier(digest)}")
-            issuer_profile = await _fetch_profile(
-                relays=relays,
-                pubkey_hex=evt.pub_key,
-                timeout=timeout,
-                ssl_disable_verify=ssl_disable_verify,
-            )
+            issuer_profile = await _cached_profile(evt.pub_key)
             if issuer_profile:
                 click.echo("issuer social profile:")
                 for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
@@ -416,15 +465,86 @@ async def _run_query_etr(
             _print_separator()
 
     if origin_only:
+        click.echo()
+        click.echo("current controller:")
+        click.echo(f"  npub: {format_pubkey(initial_event.pub_key)}")
+        click.echo("  basis: origin issuer")
+        profile = await _fetch_profile(
+            relays=relays,
+            pubkey_hex=initial_event.pub_key,
+            timeout=timeout,
+            ssl_disable_verify=ssl_disable_verify,
+        )
+        if profile:
+            click.echo("  current controller social profile:")
+            for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
+                value = profile.get(field)
+                if value:
+                    click.echo(f"    {field}: {value}")
         return
 
     click.echo()
     click.echo("matching control events (kind 31416):")
     if not transfer_events:
         click.echo("No control transfer events were found for this object.")
+        click.echo()
+        click.echo("current controller:")
+        click.echo(f"  npub: {format_pubkey(initial_event.pub_key)}")
+        click.echo("  basis: origin issuer")
+        if profile:
+            click.echo("  current controller social profile:")
+            for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
+                value = profile.get(field)
+                if value:
+                    click.echo(f"    {field}: {value}")
         return
 
     roots, children = _group_transfer_events(transfer_events)
+
+    async def _chain_paths_from_event(evt: Event) -> list[list[Event]]:
+        child_events = children.get(evt.id, [])
+        if not child_events:
+            return [[evt]]
+
+        paths: list[list[Event]] = []
+        for child_evt in child_events:
+            for child_path in await _chain_paths_from_event(child_evt):
+                combined = [evt]
+                combined.extend(child_path)
+                paths.append(combined)
+        return paths
+
+    async def _print_summary_control_chain() -> None:
+        click.echo()
+        click.echo("summary control chain:")
+        issuer_profile = await _cached_profile(initial_event.pub_key)
+        issuer_label = _profile_chain_label(initial_event.pub_key, issuer_profile)
+        origin_date = _format_event_date_compact(initial_event.created_at)
+        if not transfer_events:
+            click.echo(f"  origin/31415/{origin_date}:{issuer_label}")
+            return
+
+        for group_index, root_evt in enumerate(roots, start=1):
+            root_paths = await _chain_paths_from_event(root_evt)
+            for path_index, event_path in enumerate(root_paths, start=1):
+                labels = []
+                labels.append(f"origin/31415/{origin_date}:{issuer_label}")
+                previous_event = initial_event
+                previous_controller_pubkey_hex = initial_event.pub_key
+                for evt in event_path:
+                    transferee_pubkey_hex = _transfer_party_from_p_tag(evt) or evt.pub_key
+                    if transferee_pubkey_hex == previous_controller_pubkey_hex:
+                        previous_event = evt
+                        continue
+                    label = _profile_chain_label(transferee_pubkey_hex, await _cached_profile(transferee_pubkey_hex))
+                    elapsed = _format_elapsed_compact(previous_event.created_at, evt.created_at)
+                    labels.append(f"transfer/31416/{elapsed}:{label}")
+                    previous_event = evt
+                    previous_controller_pubkey_hex = transferee_pubkey_hex
+                prefix = f"  group {group_index}"
+                if len(root_paths) > 1:
+                    prefix = f"{prefix}.{path_index}"
+                click.echo(f"{prefix}: {' -> '.join(labels)}")
 
     async def _print_transfer_event(evt: Event, row_label: str, depth: int) -> None:
         indent = "  " * depth
@@ -443,32 +563,22 @@ async def _run_query_etr(
         if prior_event_id:
             click.echo(f"{indent}  prior event id: {format_event_reference(prior_event_id)}")
 
-        issuer_profile = await _fetch_profile(
-            relays=relays,
-            pubkey_hex=evt.pub_key,
-            timeout=timeout,
-            ssl_disable_verify=ssl_disable_verify,
-        )
+        issuer_profile = await _cached_profile(evt.pub_key)
         if issuer_profile:
-            click.echo(f"{indent}  social profile:")
+            click.echo(f"{indent}  transfer event signer social profile:")
             for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
                 value = issuer_profile.get(field)
                 if value:
                     click.echo(f"{indent}    {field}: {value}")
         else:
-            click.secho(f"{indent}  WARNING: no social profile found for this author.", fg="yellow", bold=True)
+            click.secho(f"{indent}  WARNING: no transfer event signer social profile found for this author.", fg="yellow", bold=True)
 
         d_values = evt.get_tags_value("d")
         o_values = evt.get_tags_value("o")
         transferee_pubkey_hex = _transfer_party_from_p_tag(evt)
         if transferee_pubkey_hex is not None:
             click.echo(f"{indent}  transferee: {format_pubkey(transferee_pubkey_hex)}")
-            transferee_profile = await _fetch_profile(
-                relays=relays,
-                pubkey_hex=transferee_pubkey_hex,
-                timeout=timeout,
-                ssl_disable_verify=ssl_disable_verify,
-            )
+            transferee_profile = await _cached_profile(transferee_pubkey_hex)
             if transferee_profile:
                 click.echo(f"{indent}  transferee social profile:")
                 for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
@@ -479,7 +589,7 @@ async def _run_query_etr(
                 click.secho(f"{indent}  WARNING: no social profile found for the transferee.", fg="yellow", bold=True)
         click.echo(f"{indent}  d value: {d_values}")
         click.echo(f"{indent}  o value: {o_values}")
-        _print_event_details(evt, output, indent=f"{indent}  ")
+        _print_event_details(evt, output, indent=f"{indent}  ", verbose=verbose)
         _print_separator(indent)
 
         for child_index, child_evt in enumerate(children.get(evt.id, []), start=1):
@@ -493,6 +603,30 @@ async def _run_query_etr(
             click.echo(f"  root prior event id: {format_event_reference(root_prior_event_id)}")
         click.echo("  control chain:")
         await _print_transfer_event(root_evt, str(group_index), 0)
+
+    await _print_summary_control_chain()
+
+    latest_transfer_event = max(
+        transfer_events,
+        key=lambda evt: ((evt.created_at or 0), evt.id),
+    )
+    current_controller_pubkey_hex = _transfer_party_from_p_tag(latest_transfer_event)
+    current_controller_basis = "latest control event transferee"
+    if current_controller_pubkey_hex is None:
+        current_controller_pubkey_hex = latest_transfer_event.pub_key
+        current_controller_basis = "latest control event signer (no p tag present)"
+
+    click.echo()
+    click.echo("current controller:")
+    click.echo(f"  npub: {format_pubkey(current_controller_pubkey_hex)}")
+    click.echo(f"  basis: {current_controller_basis}")
+    current_controller_profile = await _cached_profile(current_controller_pubkey_hex)
+    if current_controller_profile:
+        click.echo("  current controller social profile:")
+        for field in ["name", "display_name", "about", "address", "picture", "banner", "website", "nip05", "lud16", "lud06", "lei"]:
+            value = current_controller_profile.get(field)
+            if value:
+                click.echo(f"    {field}: {value}")
 
 def _resolve_profile_pubkey(profile: str, author: str | None, as_user: str | None) -> str:
     if author is not None:
@@ -675,7 +809,7 @@ def query_object(
 )
 @click.option("--verbose", is_flag=True, help="Show relay, filter, and query diagnostics.")
 @click.option("--origin", is_flag=True, help="Restrict output to origin records only.")
-@click.option("--all", "show_all", is_flag=True, help="Show ETR events from all authors instead of only the current profile.")
+@click.option("--all", "show_all", is_flag=True, help="Deprecated; query-etr is object-wide by default.")
 @click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def query_etr(
@@ -703,14 +837,8 @@ def query_etr(
     resolved_output = output or profile_config.get("query_output", DEFAULT_QUERY_OUTPUT)
 
     resolved_digest, resolved_file = resolve_query_digest(digest, digest_file)
-    author_pubkey_hex = None
-    if not show_all:
-        configured_key = profile_config.get(CONFIG_AS_USER_KEY)
-        if not configured_key:
-            raise click.ClickException(
-            "the current profile has no as_user key; use --all or set an nsec for this profile"
-        )
-        author_pubkey_hex = resolve_keys(configured_key).public_key_hex()
+    configured_key = profile_config.get(CONFIG_AS_USER_KEY)
+    author_pubkey_hex = resolve_keys(configured_key).public_key_hex() if configured_key else None
 
     if origin:
         click.echo("Mode: origin records only")
@@ -720,7 +848,7 @@ def query_etr(
             relays=resolved_relays,
             digest=resolved_digest,
             author_pubkey_hex=author_pubkey_hex,
-            highlight_profile_author=show_all,
+            highlight_profile_author=author_pubkey_hex is not None,
             origin_only=origin,
             verbose=verbose,
             limit=resolved_limit,

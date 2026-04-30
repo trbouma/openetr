@@ -9,6 +9,8 @@ def main() -> None:
     """OpenETR command line utility."""
 
 
+profile_group.add_command(publish_profile, "publish")
+
 main.add_command(version)
 main.add_command(info)
 main.add_command(whoami)
@@ -20,7 +22,6 @@ main.add_command(set_config)
 main.add_command(trivia)
 main.add_command(publish_object)
 main.add_command(issue_etr)
-main.add_command(publish_profile)
 main.add_command(transfer_group)
 main.add_command(query_etr)
 main.add_command(query_object)
