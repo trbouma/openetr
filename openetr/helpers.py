@@ -13,7 +13,7 @@ import click
 from monstr.encrypt import Keys
 from monstr.event.event import Event
 
-from openetr.config import DEFAULT_KIND
+from openetr.config import DEFAULT_KIND, get_aliases
 
 NOBJ_PREFIX = "nobj"
 NEVENT_PREFIX = "nevent"
@@ -78,6 +78,21 @@ def validate_npub(value: str) -> bool:
         return False
 
     return True
+
+
+def normalize_alias(alias: str) -> str:
+    normalized = alias.strip().lower()
+    if not normalized:
+        raise click.ClickException("alias must not be empty")
+    if "@" in normalized:
+        raise click.ClickException("alias must not contain @")
+    return normalized
+
+
+def resolve_alias_value(alias: str) -> str | None:
+    normalized = normalize_alias(alias)
+    aliases = get_aliases()
+    return aliases.get(normalized)
 
 
 def resolve_lei(value: str | None) -> str | None:
@@ -286,18 +301,26 @@ def parse_authors(authors: str | None) -> list[str] | None:
     parsed_authors = [author.strip() for author in authors.split(",") if author.strip()]
     resolved_authors = []
     for author in parsed_authors:
+        alias_value = resolve_alias_value(author)
+        if alias_value is not None:
+            author = alias_value
+
         if not author.startswith("npub"):
-            raise click.ClickException("authors must be supplied in npub bech32 format")
+            raise click.ClickException("authors must be supplied in npub bech32 format or as configured aliases")
 
         author_hex = Keys.bech32_to_hex(author)
         if author_hex is None:
-            raise click.ClickException(f"invalid npub author key: {author}")
+            raise click.ClickException(f"invalid npub author key or alias target: {author}")
         resolved_authors.append(author_hex)
 
     return resolved_authors or None
 
 
 def resolve_author(author: str) -> str:
+    alias_value = resolve_alias_value(author)
+    if alias_value is not None:
+        author = alias_value
+
     if author.startswith("npub"):
         author_hex = Keys.bech32_to_hex(author)
         if author_hex is None:
@@ -307,7 +330,7 @@ def resolve_author(author: str) -> str:
     normalized_author = author.strip().lower()
 
     if "@" not in normalized_author:
-        raise click.ClickException("author must be supplied in npub bech32 or NIP-05 format")
+        raise click.ClickException("author must be supplied as an alias, npub bech32, or NIP-05 format")
 
     local_part, domain = normalized_author.split("@", 1)
     if not local_part or not domain:

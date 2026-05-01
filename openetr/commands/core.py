@@ -12,6 +12,7 @@ from monstr.event.event import Event
 import yaml
 
 from openetr.config import (
+    ALIASES_KEY,
     CONFIG_AS_USER_KEY,
     DEFAULT_QUERY_TIMEOUT,
     DEFAULT_RELAYS,
@@ -20,14 +21,17 @@ from openetr.config import (
     PROFILES_KEY,
     USER_CONFIG_DIR,
     USER_CONFIG_PATH,
+    delete_alias,
     delete_profile,
     ensure_profile,
     get_active_profile_name,
+    get_aliases,
     get_profile_config,
     list_profiles,
     load_user_config,
     render_user_config_template,
     set_active_profile,
+    upsert_alias,
     upsert_profile_config,
     write_user_config,
 )
@@ -35,10 +39,12 @@ from openetr.helpers import (
     GENERATE_LEI_SENTINEL,
     format_object_identifier,
     format_pubkey,
+    normalize_alias,
     parse_authors,
     resolve_lei,
     resolve_keys,
     resolve_query_digest,
+    resolve_author,
     validate_lei,
     validate_npub,
 )
@@ -122,6 +128,31 @@ def _print_profile_config(profile: str, resolved: dict, is_active: bool) -> None
     click.echo(f"{profile}{marker}:")
     for key, value in resolved.items():
         click.echo(f"  {key}: {value}")
+
+
+def _print_alias_entries(config: dict) -> None:
+    aliases = get_aliases(config)
+    if not aliases:
+        click.echo(f"No aliases configured in {USER_CONFIG_PATH}")
+        return
+
+    width = max((len(alias) for alias in aliases), default=0)
+    click.echo(f"Aliases in {USER_CONFIG_PATH}:")
+    for alias in sorted(aliases):
+        click.echo(f"  {alias:<{width}}  {aliases[alias]}")
+
+
+def _sync_profile_alias(profile: str, config: dict) -> dict:
+    profile_config = get_profile_config(profile, config)
+    configured_key = profile_config.get(CONFIG_AS_USER_KEY)
+    if not configured_key:
+        return config
+
+    normalized_alias = normalize_alias(profile)
+    config = dict(config)
+    aliases = config.setdefault(ALIASES_KEY, {})
+    aliases[normalized_alias] = resolve_keys(configured_key).public_key_bech32()
+    return config
 
 
 def _profile_list_entries(config: dict, include_active: bool = True) -> list[str]:
@@ -334,6 +365,47 @@ def profile_group(ctx: click.Context) -> None:
         ctx.invoke(profile_show, profile=None)
 
 
+@click.group("alias", invoke_without_command=True)
+@click.pass_context
+def alias_group(ctx: click.Context) -> None:
+    """Manage global npub aliases."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(alias_list)
+
+
+@alias_group.command("list")
+def alias_list() -> None:
+    """List configured aliases."""
+    _print_alias_entries(load_user_config())
+
+
+@alias_group.command("set")
+@click.argument("alias")
+@click.argument("target")
+def alias_set(alias: str, target: str) -> None:
+    """Set a global alias that maps to an npub."""
+    normalized_alias = normalize_alias(alias)
+    target_hex = resolve_author(target)
+    target_npub = Keys.hex_to_bech32(target_hex, prefix="npub")
+    upsert_alias(normalized_alias, target_npub)
+    click.echo(f"Set alias {normalized_alias} -> {target_npub}")
+
+
+@alias_group.command("delete")
+@click.argument("alias")
+@click.option("--force", is_flag=True, help="Delete the alias without confirmation.")
+def alias_delete(alias: str, force: bool) -> None:
+    """Delete a global alias."""
+    normalized_alias = normalize_alias(alias)
+    aliases = get_aliases()
+    if normalized_alias not in aliases:
+        raise click.ClickException(f"alias '{normalized_alias}' was not found in {USER_CONFIG_PATH}")
+    if not force:
+        click.confirm(f"Delete alias '{normalized_alias}'?", abort=True)
+    delete_alias(normalized_alias)
+    click.echo(f"Deleted alias {normalized_alias}")
+
+
 @profile_group.command("list")
 def profile_list() -> None:
     """List configured profiles."""
@@ -431,7 +503,12 @@ def profile_delete(profile: str, force: bool) -> None:
     if not force:
         click.confirm(f"Delete profile '{profile}'?", abort=True)
 
+    normalized_alias = normalize_alias(profile)
+    aliases = get_aliases()
     delete_profile(profile)
+    if normalized_alias in aliases:
+        delete_alias(normalized_alias)
+        click.echo(f"Deleted alias {normalized_alias}")
     click.echo(f"Deleted profile {profile}")
 
 
@@ -491,20 +568,25 @@ def profile_set(
             profile_values = config.setdefault(PROFILES_KEY, {}).setdefault(profile_name, {})
             if generated_key_update:
                 profile_values.update(generated_key_update)
+            config = _sync_profile_alias(profile_name, config)
             write_user_config(config)
             click.echo(f"Created profile {profile_name} in {USER_CONFIG_PATH}")
             if generated_key_update:
                 click.echo("Generated a new nsec for the profile.")
+                click.echo(f"Added alias {normalize_alias(profile_name)} for the profile signer.")
         resolved = get_profile_config(profile_name, config)
         _print_profile_config(profile_name, resolved, profile_name == get_active_profile_name(config))
         return
 
     if generated_key_update:
         updates.update(generated_key_update)
-    upsert_profile_config(profile_name, updates, config)
+    config = upsert_profile_config(profile_name, updates, config)
+    config = _sync_profile_alias(profile_name, config)
+    write_user_config(config)
     click.echo(f"Updated profile {profile_name} in {USER_CONFIG_PATH}")
     if generated_key_update:
         click.echo("Generated a new nsec for the profile.")
+        click.echo(f"Added alias {normalize_alias(profile_name)} for the profile signer.")
 
 
 @click.command("set-config")

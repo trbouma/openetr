@@ -11,6 +11,7 @@ USER_CONFIG_PATH = USER_CONFIG_DIR / "config.yaml"
 CONFIG_AS_USER_KEY = "as_user"
 ACTIVE_PROFILE_KEY = "active_profile"
 PROFILES_KEY = "profiles"
+ALIASES_KEY = "aliases"
 DEFAULT_PROFILE_NAME = "default"
 PROFILE_KEYS = {
     "as_user",
@@ -56,12 +57,14 @@ def normalize_user_config(raw_config: dict | None) -> dict:
         normalized = deepcopy(raw_config)
         normalized.setdefault(ACTIVE_PROFILE_KEY, DEFAULT_PROFILE_NAME)
         normalized.setdefault(PROFILES_KEY, {})
+        normalized.setdefault(ALIASES_KEY, {})
         return normalized
 
     legacy_values = _legacy_profile_values(raw_config)
     if not legacy_values:
         return {
             ACTIVE_PROFILE_KEY: DEFAULT_PROFILE_NAME,
+            ALIASES_KEY: {},
             PROFILES_KEY: {
                 DEFAULT_PROFILE_NAME: {},
             },
@@ -69,6 +72,7 @@ def normalize_user_config(raw_config: dict | None) -> dict:
 
     return {
         ACTIVE_PROFILE_KEY: raw_config.get(ACTIVE_PROFILE_KEY, DEFAULT_PROFILE_NAME),
+        ALIASES_KEY: raw_config.get(ALIASES_KEY, {}),
         PROFILES_KEY: {
             raw_config.get(ACTIVE_PROFILE_KEY, DEFAULT_PROFILE_NAME): legacy_values,
         },
@@ -155,11 +159,33 @@ def set_active_profile(profile: str, config: dict | None = None) -> dict:
 def render_user_config_template() -> str:
     template = {
         ACTIVE_PROFILE_KEY: DEFAULT_PROFILE_NAME,
+        ALIASES_KEY: {},
         PROFILES_KEY: {
             DEFAULT_PROFILE_NAME: packaged_defaults(),
         },
     }
     return yaml.safe_dump(template, sort_keys=False)
+
+
+def get_aliases(config: dict | None = None) -> dict[str, str]:
+    config = config or load_user_config()
+    return deepcopy(config.get(ALIASES_KEY, {}))
+
+
+def upsert_alias(alias: str, npub: str, config: dict | None = None) -> dict:
+    config = deepcopy(config or load_user_config())
+    config.setdefault(ALIASES_KEY, {})
+    config[ALIASES_KEY][alias] = npub
+    write_user_config(config)
+    return config
+
+
+def delete_alias(alias: str, config: dict | None = None) -> dict:
+    config = deepcopy(config or load_user_config())
+    aliases = config.setdefault(ALIASES_KEY, {})
+    aliases.pop(alias, None)
+    write_user_config(config)
+    return config
 
 
 DEFAULTS = packaged_defaults()
