@@ -27,7 +27,7 @@ Suggested status values:
 | Kind | Name | Status | Purpose | Notes |
 |------|------|--------|---------|-------|
 | `31415` | origin event | working | Initial OpenETR record bringing an object into the scheme | Currently used for initial issuance/origin flows |
-| `31416` | control transfer event | working | Transfer of control after origin | Intended for later control-history traversal |
+| `31416` | control event family | working | Control-relevant events after origin | Currently subtyped by `action=initiate`, `action=accept`, and `action=terminate` |
 
 ## Current Interpretation
 
@@ -41,15 +41,27 @@ Current intended role:
 - bind the object identifier into the scheme
 - serve as the starting point for later control analysis
 
-### `31416` Control Transfer Event
+### `31416` Control Event Family
 
-The control transfer event is the event family intended to express later movement of control.
+The `31416` event family is currently used to express control-relevant actions after origin.
 
 Current intended role:
 
-- represent transfer after origin
+- represent transfer initiation after origin
+- represent transfer acceptance
+- represent termination
 - support later exclusive-controller determination
 - separate control movement from initial origin
+
+Current working action subtypes:
+
+- `action=initiate`
+- `action=accept`
+- `action=terminate`
+
+This means `31416` is presently being used as a shared control-event family rather than as a single-action kind.
+
+That choice remains working and provisional.
 
 ## Related Specifications
 
@@ -59,5 +71,6 @@ Current intended role:
 ## Notes
 
 - This registry does not yet define all future OpenETR event kinds.
-- Endorsement, termination, substitution, cancellation, revocation, and attestation kinds are still open design areas.
+- Endorsement, substitution, cancellation, revocation, and attestation kinds are still open design areas.
+- Termination is currently modeled as `action=terminate` within `31416`, but may later be revisited as a separate kind if implementation experience suggests that is clearer.
 - Event kind assignment alone does not determine legal or operational effect; effect depends on the wider OpenETR attestation and recognition model.

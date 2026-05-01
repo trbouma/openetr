@@ -194,6 +194,50 @@ In the current working model, control transfer events are published as:
 
 - `kind = 31416`
 
+### Working `31416` Action Family
+
+Within the current working model, `kind 31416` is treated as a control-event family rather than as a single undifferentiated action.
+
+The action distinction is currently expressed through the `action` tag:
+
+- `action=initiate`
+- `action=accept`
+- `action=terminate`
+
+This means that:
+
+- transfer initiation
+- transfer acceptance
+- termination
+
+are presently modeled as distinct actions within the same `31416` event family rather than as separate event kinds.
+
+This is a working design choice, not yet a final registry decision.
+
+### Working Tag Conventions
+
+The current reference implementation also uses a working split between:
+
+- `o` as the object identifier carried forward across the full object history
+- `d` as the replaceable slot identifier for the specific action being expressed
+
+Current working examples:
+
+- origin event:
+  - `d = <object_hex>`
+  - `o = <object_hex>`
+- transfer initiate:
+  - `d = <object_hex>:initiate`
+  - `o = <object_hex>`
+- transfer accept:
+  - `d = <object_hex>:accept`
+  - `o = <object_hex>`
+- terminate:
+  - `d = <object_hex>:terminate`
+  - `o = <object_hex>`
+
+This keeps the full chain object-centric while allowing replaceable slots to distinguish action types for the same object.
+
 ### Why Split Kinds
 
 This split is useful because it distinguishes:
@@ -237,6 +281,21 @@ In practice that means an implementation may need to:
 1. query the object's origin event using `kind = 31415`
 2. query subsequent control transfer events using `kind = 31416`
 3. evaluate the attested action chain across both families
+
+In the current reference flow, object-history evaluation is therefore object-centric first.
+
+That is, implementations commonly:
+
+1. determine the object identifier
+2. query origin and control events by the object's `o` tag
+3. derive candidate control chains from linked `e` references
+4. apply local policy to determine which chain, if any, is recognized
+
+This helps support:
+
+- current-controller determination
+- termination guards
+- ambiguity detection where more than one candidate control chain exists for the same object
 
 This is consistent with the broader OpenETR design goal of making lifecycle semantics explicit rather than collapsing all control-relevant actions into one undifferentiated event stream.
 

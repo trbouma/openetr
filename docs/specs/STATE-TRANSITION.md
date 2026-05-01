@@ -2,15 +2,15 @@
 ```mermaid
 flowchart TD
 
-    A[Pre-ETR] -->|Issue<br>Declare + Attest| B[Active Controlled]
+    A["Pre-ETR"] -->|"Issue (31415)<br>Declare + Attest"| B["Active Controlled"]
 
-    B -->|Declare Transfer<br>+ Attest| C[Transfer Pending]
+    B -->|"Transfer Initiate (31416)<br>Declare + Attest"| C["Transfer Pending"]
 
-    C -->|Accept Transfer<br>+ Attest| B
+    C -->|"Transfer Accept (31416)<br>Accept + Attest"| B
 
-    C -->|Revoke<br>+ Attest| B
+    C -->|"Revoke<br>+ Attest"| B
 
-    B -->|Terminate<br>Declare + Attest| D[Terminated]
+    B -->|"Terminate (31416)<br>Declare + Attest"| D["Terminated"]
 
-    D --> E[End]
+    D --> E["End"]
 ```

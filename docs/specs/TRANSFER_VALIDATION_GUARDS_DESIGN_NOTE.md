@@ -40,6 +40,13 @@ Validation guards in the CLI are useful because they:
 - provide a practical reference implementation of OpenETR policy
 - create an early executable model of the checks that attestors may later apply before attesting events
 
+The current CLI has therefore become a working reference implementation of several policy choices, including:
+
+- object-based lookup of control history
+- current-controller checks for later actions
+- warnings for duplicate origin issuance
+- visibility of multiple candidate control chains for the same object
+
 ## Historical Context
 
 OpenETR can also be understood against the background of global shipping and the historical ethos of the high seas.
@@ -201,6 +208,14 @@ Candidate validation rules:
 - if the supplied prior event is a `kind 31416` control transfer event, the signer of the new `kind 31416` event should match the transferee identified in the prior transfer event's `p` tag
 - if a subsequent transfer initiate is being published before a corresponding accept event has been observed for the prior transfer event, the CLI may warn but still allow publication
 
+Current CLI behavior also supports a more object-centric initiation flow:
+
+- the operator may identify the object directly, for example by supplying a digest or file
+- the implementation may resolve the active control chain for that object
+- the implementation may then choose the current controlling event as the effective prior event
+
+This makes transfer initiation easier in ordinary operation while still preserving the ability to reference a specific prior event in expert workflows.
+
 ### Transfer Accept
 
 Candidate validation rules:
@@ -211,6 +226,16 @@ Candidate validation rules:
 - the accept event must point to the intended initiate event
 - the signer of the accept event should match the intended transferee identified in the initiate event's `p` tag
 - a conflicting replaceable accept event for the same object and signer should trigger a warning or block, depending on policy
+
+### Terminate
+
+Candidate validation rules:
+
+- the object to be terminated must resolve to an existing origin event
+- the active control chain for that object must be determinable
+- only the current controller of the active chain should be permitted to terminate the ETR
+- if the latest control event is already a termination event, a further termination attempt should be blocked
+- if more than one active chain for the object is currently controlled by the same signer, termination should be treated as ambiguous unless a more specific policy decides otherwise
 
 ## Working Publication Model for Initiate and Accept
 
@@ -254,6 +279,25 @@ This preserves a useful distinction between:
 - warning rules, which surface incompleteness or ambiguity without preventing publication
 - attestation rules, which determine whether the resulting transfer chain is sufficient for recognition
 
+## Object-Centric Control Evaluation
+
+The current OpenETR CLI increasingly evaluates control history from the object outward rather than from an operator-supplied prior event alone.
+
+In practice this means:
+
+- determine the object identifier
+- query related origin and control events using the object's `o` tag
+- identify candidate control chains
+- determine the current controller or terminal state from the latest event in a candidate chain
+- apply local policy to decide whether a new action should be allowed, warned, or rejected
+
+This approach is particularly useful for:
+
+- current-controller checks
+- object-based transfer initiation
+- object-based termination
+- detection of multiple candidate control chains for the same object
+
 ## Design Principle
 
 OpenETR should not confuse publication with validity.
@@ -288,6 +332,12 @@ Their real purpose is to:
 - formalize transaction expectations
 - make attestor policy concrete
 - support accountable recognition of control-relevant events
+
+This includes making it explicit that:
+
+- an object may have more than one published origin or control chain
+- the protocol may surface those chains rather than suppress them
+- policy must decide what to recognize
 
 OpenETR is designed to operate in an open, permissionless environment.
 
