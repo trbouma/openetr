@@ -47,6 +47,17 @@ Legal effect arises only when all required actions are:
 
 In this model, attestation applies to each action, not merely to the final outcome.
 
+At the same time, OpenETR does not require that every event be separately attested in every implementation profile.
+
+An attestor may instead attest a later event, including a termination event, provided that the attestation reflects validation of the prior control chain necessary to recognize that later event.
+
+This means OpenETR can support both:
+
+- event-level attestation, where each control-relevant action is attested as it occurs
+- chain-level attestation, where a later event is attested after the relevant prior chain has been validated
+
+The decisive question is therefore not only whether an event was directly attested, but what the attestor is claiming to have validated and recognized.
+
 ## Canonical Interaction Matrix
 
 | Lifecycle | Declare (Initiator) | Accept (Counterparty) |
@@ -94,6 +105,112 @@ An identifiable signing party whose attestation anchors accountability for the a
 ### Recognition
 
 The policy act of treating an attested action set as effective for the relevant legal or operational context.
+
+## Determination of Legal Effect and Recognition
+
+In OpenETR, the determination of legal effect or operational recognition does not arise from a platform simply asserting state.
+
+Instead, it arises from evaluation of the signed evidence chain.
+
+That evidence chain may include:
+
+- the origin event
+- later control events
+- any accept or terminate events
+- any event-level or chain-level attestations
+- any actor legitimacy attestations relevant to the participants
+
+The determining party may therefore ask:
+
+> Does the full signed chain satisfy the applicable validation rules and cryptographic checks for recognition?
+
+### Signed Evidence Chain
+
+The full control history exists as linked signed events.
+
+Those events can be evaluated for:
+
+- cryptographic correctness
+- continuity of references
+- consistency of object identity
+- role and signer legitimacy
+- compliance with the applicable guards or policy rules
+
+This evidence does not need to remain inside any one platform, database, registry, or single operational system.
+
+Because OpenETR is built on the Nostr protocol, the signed events can exist across multiple independent relays while remaining portable, attributable, and verifiable.
+
+That is a fundamental difference from models in which the authoritative record is inseparable from one database, one registry operator, or one blockchain environment.
+
+In OpenETR, the evidence chain can persist outside and independently of any one system because the relevant unit is the signed event itself rather than the custody of a single data store.
+
+### Recognition Basis
+
+Legal effect or operational recognition may therefore be based on whether:
+
+- the relevant events are cryptographically valid
+- the event chain is coherent and complete enough for the use case
+- the participants are recognized as legitimate actors where policy requires that
+- the applicable guards or rules have been satisfied
+- the relevant attestation claims, if any, are themselves valid and recognized
+
+### Consequence
+
+OpenETR therefore provides a basis for recognition by making the relevant chain available as inspectable, signed evidence.
+
+The protocol does not itself declare final effect.
+
+It enables the determining party to validate the chain according to:
+
+- cryptographic correctness
+- explicit guards and rules
+- attestation policy
+- recognition policy
+
+## Actor Legitimacy Attestation
+
+OpenETR may also require a distinct form of attestation concerning the legitimacy of the participating actors themselves.
+
+This is different from attestation of a transaction event or of a control chain.
+
+It addresses questions such as:
+
+- who this signer is
+- whether the signer is a legitimate actor for the role being claimed
+- whether the signer is recognized for purposes such as issuance, transfer, endorsement, custody, or attestation
+
+This creates a useful distinction between:
+
+- actor legitimacy attestation
+- transaction attestation
+- chain-level attestation
+
+### Purpose
+
+An event chain may be structurally valid and cryptographically well-formed while still depending on whether the participants are recognized as legitimate actors for the relevant role.
+
+Examples may include:
+
+- whether an issuer is recognized as a legitimate carrier
+- whether a controller is recognized as the entitled party
+- whether an attestor is recognized as an accepted validator under policy
+
+### Consequence
+
+Recognition of a control event may therefore depend not only on the event chain itself, but also on whether the relevant signers have been independently attested as legitimate actors for the roles they claim to perform.
+
+### Working Interpretation
+
+In a fuller OpenETR model, actor legitimacy attestation may bind an `npub` to one or more recognized identities, roles, or organizational attributes, such as:
+
+- legal name
+- role
+- jurisdiction
+- LEI
+- policy reference
+- attestation period or validity interval
+
+This is a separate layer from attesting whether a given transaction event or control chain should be recognized.
 
 ## Canonical Action Types
 
@@ -377,6 +494,9 @@ The decisive source of effect is attested witness combined with recognition unde
 Future OpenETR specifications should therefore distinguish clearly between:
 
 - transaction-event semantics
+- event-level attestation semantics
+- chain-level attestation semantics
+- recognition of final effect after validation of the relevant prior chain
 - attestation-event semantics
 - recognition rules
 

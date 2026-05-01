@@ -92,6 +92,56 @@ CLI guards are therefore not final enforcement.
 
 They are an executable expression of those rules.
 
+## Determination of Recognition or Effect
+
+In OpenETR, recognition or legal effect is not determined by the mere existence of a platform record.
+
+It is determined by whether the relevant evidence chain is sufficient under the applicable policy.
+
+That evidence chain may include:
+
+- origin events
+- transfer initiate, accept, and terminate events
+- event-level or chain-level attestations
+- actor legitimacy attestations
+
+The important point is that the entire chain exists as signed evidence.
+
+That chain can be evaluated according to:
+
+- cryptographic correctness
+- object continuity
+- reference integrity
+- signer and role legitimacy
+- applicable guards or validation rules
+- attestation policy
+
+That evidence can also exist outside and independently of any one system.
+
+This follows from the inherent properties of the Nostr protocol: signed events can be published, carried, and later retrieved across multiple independent relays without being bound to a single application database or registry boundary.
+
+That is a fundamental difference from:
+
+- platform databases
+- centralized registries
+- blockchain systems where the authoritative record is bound to one chain environment
+
+In OpenETR, the crucial unit is the signed event and the linked evidence chain, not custody by one authoritative data store.
+
+This means the decisive question is not simply:
+
+> Was an event published?
+
+It is:
+
+> Does the signed chain satisfy the rules for recognition?
+
+In that sense, OpenETR provides a sound evidentiary basis for the determination of effect.
+
+The protocol carries the signed history.
+
+The determining party applies the rules.
+
 ## Why Guards Matter Even If They Can Be Bypassed
 
 A bypassable rule can still be valuable if it clearly states the expected policy.
@@ -151,6 +201,37 @@ It does mean:
 - the CLI can serve as a reference implementation of those conditions
 
 This supports the broader OpenETR position that reliability is attributable to accountable actors applying policy, not to platform behavior alone.
+
+## Actor Legitimacy as a Separate Attestation Layer
+
+OpenETR may also require a separate attestation concerning whether a signer is a legitimate actor for the role being claimed.
+
+This is different from attesting:
+
+- a single transaction event
+- a control chain
+- a final recognized state
+
+It addresses a different question:
+
+> Is this signer a legitimate actor for this role?
+
+Examples may include:
+
+- whether an issuer is recognized as a legitimate carrier
+- whether a signer is recognized as the entitled party
+- whether an attestor is recognized as an accepted validating party
+
+This matters because a chain may be structurally sound and still fail recognition if the relevant participants are not recognized as legitimate actors under the applicable policy.
+
+In that sense, OpenETR may require both:
+
+- event or chain validation
+- actor legitimacy validation
+
+The first asks whether the control history is valid.
+
+The second asks whether the participants are recognized as appropriate actors within that history.
 
 ## Recommended Rule Classes
 
@@ -278,6 +359,34 @@ This preserves a useful distinction between:
 - publication rules, which determine whether an event is well-formed enough to be issued
 - warning rules, which surface incompleteness or ambiguity without preventing publication
 - attestation rules, which determine whether the resulting transfer chain is sufficient for recognition
+
+## Event-Level and Chain-Level Attestation
+
+OpenETR does not require that every control event be separately attested in order for a later state to be recognized.
+
+An attestor may instead attest a later event, including a termination event, after validating the prior control chain necessary to recognize that event.
+
+This creates two useful attestation patterns:
+
+- event-level attestation, where each origin, initiate, accept, or terminate event is separately attested
+- chain-level attestation, where a later event is attested after the relevant earlier events have been reviewed as a chain
+
+Under a chain-level model, an attestation of the later event should be understood as incorporating a claim that the relevant prior chain was examined and found sufficient under the attestor's policy.
+
+This may be especially useful where:
+
+- real-time operations cannot wait for attestation at every step
+- parties want a lighter operational flow
+- the decisive recognition question arises only at a later state, such as transfer completion or termination
+
+The important design point is that OpenETR leaves this choice to policy.
+
+The protocol can carry the evidence either way.
+
+What matters is that the attestor's claim is clear about whether it is:
+
+- attesting a single event in isolation
+- or recognizing a later event on the basis of a validated chain
 
 ## Object-Centric Control Evaluation
 
