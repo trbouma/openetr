@@ -12,6 +12,8 @@ python = "^3.10"
 click = "^8.1.8"
 monstr = "^0.1.9"
 pyyaml = "^6.0.2"
+mnemonic = "^0.21"
+pydantic = "^2.11.7"
 
 [tool.poetry.scripts]
 openetr = "openetr.cli:main"

@@ -23,16 +23,27 @@ from openetr.config import (
     USER_CONFIG_PATH,
     delete_alias,
     delete_profile,
+    delete_profile_secret,
+    ensure_root_bootstrap,
     ensure_profile,
     get_active_profile_name,
     get_aliases,
     get_profile_config,
+    get_profile_signer_nsec,
+    hydrate_local_profiles_from_index,
     list_profiles,
+    load_raw_user_config,
     load_user_config,
+    remove_local_profile_secret,
     render_user_config_template,
     set_active_profile,
+    sync_aliases_index,
+    sync_profile_record,
+    store_profile_secret,
+    sync_profiles_index,
     upsert_alias,
     upsert_profile_config,
+    write_bootstrap_config,
     write_user_config,
 )
 from openetr.helpers import (
@@ -123,28 +134,33 @@ def _generated_profile_key_update(profile_exists: bool, as_user: str | None) -> 
     return {CONFIG_AS_USER_KEY: generated_keys.private_key_bech32()}
 
 
-def _print_profile_config(profile: str, resolved: dict, is_active: bool) -> None:
+def _print_profile_config(profile: str, resolved: dict, is_active: bool, show_nsec: bool = False) -> None:
     marker = " (active)" if is_active else ""
     click.echo(f"{profile}{marker}:")
     for key, value in resolved.items():
+        if key == CONFIG_AS_USER_KEY and value:
+            signer_npub = resolve_keys(value).public_key_bech32()
+            click.echo(f"  signer_npub: {signer_npub}")
+            if show_nsec:
+                click.echo(f"  {CONFIG_AS_USER_KEY}: {value}")
+            continue
         click.echo(f"  {key}: {value}")
 
 
 def _print_alias_entries(config: dict) -> None:
     aliases = get_aliases(config)
     if not aliases:
-        click.echo(f"No aliases configured in {USER_CONFIG_PATH}")
+        click.echo("No aliases found in relay-backed configuration.")
         return
 
     width = max((len(alias) for alias in aliases), default=0)
-    click.echo(f"Aliases in {USER_CONFIG_PATH}:")
+    click.echo("Aliases in relay-backed configuration:")
     for alias in sorted(aliases):
         click.echo(f"  {alias:<{width}}  {aliases[alias]}")
 
 
 def _sync_profile_alias(profile: str, config: dict) -> dict:
-    profile_config = get_profile_config(profile, config)
-    configured_key = profile_config.get(CONFIG_AS_USER_KEY)
+    configured_key = get_profile_signer_nsec(profile, config)
     if not configured_key:
         return config
 
@@ -163,8 +179,7 @@ def _profile_list_entries(config: dict, include_active: bool = True) -> list[str
     entries = []
     for name in names:
         marker = "*" if name == active else " "
-        profile_config = get_profile_config(name, config)
-        configured_key = profile_config.get(CONFIG_AS_USER_KEY)
+        configured_key = get_profile_signer_nsec(name, config)
         label = f"{marker} {name:<{width}}".rstrip()
         if configured_key:
             npub = resolve_keys(configured_key).public_key_bech32()
@@ -283,7 +298,7 @@ def version(banner: bool) -> None:
 def info() -> None:
     """Show package, license, release, and local runtime information."""
     package = _package_info()
-    config = load_user_config()
+    config = hydrate_local_profiles_from_index(load_user_config())
     profiles = list_profiles(config)
     active_profile = get_active_profile_name(config)
     active_profile_config = get_profile_config(active_profile, config)
@@ -353,8 +368,115 @@ def init_config(force: bool) -> None:
         )
 
     USER_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    USER_CONFIG_PATH.write_text(render_user_config_template(), encoding="utf-8")
+    rendered = render_user_config_template()
+    USER_CONFIG_PATH.write_text(rendered, encoding="utf-8")
+    config = load_user_config()
+    config, changes = ensure_root_bootstrap(config)
     click.echo(f"Wrote config to {USER_CONFIG_PATH}")
+    if changes.get("root_recovery_phrase") or changes.get("root_recovery_phrase_unavailable"):
+        click.echo("Root CLI bootstrap created:")
+        click.echo(f"  home relay: {config['home_relay']}")
+        click.echo(f"  root nsec: {config['root_nsec']}")
+        if changes.get("root_recovery_phrase"):
+            click.echo("  recovery phrase:")
+            click.echo(f"    {changes['root_recovery_phrase']}")
+        else:
+            click.echo("  recovery phrase: unavailable until the 'mnemonic' dependency is installed")
+
+
+@click.command("bootstrap")
+@click.option("--root-nsec", default=None, help="Set the root bootstrap nsec.")
+@click.option("--home-relay", default=None, help="Set the home relay for relay-backed config recovery.")
+@click.option("--force", is_flag=True, help="Overwrite the existing bootstrap values without confirmation.")
+def bootstrap(root_nsec: str | None, home_relay: str | None, force: bool) -> None:
+    """Show or set the minimal local bootstrap config."""
+    raw_config = load_raw_user_config()
+    config = load_user_config()
+
+    if root_nsec is None and home_relay is None:
+        config, _ = ensure_root_bootstrap(config)
+        click.echo("Bootstrap")
+        click.echo(f"  root_nsec: {config.get('root_nsec')}")
+        click.echo(f"  home_relay: {config.get('home_relay')}")
+        return
+
+    updated_root_nsec = raw_config.get("root_nsec") or config.get("root_nsec")
+    updated_home_relay = raw_config.get("home_relay") or config.get("home_relay")
+    changed = []
+
+    if root_nsec is not None:
+        normalized_root = resolve_keys(root_nsec).private_key_bech32()
+        if updated_root_nsec and updated_root_nsec != normalized_root and not force:
+            click.confirm(
+                "Replace the existing root bootstrap nsec?",
+                default=False,
+                abort=True,
+            )
+        updated_root_nsec = normalized_root
+        changed.append("root_nsec")
+
+    if home_relay is not None:
+        normalized_home_relay = _normalize_relays(home_relay).split(",")[0]
+        if updated_home_relay and updated_home_relay != normalized_home_relay and not force:
+            click.confirm(
+                "Replace the existing home relay?",
+                default=False,
+                abort=True,
+            )
+        updated_home_relay = normalized_home_relay
+        changed.append("home_relay")
+
+    write_bootstrap_config(updated_root_nsec, updated_home_relay)
+    click.echo(f"Updated bootstrap in {USER_CONFIG_PATH}")
+    if changed:
+        click.echo(f"  changed: {', '.join(changed)}")
+    click.echo(f"  root_nsec: {updated_root_nsec}")
+    click.echo(f"  home_relay: {updated_home_relay}")
+
+
+@click.command("migrate-config")
+@click.option("--prune", is_flag=True, help="After migration, reduce config.yaml to only root_nsec and home_relay.")
+def migrate_config(prune: bool) -> None:
+    """Migrate local profile settings into relay-backed records."""
+    config = hydrate_local_profiles_from_index(load_user_config())
+    config, _ = ensure_root_bootstrap(config)
+
+    profile_names = sorted(config.get(PROFILES_KEY, {}).keys())
+    migrated_secrets = 0
+    migrated_profile_records = 0
+
+    for profile_name in profile_names:
+        local_secret = config.get(PROFILES_KEY, {}).get(profile_name, {}).get(CONFIG_AS_USER_KEY)
+        if local_secret:
+            store_profile_secret(profile_name, local_secret, config)
+            config = remove_local_profile_secret(profile_name, config)
+            migrated_secrets += 1
+
+        sync_profile_record(profile_name, config)
+        migrated_profile_records += 1
+
+    for profile_name in profile_names:
+        config = _sync_profile_alias(profile_name, config)
+
+    write_user_config(config)
+    _, alias_index = sync_aliases_index(config)
+    _, profiles_index = sync_profiles_index(config)
+
+    if prune:
+        pruned_config = {
+            "root_nsec": config["root_nsec"],
+            "home_relay": config["home_relay"],
+        }
+        write_user_config(pruned_config)
+
+    click.echo("Migrated local configuration to relay-backed records.")
+    click.echo(f"  home relay: {config['home_relay']}")
+    click.echo(f"  profile records synced: {migrated_profile_records}")
+    click.echo(f"  profile signer secrets migrated: {migrated_secrets}")
+    click.echo(f"  aliases indexed: {len(alias_index.aliases)}")
+    click.echo(f"  profiles indexed: {len(profiles_index.profiles)}")
+    if prune:
+        click.echo("  local config pruned to bootstrap minimum")
 
 
 @click.group("profile", invoke_without_command=True)
@@ -409,23 +531,24 @@ def alias_delete(alias: str, force: bool) -> None:
 @profile_group.command("list")
 def profile_list() -> None:
     """List configured profiles."""
-    config = load_user_config()
-    click.echo(f"Profiles in {USER_CONFIG_PATH}:")
+    config = hydrate_local_profiles_from_index(load_user_config())
+    click.echo("Profiles in relay-backed configuration:")
     for entry in _profile_list_entries(config):
         click.echo(entry)
 
 
 @click.command("whoami")
-def whoami() -> None:
+@click.option("--nsec", "show_nsec", is_flag=True, help="Display the resolved signer nsec for the current profile.")
+def whoami(show_nsec: bool) -> None:
     """Show the active profile details and other profiles available to switch to."""
-    config = load_user_config()
+    config = hydrate_local_profiles_from_index(load_user_config())
     active_profile = get_active_profile_name(config)
     resolved = get_profile_config(active_profile, config)
 
     click.echo("Current profile")
-    _print_profile_config(active_profile, resolved, True)
+    _print_profile_config(active_profile, resolved, True, show_nsec=show_nsec)
 
-    configured_key = resolved.get(CONFIG_AS_USER_KEY)
+    configured_key = get_profile_signer_nsec(active_profile, config)
     if configured_key:
         pubkey_hex = resolve_keys(configured_key).public_key_hex()
         click.echo(f"pubkey: {format_pubkey(pubkey_hex)}")
@@ -455,14 +578,20 @@ def whoami() -> None:
 
 @profile_group.command("show")
 @click.argument("profile", required=False)
-def profile_show(profile: str | None) -> None:
+@click.option("--nsec", "show_nsec", is_flag=True, help="Display the resolved signer nsec for the profile.")
+def profile_show(profile: str | None, show_nsec: bool) -> None:
     """Show the resolved config for a profile."""
-    config = load_user_config()
+    config = hydrate_local_profiles_from_index(load_user_config())
     profile_name = profile or get_active_profile_name(config)
     resolved = get_profile_config(profile_name, config)
-    _print_profile_config(profile_name, resolved, profile_name == get_active_profile_name(config))
+    _print_profile_config(
+        profile_name,
+        resolved,
+        profile_name == get_active_profile_name(config),
+        show_nsec=show_nsec,
+    )
 
-    configured_key = resolved.get(CONFIG_AS_USER_KEY)
+    configured_key = get_profile_signer_nsec(profile_name, config)
     if not configured_key:
         return
 
@@ -488,7 +617,10 @@ def profile_show(profile: str | None) -> None:
 @click.argument("profile")
 def profile_use(profile: str) -> None:
     """Set the active profile."""
-    set_active_profile(profile)
+    config = hydrate_local_profiles_from_index(load_user_config())
+    if profile not in list_profiles(config):
+        raise click.ClickException(f"profile '{profile}' was not found in {USER_CONFIG_PATH}")
+    set_active_profile(profile, config)
     click.echo(f"Active profile set to {profile}")
 
 
@@ -497,6 +629,9 @@ def profile_use(profile: str) -> None:
 @click.option("--force", is_flag=True, help="Delete the profile without confirmation.")
 def profile_delete(profile: str, force: bool) -> None:
     """Delete a profile."""
+    config = hydrate_local_profiles_from_index(load_user_config())
+    if profile not in list_profiles(config):
+        raise click.ClickException(f"profile '{profile}' was not found in {USER_CONFIG_PATH}")
     if profile == DEFAULT_PROFILE_NAME and not force:
         raise click.ClickException("Refusing to delete the default profile without --force.")
 
@@ -505,7 +640,8 @@ def profile_delete(profile: str, force: bool) -> None:
 
     normalized_alias = normalize_alias(profile)
     aliases = get_aliases()
-    delete_profile(profile)
+    delete_profile_secret(profile, config)
+    delete_profile(profile, config)
     if normalized_alias in aliases:
         delete_alias(normalized_alias)
         click.echo(f"Deleted alias {normalized_alias}")
@@ -546,7 +682,7 @@ def profile_set(
     lei: str | None,
 ) -> None:
     """Update or show a profile."""
-    config = load_user_config()
+    config = hydrate_local_profiles_from_index(load_user_config())
     profile_name = profile or get_active_profile_name(config)
     profile_exists = profile_name in config.get(PROFILES_KEY, {})
     updates = _profile_updates(
@@ -561,32 +697,66 @@ def profile_set(
         lei=lei,
     )
     generated_key_update = _generated_profile_key_update(profile_exists, as_user)
+    secret_value = updates.pop(CONFIG_AS_USER_KEY, None)
+    generated_secret = generated_key_update.pop(CONFIG_AS_USER_KEY, None)
 
-    if not updates:
+    if not updates and secret_value is None and generated_secret is None:
         if profile is not None and not profile_exists:
             config = ensure_profile(profile_name, config)
             profile_values = config.setdefault(PROFILES_KEY, {}).setdefault(profile_name, {})
             if generated_key_update:
                 profile_values.update(generated_key_update)
-            config = _sync_profile_alias(profile_name, config)
             write_user_config(config)
+            if generated_secret:
+                store_profile_secret(profile_name, generated_secret, config)
+                config = remove_local_profile_secret(profile_name, config)
+            sync_profile_record(profile_name, config)
+            config = _sync_profile_alias(profile_name, load_user_config())
+            write_user_config(config)
+            sync_aliases_index(config)
+            sync_profiles_index(config)
             click.echo(f"Created profile {profile_name} in {USER_CONFIG_PATH}")
-            if generated_key_update:
+            if generated_secret:
                 click.echo("Generated a new nsec for the profile.")
                 click.echo(f"Added alias {normalize_alias(profile_name)} for the profile signer.")
+        elif profile is not None and profile_exists:
+            local_secret = config.get(PROFILES_KEY, {}).get(profile_name, {}).get(CONFIG_AS_USER_KEY)
+            if local_secret:
+                store_profile_secret(profile_name, local_secret, config)
+                config = remove_local_profile_secret(profile_name, config)
+                sync_profile_record(profile_name, config)
+                config = _sync_profile_alias(profile_name, load_user_config())
+                write_user_config(config)
+                sync_aliases_index(config)
+                sync_profiles_index(config)
+                click.echo(f"Migrated profile signer for {profile_name} to relay-backed storage.")
         resolved = get_profile_config(profile_name, config)
-        _print_profile_config(profile_name, resolved, profile_name == get_active_profile_name(config))
+        _print_profile_config(
+            profile_name,
+            resolved,
+            profile_name == get_active_profile_name(config),
+            show_nsec=False,
+        )
         return
 
-    if generated_key_update:
-        updates.update(generated_key_update)
     config = upsert_profile_config(profile_name, updates, config)
-    config = _sync_profile_alias(profile_name, config)
+    if secret_value:
+        store_profile_secret(profile_name, secret_value, config)
+        config = remove_local_profile_secret(profile_name, load_user_config())
+    elif generated_secret:
+        store_profile_secret(profile_name, generated_secret, config)
+        config = remove_local_profile_secret(profile_name, load_user_config())
+    config = _sync_profile_alias(profile_name, load_user_config())
     write_user_config(config)
-    click.echo(f"Updated profile {profile_name} in {USER_CONFIG_PATH}")
-    if generated_key_update:
+    sync_aliases_index(config)
+    sync_profiles_index(config)
+    action = "Created" if not profile_exists else "Updated"
+    click.echo(f"{action} profile {profile_name} in {USER_CONFIG_PATH}")
+    if generated_secret:
         click.echo("Generated a new nsec for the profile.")
         click.echo(f"Added alias {normalize_alias(profile_name)} for the profile signer.")
+    elif secret_value:
+        click.echo("Stored the profile signer in relay-backed encrypted storage.")
 
 
 @click.command("set-config")
