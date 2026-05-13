@@ -87,10 +87,25 @@ docker compose up --build
 
 It uses the same build context and `gunicorn` entrypoint as the standalone Docker run.
 
+The Compose file also mounts your local OpenETR config directory into the container:
+
+```sh
+${HOME}/.openetr -> /root/.openetr
+```
+
+That lets the container see the same profiles and root configuration as your local development environment.
+
 If you want to override the session secret:
 
 ```sh
 OPENETR_APP_SESSION_SECRET=change-me docker compose up --build
+```
+
+If you change your local OpenETR config and want the container to pick it up cleanly, restart the service:
+
+```sh
+docker compose down
+docker compose up --build
 ```
 
 ## Do We Need Docker Compose?

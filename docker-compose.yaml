@@ -6,6 +6,8 @@ services:
     image: openetr-web
     ports:
       - "8000:8000"
+    volumes:
+      - ${HOME}/.openetr:/root/.openetr:ro
     environment:
       OPENETR_APP_SESSION_SECRET: ${OPENETR_APP_SESSION_SECRET:-openetr-demo-session-secret}
     command:
