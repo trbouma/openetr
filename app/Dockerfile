@@ -17,6 +17,7 @@ RUN apt-get update \
 COPY pyproject.toml README.md /app/
 COPY openetr /app/openetr
 COPY app /app/app
+COPY assets /app/assets
 
 RUN pip install .
 RUN pip install -r app/requirements.txt
