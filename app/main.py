@@ -45,6 +45,10 @@ app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 
+def configured_home_relays() -> str:
+    return os.environ.get("OPENETR_HOME_RELAYS") or DEFAULT_RELAYS
+
+
 def bytes_to_nobj(data: bytes, prefix: str = NOBJ_PREFIX) -> str:
     digest = hashlib.sha256(data).hexdigest()
     as_int = [int(digest[i:i + 2], 16) for i in range(0, len(digest), 2)]
@@ -65,7 +69,7 @@ templates.env.filters["short_id"] = short_id
 def session_identity(request: Request) -> dict[str, Any]:
     root_nsec = request.session.get(SESSION_ROOT_NSEC_KEY)
     signer_nsec = request.session.get(SESSION_SIGNER_NSEC_KEY)
-    bootstrap_relays = request.session.get(SESSION_BOOTSTRAP_RELAYS_KEY) or os.environ.get("OPENETR_HOME_RELAYS", DEFAULT_RELAYS)
+    bootstrap_relays = request.session.get(SESSION_BOOTSTRAP_RELAYS_KEY) or configured_home_relays()
     default_relays = request.session.get(SESSION_DEFAULT_RELAYS_KEY) or DEFAULT_RELAYS
     if not root_nsec and not signer_nsec:
         return {
@@ -128,7 +132,7 @@ def session_bootstrap(identity: dict[str, Any]):
     if not root_nsec:
         yield
         return
-    home_relays = identity.get("bootstrap_relays") or os.environ.get("OPENETR_HOME_RELAYS", DEFAULT_RELAYS)
+    home_relays = identity.get("bootstrap_relays") or configured_home_relays()
     token = set_runtime_bootstrap_overrides(root_nsec=root_nsec, home_relays=home_relays)
     try:
         yield
@@ -146,7 +150,7 @@ async def get_default_template_context(
         "site_url": SITE_URL,
         "git_commit": GIT_COMMIT,
         "default_relays": identity.get("default_relays") or DEFAULT_RELAYS,
-        "bootstrap_relays": identity.get("bootstrap_relays") or os.environ.get("OPENETR_HOME_RELAYS", DEFAULT_RELAYS),
+        "bootstrap_relays": identity.get("bootstrap_relays") or configured_home_relays(),
         "identity": identity,
         "available_profiles": available_profiles,
         "error_message": None,
@@ -171,7 +175,7 @@ async def update_settings(
     normalized_bootstrap_relays = ",".join(relay.strip() for relay in bootstrap_relays.split(",") if relay.strip())
     normalized_default_relays = ",".join(relay.strip() for relay in default_relays.split(",") if relay.strip())
 
-    request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays or os.environ.get("OPENETR_HOME_RELAYS", DEFAULT_RELAYS)
+    request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays or configured_home_relays()
     request.session[SESSION_DEFAULT_RELAYS_KEY] = normalized_default_relays or DEFAULT_RELAYS
 
     template_context = await get_default_template_context(session_identity(request))
