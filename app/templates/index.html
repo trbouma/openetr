@@ -395,6 +395,9 @@
         <div class="dialog-body">
           <h2>Backup Key</h2>
           <p>Store this key in a safe place. If your session ends, you will need it to restore access.</p>
+          <p><strong>Bootstrap relays for recovery:</strong></p>
+          <p><code>{{ bootstrap_relays }}</code></p>
+          <p>Your root-managed profile data can be discovered again from these relay endpoints.</p>
           <p><strong>Current signer nsec:</strong></p>
           <p><code>{{ identity.nsec }}</code></p>
           {% if identity.root_nsec and identity.root_nsec != identity.nsec %}
