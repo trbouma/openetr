@@ -34,6 +34,7 @@ SITE_URL = os.environ.get("OPENETR_SITE_URL", "https://trbouma.github.io/openetr
 GIT_COMMIT = os.environ.get("OPENETR_GIT_COMMIT", "unknown")
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
+APP_ASSETS_DIR = Path(__file__).parent / "assets"
 
 app = FastAPI(
     title=APP_TITLE,
@@ -42,6 +43,8 @@ app = FastAPI(
 )
 app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET)
 app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
+if APP_ASSETS_DIR.exists():
+    app.mount("/app-assets", StaticFiles(directory=str(APP_ASSETS_DIR)), name="app-assets")
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 
@@ -145,6 +148,17 @@ async def get_default_template_context(
 ) -> dict[str, Any]:
     with session_bootstrap(identity):
         available_profiles = await get_available_profiles(identity)
+        selected_profile_social = []
+        if identity.get("logged_in") and identity.get("profile"):
+            relays = str((await relay_profile_config(identity["profile"])).get("relays") or DEFAULT_RELAYS)
+            selected_profile_social = compact_profile(
+                await fetch_profile(
+                    relays=relays,
+                    pubkey_hex=identity["pubkey_hex"],
+                    timeout=DEFAULT_QUERY_TIMEOUT,
+                    ssl_disable_verify=False,
+                )
+            )
     return {
         "app_title": APP_TITLE,
         "site_url": SITE_URL,
@@ -153,6 +167,7 @@ async def get_default_template_context(
         "bootstrap_relays": identity.get("bootstrap_relays") or configured_home_relays(),
         "identity": identity,
         "available_profiles": available_profiles,
+        "selected_profile_social": selected_profile_social,
         "error_message": None,
         "success_message": None,
         "generated_nsec": None,
@@ -182,7 +197,19 @@ async def update_settings(
     template_context["success_message"] = "Updated relay settings for this session."
     return templates.TemplateResponse(
         request,
-        "index.html",
+        "settings.html",
+        template_context,
+    )
+
+
+@app.get("/settings")
+async def settings_page(
+    request: Request,
+    template_context: dict[str, Any] = Depends(get_default_template_context),
+):
+    return templates.TemplateResponse(
+        request,
+        "settings.html",
         template_context,
     )
 
@@ -232,6 +259,14 @@ async def get_available_profiles(identity: dict[str, Any]) -> list[dict[str, Any
     if not identity.get("logged_in"):
         return []
 
+    root_pubkey_hex = None
+    root_nsec = identity.get("root_nsec")
+    if root_nsec:
+        try:
+            root_pubkey_hex = resolve_keys(root_nsec).public_key_hex()
+        except click.ClickException:
+            root_pubkey_hex = None
+
     with session_bootstrap(identity):
         config = load_user_config()
         active_profile, profile_names = await relay_profile_names()
@@ -245,6 +280,12 @@ async def get_available_profiles(identity: dict[str, Any]) -> list[dict[str, Any
                     signer_keys = resolve_keys(signer_nsec)
                     signer_npub = signer_keys.public_key_bech32()
                     signer_matches_session = signer_keys.public_key_hex() == identity["pubkey_hex"]
+                    if (
+                        profile_name == DEFAULT_PROFILE_NAME
+                        and root_pubkey_hex is not None
+                        and signer_keys.public_key_hex() == root_pubkey_hex
+                    ):
+                        continue
                 except click.ClickException:
                     signer_npub = None
 
@@ -280,6 +321,19 @@ async def index(
     return templates.TemplateResponse(
         request,
         "index.html",
+        template_context,
+    )
+
+
+@app.get("/overview")
+async def overview_page(
+    request: Request,
+    template_context: dict[str, Any] = Depends(get_default_template_context),
+):
+    template_context["overview_image_url"] = "/app-assets/images/info-graphic.png"
+    return templates.TemplateResponse(
+        request,
+        "overview.html",
         template_context,
     )
 
@@ -361,6 +415,8 @@ async def create_profile(
     request: Request,
     profile_name: str = Form(...),
     relays: str = Form(DEFAULT_RELAYS),
+    signer_nsec: str = Form(""),
+    allow_root_signer: str | None = Form(None),
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
     identity = template_context["identity"]
@@ -373,12 +429,41 @@ async def create_profile(
             status_code=400,
         )
 
+    provided_signer = signer_nsec.strip()
+    if provided_signer and identity.get("root_nsec"):
+        try:
+            provided_keys = resolve_keys(provided_signer)
+            root_keys = resolve_keys(identity["root_nsec"])
+        except click.ClickException as exc:
+            template_context["error_message"] = str(exc)
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                template_context,
+                status_code=400,
+            )
+
+        if provided_keys.public_key_hex() == root_keys.public_key_hex() and allow_root_signer != "true":
+            template_context["error_message"] = (
+                "Warning: the provided signer matches your root admin nsec. "
+                "The root key should normally remain separate from profile signer keys. "
+                "If you intentionally want to reuse it, confirm that choice in the profile form and submit again."
+            )
+            return templates.TemplateResponse(
+                request,
+                "index.html",
+                template_context,
+                status_code=400,
+            )
+
     try:
         with session_bootstrap(identity):
             created_profile = await create_relay_backed_profile(
                 profile_name=profile_name,
                 relays=relays,
                 config=load_user_config(),
+                signer_nsec=signer_nsec,
+                root_nsec=identity.get("root_nsec"),
             )
     except ValueError as exc:
         template_context["error_message"] = str(exc)

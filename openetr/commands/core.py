@@ -35,6 +35,7 @@ from openetr.config import (
     load_raw_user_config,
     load_user_config,
     remove_local_profile_secret,
+    resolve_root_nsec,
     render_user_config_template,
     runtime_bootstrap_enabled,
     set_active_profile,
@@ -701,6 +702,14 @@ def profile_set(
     generated_key_update = _generated_profile_key_update(profile_exists, as_user)
     secret_value = updates.pop(CONFIG_AS_USER_KEY, None)
     generated_secret = generated_key_update.pop(CONFIG_AS_USER_KEY, None)
+    root_nsec = resolve_root_nsec(config)
+    uses_root_signer = bool(secret_value and root_nsec and secret_value == root_nsec)
+
+    if uses_root_signer:
+        click.echo(
+            "Warning: the provided --as-user nsec matches the root admin nsec. "
+            "This is allowed, but it weakens the separation between administrative recovery and operational profile signer keys."
+        )
 
     if not updates and secret_value is None and generated_secret is None:
         if profile is not None and not profile_exists:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import click
 from monstr.encrypt import Keys
 
 from openetr.config import (
@@ -11,13 +12,15 @@ from openetr.config import (
     _async_store_profile_secret,
     _async_store_profiles_index,
 )
-from openetr.helpers import format_pubkey
+from openetr.helpers import format_pubkey, resolve_keys
 
 
 async def create_relay_backed_profile(
     profile_name: str,
     relays: str | None,
     config: dict,
+    signer_nsec: str | None = None,
+    root_nsec: str | None = None,
 ) -> dict:
     normalized_name = profile_name.strip()
     if not normalized_name:
@@ -30,8 +33,20 @@ async def create_relay_backed_profile(
     if normalized_name in current_profiles:
         raise ValueError(f"profile '{normalized_name}' already exists")
 
-    signer_keys = Keys()
-    await _async_store_profile_secret(normalized_name, signer_keys.private_key_bech32(), config)
+    provided_signer = (signer_nsec or "").strip()
+    if provided_signer:
+        try:
+            signer_keys = resolve_keys(provided_signer)
+        except click.ClickException as exc:
+            raise ValueError(str(exc)) from exc
+        stored_signer_nsec = signer_keys.private_key_bech32()
+        generated_signer = False
+    else:
+        signer_keys = Keys()
+        stored_signer_nsec = signer_keys.private_key_bech32()
+        generated_signer = True
+
+    await _async_store_profile_secret(normalized_name, stored_signer_nsec, config)
     await _async_store_profile_record(
         normalized_name,
         ProfileConfigRecord(
@@ -52,8 +67,10 @@ async def create_relay_backed_profile(
 
     return {
         "profile_name": normalized_name,
-        "signer_nsec": signer_keys.private_key_bech32(),
+        "signer_nsec": stored_signer_nsec,
         "signer_npub": signer_keys.public_key_bech32(),
         "signer_pubkey": format_pubkey(signer_keys.public_key_hex()),
         "relays": (relays or DEFAULT_RELAYS).strip() or DEFAULT_RELAYS,
+        "generated_signer": generated_signer,
+        "uses_root_signer": bool(root_nsec and stored_signer_nsec == resolve_keys(root_nsec).private_key_bech32()),
     }

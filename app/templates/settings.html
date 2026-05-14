@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_title }} Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #f5efe3;
+        --panel: #fffaf4;
+        --text: #1f1a14;
+        --accent: #8a5b2d;
+        --border: #d7c3a2;
+        --muted: #675c4d;
+        --heading: #18130d;
+      }
+      body {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, #fde7be 0, transparent 26rem),
+          linear-gradient(180deg, #f8f1e4 0%, var(--bg) 100%);
+      }
+      main {
+        max-width: 62rem;
+        margin: 3rem auto;
+        padding: 0 1.25rem;
+      }
+      .panel {
+        background: color-mix(in srgb, var(--panel) 96%, white);
+        border: 1px solid var(--border);
+        border-radius: 1.35rem;
+        padding: 1.5rem;
+        box-shadow: 0 12px 32px rgba(71, 44, 17, 0.08);
+        margin-bottom: 1rem;
+      }
+      h1, h2 {
+        color: var(--heading);
+        letter-spacing: -0.035em;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.75rem;
+      }
+      .notice.error {
+        background: #fff1ec;
+        border: 1px solid #e1a18d;
+      }
+      .notice.success {
+        background: #eef8ee;
+        border: 1px solid #9cc39c;
+      }
+      .notice.info {
+        background: #f2f5f7;
+        border: 1px solid #b8c8d3;
+      }
+      form {
+        display: grid;
+        gap: 1rem;
+        width: 100%;
+      }
+      label {
+        display: grid;
+        gap: 0.45rem;
+        font-weight: 700;
+        color: var(--heading);
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 0.8rem;
+        font: inherit;
+      }
+      .field-help {
+        margin: 0;
+        font-size: 0.92rem;
+        color: var(--muted);
+        font-weight: 400;
+      }
+      button {
+        width: fit-content;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.8rem 1.2rem;
+        background: var(--accent);
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .actions {
+        display: flex;
+        gap: 0.85rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .top-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .top-nav a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .eyebrow {
+        margin: 0 0 0.65rem;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      code {
+        background: rgba(138, 91, 45, 0.1);
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.3rem;
+        overflow-wrap: anywhere;
+      }
+      @media (max-width: 640px) {
+        main {
+          margin: 1.75rem auto 2.5rem;
+          padding: 0 0.9rem;
+        }
+        .panel {
+          padding: 1.1rem;
+          border-radius: 1.1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top-nav">
+        <a href="/">Home</a>
+        <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      {% if error_message %}
+      <div class="notice error">{{ error_message }}</div>
+      {% endif %}
+      {% if success_message %}
+      <div class="notice success">{{ success_message }}</div>
+      {% endif %}
+      <div class="notice info">
+        These relay settings apply to this browser session. Bootstrap relays support root-key profile discovery and recovery; working relays are used by default for record queries and issue actions.
+      </div>
+
+      <section class="panel">
+        <p class="eyebrow">OpenETR</p>
+        <h1>Settings</h1>
+        <p>
+          {% if identity.logged_in %}
+          Logged in as <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code>.
+          {% else %}
+          No nsec session is active.
+          {% endif %}
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>Relay Configuration</h2>
+        <form action="/settings" method="post">
+          <label>
+            Bootstrap relay(s)
+            <input type="text" name="bootstrap_relays" value="{{ bootstrap_relays }}" placeholder="wss://relay.example.com">
+            <span class="field-help">Used with the root key for profile discovery, recovery, and relay-backed signer management.</span>
+          </label>
+          <label>
+            Working relay(s)
+            <input type="text" name="default_relays" value="{{ default_relays }}" placeholder="wss://relay.example.com,wss://relay.backup.example.com">
+            <span class="field-help">Used by default for record queries and ETR issue operations in this session.</span>
+          </label>
+          <div class="actions">
+            <button type="submit">Save Relay Settings</button>
+            <a href="/">Return Home</a>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

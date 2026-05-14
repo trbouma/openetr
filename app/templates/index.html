@@ -100,6 +100,16 @@
         font-size: 0.92rem;
         color: var(--muted);
       }
+      .kv-compact {
+        display: grid;
+        grid-template-columns: minmax(8rem, 11rem) minmax(0, 1fr);
+        gap: 0.35rem 0.9rem;
+        margin-top: 0.85rem;
+      }
+      .kv-compact div:nth-child(odd) {
+        color: var(--muted);
+        font-weight: 700;
+      }
       button {
         width: fit-content;
         border: 0;
@@ -193,6 +203,7 @@
       .top-nav {
         display: flex;
         justify-content: flex-end;
+        gap: 1rem;
         margin-bottom: 1rem;
       }
       .top-nav a {
@@ -269,12 +280,16 @@
         .button-row {
           align-items: stretch;
         }
+        .kv-compact {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <main>
       <div class="top-nav">
+        <a href="/overview">Overview</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
       <header class="page-hero">
@@ -300,8 +315,12 @@
       <div class="notice warning">
         <strong>Created profile:</strong> <code>{{ created_profile.profile_name }}</code><br>
         <strong>Profile signer:</strong> <code title="{{ created_profile.signer_npub }}">{{ created_profile.signer_npub | short_id }}</code><br>
+        <strong>Signer source:</strong> {{ "generated new nsec" if created_profile.generated_signer else "used provided nsec" }}<br>
+        {% if created_profile.uses_root_signer %}
+        <strong>Warning:</strong> this profile is using the root admin nsec as its signer. This is allowed, but it weakens the separation between administrative recovery and operational profile keys.<br>
+        {% endif %}
         <strong>Profile relays:</strong> <code>{{ created_profile.relays }}</code><br>
-        <strong>Important:</strong> the new profile signer secret was generated and stored relay-backed under your root session context, and the new profile is now selected for this browser session.
+        <strong>Important:</strong> the profile signer secret was stored relay-backed under your root session context, and the new profile is now selected for this browser session.
         If you want independent recovery for this profile signer outside the relay-backed root-managed model, export or otherwise safeguard its signer material before relying on it operationally.
       </div>
       {% endif %}
@@ -315,10 +334,20 @@
           <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
           {% if identity.profile %}
           <p><strong>Selected profile:</strong> <code>{{ identity.profile }}</code></p>
+          {% if selected_profile_social %}
+          <div class="kv-compact">
+            {% for field, value in selected_profile_social %}
+            <div>{{ field }}</div><div{% if field in ["picture", "banner", "website"] %} title="{{ value }}"{% endif %}>{{ value }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
           <form action="/profiles/edit" method="get">
             <button type="submit">Update Selected Social Profile</button>
           </form>
           {% endif %}
+          <form action="/settings" method="get">
+            <button type="submit">Settings</button>
+          </form>
           <div class="button-row">
             <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
             <form action="/logout" method="post">
@@ -375,35 +404,21 @@
         </div>
         {% endif %}
         {% endif %}
-
-        <div class="section-break">
-          <h2>Settings</h2>
-        </div>
-        <div class="subpanel">
-          <p class="settings-note">
-            Bootstrap relays are used with the root key to discover and manage relay-backed profiles. Working relays are the default relays used for query and issue actions in this session.
-          </p>
-          <form action="/settings" method="post">
-            <label>
-              Bootstrap relay(s)
-              <input type="text" name="bootstrap_relays" value="{{ bootstrap_relays }}" placeholder="wss://relay.example.com">
-              <span class="field-help">Used with the root key for profile discovery, recovery, and relay-backed signer management.</span>
-            </label>
-            <label>
-              Working relay(s)
-              <input type="text" name="default_relays" value="{{ default_relays }}" placeholder="wss://relay.example.com,wss://relay.backup.example.com">
-              <span class="field-help">Used by default for record queries and ETR issue operations in this session.</span>
-            </label>
-            <button type="submit">Save Relay Settings</button>
-          </form>
-        </div>
-
         {% if identity.logged_in %}
         <div class="subpanel profile-list">
           <h2>Create New Profile</h2>
           <form action="/profiles/create" method="post">
             <input type="text" name="profile_name" placeholder="Profile name" required>
             <input type="text" name="relays" value="{{ default_relays }}">
+            <label>
+              Existing signer nsec (optional)
+              <input type="text" name="signer_nsec" placeholder="Leave blank to generate a new nsec">
+              <span class="field-help">Matches the CLI: provide an nsec to use it as the profile signer, or leave this blank to generate a new one.</span>
+            </label>
+            <label>
+              <input type="checkbox" name="allow_root_signer" value="true">
+              I understand that using the root admin nsec as a profile signer is discouraged.
+            </label>
             <button type="submit">Create Relay-Backed Profile</button>
           </form>
         </div>
