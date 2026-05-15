@@ -234,6 +234,32 @@ Operational profile signers may publish social profiles and perform public or tr
 
 The root key should remain an administrative control and recovery key only.
 
+## Web Login Semantics
+
+The web app should distinguish between:
+
+- recovery of an existing relay-backed identity
+- creation of a brand-new identity
+
+The intended semantics are:
+
+- `Login with nsec`
+  This is a recovery path for an existing relay-backed identity.
+  The supplied `nsec` should only be accepted when the selected bootstrap relay set can actually recover relay-backed configuration for that root identity.
+
+- `Generate New nsec`
+  This is a creation path for a brand-new identity.
+  The app may generate a fresh root key, establish the browser session, and begin using the selected bootstrap relay set for new relay-backed state.
+
+This distinction avoids treating every arbitrary `nsec` as an already valid OpenETR root identity.
+
+It also preserves an important operational boundary:
+
+- manual login means “recover an existing identity”
+- generated login means “bootstrap a new identity”
+
+The browser session may retain session-local state such as the currently selected profile, but successful recovery of durable state should depend on relay-backed configuration discoverable from the root key and bootstrap relay set.
+
 ## Recommended Repository Shape
 
 The following direction is recommended:

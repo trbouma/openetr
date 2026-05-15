@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 import bech32
 import click
+from monstr.client.client import ClientPool
 from monstr.encrypt import Keys
 from monstr.event.event import Event
 
@@ -118,6 +119,52 @@ def resolve_keys(as_user: str | None) -> Keys:
     if key is None or key.private_key_hex() is None:
         raise click.ClickException("as-user must be a valid nsec private key")
     return key
+
+
+def normalize_relays(relays: str | None) -> str:
+    normalized: list[str] = []
+    relay_text = (relays or "").replace(",", " ")
+    for item in relay_text.split():
+        cleaned = item.strip()
+        if not cleaned:
+            continue
+        lowered = cleaned.lower()
+        if not lowered.startswith(("wss://", "ws://")):
+            cleaned = f"wss://{cleaned}"
+        normalized.append(cleaned)
+
+    if not normalized:
+        raise click.ClickException("relays must contain at least one relay URL")
+
+    return ",".join(normalized)
+
+
+async def validate_relays(relays: str, timeout: int = 10) -> str:
+    normalized = normalize_relays(relays)
+    relay_list = normalized.split(",")
+    invalid: list[str] = []
+
+    for relay in relay_list:
+        try:
+            async with ClientPool(
+                [relay],
+                timeout=timeout,
+                query_timeout=timeout,
+            ) as client:
+                await client.query(
+                    {"limit": 1},
+                    emulate_single=True,
+                    wait_connect=True,
+                    timeout=timeout,
+                )
+        except Exception:
+            invalid.append(relay)
+
+    if invalid:
+        joined = ", ".join(invalid)
+        raise click.ClickException(f"the following relay endpoints could not be used as Nostr relays: {joined}")
+
+    return normalized
 
 
 def build_digest(

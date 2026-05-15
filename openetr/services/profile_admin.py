@@ -15,6 +15,16 @@ from openetr.config import (
 from openetr.helpers import format_pubkey, resolve_keys
 
 
+async def initialize_relay_backed_root(config: dict) -> ProfilesIndexRecord:
+    existing_index = await _async_load_profiles_index(config)
+    if existing_index is not None:
+        return existing_index
+
+    index = ProfilesIndexRecord(active_profile="default", profiles=[])
+    await _async_store_profiles_index(index, config)
+    return index
+
+
 async def create_relay_backed_profile(
     profile_name: str,
     relays: str | None,

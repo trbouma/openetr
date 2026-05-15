@@ -155,7 +155,7 @@
       <div class="notice success">{{ success_message }}</div>
       {% endif %}
       <div class="notice info">
-        These relay settings apply to this browser session. Bootstrap relays support root-key profile discovery and recovery; working relays are used by default for record queries and issue actions.
+        These relay settings apply to this browser session. Bootstrap relays support root-key profile discovery and recovery; working relays are used by default for record queries and issue actions. Both fields accept comma- or space-delimited relay entries.
       </div>
 
       <section class="panel">
@@ -176,12 +176,12 @@
           <label>
             Bootstrap relay(s)
             <input type="text" name="bootstrap_relays" value="{{ bootstrap_relays }}" placeholder="wss://relay.example.com">
-            <span class="field-help">Used with the root key for profile discovery, recovery, and relay-backed signer management.</span>
+            <span class="field-help">Used with the root key for profile discovery, recovery, and relay-backed signer management. Separate multiple relays with commas or spaces.</span>
           </label>
           <label>
             Working relay(s)
             <input type="text" name="default_relays" value="{{ default_relays }}" placeholder="wss://relay.example.com,wss://relay.backup.example.com">
-            <span class="field-help">Used by default for record queries and ETR issue operations in this session.</span>
+            <span class="field-help">Used by default for record queries and ETR issue operations in this session. Separate multiple relays with commas or spaces.</span>
           </label>
           <div class="actions">
             <button type="submit">Save Relay Settings</button>

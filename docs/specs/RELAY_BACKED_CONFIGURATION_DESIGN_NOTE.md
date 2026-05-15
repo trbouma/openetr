@@ -149,6 +149,31 @@ Once the relay-backed records have been populated, this is sufficient to recover
 - per-profile settings
 - per-profile signer secrets
 
+## Login and Bootstrap Semantics
+
+The relay-backed model implies an important distinction between:
+
+- recovering an existing root identity
+- creating a new root identity
+
+For browser-based or interactive login flows, the intended semantics are:
+
+- manual `nsec` login should be treated as a recovery attempt
+- the chosen bootstrap relay set should be used to discover whether relay-backed configuration already exists for that root identity
+- if no relay-backed configuration can be found, the login should fail rather than silently assuming that the random key is already a valid OpenETR identity
+
+By contrast:
+
+- generated-key login is the path for creating a brand-new identity
+- the generated root key should then use the chosen bootstrap relay set as the starting point for relay-backed configuration
+
+This keeps the model clear:
+
+- existing identities are recovered from relays
+- new identities are intentionally bootstrapped
+
+It also reduces ambiguity where a valid `nsec` may exist cryptographically but has never yet been used as an OpenETR root identity on the selected relay set.
+
 ## Relay-Backed Authoritative Configuration
 
 The authoritative OpenETR CLI configuration should live on relays as signed events under the root CLI key.

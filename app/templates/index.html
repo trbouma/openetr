@@ -354,6 +354,28 @@
         web app, CLI for human use, CLI for agent use, and API for agent use.
       </div>
       <section class="panel">
+        {% if not identity.logged_in %}
+        <div class="section-break">
+          <h2>Work With Records</h2>
+        </div>
+
+        <div class="subpanel record-panel">
+          <h2>Query ETR</h2>
+          <p class="flow-note">
+            Upload a file and perform an OpenETR <code>query-etr</code>-style lookup using the file digest as the object identifier.
+          </p>
+          <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <label>
+              Relay domains or URLs
+              <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.getsafebox.app, relay.damus.io">
+              <span class="field-help">Enter one or more relays separated by commas or spaces. Plain domain names are normalized to <code>wss://</code> automatically.</span>
+            </label>
+            <button type="submit">Query ETR Records</button>
+          </form>
+        </div>
+        {% endif %}
+
         <div class="subpanel">
           {% if identity.logged_in %}
           <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
@@ -381,12 +403,21 @@
           </div>
           {% else %}
           <p>No nsec session is active.</p>
+          <p class="field-help">
+            <strong>Login with nsec</strong> is for an existing relay-backed identity that can be recovered from the bootstrap relay set.
+            <strong>Generate New nsec</strong> is for creating a brand-new identity and bootstrapping it on the selected relay set.
+          </p>
           <form action="/login" method="post">
             <input type="text" name="nsec" placeholder="nsec1..." required>
-            <button type="submit">Login with nsec</button>
-          </form>
-          <form action="/generate-login" method="post">
-            <button type="submit">Generate New nsec</button>
+            <label>
+              Bootstrap relay(s) for recovery (optional)
+              <input type="text" name="bootstrap_relays" value="{{ bootstrap_relays }}" placeholder="Leave blank to use the app default">
+              <span class="field-help">Only specify this if your relay-backed profile data is stored on a different bootstrap relay or relay set.</span>
+            </label>
+            <div class="button-row">
+              <button type="submit">Login with nsec</button>
+              <button type="submit" formaction="/generate-login" formmethod="post" formnovalidate>Generate New nsec</button>
+            </div>
           </form>
           {% endif %}
         </div>
@@ -453,6 +484,7 @@
         </div>
         {% endif %}
 
+        {% if identity.logged_in %}
         <div class="section-break">
           <h2>Work With Records</h2>
         </div>
@@ -469,7 +501,6 @@
           </form>
         </div>
 
-        {% if identity.logged_in %}
         <div class="subpanel record-panel">
           <h2>Issue ETR</h2>
           <p class="flow-note">
@@ -477,7 +508,11 @@
           </p>
           <form action="/api/issue-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
-            <input type="text" name="relays" value="{{ default_relays }}">
+            <label>
+              Relay domains or URLs
+              <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.getsafebox.app, relay.damus.io">
+              <span class="field-help">Enter one or more relays separated by commas or spaces. Plain domain names are normalized to <code>wss://</code> automatically, and each relay is validated before publish.</span>
+            </label>
             <input type="text" name="comment" placeholder="Optional comment">
             <button type="submit">Issue ETR</button>
           </form>

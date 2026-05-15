@@ -10,13 +10,13 @@ from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
 from fastapi.templating import Jinja2Templates
 from monstr.encrypt import Keys
 from starlette.staticfiles import StaticFiles
-from starlette.middleware.sessions import SessionMiddleware
 
+from app.encrypted_session import EncryptedSessionMiddleware
 from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
 from openetr.guards import evaluate_issue_etr_guard
-from openetr.helpers import format_object_identifier, format_pubkey, resolve_keys
+from openetr.helpers import format_object_identifier, format_pubkey, normalize_relays, resolve_keys, validate_relays
 from openetr.services.issue_etr import publish_issue_etr
-from openetr.services.profile_admin import create_relay_backed_profile
+from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
 from openetr.services.profile_publish import PROFILE_FIELDS, publish_profile_updates
 from openetr.services.query_etr import build_query_etr_result, compact_profile, fetch_profile
 
@@ -41,7 +41,7 @@ app = FastAPI(
     description="Demonstration FastAPI app kept separate from the installable openetr component.",
     version="0.1.0",
 )
-app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET)
+app.add_middleware(EncryptedSessionMiddleware, secret_key=SESSION_SECRET)
 app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 if APP_ASSETS_DIR.exists():
     app.mount("/app-assets", StaticFiles(directory=str(APP_ASSETS_DIR)), name="app-assets")
@@ -49,7 +49,7 @@ templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 
 def configured_home_relays() -> str:
-    return os.environ.get("OPENETR_HOME_RELAYS") or DEFAULT_RELAYS
+    return normalize_relays(os.environ.get("OPENETR_HOME_RELAYS") or DEFAULT_RELAYS)
 
 
 def bytes_to_nobj(data: bytes, prefix: str = NOBJ_PREFIX) -> str:
@@ -176,8 +176,8 @@ async def get_default_template_context(
 
 
 def normalize_relays_form(relays: str = Form(DEFAULT_RELAYS)) -> str:
-    normalized = ",".join(relay.strip() for relay in relays.split(",") if relay.strip())
-    return normalized or DEFAULT_RELAYS
+    raw = relays or DEFAULT_RELAYS
+    return normalize_relays(raw)
 
 
 @app.post("/settings")
@@ -187,11 +187,20 @@ async def update_settings(
     default_relays: str = Form(""),
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
-    normalized_bootstrap_relays = ",".join(relay.strip() for relay in bootstrap_relays.split(",") if relay.strip())
-    normalized_default_relays = ",".join(relay.strip() for relay in default_relays.split(",") if relay.strip())
+    try:
+        normalized_bootstrap_relays = await validate_relays(bootstrap_relays or configured_home_relays(), timeout=DEFAULT_QUERY_TIMEOUT)
+        normalized_default_relays = await validate_relays(default_relays or DEFAULT_RELAYS, timeout=DEFAULT_QUERY_TIMEOUT)
+    except click.ClickException as exc:
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(
+            request,
+            "settings.html",
+            template_context,
+            status_code=400,
+        )
 
-    request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays or configured_home_relays()
-    request.session[SESSION_DEFAULT_RELAYS_KEY] = normalized_default_relays or DEFAULT_RELAYS
+    request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays
+    request.session[SESSION_DEFAULT_RELAYS_KEY] = normalized_default_relays
 
     template_context = await get_default_template_context(session_identity(request))
     template_context["success_message"] = "Updated relay settings for this session."
@@ -348,6 +357,7 @@ async def health() -> dict[str, str]:
 async def login(
     request: Request,
     nsec: str = Form(...),
+    bootstrap_relays: str = Form(""),
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
     try:
@@ -361,9 +371,52 @@ async def login(
             status_code=400,
         )
 
+    try:
+        normalized_bootstrap_relays = await validate_relays(bootstrap_relays or configured_home_relays(), timeout=DEFAULT_QUERY_TIMEOUT)
+    except click.ClickException as exc:
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(
+            request,
+            "index.html",
+            template_context,
+            status_code=400,
+        )
+
     normalized_nsec = keys.private_key_bech32()
+    bootstrap_token = set_runtime_bootstrap_overrides(
+        root_nsec=normalized_nsec,
+        home_relays=normalized_bootstrap_relays,
+    )
+    try:
+        profiles_index = await _async_load_profiles_index(load_user_config())
+    except click.ClickException as exc:
+        reset_runtime_bootstrap_overrides(bootstrap_token)
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(
+            request,
+            "index.html",
+            template_context,
+            status_code=400,
+        )
+    finally:
+        reset_runtime_bootstrap_overrides(bootstrap_token)
+
+    if profiles_index is None:
+        template_context["error_message"] = (
+            "No relay-backed profile configuration was found for this nsec on the selected bootstrap relays. "
+            "If this is meant to be a brand-new identity, use 'Generate New nsec'. "
+            "If the identity already exists, specify the correct bootstrap relay(s)."
+        )
+        return templates.TemplateResponse(
+            request,
+            "index.html",
+            template_context,
+            status_code=400,
+        )
+
     request.session[SESSION_ROOT_NSEC_KEY] = normalized_nsec
     request.session[SESSION_SIGNER_NSEC_KEY] = normalized_nsec
+    request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays
     request.session.pop(SESSION_PROFILE_KEY, None)
     template_context = await get_default_template_context(session_identity(request))
     template_context["success_message"] = "Logged in with nsec session cookie."
@@ -382,6 +435,8 @@ async def logout(
     request.session.pop(SESSION_ROOT_NSEC_KEY, None)
     request.session.pop(SESSION_SIGNER_NSEC_KEY, None)
     request.session.pop(SESSION_PROFILE_KEY, None)
+    request.session.pop(SESSION_BOOTSTRAP_RELAYS_KEY, None)
+    request.session.pop(SESSION_DEFAULT_RELAYS_KEY, None)
     template_context = await get_default_template_context(session_identity(request))
     template_context["success_message"] = "Logged out."
     return templates.TemplateResponse(
@@ -394,15 +449,50 @@ async def logout(
 @app.post("/generate-login")
 async def generate_login(
     request: Request,
+    bootstrap_relays: str = Form(""),
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
+    try:
+        normalized_bootstrap_relays = await validate_relays(bootstrap_relays or configured_home_relays(), timeout=DEFAULT_QUERY_TIMEOUT)
+    except click.ClickException as exc:
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(
+            request,
+            "index.html",
+            template_context,
+            status_code=400,
+        )
+
     keys = Keys()
     generated_nsec = keys.private_key_bech32()
+    bootstrap_token = set_runtime_bootstrap_overrides(
+        root_nsec=generated_nsec,
+        home_relays=normalized_bootstrap_relays,
+    )
+    try:
+        await initialize_relay_backed_root(load_user_config())
+    except click.ClickException as exc:
+        reset_runtime_bootstrap_overrides(bootstrap_token)
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(
+            request,
+            "index.html",
+            template_context,
+            status_code=400,
+        )
+    finally:
+        reset_runtime_bootstrap_overrides(bootstrap_token)
+
     request.session[SESSION_ROOT_NSEC_KEY] = generated_nsec
     request.session[SESSION_SIGNER_NSEC_KEY] = generated_nsec
+    request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays
+    request.session[SESSION_DEFAULT_RELAYS_KEY] = normalized_bootstrap_relays
     request.session.pop(SESSION_PROFILE_KEY, None)
     template_context = await get_default_template_context(session_identity(request))
-    template_context["success_message"] = "Generated a new nsec and started a session."
+    template_context["success_message"] = (
+        "Generated a new nsec, initialized the new identity on the selected bootstrap relay(s), "
+        "and started a session. You can use this same nsec and bootstrap relay set to log back in later."
+    )
     template_context["generated_nsec"] = generated_nsec
     return templates.TemplateResponse(
         request,
@@ -458,10 +548,11 @@ async def create_profile(
             )
 
     try:
+        normalized_relays = await validate_relays(relays or DEFAULT_RELAYS, timeout=DEFAULT_QUERY_TIMEOUT)
         with session_bootstrap(identity):
             created_profile = await create_relay_backed_profile(
                 profile_name=profile_name,
-                relays=relays,
+                relays=normalized_relays,
                 config=load_user_config(),
                 signer_nsec=signer_nsec,
                 root_nsec=identity.get("root_nsec"),
@@ -625,9 +716,32 @@ async def edit_profile_submit(
     }
 
     try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+    except click.ClickException as exc:
+        return templates.TemplateResponse(
+            request,
+            "profile_edit.html",
+            {
+                "app_title": APP_TITLE,
+                "site_url": SITE_URL,
+                "git_commit": GIT_COMMIT,
+                "identity": identity,
+                "available_profiles": await get_available_profiles(identity),
+                "relays": relays,
+                "profile_name": identity["profile"],
+                "profile_fields": field_values,
+                "current_profile": [],
+                "error_message": str(exc),
+                "success_message": None,
+                "publish_result": None,
+            },
+            status_code=400,
+        )
+
+    try:
         with session_bootstrap(identity):
             publish_result = await publish_profile_updates(
-                relays=relays,
+                relays=validated_relays,
                 signer_nsec=identity["nsec"],
                 field_values=field_values,
                 replace=replace == "true",
@@ -636,7 +750,7 @@ async def edit_profile_submit(
             )
     except click.ClickException as exc:
         current_profile = await fetch_profile(
-            relays=relays,
+            relays=validated_relays,
             pubkey_hex=identity["pubkey_hex"],
             timeout=DEFAULT_QUERY_TIMEOUT,
             ssl_disable_verify=False,
@@ -650,7 +764,7 @@ async def edit_profile_submit(
                 "git_commit": GIT_COMMIT,
                 "identity": identity,
                 "available_profiles": await get_available_profiles(identity),
-                "relays": relays,
+                "relays": validated_relays,
                 "profile_name": identity["profile"],
                 "profile_fields": field_values,
                 "current_profile": compact_profile(current_profile),
@@ -670,7 +784,7 @@ async def edit_profile_submit(
             "site_url": SITE_URL,
             "identity": identity,
             "available_profiles": await get_available_profiles(identity),
-            "relays": relays,
+            "relays": validated_relays,
             "profile_name": identity["profile"],
             "profile_fields": profile_form_values(latest_profile),
             "current_profile": compact_profile(latest_profile),
@@ -700,11 +814,18 @@ async def query_etr_from_upload(
     relays: str = Depends(normalize_relays_form),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+    except click.ClickException as exc:
+        template_context = await get_default_template_context(identity)
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
+
     content = await file.read()
     digest = hashlib.sha256(content).hexdigest()
     query_context = await build_query_etr_result(
         digest=digest,
-        relays=relays,
+        relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
     return templates.TemplateResponse(
@@ -720,7 +841,7 @@ async def query_etr_from_upload(
             "size_bytes": len(content),
             "sha256": digest,
             "object_id": format_object_identifier(digest),
-            "relays": relays,
+            "relays": validated_relays,
             "query": query_context,
         },
     )
@@ -737,6 +858,13 @@ async def issue_etr_from_upload(
     file_size: int = Form(0),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+    except click.ClickException as exc:
+        template_context = await get_default_template_context(identity)
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
+
     if not identity.get("logged_in"):
         template_context = await get_default_template_context(identity)
         template_context["error_message"] = "You must log in with an nsec before issuing an ETR."
@@ -763,7 +891,7 @@ async def issue_etr_from_upload(
         size_bytes = file_size
 
     guard = await evaluate_issue_etr_guard(
-        relays=relays,
+        relays=validated_relays,
         digest=digest,
         author_pubkey_hex=identity["pubkey_hex"],
         query_timeout=DEFAULT_QUERY_TIMEOUT,
@@ -793,7 +921,7 @@ async def issue_etr_from_upload(
                 "size_bytes": size_bytes,
                 "sha256": digest,
                 "object_id": format_object_identifier(digest),
-                "relays": relays,
+                "relays": validated_relays,
                 "comment": comment.strip(),
                 "guard": guard,
                 "existing_issuer_profile": existing_issuer_profile,
@@ -804,13 +932,13 @@ async def issue_etr_from_upload(
         filename=filename,
         size_bytes=size_bytes,
         digest=digest,
-        relays=relays,
+        relays=validated_relays,
         signer_nsec=identity["nsec"],
         comment=comment.strip() or None,
     )
     query_context = await build_query_etr_result(
         digest=issue_result["sha256"],
-        relays=relays,
+        relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
     return templates.TemplateResponse(
@@ -826,7 +954,7 @@ async def issue_etr_from_upload(
             "size_bytes": issue_result["size_bytes"],
             "sha256": issue_result["sha256"],
             "object_id": issue_result["object_id"],
-            "relays": relays,
+            "relays": validated_relays,
             "query": query_context,
             "issue_result": issue_result,
         },
