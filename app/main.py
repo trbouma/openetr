@@ -7,6 +7,7 @@ from typing import Any
 import bech32
 import click
 from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from monstr.encrypt import Keys
 from starlette.staticfiles import StaticFiles
@@ -443,13 +444,7 @@ async def login(
     request.session[SESSION_SIGNER_NSEC_KEY] = normalized_nsec
     request.session[SESSION_BOOTSTRAP_RELAYS_KEY] = normalized_bootstrap_relays
     request.session.pop(SESSION_PROFILE_KEY, None)
-    template_context = await get_default_template_context(session_identity(request))
-    template_context["success_message"] = "Logged in with nsec session cookie."
-    return templates.TemplateResponse(
-        request,
-        "index.html",
-        template_context,
-    )
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/logout")
