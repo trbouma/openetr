@@ -1,0 +1,44 @@
+{% if error_message %}
+<div class="notice error">{{ error_message }}</div>
+{% endif %}
+{% if success_message %}
+<div class="notice success">{{ success_message }}</div>
+{% endif %}
+
+<section class="panel">
+  <p class="eyebrow">OpenETR</p>
+  <h1>Check Bitcoin Balance</h1>
+  <p>
+    Resolve an <code>nsec</code>, <code>npub</code>, <code>NIP-05</code> identifier, or a bare domain such as
+    <code>example.com</code>. The app derives the canonical Taproot <code>p2tr</code> address and looks up its
+    balance through the configured Esplora API.
+  </p>
+  <form action="/bitcoin/check-balance" method="post" hx-post="/bitcoin/check-balance" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML">
+    <label>
+      Nostr Identity Input
+      <input type="text" name="nostr_key" value="{{ balance_form.nostr_key }}" placeholder="nsec1..., npub1..., alice@example.com, or example.com" required>
+    </label>
+    <div class="actions">
+      <button type="submit">Check Balance</button>
+    </div>
+  </form>
+</section>
+
+{% if balance_result %}
+<section class="panel">
+  <h2>Taproot Wallet Details</h2>
+  <div class="kv">
+    <div>Input</div><div class="mono">{{ balance_result.input_value }}</div>
+    <div>Input Kind</div><div>{{ balance_result.input_kind }}</div>
+    <div>npub</div><div class="mono">{{ balance_result.npub }}</div>
+    <div>P2TR</div><div class="mono">{{ balance_result.p2tr }}</div>
+    <div>Internal Key</div><div class="mono">{{ balance_result.internal_public_key_hex }}</div>
+    <div>Taproot Output Key</div><div class="mono">{{ balance_result.taproot_output_key_hex }}</div>
+    <div>Taproot Tweak</div><div class="mono">{{ balance_result.taproot_tweak_hex }}</div>
+    <div>Total Balance</div><div>{{ balance_result.balance.total_sats }} sats</div>
+    <div>Confirmed</div><div>{{ balance_result.balance.confirmed_sats }} sats</div>
+    <div>Mempool</div><div>{{ balance_result.balance.mempool_sats }} sats</div>
+    <div>Balance Source</div><div class="mono">{{ balance_result.balance.api_base }}</div>
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_title }} Bitcoin Balance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #f5efe3;
+        --panel: #fffaf4;
+        --text: #1f1a14;
+        --accent: #8a5b2d;
+        --border: #d7c3a2;
+        --muted: #675c4d;
+        --heading: #18130d;
+      }
+      body {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(244, 198, 112, 0.22) 0, transparent 24rem),
+          radial-gradient(circle at top right, rgba(166, 118, 58, 0.08) 0, transparent 20rem),
+          linear-gradient(180deg, #f8f1e4 0%, var(--bg) 100%);
+      }
+      main {
+        max-width: 62rem;
+        margin: 4rem auto;
+        padding: 0 1.25rem;
+      }
+      .panel {
+        background: color-mix(in srgb, var(--panel) 96%, white);
+        border: 1px solid var(--border);
+        border-radius: 1.4rem;
+        padding: 1.75rem;
+        box-shadow: 0 18px 44px rgba(71, 44, 17, 0.08);
+        margin-bottom: 1rem;
+      }
+      h1, h2 {
+        margin-top: 0;
+        color: var(--heading);
+        letter-spacing: -0.04em;
+      }
+      h1 {
+        margin-bottom: 0.35rem;
+        font-size: clamp(2.3rem, 7vw, 4rem);
+        line-height: 0.98;
+        font-weight: 800;
+      }
+      h2 {
+        font-size: 1.15rem;
+        line-height: 1.1;
+        font-weight: 700;
+      }
+      p {
+        line-height: 1.7;
+        color: var(--muted);
+      }
+      form {
+        display: grid;
+        gap: 0.9rem;
+        margin-top: 1.25rem;
+        width: 100%;
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 0.8rem;
+        font: inherit;
+      }
+      label {
+        display: grid;
+        gap: 0.45rem;
+        font-weight: 700;
+        color: var(--heading);
+      }
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.75rem;
+      }
+      .notice.error {
+        background: #fff1ec;
+        border: 1px solid #e1a18d;
+      }
+      .notice.success {
+        background: #eef8ee;
+        border: 1px solid #9cc39c;
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+        gap: 0.35rem 1rem;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        word-break: break-all;
+      }
+      button {
+        width: fit-content;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.9rem 1.3rem;
+        background: var(--accent);
+        color: white;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(138, 91, 45, 0.22);
+      }
+      .actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+      .top-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .top-nav a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .eyebrow {
+        margin: 0 0 0.85rem;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      @media (max-width: 720px) {
+        .kv {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top-nav">
+        <a href="/overview">Overview</a>
+        <a href="/bitcoin/check-balance">Bitcoin Balance</a>
+        <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        {% if identity.logged_in %}
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Login</a>
+        {% endif %}
+      </div>
+      {% include "bitcoin_balance_fragment.html" %}
+    </main>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  </body>
+</html>

@@ -13,7 +13,7 @@ from fastapi.templating import Jinja2Templates
 from monstr.encrypt import Keys
 from starlette.staticfiles import StaticFiles
 
-from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, derive_bitcoin_wallet_material, fetch_blockstream_wallet_balance_sats
+from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, derive_bitcoin_wallet_material, derive_p2tr_balance_for_nostr_input, fetch_blockstream_wallet_balance_sats
 from app.encrypted_session import EncryptedSessionMiddleware
 from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
 from openetr.guards import evaluate_issue_etr_guard
@@ -100,6 +100,12 @@ def default_spend_form() -> dict[str, str]:
     }
 
 
+def default_balance_form() -> dict[str, str]:
+    return {
+        "nostr_key": "",
+    }
+
+
 async def render_profile_edit_response(
     request: Request,
     identity: dict[str, Any],
@@ -140,6 +146,34 @@ async def render_profile_edit_response(
             "spend_form": spend_form or default_spend_form(),
             "spend_preview": spend_preview,
             "spend_broadcast": spend_broadcast,
+        },
+        status_code=status_code,
+    )
+
+
+def render_bitcoin_balance_response(
+    request: Request,
+    identity: dict[str, Any],
+    *,
+    balance_form: dict[str, str] | None = None,
+    balance_result: dict[str, Any] | None = None,
+    error_message: str | None = None,
+    success_message: str | None = None,
+    status_code: int = 200,
+):
+    template_name = "bitcoin_balance_fragment.html" if is_htmx_request(request) else "bitcoin_balance.html"
+    return templates.TemplateResponse(
+        request,
+        template_name,
+        {
+            "app_title": APP_TITLE,
+            "site_url": SITE_URL,
+            "git_commit": GIT_COMMIT,
+            "identity": identity,
+            "balance_form": balance_form or default_balance_form(),
+            "balance_result": balance_result,
+            "error_message": error_message,
+            "success_message": success_message,
         },
         status_code=status_code,
     )
@@ -448,6 +482,55 @@ async def overview_page(
         request,
         "overview.html",
         template_context,
+    )
+
+
+@app.get("/bitcoin/check-balance")
+async def bitcoin_balance_page(
+    request: Request,
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    return render_bitcoin_balance_response(request, identity)
+
+
+@app.post("/bitcoin/check-balance")
+async def bitcoin_balance_submit(
+    request: Request,
+    nostr_key: str = Form(""),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    balance_form = {"nostr_key": nostr_key.strip()}
+    if not balance_form["nostr_key"]:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            error_message="Enter an nsec, npub, NIP-05 identifier, or a bare domain for NIP-05 lookup.",
+            status_code=400,
+        )
+
+    try:
+        balance_result = await asyncio.to_thread(
+            derive_p2tr_balance_for_nostr_input,
+            balance_form["nostr_key"],
+            BLOCKSTREAM_API_BASE,
+            5.0,
+        )
+    except click.ClickException as exc:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    return render_bitcoin_balance_response(
+        request,
+        identity,
+        balance_form=balance_form,
+        balance_result=balance_result,
+        success_message="Resolved Taproot wallet balance.",
     )
 
 
