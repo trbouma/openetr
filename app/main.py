@@ -234,6 +234,28 @@ async def render_profile_edit_response(
     )
 
 
+def render_profile_publish_response(
+    request: Request,
+    *,
+    current_profile: list[tuple[str, str]],
+    publish_result: dict[str, Any] | None = None,
+    error_message: str | None = None,
+    success_message: str | None = None,
+    status_code: int = 200,
+):
+    return templates.TemplateResponse(
+        request,
+        "profile_publish_fragment.html",
+        {
+            "current_profile": current_profile,
+            "publish_result": publish_result,
+            "error_message": error_message,
+            "success_message": success_message,
+        },
+        status_code=status_code,
+    )
+
+
 def render_bitcoin_balance_response(
     request: Request,
     identity: dict[str, Any],
@@ -1474,6 +1496,13 @@ async def edit_profile_submit(
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
     except click.ClickException as exc:
+        if is_htmx_request(request):
+            return render_profile_publish_response(
+                request,
+                current_profile=[],
+                error_message=str(exc),
+                status_code=400,
+            )
         return await render_profile_edit_response(
             request,
             identity,
@@ -1502,6 +1531,13 @@ async def edit_profile_submit(
             timeout=DEFAULT_QUERY_TIMEOUT,
             ssl_disable_verify=False,
         ) or {}
+        if is_htmx_request(request):
+            return render_profile_publish_response(
+                request,
+                current_profile=compact_profile(current_profile),
+                error_message=str(exc),
+                status_code=400,
+            )
         return await render_profile_edit_response(
             request,
             identity,
@@ -1514,6 +1550,13 @@ async def edit_profile_submit(
         )
 
     latest_profile = publish_result["latest_content"] or publish_result["published_content"]
+    if is_htmx_request(request):
+        return render_profile_publish_response(
+            request,
+            current_profile=compact_profile(latest_profile),
+            publish_result=publish_result,
+            success_message="Published updated social profile.",
+        )
     return await render_profile_edit_response(
         request,
         identity,

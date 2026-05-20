@@ -1,0 +1,43 @@
+<div id="profile-publish-region">
+  {% if error_message %}
+  <div class="notice error">{{ error_message }}</div>
+  {% endif %}
+  {% if success_message %}
+  <div class="notice success">{{ success_message }}</div>
+  {% endif %}
+
+  <section class="panel">
+    <h2>Current Profile</h2>
+    {% if current_profile %}
+    <div class="kv">
+      {% for field, value in current_profile %}
+      <div>{{ field }}</div><div{% if field in ["picture", "banner", "website"] %} class="mono"{% endif %}>{{ value }}</div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>No kind-0 social profile was found for this signer on the selected relays.</p>
+    {% endif %}
+  </section>
+
+  {% if publish_result %}
+  <section class="panel">
+    <h2>Publish Result</h2>
+    <div class="kv">
+      <div>Event ID</div><div class="mono">{{ publish_result.event_id }}</div>
+      <div>Signer</div><div class="mono" title="{{ publish_result.signer_npub }}">{{ publish_result.signer_npub | short_id }}</div>
+      <div>Latest Event ID</div><div class="mono">{{ publish_result.latest_event_id }}</div>
+      <div>Exact Match</div><div>{{ publish_result.exact_match }}</div>
+      <div>Updated Fields</div><div>{{ publish_result.updated_fields|join(", ") if publish_result.updated_fields else "none" }}</div>
+      <div>Removed Fields</div><div>{{ publish_result.removed_fields|join(", ") if publish_result.removed_fields else "none" }}</div>
+    </div>
+    {% if publish_result.ok_results %}
+    <h3>Relay OK Results</h3>
+    <ul>
+      {% for item in publish_result.ok_results %}
+      <li><span class="mono">{{ item.event_id }}</span> success={{ item.success }} message={{ item.message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>

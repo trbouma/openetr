@@ -31,7 +31,7 @@
 </section>
 
 <section class="panel">
-  <form action="/profiles/edit" method="post" hx-post="/profiles/edit" hx-target="#profile-edit-shell" hx-swap="outerHTML">
+  <form action="/profiles/edit" method="post" hx-post="/profiles/edit" hx-target="#profile-publish-region" hx-swap="outerHTML">
     <input type="hidden" name="relays" value="{{ relays }}">
     <div class="grid">
       <label>
@@ -92,18 +92,7 @@
   </form>
 </section>
 
-<section class="panel">
-  <h2>Current Profile</h2>
-  {% if current_profile %}
-  <div class="kv">
-    {% for field, value in current_profile %}
-    <div>{{ field }}</div><div{% if field in ["picture", "banner", "website"] %} class="mono"{% endif %}>{{ value }}</div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <p>No kind-0 social profile was found for this signer on the selected relays.</p>
-  {% endif %}
-</section>
+{% include "_profile_publish_shell.html" %}
 
 <section class="panel">
   <h2>Bitcoin Wallet</h2>
@@ -114,7 +103,6 @@
   <div class="kv">
     <div>npub</div><div class="mono">{{ identity.npub }}</div>
     <div>P2TR</div><div>{{ qr_address('Taproot P2TR', bitcoin_wallet.p2tr) }}</div>
-    <div>Silent Payment</div><div>{{ qr_address('Silent Payment Address', bitcoin_wallet.silent_payment.silent_payment_address) }}</div>
     <div>Internal Key</div><div class="mono">{{ bitcoin_wallet.internal_public_key_hex }}</div>
     <div>Taproot Output Key</div><div class="mono">{{ bitcoin_wallet.taproot_output_key_hex }}</div>
     <div>Taproot Tweak</div><div class="mono">{{ bitcoin_wallet.taproot_tweak_hex }}</div>
@@ -131,9 +119,6 @@
   {% endif %}
   <div class="notice warning" style="margin-top: 1rem;">
     The Taproot WIF gives direct spending control over the Taproot wallet shown above. Keep it offline and private. The mnemonic shown in the reveal dialog is not the recommended wallet recovery format for this Taproot flow, because many wallet apps will interpret it as an HD seed and derive a different wallet.
-  </div>
-  <div class="notice info" style="margin-top: 1rem;">
-    The Silent Payment address shown above is available for early inspection and sharing, but Silent Payments support in OpenETR is still under implementation. Address derivation is present; scanning, receipt detection, and sending support are not yet complete.
   </div>
   <div class="notice info" style="margin-top: 1rem;">
     To spend funds, import the revealed <code>taproot_wif</code> into a Bitcoin wallet of your choice that supports Taproot single-address imports. Before sending or spending meaningful funds, confirm that the wallet shows the same <code>p2tr</code> address displayed on this page.
@@ -215,28 +200,6 @@
   </div>
   {% endif %}
 </section>
-
-{% if publish_result %}
-<section class="panel">
-  <h2>Publish Result</h2>
-  <div class="kv">
-    <div>Event ID</div><div class="mono">{{ publish_result.event_id }}</div>
-    <div>Signer</div><div class="mono" title="{{ publish_result.signer_npub }}">{{ publish_result.signer_npub | short_id }}</div>
-    <div>Latest Event ID</div><div class="mono">{{ publish_result.latest_event_id }}</div>
-    <div>Exact Match</div><div>{{ publish_result.exact_match }}</div>
-    <div>Updated Fields</div><div>{{ publish_result.updated_fields|join(", ") if publish_result.updated_fields else "none" }}</div>
-    <div>Removed Fields</div><div>{{ publish_result.removed_fields|join(", ") if publish_result.removed_fields else "none" }}</div>
-  </div>
-  {% if publish_result.ok_results %}
-  <h3>Relay OK Results</h3>
-  <ul>
-    {% for item in publish_result.ok_results %}
-    <li><span class="mono">{{ item.event_id }}</span> success={{ item.success }} message={{ item.message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-</section>
-{% endif %}
 
 <dialog id="wallet-seed-dialog">
   <div class="dialog-body">
