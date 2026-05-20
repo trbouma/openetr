@@ -64,8 +64,75 @@
     <div>Silent Payment</div><div>{{ qr_address('Silent Payment Address', silent_payment_result.silent_payment_address) }}</div>
   </div>
   <div class="notice info" style="margin-top: 1rem;">
-    This Silent Payment address is available for early inspection and sharing, but Silent Payments support in OpenETR is still under implementation. Address derivation is present; scanning, receipt detection, and sending are not yet complete.
+    This Silent Payment address can be shared with compatible wallets. OpenETR can now check a provided Bitcoin txid for a matching receipt and preview a sweep transaction, but broad wallet-style scanning and richer UX are still under implementation.
   </div>
+
+  {% if balance_result.input_kind == "nsec" %}
+  <form action="/bitcoin/silent-payment/preview" method="post" hx-post="/bitcoin/silent-payment/preview" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML" style="margin-top: 1rem;">
+    <input type="hidden" name="nostr_key" value="{{ silent_payment_form.nostr_key or balance_form.nostr_key }}">
+    <input type="hidden" name="transaction_limit" value="{{ silent_payment_form.transaction_limit or balance_form.transaction_limit }}">
+    <label>
+      Receipt TXID
+      <input type="text" name="txid" value="{{ silent_payment_form.txid }}" placeholder="Bitcoin transaction id" required>
+    </label>
+    <label>
+      Sweep Destination Address
+      <input type="text" name="destination_address" value="{{ silent_payment_form.destination_address }}" placeholder="bc1p..." required>
+    </label>
+    <label>
+      Fee Rate (sats/vbyte)
+      <input type="text" name="fee_rate" value="{{ silent_payment_form.fee_rate }}" placeholder="2.0" required>
+    </label>
+    <div class="actions">
+      <button type="submit">Find Receipt and Preview Sweep</button>
+    </div>
+  </form>
+
+  {% if silent_payment_preview %}
+  <section class="panel" style="margin-top: 1rem; margin-bottom: 0;">
+    <h3>Silent Payment Receipt Match</h3>
+    <div class="kv">
+      <div>Receipt TXID</div><div class="mono">{{ silent_payment_preview.matched_txid }}</div>
+      <div>Matched Vout</div><div>{{ silent_payment_preview.matched_vout }}</div>
+      <div>Matched Value</div><div>{{ silent_payment_preview.matched_value }} sats</div>
+      <div>Matched Address</div><div class="mono">{{ silent_payment_preview.source_address }}</div>
+      <div>Shared Secret Index</div><div>{{ silent_payment_preview.matched_shared_secret_index }}</div>
+      <div>Sweep Destination</div><div class="mono">{{ silent_payment_preview.destination_address }}</div>
+      <div>Sweep Amount</div><div>{{ silent_payment_preview.amount_sats }} sats</div>
+      <div>Fee Rate</div><div>{{ silent_payment_preview.fee_rate }} sats/vbyte</div>
+      <div>Fee</div><div>{{ silent_payment_preview.fee_sats }} sats</div>
+      <div>Inputs</div><div>{{ silent_payment_preview.input_count }}</div>
+      <div>Outputs</div><div>{{ silent_payment_preview.output_count }}</div>
+      <div>Virtual Size</div><div>{{ silent_payment_preview.vsize }} vbytes</div>
+      <div>Signed TXID</div><div class="mono">{{ silent_payment_preview.txid }}</div>
+    </div>
+    <label style="margin-top: 1rem; display: grid;">
+      Signed Transaction Hex
+      <textarea readonly>{{ silent_payment_preview.tx_hex }}</textarea>
+    </label>
+    <form action="/bitcoin/silent-payment/broadcast" method="post" hx-post="/bitcoin/silent-payment/broadcast" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML" style="margin-top: 1rem;">
+      <input type="hidden" name="nostr_key" value="{{ silent_payment_form.nostr_key or balance_form.nostr_key }}">
+      <input type="hidden" name="transaction_limit" value="{{ silent_payment_form.transaction_limit or balance_form.transaction_limit }}">
+      <input type="hidden" name="receipt_txid" value="{{ silent_payment_preview.matched_txid }}">
+      <input type="hidden" name="destination_address" value="{{ silent_payment_form.destination_address }}">
+      <input type="hidden" name="fee_rate" value="{{ silent_payment_form.fee_rate }}">
+      <input type="hidden" name="tx_hex" value="{{ silent_payment_preview.tx_hex }}">
+      <input type="hidden" name="signed_txid" value="{{ silent_payment_preview.txid }}">
+      <div class="actions">
+        <button type="submit">Broadcast Silent Payment Sweep</button>
+      </div>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if silent_payment_broadcast %}
+  <div class="notice success" style="margin-top: 1rem;">
+    <strong>Silent Payment sweep broadcast complete.</strong>
+    Submitted TXID:
+    <span class="mono">{{ silent_payment_broadcast.broadcast_txid }}</span>
+  </div>
+  {% endif %}
+  {% endif %}
 </section>
 {% endif %}
 
