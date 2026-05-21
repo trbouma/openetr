@@ -158,6 +158,57 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
+      .hero-qr {
+        display: none;
+        margin: 0 0 1.2rem;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: rgba(255, 250, 244, 0.92);
+        text-align: center;
+      }
+      .hero-qr.active {
+        display: block;
+      }
+      .hero-qr-label {
+        margin: 0 0 0.45rem;
+        color: var(--accent);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .hero-qr-canvas {
+        display: flex;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        cursor: pointer;
+      }
+      .hero-qr-canvas img,
+      .hero-qr-canvas canvas {
+        width: 200px;
+        height: 200px;
+      }
+      .hero-qr-copy {
+        display: inline-block;
+        width: fit-content;
+        margin: 0 auto 0.6rem;
+        background: transparent;
+        color: var(--accent);
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+        text-decoration: underline;
+        text-underline-offset: 0.18rem;
+      }
+      .hero-qr-address {
+        margin-bottom: 0.4rem;
+      }
+      .hero-qr-status {
+        min-height: 1.2rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
       button {
         width: fit-content;
         border: 0;
@@ -294,8 +345,45 @@
         });
       }
 
+      function initializeHeroP2trQr(scope) {
+        const root = scope || document;
+        const hero = root.querySelector('#p2tr-hero-qr');
+        if (!hero || hero.dataset.bound === 'yes' || typeof QRCode === 'undefined') {
+          return;
+        }
+        const address = hero.dataset.address || '';
+        const canvas = hero.querySelector('.hero-qr-canvas');
+        const copyButton = hero.querySelector('#p2tr-hero-copy-button');
+        const status = hero.querySelector('#p2tr-hero-copy-status');
+        if (!address || !canvas || !copyButton) {
+          return;
+        }
+        new QRCode(canvas, {
+          text: address,
+          width: 200,
+          height: 200,
+          correctLevel: QRCode.CorrectLevel.M,
+        });
+        const copyAddress = async () => {
+          try {
+            await navigator.clipboard.writeText(address);
+            if (status) {
+              status.textContent = 'Copied p2tr address.';
+            }
+          } catch (error) {
+            if (status) {
+              status.textContent = 'Clipboard copy failed.';
+            }
+          }
+        };
+        copyButton.addEventListener('click', copyAddress);
+        canvas.addEventListener('click', copyAddress);
+        hero.dataset.bound = 'yes';
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
         renderAddressQrs(document);
+        initializeHeroP2trQr(document);
         initializeShareLink();
         syncBalancePageUrl();
       });
@@ -317,6 +405,7 @@
       document.body.addEventListener('htmx:afterSwap', (event) => {
         if (event.target && event.target.id === 'bitcoin-balance-shell') {
           renderAddressQrs(event.target);
+          initializeHeroP2trQr(event.target);
           initializeShareLink();
           syncBalancePageUrl();
         }

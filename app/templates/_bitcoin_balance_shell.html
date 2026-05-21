@@ -42,6 +42,15 @@
 {% if balance_result %}
 <section class="panel">
   <h2>Taproot Wallet Details</h2>
+  <div id="p2tr-hero-qr"
+       class="hero-qr{% if balance_result %} active{% endif %}"
+       data-address="{{ balance_result.p2tr if balance_result else '' }}">
+    <div class="hero-qr-label">Taproot Receive QR</div>
+    <div class="hero-qr-canvas"></div>
+    <button type="button" class="hero-qr-copy" id="p2tr-hero-copy-button">Click QR to Copy P2TR Address</button>
+    <div class="mono hero-qr-address">{{ balance_result.p2tr if balance_result else '' }}</div>
+    <div class="mono hero-qr-status" id="p2tr-hero-copy-status"></div>
+  </div>
   <div class="kv">
     <div>Input</div><div class="mono">{{ balance_result.input_value }}</div>
     <div>Input Kind</div><div>{{ balance_result.input_kind }}</div>
