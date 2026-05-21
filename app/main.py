@@ -22,7 +22,7 @@ from openetr.services.issue_etr import publish_issue_etr
 from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
 from openetr.services.profile_publish import PROFILE_FIELDS, publish_profile_updates
 from openetr.services.query_etr import build_query_etr_result, compact_profile, fetch_profile
-from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material
+from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, silent_payment_address_belongs_to_nostr_key
 
 
 APP_TITLE = "OpenETR Demo App"
@@ -127,6 +127,13 @@ def default_silent_payment_form() -> dict[str, str]:
     }
 
 
+def default_silent_payment_ownership_form() -> dict[str, str]:
+    return {
+        "nostr_key": "",
+        "silent_payment_address": "",
+    }
+
+
 def parse_transaction_limit(value: str) -> int:
     try:
         parsed = int(value)
@@ -187,6 +194,49 @@ async def resolve_balance_page_data(
         silent_payment_result,
         silent_payment_form,
     )
+
+
+async def resolve_silent_payment_ownership_data(
+    nostr_key: str,
+    silent_payment_address: str,
+) -> tuple[dict[str, str], dict[str, Any], str]:
+    ownership_form = {
+        "nostr_key": nostr_key.strip(),
+        "silent_payment_address": silent_payment_address.strip(),
+    }
+    if not ownership_form["nostr_key"]:
+        raise click.ClickException("Enter an npub, nsec, NIP-05 identifier, or bare domain before checking Silent Payments ownership.")
+
+    derived_material = await asyncio.to_thread(
+        derive_silent_payment_material,
+        ownership_form["nostr_key"],
+    )
+    success_message = "Derived Silent Payment address from the provided Nostr identity."
+    belongs = None
+    checked_address = ownership_form["silent_payment_address"]
+    if checked_address:
+        belongs = await asyncio.to_thread(
+            silent_payment_address_belongs_to_nostr_key,
+            ownership_form["nostr_key"],
+            checked_address,
+        )
+        success_message = (
+            "The provided Silent Payment address matches the resolved Nostr identity."
+            if belongs
+            else "The provided Silent Payment address does not match the resolved Nostr identity."
+        )
+    else:
+        checked_address = derived_material["silent_payment_address"]
+
+    return ownership_form, {
+        "input_value": ownership_form["nostr_key"],
+        "input_kind": derived_material["input_kind"],
+        "npub": derived_material["npub"],
+        "derived_silent_payment_address": derived_material["silent_payment_address"],
+        "checked_silent_payment_address": checked_address,
+        "belongs": belongs,
+        "warning": derived_material["warning"],
+    }, success_message
 
 
 async def render_profile_edit_response(
@@ -270,10 +320,28 @@ def render_bitcoin_balance_response(
     silent_payment_form: dict[str, str] | None = None,
     silent_payment_preview: dict[str, Any] | None = None,
     silent_payment_broadcast: dict[str, Any] | None = None,
+    silent_payment_ownership_form: dict[str, str] | None = None,
+    silent_payment_ownership_result: dict[str, Any] | None = None,
+    silent_payment_ownership_error: str | None = None,
+    silent_payment_ownership_success: str | None = None,
     error_message: str | None = None,
     success_message: str | None = None,
     status_code: int = 200,
 ):
+    if is_htmx_request(request) and request.url.path == "/bitcoin/silent-payment/ownership":
+        return templates.TemplateResponse(
+            request,
+            "silent_payment_ownership_fragment.html",
+            {
+                "silent_payment_ownership_form": (
+                    silent_payment_ownership_form or default_silent_payment_ownership_form()
+                ),
+                "silent_payment_ownership_result": silent_payment_ownership_result,
+                "silent_payment_ownership_error": silent_payment_ownership_error,
+                "silent_payment_ownership_success": silent_payment_ownership_success,
+            },
+            status_code=status_code,
+        )
     template_name = "bitcoin_balance_fragment.html" if is_htmx_request(request) else "bitcoin_balance.html"
     return templates.TemplateResponse(
         request,
@@ -293,6 +361,12 @@ def render_bitcoin_balance_response(
             "silent_payment_form": silent_payment_form or default_silent_payment_form(),
             "silent_payment_preview": silent_payment_preview,
             "silent_payment_broadcast": silent_payment_broadcast,
+            "silent_payment_ownership_form": (
+                silent_payment_ownership_form or default_silent_payment_ownership_form()
+            ),
+            "silent_payment_ownership_result": silent_payment_ownership_result,
+            "silent_payment_ownership_error": silent_payment_ownership_error,
+            "silent_payment_ownership_success": silent_payment_ownership_success,
             "error_message": error_message,
             "success_message": success_message,
         },
@@ -680,6 +754,39 @@ async def bitcoin_balance_submit(
         sweep_form=sweep_form,
         silent_payment_form=silent_payment_form,
         success_message="Resolved Taproot wallet balance.",
+    )
+
+
+@app.post("/bitcoin/silent-payment/ownership")
+async def bitcoin_silent_payment_ownership(
+    request: Request,
+    nostr_key: str = Form(""),
+    silent_payment_address: str = Form(""),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    try:
+        ownership_form, ownership_result, ownership_success = await resolve_silent_payment_ownership_data(
+            nostr_key,
+            silent_payment_address,
+        )
+    except click.ClickException as exc:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            silent_payment_ownership_form={
+                "nostr_key": nostr_key.strip(),
+                "silent_payment_address": silent_payment_address.strip(),
+            },
+            silent_payment_ownership_error=str(exc),
+            status_code=400,
+        )
+
+    return render_bitcoin_balance_response(
+        request,
+        identity,
+        silent_payment_ownership_form=ownership_form,
+        silent_payment_ownership_result=ownership_result,
+        silent_payment_ownership_success=ownership_success,
     )
 
 

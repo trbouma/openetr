@@ -345,45 +345,48 @@
         });
       }
 
-      function initializeHeroP2trQr(scope) {
+      function initializeHeroQrs(scope) {
         const root = scope || document;
-        const hero = root.querySelector('#p2tr-hero-qr');
-        if (!hero || hero.dataset.bound === 'yes' || typeof QRCode === 'undefined') {
-          return;
-        }
-        const address = hero.dataset.address || '';
-        const canvas = hero.querySelector('.hero-qr-canvas');
-        const copyButton = hero.querySelector('#p2tr-hero-copy-button');
-        const status = hero.querySelector('#p2tr-hero-copy-status');
-        if (!address || !canvas || !copyButton) {
-          return;
-        }
-        new QRCode(canvas, {
-          text: address,
-          width: 200,
-          height: 200,
-          correctLevel: QRCode.CorrectLevel.M,
-        });
-        const copyAddress = async () => {
-          try {
-            await navigator.clipboard.writeText(address);
-            if (status) {
-              status.textContent = 'Copied p2tr address.';
-            }
-          } catch (error) {
-            if (status) {
-              status.textContent = 'Clipboard copy failed.';
-            }
+        root.querySelectorAll('.hero-qr').forEach((hero) => {
+          if (hero.dataset.bound === 'yes' || typeof QRCode === 'undefined') {
+            return;
           }
-        };
-        copyButton.addEventListener('click', copyAddress);
-        canvas.addEventListener('click', copyAddress);
-        hero.dataset.bound = 'yes';
+          const address = hero.dataset.address || '';
+          const canvas = hero.querySelector('.hero-qr-canvas');
+          const copyButton = hero.querySelector('.hero-qr-copy');
+          const status = hero.querySelector('.hero-qr-status');
+          if (!address || !canvas) {
+            return;
+          }
+          new QRCode(canvas, {
+            text: address,
+            width: 200,
+            height: 200,
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+          if (copyButton) {
+            const copyAddress = async () => {
+              try {
+                await navigator.clipboard.writeText(address);
+                if (status) {
+                  status.textContent = 'Copied address.';
+                }
+              } catch (error) {
+                if (status) {
+                  status.textContent = 'Clipboard copy failed.';
+                }
+              }
+            };
+            copyButton.addEventListener('click', copyAddress);
+            canvas.addEventListener('click', copyAddress);
+          }
+          hero.dataset.bound = 'yes';
+        });
       }
 
       document.addEventListener('DOMContentLoaded', () => {
         renderAddressQrs(document);
-        initializeHeroP2trQr(document);
+        initializeHeroQrs(document);
         initializeShareLink();
         syncBalancePageUrl();
       });
@@ -405,10 +408,10 @@
       document.body.addEventListener('htmx:afterSwap', (event) => {
         if (event.target && event.target.id === 'bitcoin-balance-shell') {
           renderAddressQrs(event.target);
-          initializeHeroP2trQr(event.target);
           initializeShareLink();
           syncBalancePageUrl();
         }
+        initializeHeroQrs(event.target || document);
       });
     </script>
   </body>

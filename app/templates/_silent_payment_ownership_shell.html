@@ -1,0 +1,68 @@
+{% macro qr_address(label, address) -%}
+<span class="qr-address" data-address="{{ address }}" tabindex="0">
+  <span class="mono address-value">{{ address }}</span>
+  <span class="qr-popover">
+    <div class="qr-label">{{ label }}</div>
+    <div class="qr-canvas"></div>
+    <div class="mono">{{ address }}</div>
+  </span>
+</span>
+{%- endmacro %}
+
+<div id="silent-payment-ownership-region">
+  {% if silent_payment_ownership_error %}
+  <div class="notice error">{{ silent_payment_ownership_error }}</div>
+  {% endif %}
+  {% if silent_payment_ownership_success %}
+  <div class="notice success">{{ silent_payment_ownership_success }}</div>
+  {% endif %}
+  {% if silent_payment_ownership_result and silent_payment_ownership_form.silent_payment_address and silent_payment_ownership_result.belongs == false %}
+  <div class="notice warning" style="background: #fff1cc; border: 2px solid #c4492d; color: #7a1f12;">
+    The provided Silent Payment address does not resolve for this Nostr identity. The correct version is displayed below.
+  </div>
+  {% endif %}
+
+  <section class="panel">
+    <h2 style="font-size: 1.45rem; line-height: 1.08; margin-bottom: 0.55rem;">Check Silent Payment Ownership</h2>
+    <p>
+      Check whether a Silent Payment address belongs to an <code>npub</code> or the <code>npub</code> resolved from a
+      <code>NIP-05</code> identifier. Leave the Silent Payment address blank to generate and display the derived
+      <code>sp1...</code> address for that identity.
+    </p>
+    <form action="/bitcoin/silent-payment/ownership" method="post" hx-post="/bitcoin/silent-payment/ownership" hx-target="#silent-payment-ownership-region" hx-swap="outerHTML">
+      <label>
+        Nostr Identity
+        <input type="text" name="nostr_key" value="{{ silent_payment_ownership_form.nostr_key }}" placeholder="npub1..., alice@example.com, or example.com" required>
+      </label>
+      <label>
+        Silent Payment Address (optional)
+        <input type="text" name="silent_payment_address" value="{{ silent_payment_ownership_form.silent_payment_address }}" placeholder="sp1...">
+      </label>
+      <div class="actions">
+        <button type="submit">Check or Generate Silent Payment Address</button>
+      </div>
+    </form>
+
+    {% if silent_payment_ownership_result %}
+    <div class="hero-qr active"
+         data-address="{{ silent_payment_ownership_result.derived_silent_payment_address }}">
+      <div class="hero-qr-label">Silent Payment Receive QR</div>
+      <div class="hero-qr-canvas"></div>
+      <div class="mono hero-qr-address">{{ silent_payment_ownership_result.derived_silent_payment_address }}</div>
+    </div>
+    <div class="kv" style="margin-top: 1rem;">
+      <div>Input</div><div class="mono">{{ silent_payment_ownership_result.input_value }}</div>
+      <div>Input Kind</div><div>{{ silent_payment_ownership_result.input_kind }}</div>
+      <div>Resolved npub</div><div class="mono">{{ silent_payment_ownership_result.npub }}</div>
+      <div>Derived Silent Payment</div><div>{{ qr_address('Derived Silent Payment Address', silent_payment_ownership_result.derived_silent_payment_address) }}</div>
+      {% if silent_payment_ownership_form.silent_payment_address %}
+      <div>Checked Silent Payment</div><div class="mono">{{ silent_payment_ownership_result.checked_silent_payment_address }}</div>
+      <div>Belongs to Identity</div><div>{{ "yes" if silent_payment_ownership_result.belongs else "no" }}</div>
+      {% endif %}
+    </div>
+    {% if silent_payment_ownership_result.warning %}
+    <div class="notice info" style="margin-top: 1rem;">{{ silent_payment_ownership_result.warning }}</div>
+    {% endif %}
+    {% endif %}
+  </section>
+</div>

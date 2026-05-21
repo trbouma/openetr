@@ -71,6 +71,16 @@ def encode_silent_payment_address(scan_pubkey: bytes, spend_pubkey: bytes, hrp: 
     return bech32m_encode(hrp, [version] + data)
 
 
+def silent_payment_hrp(silent_payment_address: str) -> str:
+    normalized = (silent_payment_address or "").strip().lower()
+    if not normalized or "1" not in normalized:
+        raise click.ClickException("silent payment address must be a valid bech32m string")
+    hrp, _ = normalized.split("1", 1)
+    if not hrp:
+        raise click.ClickException("silent payment address is missing its human-readable prefix")
+    return hrp
+
+
 def normalize_nostr_key_input(nostr_key: str) -> tuple[str, str]:
     candidate = nostr_key.strip()
     if not candidate:
@@ -157,6 +167,21 @@ def derive_silent_payment_material(nostr_key: str, hrp: str = "sp") -> dict[str,
         "silent_payment_address": encode_silent_payment_address(scan_pubkey, spend_pubkey, hrp=hrp),
         "warning": warning,
     }
+
+
+def silent_payment_address_belongs_to_nostr_key(
+    nostr_key: str,
+    silent_payment_address: str,
+) -> bool:
+    normalized_address = (silent_payment_address or "").strip().lower()
+    if not normalized_address:
+        raise click.ClickException("silent payment address cannot be empty")
+
+    expected = derive_silent_payment_material(
+        nostr_key,
+        hrp=silent_payment_hrp(normalized_address),
+    )["silent_payment_address"].lower()
+    return expected == normalized_address
 
 
 def _script_type(script_hex: str) -> str:
