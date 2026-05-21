@@ -271,6 +271,108 @@ Important security and operational rules:
 - derive Silent Payments keys with strict domain separation
 - never silently merge the two wallet models
 - clearly label Silent Payments as a separate Bitcoin receive protocol
+
+## Relationship to BIP-352 Per-Payment Math
+
+It is important to distinguish between:
+
+1. how the receiver's base Silent Payments keys are created
+2. how a sender creates a particular Silent Payments transaction output for that receiver
+
+The second part is the familiar BIP-352 transaction-level math.
+The first part is where OpenETR differs.
+
+### BIP-352 Base Model
+
+In the usual BIP-352 description, Bob already has Silent Payments key material.
+
+Using simplified notation:
+
+- Bob publishes a Silent Payments public key `B`
+- Alice has an input private/public key pair `a/A`
+
+Alice creates a payment output:
+
+- `P = B + hash(a·B)·G`
+
+Bob later scans using the matching private key `b` and the sender input public key `A`:
+
+- because `a·B = b·A`
+
+For multiple outputs to the same receiver in one transaction, BIP-352 extends this by introducing an integer counter:
+
+- `P0 = B + hash(a·B || 0)·G`
+- `P1 = B + hash(a·B || 1)·G`
+- and so on
+
+Bob detects them by computing the same sequence with:
+
+- `P0 = B + hash(b·A || 0)·G`
+- `P1 = B + hash(b·A || 1)·G`
+- and so on
+
+This is the core per-payment Silent Payments mechanism.
+
+### OpenETR Adaptation Layer
+
+OpenETR does not replace that transaction-level concept.
+
+Instead, OpenETR adds a deterministic identity-derived layer before it.
+
+OpenETR first derives the receiver's Silent Payments identity from the Nostr identity itself.
+
+Starting from:
+
+- Nostr private key `d` when available
+- Nostr public key `P = dG`
+
+OpenETR derives deterministic domain-separated tweaks from the base public key:
+
+- `t_scan = H_tag("nostr-sp/scan", P)`
+- `t_spend = H_tag("nostr-sp/spend", P)`
+
+It then derives the receiver's base Silent Payments public keys:
+
+- `ScanPub = P + t_scan G`
+- `SpendPub = P + t_spend G`
+
+When the matching `nsec` is available, it derives the matching private keys:
+
+- `scan_priv = d + t_scan mod n`
+- `spend_priv = d + t_spend mod n`
+
+These derived keys form the OpenETR Silent Payments identity.
+
+### Same Downstream Transaction Math
+
+Once the OpenETR Silent Payments identity has been derived, the normal Silent Payments transaction logic applies on top of it.
+
+That means OpenETR still uses the same style of downstream mechanism:
+
+- sender-side ECDH against receiver public Silent Payments material
+- output tweaking by hashed shared-secret values
+- receiver-side scanning with private scan key material
+- repeated checks for `k = 0, 1, 2...` for multiple outputs
+
+So OpenETR differs from the usual BIP-352 wallet model in:
+
+- how the receiver's base Silent Payments keys are obtained
+
+and not in the basic idea that:
+
+- the sender derives a per-payment output from shared secret material
+- the receiver detects the output by recomputing the same relation with private scan knowledge
+
+### Summary
+
+The cleanest way to view the difference is:
+
+- BIP-352 wallet model:
+  - receiver Silent Payments keys originate from wallet seed material
+- OpenETR model:
+  - receiver Silent Payments keys originate from Nostr identity via deterministic additive tweaks
+
+After that key-origin step, both approaches can use the same class of per-payment Silent Payments ECDH and output-tweak logic.
 - expose scan and spend semantics explicitly in UI and CLI messaging
 
 If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
