@@ -100,7 +100,13 @@ This keeps Silent Payments key material:
 
 ## Recovery Model
 
-Recovery should be deterministic from the profile `nsec` and not require separate local wallet state.
+Recovery should be deterministic and should not require separate local wallet state.
+
+More specifically:
+
+- the public Silent Payments address should remain recoverable from the public Nostr identity material
+- the private scan and spend keys should remain recoverable from the matching profile `nsec`
+- detected outputs should remain recoverable by rescanning with the private scan key material
 
 The user should be able to recover:
 
@@ -139,7 +145,7 @@ Core shared functions should include:
 Recommended initial CLI commands:
 
 - `openetr get-silent-payment-address <nsec|npub|nip05>`
-- `openetr check-silent-payment-receipts <nsec|npub|nip05> [--limit 20]`
+- `openetr check-silent-payment-receipts <nsec> [--limit 20]`
 
 Possible later command:
 
@@ -157,18 +163,18 @@ Direct spending from detected Silent Payments outputs can be added later.
 
 Recommended initial web experience:
 
-- show a `Silent Payments` pane separate from the existing `Bitcoin Wallet` pane
+- show a `Silent Payments` pane separate from the existing exact `Bitcoin Wallet` pane
 - allow the user to:
   - derive the `sp1q...` address
   - show it as text and QR
   - scan and summarize recent detected Silent Payments receipts
 
-The web app should not initially mix:
+The web app should treat the Silent Payments capability as a distinct wallet model and should not mix:
 
 - exact `p2tr` wallet balance
 - Silent Payments receipts
 
-Those should be presented as separate views to avoid confusing users about which funds belong to which receive model.
+Those should be presented as separate views because they are different receive-and-spend models with different discovery, privacy, attribution, and recovery properties, not merely different presentations of the same wallet.
 
 ## API Surface
 
