@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import socket
+import ssl
 from urllib import error, parse, request
 
 import bech32
@@ -227,6 +229,150 @@ def _xonly_pubkey_bytes(xonly_hex: str) -> bytes:
     if len(xonly) != 32:
         raise click.ClickException("x-only public key must be 32 bytes")
     return xonly
+
+
+def _json_rpc_send(file_obj, message: dict[str, object]) -> None:
+    file_obj.write((json.dumps(message) + "\n").encode("utf-8"))
+    file_obj.flush()
+
+
+def _json_rpc_readline(file_obj, timeout: float) -> dict[str, object]:
+    raw = file_obj.readline()
+    if not raw:
+        raise click.ClickException("Frigate closed the JSON-RPC connection before completing the request")
+    try:
+        message = json.loads(raw.decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        raise click.ClickException(f"Frigate returned invalid JSON-RPC data: {exc}") from exc
+    if not isinstance(message, dict):
+        raise click.ClickException("Frigate returned a non-object JSON-RPC message")
+    return message
+
+
+def frigate_server_features(
+    host: str,
+    port: int,
+    use_ssl: bool = False,
+    timeout: float = 10.0,
+) -> dict[str, object]:
+    request_payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "server.features",
+        "params": [],
+    }
+    try:
+        with socket.create_connection((host, port), timeout=timeout) as sock:
+            sock.settimeout(timeout)
+            wrapped = ssl.create_default_context().wrap_socket(sock, server_hostname=host) if use_ssl else sock
+            try:
+                file_obj = wrapped.makefile("rwb")
+                _json_rpc_send(file_obj, request_payload)
+                response = _json_rpc_readline(file_obj, timeout)
+            finally:
+                wrapped.close()
+    except (OSError, ssl.SSLError) as exc:
+        scheme = "ssl" if use_ssl else "tcp"
+        raise click.ClickException(f"failed to connect to Frigate over {scheme}://{host}:{port}: {exc}") from exc
+
+    error_payload = response.get("error")
+    if error_payload is not None:
+        raise click.ClickException(f"Frigate server.features failed: {error_payload}")
+    result = response.get("result")
+    if not isinstance(result, dict):
+        raise click.ClickException("Frigate server.features returned an unexpected result payload")
+    return result
+
+
+def _validate_frigate_features(features: dict[str, object]) -> None:
+    supported_versions = features.get("silent_payments")
+    if not isinstance(supported_versions, list) or 0 not in supported_versions:
+        raise click.ClickException("Frigate server does not advertise Silent Payments protocol version 0 support")
+
+
+def frigate_scan_subscribe(
+    scan_private_key_hex: str,
+    spend_public_key_hex: str,
+    start: int | str | None,
+    host: str,
+    port: int,
+    use_ssl: bool = False,
+    timeout: float = 30.0,
+    labels: list[int] | None = None,
+) -> dict[str, object]:
+    features = frigate_server_features(host, port, use_ssl=use_ssl, timeout=timeout)
+    _validate_frigate_features(features)
+
+    subscribe_payload = {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "blockchain.silentpayments.subscribe",
+        "params": [
+            scan_private_key_hex,
+            spend_public_key_hex,
+            start,
+            labels or [],
+        ],
+    }
+    history_entries: list[dict[str, object]] = []
+    progress_updates: list[float] = []
+    subscription_result: dict[str, object] | None = None
+    try:
+        with socket.create_connection((host, port), timeout=timeout) as sock:
+            sock.settimeout(timeout)
+            wrapped = ssl.create_default_context().wrap_socket(sock, server_hostname=host) if use_ssl else sock
+            try:
+                file_obj = wrapped.makefile("rwb")
+                _json_rpc_send(file_obj, subscribe_payload)
+                while True:
+                    message = _json_rpc_readline(file_obj, timeout)
+                    if message.get("id") == 2:
+                        error_payload = message.get("error")
+                        if error_payload is not None:
+                            raise click.ClickException(f"Frigate subscription failed: {error_payload}")
+                        result = message.get("result")
+                        if not isinstance(result, dict):
+                            raise click.ClickException(
+                                "Frigate subscription returned an unexpected result payload"
+                            )
+                        subscription_result = result
+                        continue
+
+                    if message.get("method") != "blockchain.silentpayments.subscribe":
+                        continue
+
+                    params = message.get("params")
+                    if not isinstance(params, list) or len(params) != 3:
+                        continue
+                    _, progress, history = params
+                    if isinstance(progress, (int, float)):
+                        progress_value = float(progress)
+                        progress_updates.append(progress_value)
+                    else:
+                        progress_value = None
+
+                    if isinstance(history, list):
+                        for entry in history:
+                            if isinstance(entry, dict):
+                                history_entries.append(entry)
+
+                    if progress_value == 1.0 and subscription_result is not None:
+                        break
+            finally:
+                wrapped.close()
+    except (OSError, ssl.SSLError) as exc:
+        scheme = "ssl" if use_ssl else "tcp"
+        raise click.ClickException(f"failed to complete Frigate scan over {scheme}://{host}:{port}: {exc}") from exc
+
+    if subscription_result is None:
+        raise click.ClickException("Frigate did not return a subscription result")
+
+    return {
+        "features": features,
+        "subscription": subscription_result,
+        "progress_updates": progress_updates,
+        "history": history_entries,
+    }
 
 
 def _extract_input_pubkey(vin: dict[str, object]) -> bytes | None:
@@ -672,6 +818,10 @@ def scan_silent_payment_receipts(
     start_blockheight: int | None = None,
     block_count: int = 1,
     timeout: float = 5.0,
+    frigate_host: str | None = None,
+    frigate_port: int | None = None,
+    frigate_ssl: bool = False,
+    frigate_timeout: float = 30.0,
 ) -> dict[str, object]:
     material = derive_silent_payment_material(nostr_key)
     if not material["scan_private_key_hex"] or not material["spend_private_key_hex"]:
@@ -680,7 +830,41 @@ def scan_silent_payment_receipts(
     effective_txids = [txid for txid in (txids or []) if txid]
     block_summaries: list[dict[str, object]] = []
     scan_mode = "txids"
-    if not effective_txids:
+    frigate_result: dict[str, object] | None = None
+    if frigate_host:
+        effective_frigate_port = frigate_port or (50002 if frigate_ssl else 50001)
+        if effective_frigate_port <= 0:
+            raise click.ClickException("frigate_port must be a positive integer when frigate_host is provided")
+        if effective_txids:
+            raise click.ClickException("explicit --txid values cannot be combined with the Frigate scanning backend")
+        if block_count <= 0:
+            raise click.ClickException("block_count must be greater than zero")
+        frigate_start: int | str | None
+        if start_blockheight is None:
+            frigate_start = None
+        elif block_count == 1:
+            frigate_start = start_blockheight
+        else:
+            range_end = max(start_blockheight - (block_count - 1), 0)
+            frigate_start = f"{range_end}-{start_blockheight}"
+
+        frigate_result = frigate_scan_subscribe(
+            material["scan_private_key_hex"],
+            material["spend_public_key_hex"],
+            frigate_start,
+            host=frigate_host,
+            port=effective_frigate_port,
+            use_ssl=frigate_ssl,
+            timeout=frigate_timeout,
+        )
+        scan_mode = "frigate"
+        seen_txids: set[str] = set()
+        for entry in frigate_result["history"]:
+            tx_hash = str(entry.get("tx_hash") or "")
+            if tx_hash and tx_hash not in seen_txids:
+                effective_txids.append(tx_hash)
+                seen_txids.add(tx_hash)
+    elif not effective_txids:
         scan_mode = "blocks"
         effective_txids, block_summaries = collect_block_txids(
             api_base=api_base,
@@ -690,12 +874,28 @@ def scan_silent_payment_receipts(
         )
 
     scanned_transactions: list[dict[str, object]] = []
+    frigate_history_by_txid: dict[str, list[dict[str, object]]] = {}
+    if frigate_result is not None:
+        for entry in frigate_result["history"]:
+            tx_hash = str(entry.get("tx_hash") or "")
+            if tx_hash:
+                frigate_history_by_txid.setdefault(tx_hash, []).append(entry)
     for txid in effective_txids:
         tx = fetch_blockstream_transaction(txid, api_base=api_base, timeout=timeout)
         result = scan_silent_payment_transaction(nostr_key, tx)
+        frigate_entries = frigate_history_by_txid.get(txid, [])
+        if frigate_entries:
+            result["frigate_history"] = [
+                {
+                    "height": int(entry.get("height", 0) or 0),
+                    "tx_hash": str(entry.get("tx_hash") or ""),
+                    "tweak_key": str(entry.get("tweak_key") or ""),
+                }
+                for entry in frigate_entries
+            ]
         scanned_transactions.append(result)
 
-    return {
+    response = {
         "input_value": nostr_key,
         "npub": material["npub"],
         "silent_payment_address": material["silent_payment_address"],
@@ -704,6 +904,15 @@ def scan_silent_payment_receipts(
         "block_summaries": block_summaries,
         "transactions": scanned_transactions,
     }
+    if frigate_result is not None:
+        subscription = frigate_result["subscription"]
+        response["scan_source"] = (
+            f"{'ssl' if frigate_ssl else 'tcp'}://{frigate_host}:{effective_frigate_port}"
+        )
+        response["frigate_features"] = frigate_result["features"]
+        response["frigate_subscription"] = subscription
+        response["frigate_progress_updates"] = frigate_result["progress_updates"]
+    return response
 
 
 def _silent_payment_output_private_key_hex(

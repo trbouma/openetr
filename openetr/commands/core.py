@@ -412,12 +412,18 @@ def get_silent_payment_address(nostr_key: str) -> None:
 @click.option("--blockheight", default=None, type=int, help="Starting block height to scan. Defaults to the current tip when no txids are supplied.")
 @click.option("--block-count", default=1, show_default=True, type=int, help="Number of blocks to scan, descending from blockheight or the current tip.")
 @click.option("--api-base", default="https://blockstream.info/api", show_default=True, help="Esplora-compatible API base URL.")
+@click.option("--frigate-host", default=None, help="Optional Frigate host for Silent Payments discovery over Electrum JSON-RPC.")
+@click.option("--frigate-port", default=None, type=int, help="Optional Frigate port. Defaults are typically 50001 for TCP or 50002 for SSL.")
+@click.option("--frigate-ssl", is_flag=True, help="Use TLS when connecting to Frigate.")
 def check_silent_payment_receipts(
     nsec: str,
     txids: tuple[str, ...],
     blockheight: int | None,
     block_count: int,
     api_base: str,
+    frigate_host: str | None,
+    frigate_port: int | None,
+    frigate_ssl: bool,
 ) -> None:
     """Scan explicit txids or recent block transactions for outputs that belong to the Silent Payments identity derived from an nsec."""
     result = scan_silent_payment_receipts(
@@ -426,12 +432,21 @@ def check_silent_payment_receipts(
         api_base=api_base,
         start_blockheight=blockheight,
         block_count=block_count,
+        frigate_host=frigate_host,
+        frigate_port=frigate_port,
+        frigate_ssl=frigate_ssl,
     )
     click.echo(f"nostr_key:            {result['input_value']}")
     click.echo(f"npub:                 {result['npub']}")
     click.echo(f"silent_payment:       {result['silent_payment_address']}")
-    click.echo(f"scan_source:          {result['api_base']}")
+    click.echo(f"scan_source:          {result.get('scan_source', result['api_base'])}")
     click.echo(f"scan_mode:            {result['scan_mode']}")
+    if result.get("frigate_subscription"):
+        subscription = result["frigate_subscription"]
+        click.echo(f"subscription_address: {subscription.get('address', '')}")
+        click.echo(f"subscription_start:   {subscription.get('start_height', '')}")
+        click.echo(f"subscription_labels:  {subscription.get('labels', [])}")
+        click.echo(f"progress_updates:     {len(result.get('frigate_progress_updates', []))}")
     if result["block_summaries"]:
         click.echo(f"scanned_blocks:       {len(result['block_summaries'])}")
         for index, block in enumerate(result["block_summaries"], start=1):
@@ -444,6 +459,12 @@ def check_silent_payment_receipts(
         click.echo(f"tx_{index}_input_pubkeys:    {tx['input_pubkey_count']}")
         if tx["warning"]:
             click.echo(f"tx_{index}_warning:          {tx['warning']}")
+        frigate_history = tx.get("frigate_history") or []
+        if frigate_history:
+            click.echo(f"tx_{index}_frigate_matches:  {len(frigate_history)}")
+            for frigate_index, frigate_match in enumerate(frigate_history, start=1):
+                click.echo(f"tx_{index}_frigate_{frigate_index}_height:     {frigate_match['height']}")
+                click.echo(f"tx_{index}_frigate_{frigate_index}_tweak_key:  {frigate_match['tweak_key']}")
         click.echo(f"tx_{index}_matched_outputs:  {len(tx['matched_outputs'])}")
         for match_index, match in enumerate(tx["matched_outputs"], start=1):
             click.echo(f"tx_{index}_match_{match_index}_vout:        {match['vout']}")
