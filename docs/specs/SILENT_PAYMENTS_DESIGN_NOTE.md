@@ -63,18 +63,24 @@ The operational rule is:
 
 ## Key Derivation Model
 
-OpenETR should derive Silent Payments keys deterministically from the existing profile or root `nsec`, using explicit domain separation.
+OpenETR should derive Silent Payments material deterministically from the existing Nostr identity, using explicit domain separation.
+
+More specifically:
+
+- the public Silent Payments address material must be derivable from the identity's public key (`npub`)
+- the corresponding private scan and spend keys must be derivable from the matching private key (`nsec`)
 
 Recommended approach:
 
-1. Start from the normalized OpenETR profile private key material.
-2. Derive domain-separated Silent Payments tweaks from the normalized base public key.
-3. Use those tweaks to derive:
-   - `scan_priv_key`
-   - `spend_priv_key`
-4. Publish or display:
+1. Start from the normalized OpenETR base public key for the identity.
+2. Derive domain-separated Silent Payments tweaks from that normalized base public key.
+3. Use those tweaks to derive the public Silent Payments keys:
    - `scan_pub_key`
    - `spend_pub_key`
+4. When the matching `nsec` is available, derive:
+   - `scan_priv_key`
+   - `spend_priv_key`
+5. Publish or display:
    - encoded Silent Payment address `sp1q...`
 
 Recommended domain tags:
@@ -82,12 +88,13 @@ Recommended domain tags:
 - `nostr-sp/scan`
 - `nostr-sp/spend`
 
-OpenETR standardizes these tags as part of the deterministic Silent Payments derivation scheme. A change to these tags changes the derived `scan` key, `spend` key, and final `sp1q...` address for the same `nsec`, so they must be treated as part of the compatibility contract.
+OpenETR standardizes these tags as part of the deterministic Silent Payments derivation scheme. A change to these tags changes the derived public Silent Payments keys and final `sp1q...` address for the same identity, and changes the private scan/spend keys when the `nsec` is available, so they must be treated as part of the compatibility contract.
 
 This keeps Silent Payments key material:
 
 - deterministic
 - profile-specific
+- publicly derivable from the Nostr identity
 - recoverable from OpenETR-controlled keys
 - distinct from the existing exact `p2tr` wallet flow
 
