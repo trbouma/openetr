@@ -1,17 +1,17 @@
-# Silent Wallet Summary Brief
+# Nostr Silent Wallet (NSW) Summary Brief
 
-OpenETR's Silent Payments model creates a distinct **Silent Wallet** for a Nostr identity.
+OpenETR's Silent Payments model creates a distinct **Nostr Silent Wallet (NSW)** for a Nostr identity.
 
 One of its most important properties is that it provides a **static payment address**: a stable Silent Payments receive identity that can be reused by senders without creating a reusable on-chain receive address.
 
-Under the OpenETR derivation rule, a Silent Payment address can be deterministically derived from a known `npub`. This means every Nostr identity can be treated as having a corresponding Silent Wallet, even if the identity owner has never explicitly published or acknowledged it.
+Under the OpenETR derivation rule, a Silent Payment address can be deterministically derived from a known `npub`. This means every Nostr identity can be treated as having a corresponding Nostr Silent Wallet (NSW), even if the identity owner has never explicitly published or acknowledged it.
 
 This creates several important properties:
 
 - **Independent verifiability**: anyone who knows the `npub` and the OpenETR derivation rule can derive the expected Silent Payment address and verify it independently.
 - **Anti-spoofing assurance**: a sender does not need to trust a pasted or manually shared address. The correct Silent Payment address is fixed by the recipient identity and can be derived locally.
 - **Plausible deniability**: because anyone can derive the Silent Payment address from the `npub`, the existence of that address does not prove the `nsec` holder intentionally created, published, or even knew about it.
-- **Private receipt detection**: while the Silent Payment address is publicly derivable, only the holder of the matching private scan key can detect which on-chain outputs belong to the Silent Wallet.
+- **Private receipt detection**: while the Silent Payment address is publicly derivable, only the holder of the matching private scan key can detect which on-chain outputs belong to the Nostr Silent Wallet.
 - **Private fund control**: only the holder of the matching private spend path can sweep or spend the detected outputs.
 
 This protects both the sender and the recipient.
@@ -23,12 +23,12 @@ As a result, the funding relationship between donor and recipient is difficult t
 
 The key architectural insight is that OpenETR differs from a wallet-style Silent Payments implementation in **how the receiver's base Silent Payments keys are derived**.
 
-- In OpenETR, the Silent Wallet is derived from Nostr identity using deterministic additive tweaks.
+- In OpenETR, the Nostr Silent Wallet is derived from Nostr identity using deterministic additive tweaks.
 - In a wallet-style implementation, the Silent Payments keys are usually derived from private seed material through a BIP-32 tree.
 
 The resulting `sp1...` address is still the same kind of Silent Payments object in both cases, so a sender paying to it may see no practical difference. The difference shows up on the receiver side: scanning, recovery, and wallet interoperability depend on whether the wallet can reconstruct the matching private scan and spend keys from the same derivation contract.
 
-For practical purposes, the Silent Wallet should be treated as its own distinct wallet model:
+For practical purposes, the Nostr Silent Wallet should be treated as its own distinct wallet model:
 
 - it is identity-linked
 - it is privately discoverable
@@ -51,7 +51,7 @@ In those environments, ordinary payment coordination often creates trust gaps th
 - auditors
 - counterparties maintaining off-chain address books and attribution records
 
-The OpenETR Silent Wallet approach reduces those gaps significantly.
+The Nostr Silent Wallet (NSW) approach reduces those gaps significantly.
 
 The sender can derive the correct Silent Payment address directly from the recipient identity, so there is no need to trust:
 
@@ -100,9 +100,9 @@ That episode shows how vulnerable both donors and recipients can become when:
 - donor activity can be linked to known recipient endpoints
 - third parties can identify, freeze, or pressure visible funding paths
 
-The Silent Wallet model helps prevent or sharply reduce that exposure.
+The Nostr Silent Wallet model helps prevent or sharply reduce that exposure.
 
-With OpenETR Silent Payments:
+With the Nostr Silent Wallet model:
 
 - the sender can derive the correct destination from identity without relying on a publicly circulated payment address
 - the reusable `sp1...` receive identity does not appear on-chain
@@ -115,13 +115,19 @@ This makes it much harder to:
 - map incoming payments to a publicly attributed recipient address
 - establish a clear public funding relationship between a specific donor and recipient from chain data alone
 
-In that sense, the Silent Wallet model protects both sides:
+In that sense, the Nostr Silent Wallet model protects both sides:
 
 - the donor is less likely to reveal themselves by paying a publicly watchable recipient address
 - the recipient is less likely to have their funding flows mapped and attributed through visible receive infrastructure
 
 It does not eliminate all operational risk, but it removes one of the largest and most common privacy failures in Bitcoin payments: the durable public linkage created by visible recipient addresses and easily traced payment coordination channels.
 
-OpenETR's Silent Wallet model shows that Bitcoin payments do not have to force a tradeoff between identity assurance and financial privacy. By making the correct receive identity independently derivable from Nostr while keeping on-chain receipt discovery and fund control private, this approach creates a stronger, safer, and more trustworthy payment model for both senders and recipients. It reduces spoofing risk, narrows operational trust gaps, protects vulnerable counterparties, and opens the door to a form of Bitcoin coordination that is more resilient in ordinary use and far more defensible in adversarial environments.
+OpenETR's Nostr Silent Wallet (NSW) model shows that Bitcoin payments do not have to force a tradeoff between identity assurance and financial privacy. By making the correct receive identity independently derivable from Nostr while keeping on-chain receipt discovery and fund control private, this approach creates a stronger, safer, and more trustworthy payment model for both senders and recipients. It reduces spoofing risk, narrows operational trust gaps, protects vulnerable counterparties, and opens the door to a form of Bitcoin coordination that is more resilient in ordinary use and far more defensible in adversarial environments.
 
-This also offers an important practical privacy advantage relative to layered Bitcoin privacy solutions such as Lightning and Cashu. Those systems can provide strong privacy properties, but they introduce additional infrastructure and additional trust or operational dependencies, including node operators, routing assumptions, channel management, or mint operators. The OpenETR Silent Wallet model achieves a comparable improvement in payment privacy at the address-coordination layer without requiring the user to rely on a Lightning node, a federated or custodial mint, or other specialized intermediary infrastructure. The result is a simpler privacy model built directly on Bitcoin and Nostr identity semantics, with fewer moving parts and fewer third-party trust assumptions. 
+This also offers an important practical privacy advantage relative to layered Bitcoin privacy solutions such as Lightning and Cashu. Those systems can provide strong privacy properties, but they introduce additional infrastructure and additional trust or operational dependencies, including node operators, routing assumptions, channel management, or mint operators. The Nostr Silent Wallet (NSW) model achieves a comparable improvement in payment privacy at the address-coordination layer without requiring the user to rely on a Lightning node, a federated or custodial mint, or other specialized intermediary infrastructure. The result is a simpler privacy model built directly on Bitcoin and Nostr identity semantics, with fewer moving parts and fewer third-party trust assumptions. 
+
+## Further Reading
+
+- [BIP-352 Silent Payments](https://github.com/bitcoin/bips/blob/master/bip-0352.mediawiki)
+- [Silent Payments Design Note](./specs/SILENT_PAYMENTS_DESIGN_NOTE.md)
+- [Nostr Silent Wallet Derivation Decision Note](./specs/SILENT_PAYMENTS_DERIVATION_DECISION_NOTE.md)

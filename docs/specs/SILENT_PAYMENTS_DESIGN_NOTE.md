@@ -385,7 +385,7 @@ After that key-origin step, both approaches can use the same class of per-paymen
 | Private scan/spend recovery | Required for detection and spending, but origin not prescribed | Derived from matching `nsec` | Derived from BIP-32 private tree |
 | Per-payment output math | Yes | Yes, after OpenETR base derivation | Yes, after wallet base derivation |
 | Multiple-output `k = 0, 1, 2...` logic | Yes | Yes | Yes |
-| Main product implication | Protocol behavior | Identity-linked Silent Wallet with public verifiability | Wallet-compatible Silent Payments tree with stronger off-chain unlinkability |
+| Main product implication | Protocol behavior | Identity-linked Nostr Silent Wallet (NSW) with public verifiability | Wallet-compatible Silent Payments tree with stronger off-chain unlinkability |
 
 ### Practical Interoperability Recap
 
