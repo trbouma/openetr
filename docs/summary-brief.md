@@ -81,3 +81,45 @@ In short, this approach lets counterparties:
 - avoid spoofed payment instructions
 - confirm receipt deliberately and privately
 - and do so without exposing a durable public linkage between sender and recipient on-chain
+
+## Protecting Vulnerable Donors and Recipients
+
+This model is also important for protecting vulnerable donors who might otherwise reveal themselves unintentionally through ordinary Bitcoin payment coordination.
+
+A useful real-world example is the 2022 Canadian trucker protest funding environment. During that period:
+
+- donor information associated with crowdfunding support for the convoy was leaked and reported on publicly, exposing names, email addresses, locations, and other identifying details in many cases; see [ABC News](https://www.abc.net.au/news/2022-02-16/australians-donate-to-canadian-convoy-givesendgo-fundraiser/100832928) and [The Guardian](https://www.theguardian.com/world/2022/feb/14/foreign-money-funding-extremism-in-canada-says-hacker)
+- crypto-related accounts and addresses associated with convoy funding were identified and targeted by authorities and intermediaries; see [Reuters via Investing.com](https://www.investing.com/news/stock-market-news/td-bank-freezes-two-accounts-that-received-c14-million-in-support-of-canada-protests-2762814) and reporting on address blacklisting such as [CryptoAdventure](https://cryptoadventure.com/canadas-national-police-blacklist-34-crypto-addresses-involved-with-trucker-convoy/)
+
+That episode shows how vulnerable both donors and recipients can become when:
+
+- payment destinations are publicly reused
+- recipient infrastructure is easy to map
+- donor activity can be linked to known recipient endpoints
+- third parties can identify, freeze, or pressure visible funding paths
+
+The Silent Wallet model helps prevent or sharply reduce that exposure.
+
+With OpenETR Silent Payments:
+
+- the sender can derive the correct destination from identity without relying on a publicly circulated payment address
+- the reusable `sp1...` receive identity does not appear on-chain
+- the actual received outputs are not publicly obvious without the private scan key
+- the recipient can later sweep funds to unrelated addresses, reducing durable public linkage
+
+This makes it much harder to:
+
+- track down vulnerable donors from a known public Bitcoin address reuse pattern
+- map incoming payments to a publicly attributed recipient address
+- establish a clear public funding relationship between a specific donor and recipient from chain data alone
+
+In that sense, the Silent Wallet model protects both sides:
+
+- the donor is less likely to reveal themselves by paying a publicly watchable recipient address
+- the recipient is less likely to have their funding flows mapped and attributed through visible receive infrastructure
+
+It does not eliminate all operational risk, but it removes one of the largest and most common privacy failures in Bitcoin payments: the durable public linkage created by visible recipient addresses and easily traced payment coordination channels.
+
+OpenETR's Silent Wallet model shows that Bitcoin payments do not have to force a tradeoff between identity assurance and financial privacy. By making the correct receive identity independently derivable from Nostr while keeping on-chain receipt discovery and fund control private, this approach creates a stronger, safer, and more trustworthy payment model for both senders and recipients. It reduces spoofing risk, narrows operational trust gaps, protects vulnerable counterparties, and opens the door to a form of Bitcoin coordination that is more resilient in ordinary use and far more defensible in adversarial environments.
+
+This also offers an important practical privacy advantage relative to layered Bitcoin privacy solutions such as Lightning and Cashu. Those systems can provide strong privacy properties, but they introduce additional infrastructure and additional trust or operational dependencies, including node operators, routing assumptions, channel management, or mint operators. The OpenETR Silent Wallet model achieves a comparable improvement in payment privacy at the address-coordination layer without requiring the user to rely on a Lightning node, a federated or custodial mint, or other specialized intermediary infrastructure. The result is a simpler privacy model built directly on Bitcoin and Nostr identity semantics, with fewer moving parts and fewer third-party trust assumptions. 
