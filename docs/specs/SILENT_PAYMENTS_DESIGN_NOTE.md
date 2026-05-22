@@ -386,6 +386,35 @@ After that key-origin step, both approaches can use the same class of per-paymen
 | Per-payment output math | Yes | Yes, after OpenETR base derivation | Yes, after wallet base derivation |
 | Multiple-output `k = 0, 1, 2...` logic | Yes | Yes | Yes |
 | Main product implication | Protocol behavior | Identity-linked Silent Wallet with public verifiability | Wallet-compatible Silent Payments tree with stronger off-chain unlinkability |
+
+### Practical Interoperability Recap
+
+The resulting Silent Payments address is still the same kind of object in both derivation models:
+
+- a valid `sp1...` address
+- containing receiver Silent Payments public key material
+- usable by a sender to construct Silent Payments outputs
+
+So at the address-format and sender-payment level, the address can appear effectively the same even when the underlying derivation origin is different.
+
+This means:
+
+- a sending wallet that is only asked to pay to a valid `sp1...` address may see no practical difference
+- a receiving or scanning wallet may see an important difference, because it must reconstruct the matching private scan/spend keys correctly
+
+The key interoperability distinction is therefore not:
+
+- how the address looks on the wire
+
+but:
+
+- how the receiver reconstructs the private key material behind that address
+
+So the practical rule is:
+
+- the Silent Payments address format can look the same
+- the downstream sending flow can look the same
+- but receiving, scanning, and recovery depend on whether the wallet uses the same underlying derivation contract
 - expose scan and spend semantics explicitly in UI and CLI messaging
 
 If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
