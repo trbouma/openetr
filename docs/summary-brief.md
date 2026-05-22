@@ -4,7 +4,7 @@ The BIP-352 Silent Payments proposal creates an opportunity to define a distinct
 
 This work arose from related efforts to derive a Taproot (`p2tr`) address from a Nostr public key and to understand how Nostr identity material could map deterministically into Bitcoin wallet semantics. That earlier exploration made it clear that the same identity-linked approach could be extended beyond a single visible Taproot address into a richer Silent Payments receive model.
 
-One of its most important properties is that it provides a **static payment address**: a stable Silent Payments receive identity that can be reused by senders without creating a reusable on-chain receive address.
+One of its most important properties is that Silent Payments can provide a **static payment address**: a stable Silent Payments receive identity that can be reused by senders without creating a reusable on-chain receive address.
 
 Under the OpenETR derivation rule, a Silent Payment address can be deterministically derived from a known `npub`. This means every Nostr identity can be treated as having a corresponding Nostr Silent Wallet (NSW), even if the identity owner has never explicitly published or acknowledged it.
 
