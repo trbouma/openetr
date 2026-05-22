@@ -373,6 +373,19 @@ The cleanest way to view the difference is:
   - receiver Silent Payments keys originate from Nostr identity via deterministic additive tweaks
 
 After that key-origin step, both approaches can use the same class of per-payment Silent Payments ECDH and output-tweak logic.
+
+### Compact Comparison
+
+| Aspect | BIP-352 protocol layer | OpenETR base derivation | Wallet-style BIP-32 derivation |
+|---|---|---|---|
+| Primary concern | How sender and receiver use Silent Payments keys for payments and scanning | How receiver Silent Payments base keys are derived from Nostr identity | How receiver Silent Payments base keys are derived from wallet seed material |
+| Starting material | Assumes receiver already has Silent Payments keys | `npub` and, when available, matching `nsec` | private seed material / raw `nsec` bytes used as BIP-32 seed |
+| Public derivability | Not the focus of the protocol layer | Yes | No |
+| `npub -> sp1...` | Not defined by the protocol itself | Yes | No |
+| Private scan/spend recovery | Required for detection and spending, but origin not prescribed | Derived from matching `nsec` | Derived from BIP-32 private tree |
+| Per-payment output math | Yes | Yes, after OpenETR base derivation | Yes, after wallet base derivation |
+| Multiple-output `k = 0, 1, 2...` logic | Yes | Yes | Yes |
+| Main product implication | Protocol behavior | Identity-linked Silent Wallet with public verifiability | Wallet-compatible Silent Payments tree with stronger off-chain unlinkability |
 - expose scan and spend semantics explicitly in UI and CLI messaging
 
 If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
