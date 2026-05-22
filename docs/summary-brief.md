@@ -2,6 +2,8 @@
 
 OpenETR's Silent Payments model creates a distinct **Silent Wallet** for a Nostr identity.
 
+One of its most important properties is that it provides a **static payment address**: a stable Silent Payments receive identity that can be reused by senders without creating a reusable on-chain receive address.
+
 Under the OpenETR derivation rule, a Silent Payment address can be deterministically derived from a known `npub`. This means every Nostr identity can be treated as having a corresponding Silent Wallet, even if the identity owner has never explicitly published or acknowledged it.
 
 This creates several important properties:
