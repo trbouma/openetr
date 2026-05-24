@@ -65,7 +65,19 @@
     <div>Confirmed</div><div>{{ balance_result.balance.confirmed_sats }} sats</div>
     <div>Mempool</div><div>{{ balance_result.balance.mempool_sats }} sats</div>
     <div>Balance Source</div><div class="mono">{{ balance_result.balance.api_base }}</div>
+    {% if balance_result.input_kind == "nsec" %}
+    <div>BIP39 Mnemonic</div><div class="mono">{{ balance_result.raw_nsec_mnemonic or "Unavailable" }}</div>
+    <div>BIP32 Master XPRV</div><div class="mono">{{ balance_result.bip32_master_xprv }}</div>
+    <div>BIP86 Path</div><div class="mono">{{ balance_result.bip86_path }}</div>
+    <div>Sparrow-Compatible P2TR</div><div>{{ qr_address('BIP86 Taproot P2TR', balance_result.bip86_p2tr) }}</div>
+    <div>BIP86 Child XPRV</div><div class="mono">{{ balance_result.bip86_child_xprv }}</div>
+    {% endif %}
   </div>
+  {% if balance_result.input_kind == "nsec" %}
+  <div class="notice info" style="margin-top: 1rem;">
+    The BIP39 mnemonic, BIP32 master xprv, and BIP86 receive path shown here are derived from the raw <code>nsec</code> bytes. The direct OpenETR <code>p2tr</code> above is a single-key Taproot interpretation, while the Sparrow-compatible address is the first BIP86 receive address derived from the same seed material.
+  </div>
+  {% endif %}
 </section>
 
 {% if silent_payment_result %}
@@ -73,12 +85,83 @@
   <h2>Silent Payments</h2>
   <div class="kv">
     <div>Silent Payment</div><div>{{ qr_address('Silent Payment Address', silent_payment_result.silent_payment_address) }}</div>
+    {% if balance_result.input_kind == "nsec" %}
+    <div>BIP352 Account Path</div><div class="mono">{{ silent_payment_result.bip352_account_path }}</div>
+    <div>Sparrow-Compatible Silent Payment</div><div>{{ qr_address('BIP352 Silent Payment Address', silent_payment_result.bip352_silent_payment_address) }}</div>
+    <div>BIP352 Scan Path</div><div class="mono">{{ silent_payment_result.bip352_scan_path }}</div>
+    <div>BIP352 Spend Path</div><div class="mono">{{ silent_payment_result.bip352_spend_path }}</div>
+    {% endif %}
   </div>
   <div class="notice info" style="margin-top: 1rem;">
     This Silent Payment address can be shared with compatible wallets. OpenETR can now check a provided Bitcoin txid for a matching receipt and preview a sweep transaction, but broad wallet-style scanning and richer UX are still under implementation.
   </div>
+  {% if balance_result.input_kind == "nsec" %}
+  <div class="notice info" style="margin-top: 1rem;">
+    The first address above is the identity-derived Nostr Silent Wallet address. The Sparrow-compatible Silent Payment address is derived from the raw <code>nsec</code> bytes using BIP32/BIP352 wallet paths, which is why compatible wallets may show a different <code>sp1...</code> receive address.
+  </div>
+  <div class="notice info" style="margin-top: 1rem;">
+    The Sparrow-compatible Silent Payment address cannot be derived from <code>npub</code> alone. It requires the raw <code>nsec</code> seed material because the wallet-compatible derivation uses hardened BIP32 paths.
+  </div>
+  {% endif %}
 
   {% if balance_result.input_kind == "nsec" %}
+  <section class="panel" style="margin-top: 1rem; margin-bottom: 0;">
+    <h3>Experimental Transaction Lookup</h3>
+    <div class="notice info" style="margin-bottom: 1rem;">
+      Experimental: this lookup is discovery-only. It asks the Frigate service for candidate Silent Payments txids at the selected block height and does not validate them through the Blockstream API until you explicitly preview a sweep for one transaction.
+    </div>
+    <form action="/bitcoin/silent-payment/transactions" method="post" hx-post="/bitcoin/silent-payment/transactions" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML">
+      <input type="hidden" name="nostr_key" value="{{ silent_payment_scan_form.nostr_key or balance_form.nostr_key }}">
+      <input type="hidden" name="transaction_limit" value="{{ silent_payment_scan_form.transaction_limit or balance_form.transaction_limit }}">
+      <label>
+        Wallet Mode
+        <select name="mode">
+          <option value="nsw"{% if (silent_payment_scan_form.mode or 'nsw') == 'nsw' %} selected{% endif %}>NSW</option>
+          <option value="bip352"{% if silent_payment_scan_form.mode == 'bip352' %} selected{% endif %}>BIP352 / Sparrow-Compatible</option>
+        </select>
+      </label>
+      <label>
+        Block Height
+        <input type="text" name="blockheight" value="{{ silent_payment_scan_form.blockheight }}" placeholder="Current block height" required>
+      </label>
+      <div class="actions">
+        <button type="submit">Look Up Silent Payment Transactions</button>
+      </div>
+    </form>
+
+    {% if silent_payment_scan_result %}
+    <section class="panel" style="margin-top: 1rem; margin-bottom: 0;">
+      <h3>Lookup Results</h3>
+      <div class="kv">
+        <div>Wallet Mode</div><div>{{ silent_payment_scan_result.wallet_mode }}</div>
+        <div>Silent Payment</div><div class="mono">{{ silent_payment_scan_result.silent_payment_address }}</div>
+        <div>Scan Mode</div><div>{{ silent_payment_scan_result.scan_mode }}</div>
+        <div>Discovery Only</div><div>{{ "yes" if silent_payment_scan_result.discovery_only else "no" }}</div>
+        <div>Scan Source</div><div class="mono">{{ silent_payment_scan_result.scan_source }}</div>
+        <div>Scanned Transactions</div><div>{{ silent_payment_scan_result.transactions|length }}</div>
+        <div>Progress Updates</div><div>{{ silent_payment_scan_result.progress_updates|length }}</div>
+      </div>
+      {% if silent_payment_scan_result.transactions %}
+      {% for tx in silent_payment_scan_result.transactions %}
+      <div class="panel" style="padding: 1rem; margin-top: 0.75rem; margin-bottom: 0;">
+        <div class="kv">
+          <div>TXID</div><div class="mono">{{ tx.txid }}</div>
+          <div>Height</div><div>{{ tx.height }}</div>
+          <div>Tweak Key</div><div class="mono">{{ tx.tweak_key }}</div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p style="margin-top: 1rem;">No matching Silent Payments transactions were found at that block height for the selected wallet mode.</p>
+      {% endif %}
+    </section>
+    {% endif %}
+  </section>
+
+  <div class="notice info" style="margin-top: 1rem;">
+    Copy a txid from the lookup results above, paste it here, then preview the sweep before broadcast.
+  </div>
+
   <form action="/bitcoin/silent-payment/preview" method="post" hx-post="/bitcoin/silent-payment/preview" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML" style="margin-top: 1rem;">
     <input type="hidden" name="nostr_key" value="{{ silent_payment_form.nostr_key or balance_form.nostr_key }}">
     <input type="hidden" name="transaction_limit" value="{{ silent_payment_form.transaction_limit or balance_form.transaction_limit }}">
@@ -95,13 +178,21 @@
       <input type="text" name="fee_rate" value="{{ silent_payment_form.fee_rate }}" placeholder="2.0" required>
     </label>
     <div class="actions">
-      <button type="submit">Find Receipt and Preview Sweep</button>
+      <button type="submit">Preview Sweep</button>
     </div>
   </form>
 
+  {% if silent_payment_error %}
+  <div class="notice error" style="margin-top: 1rem;">{{ silent_payment_error }}</div>
+  {% endif %}
+
+  {% if silent_payment_success %}
+  <div class="notice success" style="margin-top: 1rem;">{{ silent_payment_success }}</div>
+  {% endif %}
+
   {% if silent_payment_preview %}
   <section class="panel" style="margin-top: 1rem; margin-bottom: 0;">
-    <h3>Silent Payment Receipt Match</h3>
+    <h3>Preview Silent Payment Sweep</h3>
     <div class="kv">
       <div>Receipt TXID</div><div class="mono">{{ silent_payment_preview.matched_txid }}</div>
       <div>Matched Vout</div><div>{{ silent_payment_preview.matched_vout }}</div>
@@ -121,18 +212,18 @@
       Signed Transaction Hex
       <textarea readonly>{{ silent_payment_preview.tx_hex }}</textarea>
     </label>
-    <form action="/bitcoin/silent-payment/broadcast" method="post" hx-post="/bitcoin/silent-payment/broadcast" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML" style="margin-top: 1rem;">
-      <input type="hidden" name="nostr_key" value="{{ silent_payment_form.nostr_key or balance_form.nostr_key }}">
-      <input type="hidden" name="transaction_limit" value="{{ silent_payment_form.transaction_limit or balance_form.transaction_limit }}">
-      <input type="hidden" name="receipt_txid" value="{{ silent_payment_preview.matched_txid }}">
-      <input type="hidden" name="destination_address" value="{{ silent_payment_form.destination_address }}">
-      <input type="hidden" name="fee_rate" value="{{ silent_payment_form.fee_rate }}">
-      <input type="hidden" name="tx_hex" value="{{ silent_payment_preview.tx_hex }}">
-      <input type="hidden" name="signed_txid" value="{{ silent_payment_preview.txid }}">
-      <div class="actions">
-        <button type="submit">Broadcast Silent Payment Sweep</button>
-      </div>
-    </form>
+    <div class="actions">
+      <form action="/bitcoin/silent-payment/broadcast" method="post" hx-post="/bitcoin/silent-payment/broadcast" hx-target="#bitcoin-balance-shell" hx-swap="outerHTML" style="margin-top: 0;">
+        <input type="hidden" name="nostr_key" value="{{ silent_payment_form.nostr_key or balance_form.nostr_key }}">
+        <input type="hidden" name="transaction_limit" value="{{ silent_payment_form.transaction_limit or balance_form.transaction_limit }}">
+        <input type="hidden" name="receipt_txid" value="{{ silent_payment_preview.matched_txid }}">
+        <input type="hidden" name="destination_address" value="{{ silent_payment_form.destination_address }}">
+        <input type="hidden" name="fee_rate" value="{{ silent_payment_form.fee_rate }}">
+        <input type="hidden" name="tx_hex" value="{{ silent_payment_preview.tx_hex }}">
+        <input type="hidden" name="signed_txid" value="{{ silent_payment_preview.txid }}">
+        <button type="submit">Broadcast Transaction</button>
+      </form>
+    </div>
   </section>
   {% endif %}
 

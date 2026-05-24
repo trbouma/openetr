@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from urllib import error, parse, request
 
 import bech32
+from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
 from btclib.ecc import ssa
 from btclib.script import sig_hash
 from btclib.script.script_pub_key import ScriptPubKey
@@ -117,6 +118,30 @@ def taproot_material_from_internal_key(internal_key_xonly: bytes) -> dict[str, s
     }
 
 
+def derive_bip86_receive_material_from_seed(
+    seed_bytes: bytes,
+    account: int = 0,
+    change: int = 0,
+    index: int = 0,
+    coin_type: int = 0,
+) -> dict[str, str]:
+    master_xprv = rootxprv_from_seed(seed_bytes)
+    path = f"m/86h/{coin_type}h/{account}h/{change}/{index}"
+    child_xprv = derive(master_xprv, path)
+    child_data = BIP32KeyData.b58decode(child_xprv)
+    child_privkey_bytes = child_data.key[1:]
+    child_compressed_pubkey = derive_compressed_pubkey(child_privkey_bytes)
+    taproot_material = taproot_material_from_internal_key(child_compressed_pubkey[1:])
+    return {
+        "bip86_path": path,
+        "bip86_child_xprv": child_xprv,
+        "bip86_internal_public_key_hex": child_compressed_pubkey[1:].hex(),
+        "bip86_taproot_output_key_hex": taproot_material["taproot_output_key_hex"],
+        "bip86_taproot_tweak_hex": taproot_material["taproot_tweak_hex"],
+        "bip86_p2tr": taproot_material["p2tr"],
+    }
+
+
 def normalize_nostr_key_input(nostr_key: str) -> tuple[str, str]:
     candidate = nostr_key.strip()
     if not candidate:
@@ -143,8 +168,19 @@ def derive_bitcoin_material_from_nostr_key(nostr_key: str) -> dict[str, str]:
     normalized = False
     internal_privkey_hex = ""
     taproot_private_key_hex = ""
+    raw_nsec_mnemonic = ""
+    bip32_master_xprv = ""
+    bip86_receive_material: dict[str, str] = {
+        "bip86_path": "",
+        "bip86_child_xprv": "",
+        "bip86_internal_public_key_hex": "",
+        "bip86_taproot_output_key_hex": "",
+        "bip86_taproot_tweak_hex": "",
+        "bip86_p2tr": "",
+    }
 
     if privkey_hex is not None:
+        raw_privkey_bytes = bytes.fromhex(privkey_hex)
         normalized_privkey_bytes, compressed_pubkey, normalized = normalize_bip340_private_key(privkey_hex)
         internal_privkey_hex = normalized_privkey_bytes.hex()
         internal_key_xonly = compressed_pubkey[1:]
@@ -152,10 +188,14 @@ def derive_bitcoin_material_from_nostr_key(nostr_key: str) -> dict[str, str]:
         tweak_bytes = bytes.fromhex(taproot_material["taproot_tweak_hex"])
         tweaked_private_key = secp256k1.PrivateKey(normalized_privkey_bytes, raw=True).tweak_add(tweak_bytes)
         taproot_private_key_hex = tweaked_private_key.hex()
+        raw_nsec_mnemonic = private_key_bytes_to_mnemonic(raw_privkey_bytes) or ""
+        bip32_master_xprv = rootxprv_from_seed(raw_privkey_bytes)
+        bip86_receive_material = derive_bip86_receive_material_from_seed(raw_privkey_bytes)
         if normalized:
             warning = (
                 "nsec input was normalized to the BIP-340 even-y representative before deriving the Taproot "
-                "internal key. The recovery material below is tied to that canonical internal key."
+                "internal key. The Taproot recovery material below is tied to that canonical internal key, while "
+                "the BIP-32 master xprv, mnemonic, and BIP86 receive path are derived from the raw nsec bytes."
             )
     else:
         pubkey_hex = keys.public_key_hex()
@@ -178,9 +218,12 @@ def derive_bitcoin_material_from_nostr_key(nostr_key: str) -> dict[str, str]:
         "internal_wif_compressed": b58check(b"\x80", bytes.fromhex(internal_privkey_hex) + b"\x01") if internal_privkey_hex else "",
         "taproot_wif": b58check(b"\x80", bytes.fromhex(taproot_private_key_hex) + b"\x01") if taproot_private_key_hex else "",
         "mnemonic": mnemonic or "",
+        "raw_nsec_mnemonic": raw_nsec_mnemonic,
+        "bip32_master_xprv": bip32_master_xprv,
         "warning": warning,
         "bip340_normalized": "yes" if normalized else "no",
         **taproot_material,
+        **bip86_receive_material,
     }
 
 
@@ -371,6 +414,11 @@ def derive_p2tr_balance_for_nostr_input(
         "internal_public_key_hex": wallet["internal_public_key_hex"],
         "taproot_output_key_hex": wallet["taproot_output_key_hex"],
         "taproot_tweak_hex": wallet["taproot_tweak_hex"],
+        "raw_nsec_mnemonic": wallet["raw_nsec_mnemonic"],
+        "bip32_master_xprv": wallet["bip32_master_xprv"],
+        "bip86_path": wallet["bip86_path"],
+        "bip86_p2tr": wallet["bip86_p2tr"],
+        "bip86_child_xprv": wallet["bip86_child_xprv"],
         "balance": balance,
     }
 

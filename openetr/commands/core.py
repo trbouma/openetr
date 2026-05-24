@@ -12,7 +12,7 @@ from monstr.event.event import Event
 import yaml
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_material_with_balance, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input
-from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, inspect_silent_payment_transaction, scan_silent_payment_receipts
+from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, frigate_debug_subscription, frigate_scan_subscribe, inspect_silent_payment_transaction, resolve_silent_payment_wallet_mode_material, scan_silent_payment_receipts
 from openetr.config import (
     ALIASES_KEY,
     CONFIG_AS_USER_KEY,
@@ -415,6 +415,9 @@ def get_silent_payment_address(nostr_key: str) -> None:
 @click.option("--frigate-host", default=None, help="Optional Frigate host for Silent Payments discovery over Electrum JSON-RPC.")
 @click.option("--frigate-port", default=None, type=int, help="Optional Frigate port. Defaults are typically 50001 for TCP or 50002 for SSL.")
 @click.option("--frigate-ssl", is_flag=True, help="Use TLS when connecting to Frigate.")
+@click.option("--frigate-timeout", default=120.0, show_default=True, type=float, help="Socket timeout in seconds for Frigate negotiation and scan updates.")
+@click.option("--mode", type=click.Choice(["nsw", "bip352"], case_sensitive=False), default="nsw", show_default=True, help="Which Silent Payments wallet model to scan.")
+@click.option("--discovery-only", is_flag=True, help="Return Frigate-discovered txids only and skip Esplora transaction validation.")
 def check_silent_payment_receipts(
     nsec: str,
     txids: tuple[str, ...],
@@ -424,6 +427,9 @@ def check_silent_payment_receipts(
     frigate_host: str | None,
     frigate_port: int | None,
     frigate_ssl: bool,
+    frigate_timeout: float,
+    mode: str,
+    discovery_only: bool,
 ) -> None:
     """Scan explicit txids or recent block transactions for outputs that belong to the Silent Payments identity derived from an nsec."""
     result = scan_silent_payment_receipts(
@@ -435,12 +441,17 @@ def check_silent_payment_receipts(
         frigate_host=frigate_host,
         frigate_port=frigate_port,
         frigate_ssl=frigate_ssl,
+        frigate_timeout=frigate_timeout,
+        mode=mode.lower(),
+        discovery_only=discovery_only,
     )
     click.echo(f"nostr_key:            {result['input_value']}")
     click.echo(f"npub:                 {result['npub']}")
+    click.echo(f"wallet_mode:          {result['wallet_mode']}")
     click.echo(f"silent_payment:       {result['silent_payment_address']}")
     click.echo(f"scan_source:          {result.get('scan_source', result['api_base'])}")
     click.echo(f"scan_mode:            {result['scan_mode']}")
+    click.echo(f"discovery_only:       {result['discovery_only']}")
     if result.get("frigate_subscription"):
         subscription = result["frigate_subscription"]
         click.echo(f"subscription_address: {subscription.get('address', '')}")
@@ -456,15 +467,17 @@ def check_silent_payment_receipts(
     click.echo(f"scanned_transactions: {len(result['transactions'])}")
     for index, tx in enumerate(result["transactions"], start=1):
         click.echo(f"tx_{index}_txid:             {tx['txid']}")
-        click.echo(f"tx_{index}_input_pubkeys:    {tx['input_pubkey_count']}")
-        if tx["warning"]:
-            click.echo(f"tx_{index}_warning:          {tx['warning']}")
         frigate_history = tx.get("frigate_history") or []
         if frigate_history:
             click.echo(f"tx_{index}_frigate_matches:  {len(frigate_history)}")
             for frigate_index, frigate_match in enumerate(frigate_history, start=1):
                 click.echo(f"tx_{index}_frigate_{frigate_index}_height:     {frigate_match['height']}")
                 click.echo(f"tx_{index}_frigate_{frigate_index}_tweak_key:  {frigate_match['tweak_key']}")
+        if discovery_only:
+            continue
+        click.echo(f"tx_{index}_input_pubkeys:    {tx['input_pubkey_count']}")
+        if tx["warning"]:
+            click.echo(f"tx_{index}_warning:          {tx['warning']}")
         click.echo(f"tx_{index}_matched_outputs:  {len(tx['matched_outputs'])}")
         for match_index, match in enumerate(tx["matched_outputs"], start=1):
             click.echo(f"tx_{index}_match_{match_index}_vout:        {match['vout']}")
@@ -473,6 +486,68 @@ def check_silent_payment_receipts(
             click.echo(f"tx_{index}_match_{match_index}_pubkey_hex:  {match['output_pubkey_hex']}")
             click.echo(f"tx_{index}_match_{match_index}_tweak_hex:   {match['priv_key_tweak_hex']}")
             click.echo(f"tx_{index}_match_{match_index}_shared_secret_index: {match['shared_secret_index']}")
+
+
+@click.command("frigate-silent-payment-txids")
+@click.argument("nsec")
+@click.option("--frigate-host", required=True, help="Frigate host for Silent Payments discovery over Electrum JSON-RPC.")
+@click.option("--frigate-port", default=None, type=int, help="Optional Frigate port. Defaults are typically 50001 for TCP or 50002 for SSL.")
+@click.option("--frigate-ssl", is_flag=True, help="Use TLS when connecting to Frigate.")
+@click.option("--frigate-timeout", default=120.0, show_default=True, type=float, help="Socket timeout in seconds for Frigate negotiation and scan updates.")
+@click.option("--blockheight", default=None, type=int, help="Start height to send to Frigate. Defaults to the current tip when omitted.")
+@click.option("--block-count", default=1, show_default=True, type=int, help="Block range width for Frigate discovery. Values above 1 are sent as a start-end range.")
+@click.option("--mode", type=click.Choice(["nsw", "bip352"], case_sensitive=False), default="nsw", show_default=True, help="Which Silent Payments wallet model to query.")
+def frigate_silent_payment_txids(
+    nsec: str,
+    frigate_host: str,
+    frigate_port: int | None,
+    frigate_ssl: bool,
+    frigate_timeout: float,
+    blockheight: int | None,
+    block_count: int,
+    mode: str,
+) -> None:
+    """Return txids discovered by Frigate without fetching transaction details from Esplora."""
+    if block_count <= 0:
+        raise click.ClickException("block_count must be greater than zero")
+    effective_port = frigate_port if frigate_port is not None else (50002 if frigate_ssl else 50001)
+    material = resolve_silent_payment_wallet_mode_material(nsec, mode=mode.lower())
+    if not material["scan_private_key_hex"] or not material["spend_public_key_hex"]:
+        raise click.ClickException("selected Silent Payments wallet mode does not expose scan keys for this input")
+
+    frigate_start: int | str | None
+    if blockheight is None:
+        frigate_start = None
+    elif block_count == 1:
+        frigate_start = blockheight
+    else:
+        range_end = max(blockheight - (block_count - 1), 0)
+        frigate_start = f"{range_end}-{blockheight}"
+
+    result = frigate_scan_subscribe(
+        material["scan_private_key_hex"],
+        material["spend_public_key_hex"],
+        frigate_start,
+        host=frigate_host,
+        port=effective_port,
+        use_ssl=frigate_ssl,
+        timeout=frigate_timeout,
+    )
+    click.echo(f"nostr_key:            {nsec}")
+    click.echo(f"npub:                 {material['npub']}")
+    click.echo(f"wallet_mode:          {material['wallet_mode']}")
+    click.echo(f"silent_payment:       {material['silent_payment_address']}")
+    click.echo(f"scan_source:          {'ssl' if frigate_ssl else 'tcp'}://{frigate_host}:{effective_port}")
+    subscription = result["subscription"]
+    click.echo(f"subscription_address: {subscription.get('address', '')}")
+    click.echo(f"subscription_start:   {subscription.get('start_height', frigate_start)}")
+    click.echo(f"subscription_labels:  {subscription.get('labels', [])}")
+    click.echo(f"progress_updates:     {len(result.get('progress_updates', []))}")
+    click.echo(f"txid_count:           {len(result['history'])}")
+    for index, entry in enumerate(result["history"], start=1):
+        click.echo(f"tx_{index}_txid:      {entry.get('tx_hash', '')}")
+        click.echo(f"tx_{index}_height:    {entry.get('height', '')}")
+        click.echo(f"tx_{index}_tweak_key: {entry.get('tweak_key', '')}")
 
 
 @click.command("inspect-silent-payment-tx")
@@ -508,6 +583,57 @@ def inspect_silent_payment_tx(txid: str, api_base: str) -> None:
         click.echo(f"{prefix}_script_type:  {output_result['script_type']}")
         if output_result["scriptpubkey_address"]:
             click.echo(f"{prefix}_address:      {output_result['scriptpubkey_address']}")
+
+
+@click.command("debug-frigate-silent-payment")
+@click.argument("nsec")
+@click.option("--frigate-host", required=True, help="Frigate host for Silent Payments discovery over Electrum JSON-RPC.")
+@click.option("--frigate-port", default=None, type=int, help="Optional Frigate port. Defaults are typically 50001 for TCP or 50002 for SSL.")
+@click.option("--frigate-ssl", is_flag=True, help="Use TLS when connecting to Frigate.")
+@click.option("--frigate-timeout", default=120.0, show_default=True, type=float, help="Socket timeout in seconds for Frigate negotiation and scan updates.")
+@click.option("--blockheight", default=None, type=int, help="Start height to send to Frigate.")
+@click.option("--mode", type=click.Choice(["nsw", "bip352", "both"], case_sensitive=False), default="both", show_default=True, help="Which Silent Payments key model to debug against Frigate.")
+def debug_frigate_silent_payment(
+    nsec: str,
+    frigate_host: str,
+    frigate_port: int | None,
+    frigate_ssl: bool,
+    frigate_timeout: float,
+    blockheight: int | None,
+    mode: str,
+) -> None:
+    """Dump raw Frigate subscription behavior for NSW and/or wallet-compatible Silent Payments keys."""
+    effective_port = frigate_port if frigate_port is not None else (50002 if frigate_ssl else 50001)
+    result = frigate_debug_subscription(
+        nsec,
+        host=frigate_host,
+        port=effective_port,
+        use_ssl=frigate_ssl,
+        timeout=frigate_timeout,
+        start=blockheight,
+        mode=mode.lower(),
+        labels=None,
+    )
+    click.echo(f"nostr_key:            {result['input_value']}")
+    click.echo(f"npub:                 {result['npub']}")
+    click.echo(f"frigate_endpoint:     {'ssl' if result['use_ssl'] else 'tcp'}://{result['host']}:{result['port']}")
+    click.echo(f"subscription_start:   {result['start']}")
+    click.echo(f"subscription_labels:  {result['labels']}")
+    for entry in result["results"]:
+        click.echo(f"mode:                 {entry['mode']}")
+        click.echo(f"silent_payment:       {entry['silent_payment_address']}")
+        click.echo(f"scan_private_key_hex: {entry['scan_private_key_hex']}")
+        click.echo(f"spend_public_key_hex: {entry['spend_public_key_hex']}")
+        click.echo(f"version_result:       {json.dumps(entry['version_result'], sort_keys=True)}")
+        click.echo(f"features_result:      {json.dumps(entry['features_result'], sort_keys=True)}")
+        click.echo(f"subscription_result:  {json.dumps(entry['subscription_result'], sort_keys=True)}")
+        click.echo(f"progress_updates:     {json.dumps(entry['progress_updates'])}")
+        click.echo(f"history_count:        {len(entry['history'])}")
+        for history_index, history in enumerate(entry["history"], start=1):
+            click.echo(f"history_{history_index}:         {json.dumps(history, sort_keys=True)}")
+        click.echo(f"raw_message_count:    {len(entry['raw_messages'])}")
+        for message_index, message in enumerate(entry["raw_messages"], start=1):
+            click.echo(f"raw_message_{message_index}:     {json.dumps(message, sort_keys=True)}")
 
 
 @click.command("check-balance")

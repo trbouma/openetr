@@ -228,6 +228,41 @@
         flex-wrap: wrap;
         margin-top: 1rem;
       }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: rgba(24, 19, 13, 0.56);
+        backdrop-filter: blur(4px);
+      }
+      .modal-window {
+        width: min(46rem, calc(100vw - 2rem));
+        max-height: calc(100vh - 3rem);
+        overflow: auto;
+        background: color-mix(in srgb, var(--panel) 97%, white);
+        border: 1px solid var(--border);
+        border-radius: 1.4rem;
+        padding: 1.5rem;
+        box-shadow: 0 24px 60px rgba(24, 19, 13, 0.28);
+      }
+      .modal-window h3 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: var(--heading);
+        font-size: 1.35rem;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+      }
+      .button-secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--border);
+        box-shadow: none;
+      }
       .top-nav {
         display: flex;
         justify-content: flex-end;

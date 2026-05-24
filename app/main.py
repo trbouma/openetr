@@ -22,7 +22,7 @@ from openetr.services.issue_etr import publish_issue_etr
 from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
 from openetr.services.profile_publish import PROFILE_FIELDS, publish_profile_updates
 from openetr.services.query_etr import build_query_etr_result, compact_profile, fetch_profile
-from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, silent_payment_address_belongs_to_nostr_key
+from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, fetch_blockstream_tip_height, frigate_scan_subscribe, resolve_silent_payment_wallet_mode_material, silent_payment_address_belongs_to_nostr_key
 
 
 APP_TITLE = "OpenETR Demo App"
@@ -50,6 +50,10 @@ SESSION_SECRET = read_runtime_value("OPENETR_APP_SESSION_SECRET", "openetr-demo-
 SITE_URL = read_runtime_value("OPENETR_SITE_URL", "https://trbouma.github.io/openetr/") or "https://trbouma.github.io/openetr/"
 GIT_COMMIT = read_runtime_value("OPENETR_GIT_COMMIT", "unknown") or "unknown"
 BLOCKSTREAM_API_BASE = read_runtime_value("OPENETR_BLOCKSTREAM_API_BASE", "https://blockstream.info/api") or "https://blockstream.info/api"
+FRIGATE_HOST = read_runtime_value("OPENETR_FRIGATE_HOST", "frigate.2140.dev") or "frigate.2140.dev"
+FRIGATE_SSL = (read_runtime_value("OPENETR_FRIGATE_SSL", "true") or "true").strip().lower() in {"1", "true", "yes", "on"}
+FRIGATE_PORT = int(read_runtime_value("OPENETR_FRIGATE_PORT", "50002" if FRIGATE_SSL else "50001") or ("50002" if FRIGATE_SSL else "50001"))
+FRIGATE_TIMEOUT = float(read_runtime_value("OPENETR_FRIGATE_TIMEOUT", "120") or "120")
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 APP_ASSETS_DIR = Path(__file__).parent / "assets"
@@ -127,6 +131,15 @@ def default_silent_payment_form() -> dict[str, str]:
     }
 
 
+def default_silent_payment_scan_form() -> dict[str, str]:
+    return {
+        "nostr_key": "",
+        "transaction_limit": "5",
+        "blockheight": "",
+        "mode": "nsw",
+    }
+
+
 def default_silent_payment_ownership_form() -> dict[str, str]:
     return {
         "nostr_key": "",
@@ -194,6 +207,33 @@ async def resolve_balance_page_data(
         silent_payment_result,
         silent_payment_form,
     )
+
+
+async def resolve_silent_payment_scan_form(
+    nostr_key: str,
+    transaction_limit: str,
+    blockheight: str = "",
+    mode: str = "nsw",
+) -> dict[str, str]:
+    normalized_mode = (mode or "nsw").strip().lower()
+    if normalized_mode not in {"nsw", "bip352"}:
+        raise click.ClickException("Silent Payments mode must be either nsw or bip352.")
+
+    normalized_blockheight = blockheight.strip()
+    if not normalized_blockheight:
+        current_tip = await asyncio.to_thread(
+            fetch_blockstream_tip_height,
+            BLOCKSTREAM_API_BASE,
+            5.0,
+        )
+        normalized_blockheight = str(current_tip)
+
+    return {
+        "nostr_key": nostr_key.strip(),
+        "transaction_limit": transaction_limit.strip() or "5",
+        "blockheight": normalized_blockheight,
+        "mode": normalized_mode,
+    }
 
 
 async def resolve_silent_payment_ownership_data(
@@ -318,6 +358,10 @@ def render_bitcoin_balance_response(
     sweep_preview: dict[str, Any] | None = None,
     sweep_broadcast: dict[str, Any] | None = None,
     silent_payment_form: dict[str, str] | None = None,
+    silent_payment_scan_form: dict[str, str] | None = None,
+    silent_payment_scan_result: dict[str, Any] | None = None,
+    silent_payment_error: str | None = None,
+    silent_payment_success: str | None = None,
     silent_payment_preview: dict[str, Any] | None = None,
     silent_payment_broadcast: dict[str, Any] | None = None,
     silent_payment_ownership_form: dict[str, str] | None = None,
@@ -359,6 +403,10 @@ def render_bitcoin_balance_response(
             "sweep_preview": sweep_preview,
             "sweep_broadcast": sweep_broadcast,
             "silent_payment_form": silent_payment_form or default_silent_payment_form(),
+            "silent_payment_scan_form": silent_payment_scan_form or default_silent_payment_scan_form(),
+            "silent_payment_scan_result": silent_payment_scan_result,
+            "silent_payment_error": silent_payment_error,
+            "silent_payment_success": silent_payment_success,
             "silent_payment_preview": silent_payment_preview,
             "silent_payment_broadcast": silent_payment_broadcast,
             "silent_payment_ownership_form": (
@@ -367,6 +415,32 @@ def render_bitcoin_balance_response(
             "silent_payment_ownership_result": silent_payment_ownership_result,
             "silent_payment_ownership_error": silent_payment_ownership_error,
             "silent_payment_ownership_success": silent_payment_ownership_success,
+            "error_message": error_message,
+            "success_message": success_message,
+        },
+        status_code=status_code,
+    )
+
+
+def render_silent_payment_preview_fragment(
+    request: Request,
+    *,
+    preview_target_id: str,
+    silent_payment_form: dict[str, str] | None = None,
+    silent_payment_preview: dict[str, Any] | None = None,
+    silent_payment_broadcast: dict[str, Any] | None = None,
+    error_message: str | None = None,
+    success_message: str | None = None,
+    status_code: int = 200,
+):
+    return templates.TemplateResponse(
+        request,
+        "silent_payment_preview_fragment.html",
+        {
+            "preview_target_id": preview_target_id,
+            "silent_payment_form": silent_payment_form or default_silent_payment_form(),
+            "silent_payment_preview": silent_payment_preview,
+            "silent_payment_broadcast": silent_payment_broadcast,
             "error_message": error_message,
             "success_message": success_message,
         },
@@ -695,40 +769,7 @@ async def bitcoin_balance_page(
             nostr_key,
             transaction_limit,
         )
-    except click.ClickException as exc:
-        return render_bitcoin_balance_response(
-            request,
-            identity,
-            balance_form={
-                "nostr_key": nostr_key.strip(),
-                "transaction_limit": transaction_limit.strip() or "5",
-            },
-            error_message=str(exc),
-            status_code=400,
-        )
-
-    return render_bitcoin_balance_response(
-        request,
-        identity,
-        balance_form=balance_form,
-        balance_result=balance_result,
-        recent_transactions=recent_transactions,
-        silent_payment_result=silent_payment_result,
-        sweep_form=sweep_form,
-        silent_payment_form=silent_payment_form,
-        success_message="Resolved Taproot wallet balance.",
-    )
-
-
-@app.post("/bitcoin/check-balance")
-async def bitcoin_balance_submit(
-    request: Request,
-    nostr_key: str = Form(""),
-    transaction_limit: str = Form("5"),
-    identity: dict[str, Any] = Depends(get_session_identity),
-):
-    try:
-        balance_form, sweep_form, balance_result, recent_transactions, silent_payment_result, silent_payment_form = await resolve_balance_page_data(
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
             nostr_key,
             transaction_limit,
         )
@@ -753,6 +794,49 @@ async def bitcoin_balance_submit(
         silent_payment_result=silent_payment_result,
         sweep_form=sweep_form,
         silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
+        success_message="Resolved Taproot wallet balance.",
+    )
+
+
+@app.post("/bitcoin/check-balance")
+async def bitcoin_balance_submit(
+    request: Request,
+    nostr_key: str = Form(""),
+    transaction_limit: str = Form("5"),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    try:
+        balance_form, sweep_form, balance_result, recent_transactions, silent_payment_result, silent_payment_form = await resolve_balance_page_data(
+            nostr_key,
+            transaction_limit,
+        )
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
+            nostr_key,
+            transaction_limit,
+        )
+    except click.ClickException as exc:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form={
+                "nostr_key": nostr_key.strip(),
+                "transaction_limit": transaction_limit.strip() or "5",
+            },
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    return render_bitcoin_balance_response(
+        request,
+        identity,
+        balance_form=balance_form,
+        balance_result=balance_result,
+        recent_transactions=recent_transactions,
+        silent_payment_result=silent_payment_result,
+        sweep_form=sweep_form,
+        silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
         success_message="Resolved Taproot wallet balance.",
     )
 
@@ -787,6 +871,166 @@ async def bitcoin_silent_payment_ownership(
         silent_payment_ownership_form=ownership_form,
         silent_payment_ownership_result=ownership_result,
         silent_payment_ownership_success=ownership_success,
+    )
+
+
+@app.post("/bitcoin/silent-payment/transactions")
+async def bitcoin_silent_payment_transactions(
+    request: Request,
+    nostr_key: str = Form(""),
+    transaction_limit: str = Form("5"),
+    blockheight: str = Form(""),
+    mode: str = Form("nsw"),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    balance_form = {
+        "nostr_key": nostr_key.strip(),
+        "transaction_limit": transaction_limit.strip() or "5",
+    }
+    try:
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
+            nostr_key,
+            transaction_limit,
+            blockheight,
+            mode,
+        )
+    except click.ClickException as exc:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            silent_payment_scan_form={
+                "nostr_key": nostr_key.strip(),
+                "transaction_limit": transaction_limit.strip() or "5",
+                "blockheight": blockheight.strip(),
+                "mode": mode.strip().lower() or "nsw",
+            },
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    try:
+        _, sweep_form, balance_result, recent_transactions, silent_payment_result, silent_payment_form = await resolve_balance_page_data(
+            silent_payment_scan_form["nostr_key"],
+            silent_payment_scan_form["transaction_limit"],
+        )
+    except click.ClickException as exc:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            silent_payment_scan_form=silent_payment_scan_form,
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    if balance_result["input_kind"] != "nsec":
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            balance_result=balance_result,
+            recent_transactions=recent_transactions,
+            silent_payment_result=silent_payment_result,
+            sweep_form=sweep_form,
+            silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
+            error_message="Silent Payments transaction lookup requires an nsec so the receiver scan key is available.",
+            status_code=400,
+        )
+
+    try:
+        scan_blockheight = int(silent_payment_scan_form["blockheight"])
+    except ValueError:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            balance_result=balance_result,
+            recent_transactions=recent_transactions,
+            silent_payment_result=silent_payment_result,
+            sweep_form=sweep_form,
+            silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
+            error_message="Silent Payments block height must be an integer.",
+            status_code=400,
+        )
+    if scan_blockheight < 0:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            balance_result=balance_result,
+            recent_transactions=recent_transactions,
+            silent_payment_result=silent_payment_result,
+            sweep_form=sweep_form,
+            silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
+            error_message="Silent Payments block height must be zero or greater.",
+            status_code=400,
+        )
+
+    try:
+        wallet_material = await asyncio.to_thread(
+            resolve_silent_payment_wallet_mode_material,
+            silent_payment_scan_form["nostr_key"],
+            silent_payment_scan_form["mode"],
+        )
+        frigate_result = await asyncio.to_thread(
+            frigate_scan_subscribe,
+            wallet_material["scan_private_key_hex"],
+            wallet_material["spend_public_key_hex"],
+            scan_blockheight,
+            FRIGATE_HOST,
+            FRIGATE_PORT,
+            FRIGATE_SSL,
+            FRIGATE_TIMEOUT,
+        )
+        silent_payment_scan_result = {
+            "wallet_mode": wallet_material["wallet_mode"],
+            "silent_payment_address": wallet_material["silent_payment_address"],
+            "scan_mode": "frigate",
+            "discovery_only": True,
+            "scan_source": f"{'ssl' if FRIGATE_SSL else 'tcp'}://{FRIGATE_HOST}:{FRIGATE_PORT}",
+            "subscription": frigate_result["subscription"],
+            "progress_updates": frigate_result["progress_updates"],
+            "transactions": [
+                {
+                    "txid": str(entry.get("tx_hash") or ""),
+                    "height": int(entry.get("height", 0) or 0),
+                    "tweak_key": str(entry.get("tweak_key") or ""),
+                }
+                for entry in frigate_result["history"]
+                if entry.get("tx_hash")
+            ],
+        }
+    except click.ClickException as exc:
+        return render_bitcoin_balance_response(
+            request,
+            identity,
+            balance_form=balance_form,
+            balance_result=balance_result,
+            recent_transactions=recent_transactions,
+            silent_payment_result=silent_payment_result,
+            sweep_form=sweep_form,
+            silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    return render_bitcoin_balance_response(
+        request,
+        identity,
+        balance_form=balance_form,
+        balance_result=balance_result,
+        recent_transactions=recent_transactions,
+        silent_payment_result=silent_payment_result,
+        sweep_form=sweep_form,
+        silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
+        silent_payment_scan_result=silent_payment_scan_result,
+        success_message="Experimental Silent Payments transaction lookup completed for the selected block height.",
     )
 
 
@@ -845,6 +1089,10 @@ async def bitcoin_sweep_preview(
             sweep_form["nostr_key"],
             balance_form["transaction_limit"],
         )
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
+            sweep_form["nostr_key"],
+            balance_form["transaction_limit"],
+        )
     except click.ClickException as exc:
         return render_bitcoin_balance_response(
             request,
@@ -852,6 +1100,7 @@ async def bitcoin_sweep_preview(
             balance_form=balance_form,
             sweep_form=sweep_form,
             error_message=str(exc),
+            silent_payment_scan_form=default_silent_payment_scan_form(),
             status_code=400,
         )
 
@@ -865,6 +1114,7 @@ async def bitcoin_sweep_preview(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
             error_message="Sweep Wallet requires an nsec so the Taproot transaction can be signed.",
             status_code=400,
         )
@@ -881,6 +1131,7 @@ async def bitcoin_sweep_preview(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
             error_message="Fee rate must be a number in sats/vbyte.",
             status_code=400,
         )
@@ -904,6 +1155,7 @@ async def bitcoin_sweep_preview(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
             error_message=str(exc),
             status_code=400,
         )
@@ -917,6 +1169,7 @@ async def bitcoin_sweep_preview(
         silent_payment_result=silent_payment_result,
         sweep_form=sweep_form,
         silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
         sweep_preview=sweep_preview,
         success_message="Signed sweep transaction preview created. Review it carefully before broadcasting.",
     )
@@ -970,6 +1223,10 @@ async def bitcoin_sweep_broadcast(
             sweep_form["nostr_key"],
             balance_form["transaction_limit"],
         )
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
+            sweep_form["nostr_key"],
+            balance_form["transaction_limit"],
+        )
     except click.ClickException as exc:
         return render_bitcoin_balance_response(
             request,
@@ -977,6 +1234,7 @@ async def bitcoin_sweep_broadcast(
             balance_form=balance_form,
             sweep_form=sweep_form,
             error_message=str(exc),
+            silent_payment_scan_form=default_silent_payment_scan_form(),
             status_code=400,
         )
 
@@ -999,6 +1257,7 @@ async def bitcoin_sweep_broadcast(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
             sweep_preview=sweep_preview,
             error_message=str(exc),
             status_code=400,
@@ -1013,6 +1272,7 @@ async def bitcoin_sweep_broadcast(
         silent_payment_result=silent_payment_result,
         sweep_form=sweep_form,
         silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
         sweep_broadcast={"broadcast_txid": broadcast_txid, "txid": txid},
         success_message="Sweep transaction broadcast submitted successfully.",
     )
@@ -1026,17 +1286,69 @@ async def bitcoin_silent_payment_preview(
     destination_address: str = Form(""),
     fee_rate: str = Form("2.0"),
     transaction_limit: str = Form("5"),
+    preview_target_id: str = Form(""),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
-    balance_form = {
-        "nostr_key": nostr_key.strip(),
-        "transaction_limit": transaction_limit.strip() or "5",
-    }
+    form_error_status_code = 200 if is_htmx_request(request) else 400
     silent_payment_form = {
         "nostr_key": nostr_key.strip(),
         "txid": txid.strip(),
         "destination_address": destination_address.strip(),
         "fee_rate": fee_rate.strip() or "2.0",
+        "transaction_limit": transaction_limit.strip() or "5",
+    }
+    target_id = preview_target_id.strip()
+
+    if is_htmx_request(request) and target_id:
+        if not silent_payment_form["nostr_key"]:
+            return render_silent_payment_preview_fragment(
+                request,
+                preview_target_id=target_id,
+                silent_payment_form=silent_payment_form,
+                error_message="Enter an nsec before searching for a Silent Payments receipt.",
+                status_code=form_error_status_code,
+            )
+        try:
+            fee_rate_value = float(silent_payment_form["fee_rate"])
+        except ValueError:
+            return render_silent_payment_preview_fragment(
+                request,
+                preview_target_id=target_id,
+                silent_payment_form=silent_payment_form,
+                error_message="Fee rate must be a number in sats/vbyte.",
+                status_code=form_error_status_code,
+            )
+
+        try:
+            silent_payment_preview = await asyncio.to_thread(
+                create_silent_payment_sweep_result,
+                silent_payment_form["nostr_key"],
+                silent_payment_form["txid"],
+                silent_payment_form["destination_address"],
+                fee_rate_value,
+                BLOCKSTREAM_API_BASE,
+                5.0,
+                None,
+            )
+        except click.ClickException as exc:
+            return render_silent_payment_preview_fragment(
+                request,
+                preview_target_id=target_id,
+                silent_payment_form=silent_payment_form,
+                error_message=str(exc),
+                status_code=form_error_status_code,
+            )
+
+        return render_silent_payment_preview_fragment(
+            request,
+            preview_target_id=target_id,
+            silent_payment_form=silent_payment_form,
+            silent_payment_preview=silent_payment_preview,
+            success_message="Signed sweep preview created. Review it carefully before broadcasting.",
+        )
+
+    balance_form = {
+        "nostr_key": nostr_key.strip(),
         "transaction_limit": transaction_limit.strip() or "5",
     }
 
@@ -1046,12 +1358,16 @@ async def bitcoin_silent_payment_preview(
             identity,
             balance_form=balance_form,
             silent_payment_form=silent_payment_form,
-            error_message="Enter an nsec before searching for a Silent Payments receipt.",
-            status_code=400,
+            silent_payment_error="Enter an nsec before searching for a Silent Payments receipt.",
+            status_code=form_error_status_code,
         )
 
     try:
         _, sweep_form, balance_result, recent_transactions, silent_payment_result, _ = await resolve_balance_page_data(
+            silent_payment_form["nostr_key"],
+            balance_form["transaction_limit"],
+        )
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
             silent_payment_form["nostr_key"],
             balance_form["transaction_limit"],
         )
@@ -1061,8 +1377,9 @@ async def bitcoin_silent_payment_preview(
             identity,
             balance_form=balance_form,
             silent_payment_form=silent_payment_form,
-            error_message=str(exc),
-            status_code=400,
+            silent_payment_scan_form=default_silent_payment_scan_form(),
+            silent_payment_error=str(exc),
+            status_code=form_error_status_code,
         )
 
     if balance_result["input_kind"] != "nsec":
@@ -1075,8 +1392,9 @@ async def bitcoin_silent_payment_preview(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
-            error_message="Silent Payments receipt search and sweep requires an nsec so the receipt can be validated and signed.",
-            status_code=400,
+            silent_payment_scan_form=silent_payment_scan_form,
+            silent_payment_error="Silent Payments receipt search and sweep requires an nsec so the receipt can be validated and signed.",
+            status_code=form_error_status_code,
         )
 
     try:
@@ -1091,8 +1409,9 @@ async def bitcoin_silent_payment_preview(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
-            error_message="Fee rate must be a number in sats/vbyte.",
-            status_code=400,
+            silent_payment_scan_form=silent_payment_scan_form,
+            silent_payment_error="Fee rate must be a number in sats/vbyte.",
+            status_code=form_error_status_code,
         )
 
     try:
@@ -1116,8 +1435,9 @@ async def bitcoin_silent_payment_preview(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
-            error_message=str(exc),
-            status_code=400,
+            silent_payment_scan_form=silent_payment_scan_form,
+            silent_payment_error=str(exc),
+            status_code=form_error_status_code,
         )
 
     return render_bitcoin_balance_response(
@@ -1129,8 +1449,9 @@ async def bitcoin_silent_payment_preview(
         silent_payment_result=silent_payment_result,
         sweep_form=sweep_form,
         silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
         silent_payment_preview=silent_payment_preview,
-        success_message="Matched Silent Payments receipt and signed a sweep preview. Review it carefully before broadcasting.",
+        silent_payment_success="Matched Silent Payments receipt and signed a sweep preview. Review it carefully before broadcasting.",
     )
 
 
@@ -1144,12 +1465,10 @@ async def bitcoin_silent_payment_broadcast(
     transaction_limit: str = Form("5"),
     tx_hex: str = Form(""),
     signed_txid: str = Form(""),
+    preview_target_id: str = Form(""),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
-    balance_form = {
-        "nostr_key": nostr_key.strip(),
-        "transaction_limit": transaction_limit.strip() or "5",
-    }
+    form_error_status_code = 200 if is_htmx_request(request) else 400
     silent_payment_form = {
         "nostr_key": nostr_key.strip(),
         "txid": receipt_txid.strip(),
@@ -1157,9 +1476,55 @@ async def bitcoin_silent_payment_broadcast(
         "fee_rate": fee_rate.strip() or "2.0",
         "transaction_limit": transaction_limit.strip() or "5",
     }
+    target_id = preview_target_id.strip()
+
+    if is_htmx_request(request) and target_id:
+        try:
+            broadcast_txid = await asyncio.to_thread(
+                broadcast_blockstream_transaction,
+                tx_hex,
+                BLOCKSTREAM_API_BASE,
+                10.0,
+            )
+        except click.ClickException as exc:
+            return render_silent_payment_preview_fragment(
+                request,
+                preview_target_id=target_id,
+                silent_payment_form=silent_payment_form,
+                silent_payment_preview={
+                    "matched_txid": receipt_txid.strip(),
+                    "destination_address": silent_payment_form["destination_address"],
+                    "fee_rate": silent_payment_form["fee_rate"],
+                    "tx_hex": tx_hex,
+                    "txid": signed_txid,
+                },
+                error_message=str(exc),
+                status_code=form_error_status_code,
+            )
+
+        return render_silent_payment_preview_fragment(
+            request,
+            preview_target_id=target_id,
+            silent_payment_form=silent_payment_form,
+            silent_payment_broadcast={
+                "broadcast_txid": broadcast_txid,
+                "receipt_txid": receipt_txid.strip(),
+                "txid": signed_txid,
+            },
+            success_message="Silent Payments sweep transaction broadcast submitted successfully.",
+        )
+
+    balance_form = {
+        "nostr_key": nostr_key.strip(),
+        "transaction_limit": transaction_limit.strip() or "5",
+    }
 
     try:
         _, sweep_form, balance_result, recent_transactions, silent_payment_result, _ = await resolve_balance_page_data(
+            silent_payment_form["nostr_key"],
+            balance_form["transaction_limit"],
+        )
+        silent_payment_scan_form = await resolve_silent_payment_scan_form(
             silent_payment_form["nostr_key"],
             balance_form["transaction_limit"],
         )
@@ -1169,8 +1534,9 @@ async def bitcoin_silent_payment_broadcast(
             identity,
             balance_form=balance_form,
             silent_payment_form=silent_payment_form,
-            error_message=str(exc),
-            status_code=400,
+            silent_payment_scan_form=default_silent_payment_scan_form(),
+            silent_payment_error=str(exc),
+            status_code=form_error_status_code,
         )
 
     try:
@@ -1210,9 +1576,10 @@ async def bitcoin_silent_payment_broadcast(
             silent_payment_result=silent_payment_result,
             sweep_form=sweep_form,
             silent_payment_form=silent_payment_form,
+            silent_payment_scan_form=silent_payment_scan_form,
             silent_payment_preview=silent_payment_preview,
-            error_message=str(exc),
-            status_code=400,
+            silent_payment_error=str(exc),
+            status_code=form_error_status_code,
         )
 
     return render_bitcoin_balance_response(
@@ -1224,8 +1591,9 @@ async def bitcoin_silent_payment_broadcast(
         silent_payment_result=silent_payment_result,
         sweep_form=sweep_form,
         silent_payment_form=silent_payment_form,
+        silent_payment_scan_form=silent_payment_scan_form,
         silent_payment_broadcast={"broadcast_txid": broadcast_txid, "receipt_txid": receipt_txid, "txid": signed_txid},
-        success_message="Silent Payments sweep transaction broadcast submitted successfully.",
+        silent_payment_success="Silent Payments sweep transaction broadcast submitted successfully.",
     )
 
 

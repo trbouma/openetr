@@ -426,6 +426,67 @@ If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
 
 The first OpenETR Silent Payments implementation exposed several practical glitches that are worth documenting because they are easy to reintroduce accidentally.
 
+### Proven NSW Implementation Result
+
+Implementation and live CLI testing now support a stronger conclusion than the original design note assumptions:
+
+- the Nostr Silent Wallet (NSW) derivation is not merely theoretically valid
+- it functions as a real Silent Payments wallet mode
+- it can receive payments, validate txids locally, and interoperate with a remote Frigate scanner
+
+In practical terms, the following are now confirmed:
+
+- direct txid-based NSW receipt validation works
+- historical NSW receipt scanning via Frigate works
+- multiple discovered Frigate matches can be validated locally against the NSW receipt logic
+- the NSW scan/spend key model is sufficient for remote scanner interoperability
+
+This means NSW should be treated as an implemented wallet model, not merely as a derivation thought experiment or design placeholder.
+
+### What We Discovered
+
+The most important implementation discovery was that remote scanning compatibility depends on the Silent Payments receiver key interface, not on the upstream derivation origin.
+
+More specifically:
+
+- Frigate does not need the wallet to be BIP32-derived
+- Frigate only needs a valid:
+  - `scan_priv`
+  - `spend_pub`
+- if those keys are internally consistent, Frigate can discover matching Silent Payments history for the wallet
+
+This was demonstrated in practice with the NSW keys.
+
+That result matters because it narrows the true interoperability boundary:
+
+- third-party wallet recovery still depends on whether the wallet implements the NSW derivation contract
+- remote scanner compatibility does not
+
+So the correct interpretation is:
+
+- NSW is distinct from wallet-compatible BIP32 Silent Payments at the wallet derivation layer
+- NSW is compatible with Frigate-style remote scanning at the scan-key layer
+
+### Frigate Integration Lessons
+
+The Frigate work also exposed several protocol and implementation details that are easy to miss:
+
+- Electrum negotiation matters:
+  - `server.version` must be the first RPC on a new connection
+- Frigate response formats vary:
+  - subscription notifications may arrive in a dict-shaped `params` payload rather than the list-shaped form assumed by some Electrum clients
+- one-shot scans and follow-mode subscriptions are different:
+  - the client must be prepared for either an immediate result or a result followed by progress/history notifications
+- start-height matters operationally:
+  - a tip-height scan may correctly return no history
+  - an older known-receipt height is a better interoperability test
+
+The practical lesson is that an empty Frigate result should not be interpreted immediately as a derivation failure. It may instead reflect:
+
+- no history after the chosen start height
+- protocol-shape mismatch in the client
+- or differing notification timing assumptions
+
 ### 1. Esplora Script Type Naming Differences
 
 During early receipt detection testing, Cake Wallet produced transactions whose Esplora `scriptpubkey_type` values were returned as:

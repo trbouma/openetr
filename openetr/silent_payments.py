@@ -5,11 +5,13 @@ import json
 import math
 import socket
 import ssl
+import time
 from urllib import error, parse, request
 
 import bech32
 import click
 import secp256k1
+from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
 from monstr.encrypt import Keys
 from btclib.script.script_pub_key import ScriptPubKey
 
@@ -113,6 +115,36 @@ def _tweak_pubkey(base_pubkey: bytes, tweak_scalar: int) -> bytes:
     return pubkey.tweak_add(tweak_scalar.to_bytes(32, "big")).serialize(compressed=True)
 
 
+def derive_bip352_wallet_silent_payment_material(
+    seed_bytes: bytes,
+    hrp: str = "sp",
+    coin_type: int = 0,
+) -> dict[str, str]:
+    master_xprv = rootxprv_from_seed(seed_bytes)
+    account_path = f"m/352h/{coin_type}h/0h"
+    spend_path = f"{account_path}/0h/0"
+    scan_path = f"{account_path}/1h/0"
+    spend_xprv = derive(master_xprv, spend_path)
+    scan_xprv = derive(master_xprv, scan_path)
+    spend_data = BIP32KeyData.b58decode(spend_xprv)
+    scan_data = BIP32KeyData.b58decode(scan_xprv)
+    spend_privkey_bytes = spend_data.key[1:]
+    scan_privkey_bytes = scan_data.key[1:]
+    spend_pubkey = derive_compressed_pubkey(spend_privkey_bytes)
+    scan_pubkey = derive_compressed_pubkey(scan_privkey_bytes)
+    return {
+        "bip352_master_xprv": master_xprv,
+        "bip352_account_path": account_path,
+        "bip352_spend_path": spend_path,
+        "bip352_scan_path": scan_path,
+        "bip352_spend_xprv": spend_xprv,
+        "bip352_scan_xprv": scan_xprv,
+        "bip352_spend_public_key_hex": spend_pubkey.hex(),
+        "bip352_scan_public_key_hex": scan_pubkey.hex(),
+        "bip352_silent_payment_address": encode_silent_payment_address(scan_pubkey, spend_pubkey, hrp=hrp),
+    }
+
+
 def derive_silent_payment_material(nostr_key: str, hrp: str = "sp") -> dict[str, str]:
     normalized_input, input_kind = normalize_nostr_key_input(nostr_key)
     keys = resolve_keys(normalized_input) if input_kind == "nsec" else Keys(pub_k=normalized_input)
@@ -120,15 +152,28 @@ def derive_silent_payment_material(nostr_key: str, hrp: str = "sp") -> dict[str,
     privkey_hex = keys.private_key_hex()
     warning = ""
     bip340_normalized = "no"
+    bip352_wallet_material: dict[str, str] = {
+        "bip352_master_xprv": "",
+        "bip352_account_path": "",
+        "bip352_spend_path": "",
+        "bip352_scan_path": "",
+        "bip352_spend_xprv": "",
+        "bip352_scan_xprv": "",
+        "bip352_spend_public_key_hex": "",
+        "bip352_scan_public_key_hex": "",
+        "bip352_silent_payment_address": "",
+    }
 
     if privkey_hex is not None:
+        raw_privkey_bytes = bytes.fromhex(privkey_hex)
         base_privkey_bytes, base_pubkey, normalized = normalize_bip340_private_key(privkey_hex)
         bip340_normalized = "yes" if normalized else "no"
         base_scalar = int.from_bytes(base_privkey_bytes, "big")
+        bip352_wallet_material = derive_bip352_wallet_silent_payment_material(raw_privkey_bytes, hrp=hrp)
         if normalized:
             warning = (
                 "nsec input was normalized to the BIP-340 even-y representative before deriving Silent Payments "
-                "scan and spend keys."
+                "scan and spend keys. The wallet-compatible BIP352 address below is derived separately from the raw nsec bytes."
             )
     else:
         pubkey_hex = keys.public_key_hex()
@@ -168,7 +213,39 @@ def derive_silent_payment_material(nostr_key: str, hrp: str = "sp") -> dict[str,
         "spend_public_key_hex": spend_pubkey.hex(),
         "silent_payment_address": encode_silent_payment_address(scan_pubkey, spend_pubkey, hrp=hrp),
         "warning": warning,
+        **bip352_wallet_material,
     }
+
+
+def resolve_silent_payment_wallet_mode_material(
+    nostr_key: str,
+    mode: str = "nsw",
+    hrp: str = "sp",
+) -> dict[str, str]:
+    normalized_mode = (mode or "nsw").strip().lower()
+    if normalized_mode not in {"nsw", "bip352"}:
+        raise click.ClickException("silent payment wallet mode must be either 'nsw' or 'bip352'")
+
+    material = derive_silent_payment_material(nostr_key, hrp=hrp)
+    if normalized_mode == "nsw":
+        material["wallet_mode"] = "nsw"
+        return material
+
+    if material["input_kind"] != "nsec":
+        raise click.ClickException("bip352 wallet mode requires an nsec so the wallet-compatible scan key is available")
+    if not material["bip352_scan_xprv"] or not material["bip352_spend_xprv"]:
+        raise click.ClickException("wallet-compatible BIP352 material is unavailable for this input")
+
+    bip352_scan_data = BIP32KeyData.b58decode(material["bip352_scan_xprv"])
+    bip352_spend_data = BIP32KeyData.b58decode(material["bip352_spend_xprv"])
+    material = dict(material)
+    material["wallet_mode"] = "bip352"
+    material["scan_private_key_hex"] = bip352_scan_data.key[1:].hex()
+    material["spend_private_key_hex"] = bip352_spend_data.key[1:].hex()
+    material["scan_public_key_hex"] = material["bip352_scan_public_key_hex"]
+    material["spend_public_key_hex"] = material["bip352_spend_public_key_hex"]
+    material["silent_payment_address"] = material["bip352_silent_payment_address"]
+    return material
 
 
 def silent_payment_address_belongs_to_nostr_key(
@@ -249,6 +326,29 @@ def _json_rpc_readline(file_obj, timeout: float) -> dict[str, object]:
     return message
 
 
+def _frigate_negotiate_version(file_obj, timeout: float) -> object:
+    request_payload = {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "server.version",
+        "params": [
+            "openetr 0.1",
+            [
+                "1.4",
+                "1.6",
+            ],
+        ],
+    }
+    _json_rpc_send(file_obj, request_payload)
+    response = _json_rpc_readline(file_obj, timeout)
+    error_payload = response.get("error")
+    if error_payload is not None:
+        raise click.ClickException(f"Frigate server.version failed: {error_payload}")
+    if response.get("id") != 0:
+        raise click.ClickException("Frigate returned an unexpected response while negotiating the Electrum version")
+    return response.get("result")
+
+
 def frigate_server_features(
     host: str,
     port: int,
@@ -267,6 +367,7 @@ def frigate_server_features(
             wrapped = ssl.create_default_context().wrap_socket(sock, server_hostname=host) if use_ssl else sock
             try:
                 file_obj = wrapped.makefile("rwb")
+                _frigate_negotiate_version(file_obj, timeout)
                 _json_rpc_send(file_obj, request_payload)
                 response = _json_rpc_readline(file_obj, timeout)
             finally:
@@ -316,47 +417,74 @@ def frigate_scan_subscribe(
     }
     history_entries: list[dict[str, object]] = []
     progress_updates: list[float] = []
-    subscription_result: dict[str, object] | None = None
+    subscription_result: object | None = None
+    saw_notification = False
+    notification_idle_timeout = min(timeout, 5.0)
     try:
         with socket.create_connection((host, port), timeout=timeout) as sock:
             sock.settimeout(timeout)
             wrapped = ssl.create_default_context().wrap_socket(sock, server_hostname=host) if use_ssl else sock
             try:
                 file_obj = wrapped.makefile("rwb")
+                _frigate_negotiate_version(file_obj, timeout)
                 _json_rpc_send(file_obj, subscribe_payload)
                 while True:
-                    message = _json_rpc_readline(file_obj, timeout)
+                    try:
+                        message = _json_rpc_readline(
+                            file_obj,
+                            notification_idle_timeout if subscription_result is not None else timeout,
+                        )
+                    except TimeoutError:
+                        if subscription_result is not None:
+                            break
+                        raise
+                    except socket.timeout:
+                        if subscription_result is not None:
+                            break
+                        raise
                     if message.get("id") == 2:
                         error_payload = message.get("error")
                         if error_payload is not None:
                             raise click.ClickException(f"Frigate subscription failed: {error_payload}")
                         result = message.get("result")
-                        if not isinstance(result, dict):
-                            raise click.ClickException(
-                                "Frigate subscription returned an unexpected result payload"
-                            )
                         subscription_result = result
+                        if isinstance(result, list):
+                            for entry in result:
+                                if isinstance(entry, dict):
+                                    history_entries.append(entry)
                         continue
 
                     if message.get("method") != "blockchain.silentpayments.subscribe":
                         continue
 
+                    saw_notification = True
                     params = message.get("params")
-                    if not isinstance(params, list) or len(params) != 3:
-                        continue
-                    _, progress, history = params
-                    if isinstance(progress, (int, float)):
-                        progress_value = float(progress)
-                        progress_updates.append(progress_value)
+                    progress_value: float | None = None
+                    history: object = None
+                    if isinstance(params, list) and len(params) == 3:
+                        _, progress, history = params
+                        if isinstance(progress, (int, float)):
+                            progress_value = float(progress)
+                    elif isinstance(params, dict):
+                        progress = params.get("progress")
+                        history = params.get("history")
+                        if isinstance(progress, (int, float)):
+                            progress_value = float(progress)
+                        subscription = params.get("subscription")
+                        if isinstance(subscription, dict) and not isinstance(subscription_result, dict):
+                            subscription_result = subscription
                     else:
-                        progress_value = None
+                        continue
+
+                    if progress_value is not None:
+                        progress_updates.append(progress_value)
 
                     if isinstance(history, list):
                         for entry in history:
                             if isinstance(entry, dict):
                                 history_entries.append(entry)
 
-                    if progress_value == 1.0 and subscription_result is not None:
+                    if progress_value == 1.0:
                         break
             finally:
                 wrapped.close()
@@ -367,11 +495,171 @@ def frigate_scan_subscribe(
     if subscription_result is None:
         raise click.ClickException("Frigate did not return a subscription result")
 
+    if isinstance(subscription_result, dict):
+        normalized_subscription: dict[str, object] = dict(subscription_result)
+    else:
+        normalized_subscription = {
+            "address": "",
+            "start_height": start,
+            "labels": labels or [],
+            "raw_result": subscription_result,
+        }
+
     return {
         "features": features,
-        "subscription": subscription_result,
+        "subscription": normalized_subscription,
         "progress_updates": progress_updates,
         "history": history_entries,
+        "saw_notification": saw_notification,
+    }
+
+
+def frigate_debug_subscription(
+    nostr_key: str,
+    host: str,
+    port: int,
+    use_ssl: bool = False,
+    timeout: float = 30.0,
+    start: int | str | None = None,
+    mode: str = "nsw",
+    labels: list[int] | None = None,
+) -> dict[str, object]:
+    material = derive_silent_payment_material(nostr_key)
+    if material["input_kind"] != "nsec":
+        raise click.ClickException("Frigate debugging requires an nsec so the scan private key is available")
+
+    modes: list[tuple[str, str, str, str]] = []
+    if mode in {"nsw", "both"}:
+        modes.append(
+            (
+                "nsw",
+                material["silent_payment_address"],
+                material["scan_private_key_hex"],
+                material["spend_public_key_hex"],
+            )
+        )
+    if mode in {"bip352", "both"}:
+        if not material["bip352_scan_xprv"] or not material["bip352_spend_public_key_hex"]:
+            raise click.ClickException("wallet-compatible BIP352 material is unavailable for this input")
+        bip352_scan_data = BIP32KeyData.b58decode(material["bip352_scan_xprv"])
+        bip352_scan_privkey_hex = bip352_scan_data.key[1:].hex()
+        modes.append(
+            (
+                "bip352",
+                material["bip352_silent_payment_address"],
+                bip352_scan_privkey_hex,
+                material["bip352_spend_public_key_hex"],
+            )
+        )
+
+    results: list[dict[str, object]] = []
+    for mode_name, address, scan_private_key_hex, spend_public_key_hex in modes:
+        raw_messages: list[dict[str, object]] = []
+        history_entries: list[dict[str, object]] = []
+        progress_updates: list[float] = []
+        subscription_result: object | None = None
+        version_result: object | None = None
+        features_result = frigate_server_features(host, port, use_ssl=use_ssl, timeout=timeout)
+        try:
+            with socket.create_connection((host, port), timeout=timeout) as sock:
+                sock.settimeout(timeout)
+                wrapped = ssl.create_default_context().wrap_socket(sock, server_hostname=host) if use_ssl else sock
+                try:
+                    file_obj = wrapped.makefile("rwb")
+
+                    version_payload = {
+                        "jsonrpc": "2.0",
+                        "id": 0,
+                        "method": "server.version",
+                        "params": [
+                            "openetr 0.1 debug",
+                            ["1.4", "1.6"],
+                        ],
+                    }
+                    _json_rpc_send(file_obj, version_payload)
+                    version_response = _json_rpc_readline(file_obj, timeout)
+                    raw_messages.append(version_response)
+                    if version_response.get("error") is not None:
+                        raise click.ClickException(f"Frigate server.version failed: {version_response['error']}")
+                    version_result = version_response.get("result")
+
+                    subscribe_payload = {
+                        "jsonrpc": "2.0",
+                        "id": 2,
+                        "method": "blockchain.silentpayments.subscribe",
+                        "params": [
+                            scan_private_key_hex,
+                            spend_public_key_hex,
+                            start,
+                            labels or [],
+                        ],
+                    }
+                    _json_rpc_send(file_obj, subscribe_payload)
+                    while True:
+                        try:
+                            message = _json_rpc_readline(file_obj, min(timeout, 5.0) if subscription_result is not None else timeout)
+                        except (TimeoutError, socket.timeout):
+                            if subscription_result is not None:
+                                break
+                            raise
+                        raw_messages.append(message)
+                        if message.get("id") == 2:
+                            if message.get("error") is not None:
+                                raise click.ClickException(f"Frigate subscription failed: {message['error']}")
+                            subscription_result = message.get("result")
+                            if isinstance(subscription_result, list):
+                                for entry in subscription_result:
+                                    if isinstance(entry, dict):
+                                        history_entries.append(entry)
+                            continue
+                        if message.get("method") != "blockchain.silentpayments.subscribe":
+                            continue
+                        params = message.get("params")
+                        if not isinstance(params, list) or len(params) != 3:
+                            continue
+                        _, progress, history = params
+                        if isinstance(progress, (int, float)):
+                            progress_updates.append(float(progress))
+                            if float(progress) == 1.0:
+                                if isinstance(history, list):
+                                    for entry in history:
+                                        if isinstance(entry, dict):
+                                            history_entries.append(entry)
+                                break
+                        if isinstance(history, list):
+                            for entry in history:
+                                if isinstance(entry, dict):
+                                    history_entries.append(entry)
+                finally:
+                    wrapped.close()
+        except (OSError, ssl.SSLError) as exc:
+            scheme = "ssl" if use_ssl else "tcp"
+            raise click.ClickException(f"failed to complete Frigate debug scan over {scheme}://{host}:{port}: {exc}") from exc
+
+        results.append(
+            {
+                "mode": mode_name,
+                "silent_payment_address": address,
+                "scan_private_key_hex": scan_private_key_hex,
+                "spend_public_key_hex": spend_public_key_hex,
+                "version_result": version_result,
+                "features_result": features_result,
+                "subscription_result": subscription_result,
+                "progress_updates": progress_updates,
+                "history": history_entries,
+                "raw_messages": raw_messages,
+            }
+        )
+
+    return {
+        "input_value": nostr_key,
+        "npub": material["npub"],
+        "host": host,
+        "port": port,
+        "use_ssl": use_ssl,
+        "start": start,
+        "labels": labels or [],
+        "results": results,
     }
 
 
@@ -521,32 +809,48 @@ def fetch_blockstream_transaction(
     timeout: float = 5.0,
 ) -> dict[str, object]:
     url = f"{api_base.rstrip('/')}/tx/{parse.quote(txid)}"
-    req = request.Request(
-        url,
-        headers={
-            "Accept": "application/json",
-            "User-Agent": "openetr/0.1",
-        },
-    )
-    try:
-        with request.urlopen(req, timeout=timeout) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except error.HTTPError as exc:
+    last_rate_limit_error: error.HTTPError | None = None
+    for attempt in range(4):
+        req = request.Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "openetr/0.1",
+            },
+        )
+        try:
+            with request.urlopen(req, timeout=timeout) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            break
+        except error.HTTPError as exc:
+            if exc.code == 429 and attempt < 3:
+                last_rate_limit_error = exc
+                retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
+                try:
+                    delay = float(retry_after) if retry_after else (1.5 * (2 ** attempt))
+                except ValueError:
+                    delay = 1.5 * (2 ** attempt)
+                time.sleep(min(delay, 12.0))
+                continue
+            raise click.ClickException(
+                f"Blockstream transaction lookup failed for {txid}: HTTP {exc.code}"
+            ) from exc
+        except error.URLError as exc:
+            raise click.ClickException(
+                f"Blockstream transaction lookup failed for {txid}: {exc.reason}"
+            ) from exc
+        except TimeoutError as exc:
+            raise click.ClickException(
+                f"Blockstream transaction lookup timed out for {txid}"
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise click.ClickException(
+                f"Blockstream transaction lookup returned invalid JSON for {txid}"
+            ) from exc
+    else:
         raise click.ClickException(
-            f"Blockstream transaction lookup failed for {txid}: HTTP {exc.code}"
-        ) from exc
-    except error.URLError as exc:
-        raise click.ClickException(
-            f"Blockstream transaction lookup failed for {txid}: {exc.reason}"
-        ) from exc
-    except TimeoutError as exc:
-        raise click.ClickException(
-            f"Blockstream transaction lookup timed out for {txid}"
-        ) from exc
-    except json.JSONDecodeError as exc:
-        raise click.ClickException(
-            f"Blockstream transaction lookup returned invalid JSON for {txid}"
-        ) from exc
+            f"Blockstream transaction lookup failed for {txid}: HTTP 429 after multiple retries"
+        ) from last_rate_limit_error
     if not isinstance(payload, dict):
         raise click.ClickException(f"Blockstream transaction lookup returned an unexpected payload for {txid}")
     return payload
@@ -693,8 +997,9 @@ def collect_block_txids(
 def scan_silent_payment_transaction(
     nostr_key: str,
     tx: dict[str, object],
+    mode: str = "nsw",
 ) -> dict[str, object]:
-    material = derive_silent_payment_material(nostr_key)
+    material = resolve_silent_payment_wallet_mode_material(nostr_key, mode=mode)
     if not material["scan_private_key_hex"] or not material["spend_private_key_hex"]:
         raise click.ClickException("nsec input is required to scan Silent Payments receipts")
 
@@ -821,9 +1126,11 @@ def scan_silent_payment_receipts(
     frigate_host: str | None = None,
     frigate_port: int | None = None,
     frigate_ssl: bool = False,
-    frigate_timeout: float = 30.0,
+    frigate_timeout: float = 120.0,
+    mode: str = "nsw",
+    discovery_only: bool = False,
 ) -> dict[str, object]:
-    material = derive_silent_payment_material(nostr_key)
+    material = resolve_silent_payment_wallet_mode_material(nostr_key, mode=mode)
     if not material["scan_private_key_hex"] or not material["spend_private_key_hex"]:
         raise click.ClickException("nsec input is required to scan Silent Payments receipts")
 
@@ -880,27 +1187,49 @@ def scan_silent_payment_receipts(
             tx_hash = str(entry.get("tx_hash") or "")
             if tx_hash:
                 frigate_history_by_txid.setdefault(tx_hash, []).append(entry)
-    for txid in effective_txids:
-        tx = fetch_blockstream_transaction(txid, api_base=api_base, timeout=timeout)
-        result = scan_silent_payment_transaction(nostr_key, tx)
-        frigate_entries = frigate_history_by_txid.get(txid, [])
-        if frigate_entries:
-            result["frigate_history"] = [
+    if discovery_only:
+        for txid in effective_txids:
+            frigate_entries = frigate_history_by_txid.get(txid, [])
+            scanned_transactions.append(
                 {
-                    "height": int(entry.get("height", 0) or 0),
-                    "tx_hash": str(entry.get("tx_hash") or ""),
-                    "tweak_key": str(entry.get("tweak_key") or ""),
+                    "txid": txid,
+                    "input_pubkey_count": 0,
+                    "matched_outputs": [],
+                    "warning": "",
+                    "frigate_history": [
+                        {
+                            "height": int(entry.get("height", 0) or 0),
+                            "tx_hash": str(entry.get("tx_hash") or ""),
+                            "tweak_key": str(entry.get("tweak_key") or ""),
+                        }
+                        for entry in frigate_entries
+                    ],
                 }
-                for entry in frigate_entries
-            ]
-        scanned_transactions.append(result)
+            )
+    else:
+        for txid in effective_txids:
+            tx = fetch_blockstream_transaction(txid, api_base=api_base, timeout=timeout)
+            result = scan_silent_payment_transaction(nostr_key, tx, mode=mode)
+            frigate_entries = frigate_history_by_txid.get(txid, [])
+            if frigate_entries:
+                result["frigate_history"] = [
+                    {
+                        "height": int(entry.get("height", 0) or 0),
+                        "tx_hash": str(entry.get("tx_hash") or ""),
+                        "tweak_key": str(entry.get("tweak_key") or ""),
+                    }
+                    for entry in frigate_entries
+                ]
+            scanned_transactions.append(result)
 
     response = {
         "input_value": nostr_key,
         "npub": material["npub"],
+        "wallet_mode": material["wallet_mode"],
         "silent_payment_address": material["silent_payment_address"],
         "api_base": api_base.rstrip("/"),
         "scan_mode": scan_mode,
+        "discovery_only": discovery_only,
         "block_summaries": block_summaries,
         "transactions": scanned_transactions,
     }
@@ -976,17 +1305,25 @@ def create_silent_payment_sweep_result(
 
     source_address = str(selected_match["scriptpubkey_address"])
     source_vout = int(selected_match["vout"])
-    confirmed_utxos = confirmed_utxos_only(
-        fetch_blockstream_address_utxos(source_address, api_base=api_base, timeout=timeout)
-    )
+    all_address_utxos = fetch_blockstream_address_utxos(source_address, api_base=api_base, timeout=timeout)
+    confirmed_utxos = confirmed_utxos_only(all_address_utxos)
     selected_utxos = [
         utxo
         for utxo in confirmed_utxos
         if str(utxo["txid"]) == txid and int(utxo["vout"]) == source_vout
     ]
     if not selected_utxos:
+        matching_unconfirmed_utxos = [
+            utxo
+            for utxo in all_address_utxos
+            if str(utxo["txid"]) == txid and int(utxo["vout"]) == source_vout
+        ]
+        if matching_unconfirmed_utxos:
+            raise click.ClickException(
+                f"matched Silent Payments output {txid}:{source_vout} exists but is not yet confirmed as an unspent output"
+            )
         raise click.ClickException(
-            f"matched Silent Payments output {txid}:{source_vout} is not available as a confirmed unspent output"
+            f"matched Silent Payments output {txid}:{source_vout} appears to have already been spent"
         )
 
     if fee_rate <= 0:
