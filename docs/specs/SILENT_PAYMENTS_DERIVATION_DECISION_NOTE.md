@@ -1,4 +1,4 @@
-# Nostr Silent Wallet (NSW) Derivation Decision Note
+# Nostr Silent Payments (NSP) Derivation Decision Note
 
 ## Decision
 
@@ -97,6 +97,34 @@ This is what makes the OpenETR approach:
 - public-derivable
 - independently verifiable
 - tightly linked to Nostr identity
+
+### Important Security Consequence
+
+The same additive property also creates an important limitation.
+
+Because:
+
+- `scan_priv = d + t_scan mod n`
+- `t_scan` is publicly computable from the `npub`
+
+anyone who learns `scan_priv` can recover:
+
+- `d = scan_priv - t_scan mod n`
+
+and then derive:
+
+- `spend_priv = d + t_spend mod n`
+
+So in the NSP model:
+
+- `scan_priv` is root-equivalent
+- disclosure of `scan_priv` reveals the original `nsec`
+- disclosure of `scan_priv` also reveals the spend private key
+
+This means the public-derivable NSP model should be treated as:
+
+- a valid local-scanning wallet model
+- not a safe untrusted remote-scanning model
 
 ### BIP-32 Wallet-Style Approach
 
@@ -229,19 +257,19 @@ not as:
 
 - direct proof of intentional publication by the `nsec` holder
 
-## Nostr Silent Wallet Interpretation
+## Nostr Silent Payments Interpretation
 
-For OpenETR, it is reasonable to think of the Silent Payments capability derived from a Nostr identity as a distinct **Nostr Silent Wallet (NSW)**.
+For OpenETR, it is reasonable to think of the Silent Payments capability derived from a Nostr identity as a distinct **Nostr Silent Payments (NSP)** model.
 
 Under the OpenETR derivation rule:
 
-- every `npub` can be treated as having a corresponding Nostr Silent Wallet
-- the Nostr Silent Wallet can be derived independently from public identity material
+- every `npub` can be treated as having a corresponding NSP-derived Silent Payments address
+- the NSP model can be derived independently from public identity material
 - but it can be impossible to prove that the `nsec` holder intentionally created it, published it, or is even aware that it exists
 
 This is an important conceptual distinction.
 
-The Nostr Silent Wallet is not just a displayed address string.
+Nostr Silent Payments is not just a displayed address string.
 It is a distinct receive-and-recovery model with its own operational properties:
 
 - it has a deterministic `sp1...` receive identity
@@ -251,7 +279,7 @@ It is a distinct receive-and-recovery model with its own operational properties:
 
 In practice, that means:
 
-- public observers may be able to derive that a Nostr Silent Wallet exists for a known `npub` under the OpenETR convention
+- public observers may be able to derive that an NSP-derived Silent Payments address exists for a known `npub` under the OpenETR convention
 - but they cannot detect which on-chain outputs belong to it without the relevant private key material
 - and they cannot determine whether the identity owner has ever checked for, acknowledged, or claimed those outputs
 
@@ -273,7 +301,7 @@ After sweeping:
 
 This protects both sides of the transaction:
 
-- the donor is protected because the act of paying the Nostr Silent Wallet does not publicly reveal a durable recipient identity on-chain
+- the donor is protected because the act of paying the NSP-derived Silent Payments address does not publicly reveal a durable recipient identity on-chain
 - the recipient is protected because discovering, claiming, and sweeping the funds requires private key knowledge and can be done to unrelated addresses
 
 As a result, the funding relationship between donor and recipient is difficult to establish from public chain data alone.
@@ -284,7 +312,7 @@ Another important implication of the OpenETR derivation model is that the Silent
 
 Because the `sp1...` address can be deterministically derived from the `npub` under the OpenETR derivation rule:
 
-- any statement, profile, or event signed by that `npub` can be associated with the corresponding Nostr Silent Wallet
+- any statement, profile, or event signed by that `npub` can be associated with the corresponding NSP-derived Silent Payments address
 - the sender does not need to trust a separately copied or manually transcribed Silent Payments address
 
 This gives the sender a strong assurance property:
@@ -320,11 +348,11 @@ This substantially reduces the possibility of malicious address spoofing in iden
 
 ## Distinct Wallet Model
 
-For all practical purposes, the Nostr Silent Wallet should be treated as its own distinct wallet model.
+For all practical purposes, Nostr Silent Payments should be treated as its own distinct derivation and recovery model.
 
 It should not be treated as merely another view of the exact OpenETR `p2tr` wallet.
 
-The Nostr Silent Wallet differs from the exact `p2tr` wallet in several important ways:
+Nostr Silent Payments differs from the exact `p2tr` wallet in several important ways:
 
 - it is discovered by scanning, not by watching one fixed visible address
 - it uses an off-chain `sp1...` receive identifier rather than a reusable on-chain address
@@ -335,7 +363,7 @@ The Nostr Silent Wallet differs from the exact `p2tr` wallet in several importan
 For that reason, OpenETR should continue to model and present:
 
 - the exact `p2tr` wallet
-- and the Nostr Silent Wallet
+- and the Nostr Silent Payments
 
 as separate Bitcoin capabilities, even when both are ultimately derived from the same Nostr identity.
 
@@ -394,7 +422,7 @@ If OpenETR later wants stronger external wallet interoperability, it should add 
 
 Recommended future naming:
 
-- `Nostr Silent Wallet (NSW)`
+- `Nostr Silent Payments (NSP)`
 - `Wallet-compatible Silent Payments`
 
 The first mode preserves:

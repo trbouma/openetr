@@ -219,16 +219,18 @@ def derive_silent_payment_material(nostr_key: str, hrp: str = "sp") -> dict[str,
 
 def resolve_silent_payment_wallet_mode_material(
     nostr_key: str,
-    mode: str = "nsw",
+    mode: str = "nsp",
     hrp: str = "sp",
 ) -> dict[str, str]:
-    normalized_mode = (mode or "nsw").strip().lower()
-    if normalized_mode not in {"nsw", "bip352"}:
-        raise click.ClickException("silent payment wallet mode must be either 'nsw' or 'bip352'")
+    normalized_mode = (mode or "nsp").strip().lower()
+    if normalized_mode == "nsw":
+        normalized_mode = "nsp"
+    if normalized_mode not in {"nsp", "bip352"}:
+        raise click.ClickException("silent payment wallet mode must be either 'nsp' or 'bip352'")
 
     material = derive_silent_payment_material(nostr_key, hrp=hrp)
-    if normalized_mode == "nsw":
-        material["wallet_mode"] = "nsw"
+    if normalized_mode == "nsp":
+        material["wallet_mode"] = "nsp"
         return material
 
     if material["input_kind"] != "nsec":
@@ -521,24 +523,28 @@ def frigate_debug_subscription(
     use_ssl: bool = False,
     timeout: float = 30.0,
     start: int | str | None = None,
-    mode: str = "nsw",
+    mode: str = "nsp",
     labels: list[int] | None = None,
 ) -> dict[str, object]:
     material = derive_silent_payment_material(nostr_key)
     if material["input_kind"] != "nsec":
         raise click.ClickException("Frigate debugging requires an nsec so the scan private key is available")
 
+    normalized_mode = (mode or "nsp").strip().lower()
+    if normalized_mode == "nsw":
+        normalized_mode = "nsp"
+
     modes: list[tuple[str, str, str, str]] = []
-    if mode in {"nsw", "both"}:
+    if normalized_mode in {"nsp", "both"}:
         modes.append(
             (
-                "nsw",
+                "nsp",
                 material["silent_payment_address"],
                 material["scan_private_key_hex"],
                 material["spend_public_key_hex"],
             )
         )
-    if mode in {"bip352", "both"}:
+    if normalized_mode in {"bip352", "both"}:
         if not material["bip352_scan_xprv"] or not material["bip352_spend_public_key_hex"]:
             raise click.ClickException("wallet-compatible BIP352 material is unavailable for this input")
         bip352_scan_data = BIP32KeyData.b58decode(material["bip352_scan_xprv"])
@@ -997,7 +1003,7 @@ def collect_block_txids(
 def scan_silent_payment_transaction(
     nostr_key: str,
     tx: dict[str, object],
-    mode: str = "nsw",
+    mode: str = "nsp",
 ) -> dict[str, object]:
     material = resolve_silent_payment_wallet_mode_material(nostr_key, mode=mode)
     if not material["scan_private_key_hex"] or not material["spend_private_key_hex"]:
@@ -1127,7 +1133,7 @@ def scan_silent_payment_receipts(
     frigate_port: int | None = None,
     frigate_ssl: bool = False,
     frigate_timeout: float = 120.0,
-    mode: str = "nsw",
+    mode: str = "nsp",
     discovery_only: bool = False,
 ) -> dict[str, object]:
     material = resolve_silent_payment_wallet_mode_material(nostr_key, mode=mode)

@@ -97,7 +97,7 @@
   </div>
   {% if balance_result.input_kind == "nsec" %}
   <div class="notice info" style="margin-top: 1rem;">
-    The first address above is the identity-derived Nostr Silent Wallet address. The Sparrow-compatible Silent Payment address is derived from the raw <code>nsec</code> bytes using BIP32/BIP352 wallet paths, which is why compatible wallets may show a different <code>sp1...</code> receive address.
+    The first address above is the identity-derived Nostr Silent Payments address. The Sparrow-compatible Silent Payment address is derived from the raw <code>nsec</code> bytes using BIP32/BIP352 wallet paths, which is why compatible wallets may show a different <code>sp1...</code> receive address.
   </div>
   <div class="notice info" style="margin-top: 1rem;">
     The Sparrow-compatible Silent Payment address cannot be derived from <code>npub</code> alone. It requires the raw <code>nsec</code> seed material because the wallet-compatible derivation uses hardened BIP32 paths.
@@ -114,9 +114,9 @@
       <input type="hidden" name="nostr_key" value="{{ silent_payment_scan_form.nostr_key or balance_form.nostr_key }}">
       <input type="hidden" name="transaction_limit" value="{{ silent_payment_scan_form.transaction_limit or balance_form.transaction_limit }}">
       <label>
-        Wallet Mode
+        Derivation Model
         <select name="mode">
-          <option value="nsw"{% if (silent_payment_scan_form.mode or 'nsw') == 'nsw' %} selected{% endif %}>NSW</option>
+          <option value="nsp"{% if (silent_payment_scan_form.mode or 'nsp') in ['nsp', 'nsw'] %} selected{% endif %}>NSP</option>
           <option value="bip352"{% if silent_payment_scan_form.mode == 'bip352' %} selected{% endif %}>BIP352 / Sparrow-Compatible</option>
         </select>
       </label>
@@ -133,7 +133,7 @@
     <section class="panel" style="margin-top: 1rem; margin-bottom: 0;">
       <h3>Lookup Results</h3>
       <div class="kv">
-        <div>Wallet Mode</div><div>{{ silent_payment_scan_result.wallet_mode }}</div>
+        <div>Derivation Model</div><div>{{ silent_payment_scan_result.wallet_mode }}</div>
         <div>Silent Payment</div><div class="mono">{{ silent_payment_scan_result.silent_payment_address }}</div>
         <div>Scan Mode</div><div>{{ silent_payment_scan_result.scan_mode }}</div>
         <div>Discovery Only</div><div>{{ "yes" if silent_payment_scan_result.discovery_only else "no" }}</div>

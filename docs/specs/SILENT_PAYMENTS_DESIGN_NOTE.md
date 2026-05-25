@@ -385,7 +385,7 @@ After that key-origin step, both approaches can use the same class of per-paymen
 | Private scan/spend recovery | Required for detection and spending, but origin not prescribed | Derived from matching `nsec` | Derived from BIP-32 private tree |
 | Per-payment output math | Yes | Yes, after OpenETR base derivation | Yes, after wallet base derivation |
 | Multiple-output `k = 0, 1, 2...` logic | Yes | Yes | Yes |
-| Main product implication | Protocol behavior | Identity-linked Nostr Silent Wallet (NSW) with public verifiability | Wallet-compatible Silent Payments tree with stronger off-chain unlinkability |
+| Main product implication | Protocol behavior | Identity-linked Nostr Silent Payments (NSP) with public verifiability | Wallet-compatible Silent Payments tree with stronger off-chain unlinkability |
 
 ### Practical Interoperability Recap
 
@@ -422,30 +422,68 @@ If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
 - online scanning with scan key responsibilities
 - minimized exposure of spend key material
 
+### NSP Scan Key Security Caveat
+
+The NSP additive derivation model creates an important security constraint on scanning.
+
+NSP derives:
+
+- `scan_priv = d + t_scan mod n`
+- `spend_priv = d + t_spend mod n`
+
+where:
+
+- `d` is the Nostr private key
+- `t_scan = H_tag("nostr-sp/scan", P)`
+- `t_spend = H_tag("nostr-sp/spend", P)`
+- `P = dG` is public from the `npub`
+
+Because `t_scan` is publicly computable from the `npub`, anyone who learns `scan_priv` can recover:
+
+- `d = scan_priv - t_scan mod n`
+
+and then derive:
+
+- `spend_priv = d + t_spend mod n`
+
+So in the NSP model:
+
+- `scan_priv` is root-equivalent
+- disclosure of `scan_priv` reveals the original `nsec`
+- disclosure of `scan_priv` also reveals the NSP spend private key
+
+Therefore NSP remains a sound local-scanning wallet model, but it does not support a safe untrusted remote-scanning model.
+
 ## Implementation Notes and Interoperability Glitches
 
 The first OpenETR Silent Payments implementation exposed several practical glitches that are worth documenting because they are easy to reintroduce accidentally.
 
-### Proven NSW Implementation Result
+### Proven NSP Implementation Result
 
 Implementation and live CLI testing now support a stronger conclusion than the original design note assumptions:
 
-- the Nostr Silent Wallet (NSW) derivation is not merely theoretically valid
+- the Nostr Silent Payments (NSP) derivation is not merely theoretically valid
 - it functions as a real Silent Payments wallet mode
-- it can receive payments, validate txids locally, and interoperate with a remote Frigate scanner
+- it can receive payments and validate txids locally
+- it can technically interoperate with a remote Frigate scanner
+- but remote scanner use exposes the root-equivalent NSP scan key and therefore is not a safe trust model
 
 In practical terms, the following are now confirmed:
 
-- direct txid-based NSW receipt validation works
-- historical NSW receipt scanning via Frigate works
-- multiple discovered Frigate matches can be validated locally against the NSW receipt logic
-- the NSW scan/spend key model is sufficient for remote scanner interoperability
+- direct txid-based NSP receipt validation works
+- historical NSP receipt scanning via Frigate works at the protocol level
+- multiple discovered Frigate matches can be validated locally against the NSP receipt logic
+- the NSP scan/spend key model is sufficient for remote scanner interoperability
+- the NSP scan private key is root-equivalent, so remote Frigate scanning should be treated as trusted-operator-only or local-only in practice
 
-This means NSW should be treated as an implemented wallet model, not merely as a derivation thought experiment or design placeholder.
+This means NSP should be treated as an implemented wallet model, not merely as a derivation thought experiment or design placeholder.
 
 ### What We Discovered
 
-The most important implementation discovery was that remote scanning compatibility depends on the Silent Payments receiver key interface, not on the upstream derivation origin.
+The most important implementation discovery was twofold:
+
+- remote scanning compatibility depends on the Silent Payments receiver key interface, not on the upstream derivation origin
+- NSP scan-key disclosure compromises the root key because of the additive derivation model
 
 More specifically:
 
@@ -455,17 +493,19 @@ More specifically:
   - `spend_pub`
 - if those keys are internally consistent, Frigate can discover matching Silent Payments history for the wallet
 
-This was demonstrated in practice with the NSW keys.
+This was demonstrated in practice with the NSP keys.
 
-That result matters because it narrows the true interoperability boundary:
+That result matters because it narrows the true interoperability boundary while also exposing the true security boundary:
 
-- third-party wallet recovery still depends on whether the wallet implements the NSW derivation contract
+- third-party wallet recovery still depends on whether the wallet implements the NSP derivation contract
 - remote scanner compatibility does not
+- remote scanner safety does
 
 So the correct interpretation is:
 
-- NSW is distinct from wallet-compatible BIP32 Silent Payments at the wallet derivation layer
-- NSW is compatible with Frigate-style remote scanning at the scan-key layer
+- NSP is distinct from wallet-compatible BIP32 Silent Payments at the wallet derivation layer
+- NSP is compatible with Frigate-style remote scanning at the scan-key layer
+- NSP is not safe for untrusted remote scanning because `scan_priv` reveals `d` and therefore `spend_priv`
 
 ### Frigate Integration Lessons
 
@@ -486,6 +526,12 @@ The practical lesson is that an empty Frigate result should not be interpreted i
 - no history after the chosen start height
 - protocol-shape mismatch in the client
 - or differing notification timing assumptions
+
+The separate security lesson is that Frigate interoperability should not be confused with Frigate safety for NSP:
+
+- protocol compatibility was proven
+- trust minimization was not
+- NSP should therefore be treated as a local-scan or trusted-scanner model
 
 ### 1. Esplora Script Type Naming Differences
 

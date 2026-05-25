@@ -136,7 +136,7 @@ def default_silent_payment_scan_form() -> dict[str, str]:
         "nostr_key": "",
         "transaction_limit": "5",
         "blockheight": "",
-        "mode": "nsw",
+        "mode": "nsp",
     }
 
 
@@ -213,11 +213,13 @@ async def resolve_silent_payment_scan_form(
     nostr_key: str,
     transaction_limit: str,
     blockheight: str = "",
-    mode: str = "nsw",
+    mode: str = "nsp",
 ) -> dict[str, str]:
-    normalized_mode = (mode or "nsw").strip().lower()
-    if normalized_mode not in {"nsw", "bip352"}:
-        raise click.ClickException("Silent Payments mode must be either nsw or bip352.")
+    normalized_mode = (mode or "nsp").strip().lower()
+    if normalized_mode == "nsw":
+        normalized_mode = "nsp"
+    if normalized_mode not in {"nsp", "bip352"}:
+        raise click.ClickException("Silent Payments mode must be either nsp or bip352.")
 
     normalized_blockheight = blockheight.strip()
     if not normalized_blockheight:
@@ -880,7 +882,7 @@ async def bitcoin_silent_payment_transactions(
     nostr_key: str = Form(""),
     transaction_limit: str = Form("5"),
     blockheight: str = Form(""),
-    mode: str = Form("nsw"),
+    mode: str = Form("nsp"),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     balance_form = {
@@ -903,7 +905,7 @@ async def bitcoin_silent_payment_transactions(
                 "nostr_key": nostr_key.strip(),
                 "transaction_limit": transaction_limit.strip() or "5",
                 "blockheight": blockheight.strip(),
-                "mode": mode.strip().lower() or "nsw",
+                "mode": mode.strip().lower() or "nsp",
             },
             error_message=str(exc),
             status_code=400,

@@ -416,7 +416,7 @@ def get_silent_payment_address(nostr_key: str) -> None:
 @click.option("--frigate-port", default=None, type=int, help="Optional Frigate port. Defaults are typically 50001 for TCP or 50002 for SSL.")
 @click.option("--frigate-ssl", is_flag=True, help="Use TLS when connecting to Frigate.")
 @click.option("--frigate-timeout", default=120.0, show_default=True, type=float, help="Socket timeout in seconds for Frigate negotiation and scan updates.")
-@click.option("--mode", type=click.Choice(["nsw", "bip352"], case_sensitive=False), default="nsw", show_default=True, help="Which Silent Payments wallet model to scan.")
+@click.option("--mode", type=click.Choice(["nsp", "nsw", "bip352"], case_sensitive=False), default="nsp", show_default=True, help="Which Silent Payments derivation model to scan.")
 @click.option("--discovery-only", is_flag=True, help="Return Frigate-discovered txids only and skip Esplora transaction validation.")
 def check_silent_payment_receipts(
     nsec: str,
@@ -496,7 +496,7 @@ def check_silent_payment_receipts(
 @click.option("--frigate-timeout", default=120.0, show_default=True, type=float, help="Socket timeout in seconds for Frigate negotiation and scan updates.")
 @click.option("--blockheight", default=None, type=int, help="Start height to send to Frigate. Defaults to the current tip when omitted.")
 @click.option("--block-count", default=1, show_default=True, type=int, help="Block range width for Frigate discovery. Values above 1 are sent as a start-end range.")
-@click.option("--mode", type=click.Choice(["nsw", "bip352"], case_sensitive=False), default="nsw", show_default=True, help="Which Silent Payments wallet model to query.")
+@click.option("--mode", type=click.Choice(["nsp", "nsw", "bip352"], case_sensitive=False), default="nsp", show_default=True, help="Which Silent Payments derivation model to query.")
 def frigate_silent_payment_txids(
     nsec: str,
     frigate_host: str,
@@ -592,7 +592,7 @@ def inspect_silent_payment_tx(txid: str, api_base: str) -> None:
 @click.option("--frigate-ssl", is_flag=True, help="Use TLS when connecting to Frigate.")
 @click.option("--frigate-timeout", default=120.0, show_default=True, type=float, help="Socket timeout in seconds for Frigate negotiation and scan updates.")
 @click.option("--blockheight", default=None, type=int, help="Start height to send to Frigate.")
-@click.option("--mode", type=click.Choice(["nsw", "bip352", "both"], case_sensitive=False), default="both", show_default=True, help="Which Silent Payments key model to debug against Frigate.")
+@click.option("--mode", type=click.Choice(["nsp", "nsw", "bip352", "both"], case_sensitive=False), default="both", show_default=True, help="Which Silent Payments derivation model to debug against Frigate.")
 def debug_frigate_silent_payment(
     nsec: str,
     frigate_host: str,
@@ -602,7 +602,7 @@ def debug_frigate_silent_payment(
     blockheight: int | None,
     mode: str,
 ) -> None:
-    """Dump raw Frigate subscription behavior for NSW and/or wallet-compatible Silent Payments keys."""
+    """Dump raw Frigate subscription behavior for identity-derived and/or wallet-compatible Silent Payments keys."""
     effective_port = frigate_port if frigate_port is not None else (50002 if frigate_ssl else 50001)
     result = frigate_debug_subscription(
         nsec,
