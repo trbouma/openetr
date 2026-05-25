@@ -68,6 +68,19 @@ For practical purposes, Nostr Silent Payments should be treated as its own disti
 - it is difficult to attribute to intentional publication
 - and it preserves the core on-chain privacy benefits of Silent Payments
 
+There is also a direct traceability tradeoff to understand.
+
+- NSP gives stronger independent verification than a published `sp1...` address string alone, because a sender can derive the correct address from a known `npub` or human-readable `NIP-05`
+- this is especially useful when the recipient has no better public communication channel than a profile, website, or `NIP-05` identifier
+- but that same public derivability means the static Silent Payment address is more attributable to the public Nostr identity than in a seed-derived BIP-352 wallet
+- the tradeoff is therefore stronger sender assurance and anti-spoofing on one side, and weaker off-chain identity unlinkability on the other
+
+What does not materially change is the on-chain privacy model:
+
+- the static `sp1...` address still does not appear on-chain
+- each payment still lands as a fresh Taproot-looking output
+- outsiders still cannot trivially identify which outputs belong to that static address without the relevant scan key material
+
 ## High-Risk and Adversarial Environments
 
 This model has especially important implications in high-risk or adversarial environments where counterparties may be required to:

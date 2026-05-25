@@ -417,6 +417,38 @@ So the practical rule is:
 - but receiving, scanning, and recovery depend on whether the wallet uses the same underlying derivation contract
 - expose scan and spend semantics explicitly in UI and CLI messaging
 
+### Traceability Tradeoff
+
+The most important traceability difference between the identity-derived NSP model and a seed-derived BIP-352 wallet is off-chain identity linkage, not on-chain output visibility.
+
+In the NSP model:
+
+- anyone who knows the `npub`
+- and knows the derivation rule
+
+can derive the expected static `sp1...` address.
+
+That means NSP creates a public relationship of the form:
+
+- `known npub -> known silent payment address`
+
+This gives NSP two important sender-side benefits:
+
+- independent public verifiability
+- stronger anti-spoofing assurance than a published `sp1...` string alone
+
+But it also creates a clear tradeoff:
+
+- NSP has weaker off-chain unlinkability from the public Nostr identity than a seed-derived BIP-352 wallet
+
+By contrast, a wallet-derived BIP-352 address is not publicly derivable from the `npub`, so it provides stronger off-chain identity unlinkability but weaker sender-side independent verification unless the recipient publishes or signs the address through some other channel.
+
+What does not materially change is the core on-chain Silent Payments privacy model:
+
+- the static `sp1...` address still does not appear on-chain
+- each payment still lands as a fresh Taproot-looking output
+- outside observers still cannot trivially identify which outputs belong to that static address without the relevant scan key material
+
 If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
 
 - online scanning with scan key responsibilities
