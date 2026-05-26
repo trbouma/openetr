@@ -81,6 +81,39 @@ What does not materially change is the on-chain privacy model:
 - each payment still lands as a fresh Taproot-looking output
 - outsiders still cannot trivially identify which outputs belong to that static address without the relevant scan key material
 
+## Machine and Agentic Identity
+
+NSP is also a strong fit for machine or agentic identity.
+
+In many automated systems there is no human-maintained social profile at all. A component, service, agent, or device may simply have:
+
+- a generated `npub`
+- a corresponding `nsec`
+- and no published profile, website, or human-facing payment page
+
+In that environment, NSP provides a clean private payment primitive:
+
+- a machine can expose only its `npub`
+- another component can derive the correct Silent Payment address independently
+- the sender does not need a separate address-distribution channel
+- and the resulting payment still lands on-chain as a fresh Taproot-looking output
+
+This is useful for:
+
+- agent-to-agent settlement
+- component-to-component billing
+- service payments between autonomous systems
+- private treasury flows between software-controlled identities
+
+This also changes how the traceability tradeoff should be evaluated.
+
+- the `npub`-derived NSP model does create a stronger public correlation between the static `sp1...` address and the public identity than a hardened seed-derived BIP-352 wallet
+- but for bare, ephemeral, or non-human `npub` identities, that correlation may be a very acceptable tradeoff
+- if the `npub` is not carrying a rich human-facing social graph, profile history, or public persona, then the off-chain linkage cost can be much lower
+- in those settings, the benefits of independent verification and private machine-to-machine payment coordination may outweigh the weaker identity unlinkability
+
+In short, NSP makes it possible for components that hold Nostr key material to pay each other privately using only identity-derived address discovery, even when there is no human-readable profile or social presence at all.
+
 ## High-Risk and Adversarial Environments
 
 This model has especially important implications in high-risk or adversarial environments where counterparties may be required to:

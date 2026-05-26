@@ -449,6 +449,43 @@ What does not materially change is the core on-chain Silent Payments privacy mod
 - each payment still lands as a fresh Taproot-looking output
 - outside observers still cannot trivially identify which outputs belong to that static address without the relevant scan key material
 
+### Machine and Agentic Identity Use Case
+
+The identity-derived NSP model is also a natural fit for machine, service, and agentic identity.
+
+In this use case, the recipient may have:
+
+- a generated `npub`
+- a matching `nsec`
+- and no published social profile, website, or human-facing payment page
+
+That means there may be no practical address-distribution channel at all beyond the public identity key itself.
+
+NSP solves that coordination problem cleanly:
+
+- the receiving component exposes only its `npub`
+- the sending component derives the correct static Silent Payments address independently
+- no separate payment-address registry is required
+- and the resulting payment still benefits from the normal on-chain Silent Payments privacy model
+
+This makes NSP well suited to:
+
+- agent-to-agent settlement
+- component-to-component billing
+- service payments between autonomous systems
+- internal private treasury transfers between software-controlled Nostr identities
+
+This use case also changes how the traceability tradeoff should be evaluated.
+
+- the identity-derived NSP model does create a stronger public correlation between the static `sp1...` address and the public `npub` than a hardened seed-derived BIP-352 wallet
+- but for bare, ephemeral, or non-human `npub` identities, that correlation may be an acceptable or even desirable tradeoff
+- if the `npub` is not associated with a rich human-facing profile, social graph, or public persona, then the off-chain linkage cost can be materially lower
+- in that setting, independent derivability and address-authenticity guarantees may be more valuable than maximum identity unlinkability
+
+This machine-identity use case also highlights one of NSP's strongest properties:
+
+- even in the complete absence of a human-readable profile or explicit published address, a valid Silent Payments receive identity can still be derived from the `npub` alone
+
 If scan/spend key separation is implemented per BIP-352, OpenETR should prefer:
 
 - online scanning with scan key responsibilities
