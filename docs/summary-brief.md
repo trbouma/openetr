@@ -81,6 +81,60 @@ What does not materially change is the on-chain privacy model:
 - each payment still lands as a fresh Taproot-looking output
 - outsiders still cannot trivially identify which outputs belong to that static address without the relevant scan key material
 
+## BIP352 On Its Own Is Dangerous
+
+BIP352 contains important ideas, but on its own it creates a serious risk by normalizing exposure of receiver-side private key material for receipt detection. The proposal itself states: "Since Bob needs his private key b to check for incoming payments, this requires b to be exposed to an online device."
+
+That is not a minor implementation detail. It is a dangerous trust assumption. Even if the spend key remains safe and the receiver's funds are not immediately spendable, exposing the scan private key still creates a meaningful privacy failure mode.
+
+The core problem is not only receiver risk. It is sender and donor risk. If the receiver-side scan key is exposed, leaked, logged, intercepted, or later doxxed, an observer may be able to identify the full set of payments made to that silent payment address. In that case:
+
+- the receiver's incoming payment graph is exposed
+- the privacy of donors and counterparties is exposed
+- the receiver may rotate to a new silent payment address, but prior donors remain exposed
+
+That means the privacy harm is durable and asymmetric. The receiver can move forward with a new address, but the senders who already paid cannot undo their exposure.
+
+For that reason, any design that treats disclosure of private scan material as operationally acceptable should be described with much more caution. Telling users to share any form of private key material, even a hardened derived key, is a bad security pattern because it trains users and implementers to normalize private-key exposure as long as it appears scoped.
+
+On this view, BIP352 by itself asks too little about the privacy of senders and too much from the receiver's operational security. It protects spend authority, but it does not adequately protect the privacy of everyone who paid that address if the scan key becomes exposed.
+
+This is why BIP352, on its own, should be treated as dangerous unless the scanning trust model is made explicit and tightly controlled.
+
+## Public Scanner and Reverse-Proxy Risk
+
+Using a public scanning server adds another serious risk layer on top of the key-exposure problem. Even if the connection uses JSON-RPC over TLS, that protection exists only hop by hop. It does not mean the payload is protected from the infrastructure that terminates, forwards, inspects, or relays the request.
+
+If a reverse proxy is used in front of the scanning service, the private scan material may be exposed at that proxy layer. The proxy can terminate TLS, observe the full RPC payload, and then forward it onward to the underlying scanner. If the downstream connection is re-encrypted, that only protects the next hop. It does not protect the data from the proxy itself.
+
+That means a user cannot safely assume that a public endpoint is only the scanner they think they are talking to. With a domain name, there is no reliable way for the user to know whether there is a reverse proxy, logging layer, WAF, traffic inspector, or other middleware in the middle. With a raw IP address, the problem does not go away. The user still has no way to know whether the server is running additional software that siphons off the scan key material before forwarding the request to a Frigate instance.
+
+So the trust question is not just whether Frigate itself is honest. The trust question is whether every server, proxy, process, log pipeline, and middleware component that touches the request is fully trusted not to retain, inspect, or exfiltrate the scan key.
+
+This is why public remote scanning should be treated as especially dangerous. The RPC call may be encrypted in transit between hops, but the payload is still fully available to each hop that handles it. That is not a safe model for root-equivalent scan key material.
+
+## Receiver Culpability and Donor Entrapment
+
+There is also a major omission in the ordinary BIP352 threat model: receiver culpability. The model often treats scan-key exposure as an unfortunate operational failure, but it should also account for the possibility that the receiver themselves may deliberately expose the scan key after receiving and spending funds.
+
+A malicious or reckless receiver can follow a simple pattern:
+
+1. Generate a Silent Payment address.
+2. Solicit funds from donors.
+3. Spend the funds.
+4. Dox the scan private key.
+5. Dox all donors who paid that address.
+6. Deny that it was ever really their Silent Payment address, or deny responsibility for the exposure.
+7. Generate a new address and repeat.
+
+This is not just a technical edge case. It is a structural asymmetry in the trust model. The receiver controls the address lifecycle, benefits from the incoming funds, and can later reveal the scan key in a way that permanently harms donors and counterparties. The donors have no way to revoke the payments they already made, and no way to repair the privacy loss once the scan key is public.
+
+That makes sender and donor privacy dependent not only on technical competence, but also on receiver integrity. A receiver who is careless, compromised, malicious, pressured, or strategically opportunistic can externalize the privacy cost onto everyone who paid them.
+
+This is one place where the Nostr Silent Payments approach changes the incentive structure in an important way. When the Silent Payment address is derived from the `npub`, the receiver has much stronger reason to protect the corresponding `nsec`. Revealing the scan key in the NSP model is not merely exposing a disposable scanning secret. It is exposing root-equivalent identity material. That creates a much stronger deterrent against careless disclosure because the receiver would also be harming their own key security and identity continuity.
+
+By contrast, in a plain BIP352 operating model, the receiver can more plausibly treat the scan key as something operationally separable from their broader public identity. That weaker binding makes post hoc donor betrayal easier to imagine, and therefore makes receiver culpability an essential part of the threat model rather than an afterthought.
+
 ## Machine and Agentic Identity
 
 NSP is also a strong fit for machine or agentic identity.

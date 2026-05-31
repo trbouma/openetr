@@ -1,5 +1,5 @@
 import click
-from openetr.commands.core import alias_group, bootstrap, check_balance, check_silent_payment_receipts, debug_frigate_silent_payment, frigate_silent_payment_txids, get_bitcoin_info, get_object_id, get_silent_payment_address, info, init_config, inspect_silent_payment_tx, migrate_config, profile_group, recent_bitcoin_txs, send_bitcoin, set_config, sweep, sweep_silent_payment, trivia, validate, version, whoami
+from openetr.commands.core import alias_group, bip39_from_nsec, bootstrap, check_balance, check_silent_payment_receipts, debug_frigate_silent_payment, frigate_silent_payment_txids, get_bitcoin_info, get_object_id, get_silent_payment_address, info, init_config, inspect_silent_payment_tx, migrate_config, profile_group, recent_bitcoin_txs, recovery_phrase, send_bitcoin, set_config, sweep, sweep_silent_payment, trivia, validate, version, whoami
 from openetr.commands.publish import issue_etr, publish_object, publish_profile, terminate_etr, transfer_group
 from openetr.commands.query import query_etr, query_object, query_profile, verify
 from openetr.config import HOME_RELAY_KEY, ROOT_NSEC_KEY, USER_CONFIG_PATH, ensure_root_bootstrap, runtime_bootstrap_enabled
@@ -100,6 +100,8 @@ main.add_command(sweep_silent_payment)
 main.add_command(validate)
 main.add_command(init_config)
 main.add_command(bootstrap)
+main.add_command(bip39_from_nsec)
+main.add_command(recovery_phrase)
 main.add_command(migrate_config)
 main.add_command(alias_group)
 main.add_command(profile_group)

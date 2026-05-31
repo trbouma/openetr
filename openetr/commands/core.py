@@ -27,6 +27,8 @@ from openetr.config import (
     delete_profile,
     delete_profile_secret,
     ensure_root_bootstrap,
+    generate_recovery_phrase_from_nsec,
+    resolve_root_nsec,
     ensure_profile,
     get_active_profile_name,
     get_aliases,
@@ -268,6 +270,29 @@ def _package_info() -> dict[str, str]:
     }
 
 
+def _info_banner(version_text: str) -> str:
+    return "\n".join(
+        [
+            "╔══════════════════════════════════════════════════════════════╗",
+            "║   ____                   ______ _______ ____                ║",
+            "║  / __ \\____  ___  ____  / ____//_  __// __ \\               ║",
+            "║ / / / / __ \\/ _ \\/ __ \\/ __/    / /  / /_/ /               ║",
+            "║/ /_/ / /_/ /  __/ / / / /___   / /  / _, _/                ║",
+            "║\\____/ .___/\\___/_/ /_/_____/  /_/  /_/ |_|                 ║",
+            "║    /_/                                                       ║",
+            "║                                                              ║",
+            f"║  durable control, portable records            v{version_text:<12}║",
+            "╚══════════════════════════════════════════════════════════════╝",
+        ]
+    )
+
+
+def _echo_info_section(title: str) -> None:
+    click.echo("")
+    click.echo(title)
+    click.echo("─" * len(title))
+
+
 @click.command()
 @click.option("--banner", is_flag=True, help="Display the OpenETR banner.")
 def version(banner: bool) -> None:
@@ -306,31 +331,32 @@ def info() -> None:
     active_profile = get_active_profile_name(config)
     active_profile_config = get_profile_config(active_profile, config)
 
-    click.echo("OpenETR")
-    click.echo(f"  Name: {package['name']}")
+    click.echo(_info_banner(package["version"]))
+    _echo_info_section("Package")
+    click.echo(f"  Name           : {package['name']}")
     click.echo(f"  Current release: {package['version']}")
-    click.echo(f"  Summary: {package['summary']}")
-    click.echo(f"  License: {package['license']}")
-    click.echo(f"  Author: {package['author']}")
-    click.echo("  Entry point: openetr")
-    click.echo("")
-    click.echo("Resources")
-    click.echo(f"  Packaged defaults: {files('openetr').joinpath('defaults.yaml')}")
-    click.echo(f"  Packaged trivia: {MLETR_TRIVIA_PATH}")
+    click.echo(f"  Summary        : {package['summary']}")
+    click.echo(f"  License        : {package['license']}")
+    click.echo(f"  Author         : {package['author']}")
+    click.echo("  Entry point    : openetr")
+
+    _echo_info_section("Resources")
+    click.echo(f"  Packaged defaults : {files('openetr').joinpath('defaults.yaml')}")
+    click.echo(f"  Packaged trivia   : {MLETR_TRIVIA_PATH}")
     click.echo(f"  MLETR trivia facts: {len(_load_mletr_trivia_facts())}")
-    click.echo("")
-    click.echo("Config")
+
+    _echo_info_section("Config")
     click.echo(f"  Config directory: {USER_CONFIG_DIR}")
-    click.echo(f"  Config file: {USER_CONFIG_PATH}")
-    click.echo(f"  Config exists: {'yes' if USER_CONFIG_PATH.exists() else 'no'}")
-    click.echo(f"  Active profile: {active_profile}")
-    click.echo(f"  Profiles: {', '.join(profiles)}")
-    click.echo(f"  Active relays: {active_profile_config.get('relays')}")
-    click.echo(f"  Default kind: {active_profile_config.get('kind')}")
-    click.echo(f"  Query timeout: {active_profile_config.get('query_timeout')}")
-    click.echo(f"  Publish wait: {active_profile_config.get('publish_wait')}")
-    click.echo(f"  Query limit: {active_profile_config.get('limit')}")
-    click.echo(f"  Query output: {active_profile_config.get('query_output')}")
+    click.echo(f"  Config file     : {USER_CONFIG_PATH}")
+    click.echo(f"  Config exists   : {'yes' if USER_CONFIG_PATH.exists() else 'no'}")
+    click.echo(f"  Active profile  : {active_profile}")
+    click.echo(f"  Profiles        : {', '.join(profiles)}")
+    click.echo(f"  Active relays   : {active_profile_config.get('relays')}")
+    click.echo(f"  Default kind    : {active_profile_config.get('kind')}")
+    click.echo(f"  Query timeout   : {active_profile_config.get('query_timeout')}")
+    click.echo(f"  Publish wait    : {active_profile_config.get('publish_wait')}")
+    click.echo(f"  Query limit     : {active_profile_config.get('limit')}")
+    click.echo(f"  Query output    : {active_profile_config.get('query_output')}")
 
 
 @click.command("get-object-id")
@@ -875,6 +901,41 @@ def init_config(force: bool) -> None:
             click.echo(f"    {changes['root_recovery_phrase']}")
         else:
             click.echo("  recovery phrase: unavailable until the 'mnemonic' dependency is installed")
+
+
+@click.command("bip39-from-nsec")
+@click.argument("nsec", required=False)
+def bip39_from_nsec(nsec: str | None) -> None:
+    """Return a BIP39 mnemonic using the nsec raw bytes as entropy."""
+    if nsec is None:
+        nsec = resolve_root_nsec(load_user_config())
+        if not nsec:
+            raise click.ClickException("no root nsec is configured; supply an nsec explicitly or initialize bootstrap")
+
+    phrase = generate_recovery_phrase_from_nsec(nsec)
+    if phrase is None:
+        raise click.ClickException("BIP39 phrase unavailable until the optional 'mnemonic' dependency is installed")
+
+    click.echo("This mnemonic uses the raw nsec bytes as BIP39 entropy.")
+    click.echo("It is a wallet-import bridge convention, not the original OpenETR root key format.")
+    click.echo(phrase)
+
+
+@click.command("recovery-phrase")
+@click.argument("nsec", required=False)
+def recovery_phrase(nsec: str | None) -> None:
+    """Return the mnemonic recovery phrase for an nsec or the current root bootstrap key."""
+    if nsec is None:
+        config, _ = ensure_root_bootstrap(load_user_config())
+        nsec = config.get(ROOT_NSEC_KEY)
+        if not nsec:
+            raise click.ClickException("no root nsec is configured; supply an nsec explicitly or initialize bootstrap")
+
+    phrase = generate_recovery_phrase_from_nsec(nsec)
+    if phrase is None:
+        raise click.ClickException("recovery phrase unavailable until the optional 'mnemonic' dependency is installed")
+
+    click.echo(phrase)
 
 
 @click.command("bootstrap")

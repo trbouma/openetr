@@ -1,0 +1,471 @@
+#!/usr/bin/env python3
+"""Standalone Silent Payments transaction scan tool.
+
+This script intentionally avoids importing OpenETR modules. It supports:
+- nsec-only input
+- NSP or BIP352 receiver derivation
+- fetching a single txid from Esplora
+- scanning it locally for matching Silent Payments outputs
+
+Dependencies:
+- btclib
+- secp256k1
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+import time
+from urllib import error, parse, request
+
+from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
+import secp256k1
+
+SECP256K1_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+SCAN_OUTPUT_SEARCH_LIMIT = 4096
+SILENT_PAYMENT_SCAN_TAG = "nostr-sp/scan"
+SILENT_PAYMENT_SPEND_TAG = "nostr-sp/spend"
+BECH32_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+
+
+def _fail(message: str) -> "NoReturn":
+    raise SystemExit(f"error: {message}")
+
+
+def sha256(data: bytes) -> bytes:
+    return hashlib.sha256(data).digest()
+
+
+def tagged_hash(tag: str, payload: bytes) -> bytes:
+    tag_hash = sha256(tag.encode("utf-8"))
+    return sha256(tag_hash + tag_hash + payload)
+
+
+def bech32_polymod(values: list[int]) -> int:
+    generators = [0x3B6A57B2, 0x26508E6D, 0x1EA119FA, 0x3D4233DD, 0x2A1462B3]
+    checksum = 1
+    for value in values:
+        top = checksum >> 25
+        checksum = ((checksum & 0x1FFFFFF) << 5) ^ value
+        for i in range(5):
+            if (top >> i) & 1:
+                checksum ^= generators[i]
+    return checksum
+
+
+def bech32_hrp_expand(hrp: str) -> list[int]:
+    return [ord(char) >> 5 for char in hrp] + [0] + [ord(char) & 31 for char in hrp]
+
+
+def bech32_verify_checksum(hrp: str, data: list[int]) -> bool:
+    return bech32_polymod(bech32_hrp_expand(hrp) + data) == 1
+
+
+def bech32_decode(value: str) -> tuple[str | None, list[int] | None]:
+    value = value.lower()
+    pos = value.rfind("1")
+    if pos < 1:
+        return None, None
+    hrp = value[:pos]
+    data: list[int] = []
+    for char in value[pos + 1:]:
+        if char not in BECH32_CHARSET:
+            return None, None
+        data.append(BECH32_CHARSET.find(char))
+    if not bech32_verify_checksum(hrp, data):
+        return None, None
+    return hrp, data[:-6]
+
+
+def convertbits(data: bytes | list[int], frombits: int, tobits: int, pad: bool = True) -> list[int] | None:
+    acc = 0
+    bits = 0
+    ret: list[int] = []
+    maxv = (1 << tobits) - 1
+    for value in data:
+        acc = (acc << frombits) | value
+        bits += frombits
+        while bits >= tobits:
+            bits -= tobits
+            ret.append((acc >> bits) & maxv)
+    if pad:
+        if bits:
+            ret.append((acc << (tobits - bits)) & maxv)
+    elif bits >= frombits or ((acc << (tobits - bits)) & maxv):
+        return None
+    return ret
+
+
+def nsec_to_privkey(nsec: str) -> bytes:
+    hrp, data = bech32_decode((nsec or "").strip())
+    if hrp != "nsec" or data is None:
+        _fail("invalid nsec")
+    decoded = convertbits(data, 5, 8, False)
+    if decoded is None:
+        _fail("invalid nsec payload")
+    raw = bytes(decoded)
+    if len(raw) != 32:
+        _fail("expected 32-byte nsec private key")
+    return raw
+
+
+def derive_compressed_pubkey(privkey_bytes: bytes) -> bytes:
+    return secp256k1.PrivateKey(privkey_bytes, raw=True).pubkey.serialize(compressed=True)
+
+
+def normalize_bip340_private_key(privkey_bytes: bytes) -> tuple[bytes, bytes, bool]:
+    scalar = int.from_bytes(privkey_bytes, "big")
+    if scalar <= 0 or scalar >= SECP256K1_ORDER:
+        _fail("private key is outside the valid secp256k1 scalar range")
+    compressed_pubkey = derive_compressed_pubkey(privkey_bytes)
+    if compressed_pubkey[0] == 0x02:
+        return privkey_bytes, compressed_pubkey, False
+    normalized_scalar = SECP256K1_ORDER - scalar
+    normalized_bytes = normalized_scalar.to_bytes(32, "big")
+    normalized_pubkey = derive_compressed_pubkey(normalized_bytes)
+    if normalized_pubkey[0] != 0x02:
+        _fail("failed to normalize private key to even-y form")
+    return normalized_bytes, normalized_pubkey, True
+
+
+def _derive_tweak_scalar(base_pubkey: bytes, tag: str) -> int:
+    tweak_int = int.from_bytes(tagged_hash(tag, base_pubkey), "big") % SECP256K1_ORDER
+    if tweak_int == 0:
+        _fail(f"{tag} derivation produced an invalid zero tweak")
+    return tweak_int
+
+
+def _tweak_pubkey(base_pubkey: bytes, tweak_scalar: int) -> bytes:
+    return secp256k1.PublicKey(base_pubkey, raw=True).tweak_add(tweak_scalar.to_bytes(32, "big")).serialize(compressed=True)
+
+
+def derive_bip352_material(seed_bytes: bytes) -> dict[str, str]:
+    master_xprv = rootxprv_from_seed(seed_bytes)
+    account_path = "m/352h/0h/0h"
+    spend_path = f"{account_path}/0h/0"
+    scan_path = f"{account_path}/1h/0"
+    spend_data = BIP32KeyData.b58decode(derive(master_xprv, spend_path))
+    scan_data = BIP32KeyData.b58decode(derive(master_xprv, scan_path))
+    spend_privkey_bytes = spend_data.key[1:]
+    scan_privkey_bytes = scan_data.key[1:]
+    return {
+        "scan_private_key_hex": scan_privkey_bytes.hex(),
+        "spend_private_key_hex": spend_privkey_bytes.hex(),
+        "scan_public_key_hex": derive_compressed_pubkey(scan_privkey_bytes).hex(),
+        "spend_public_key_hex": derive_compressed_pubkey(spend_privkey_bytes).hex(),
+        "account_path": account_path,
+        "scan_path": scan_path,
+        "spend_path": spend_path,
+    }
+
+
+def derive_nsp_material(seed_bytes: bytes) -> dict[str, str]:
+    base_privkey_bytes, base_pubkey, normalized = normalize_bip340_private_key(seed_bytes)
+    base_scalar = int.from_bytes(base_privkey_bytes, "big")
+    scan_tweak = _derive_tweak_scalar(base_pubkey, SILENT_PAYMENT_SCAN_TAG)
+    spend_tweak = _derive_tweak_scalar(base_pubkey, SILENT_PAYMENT_SPEND_TAG)
+    scan_scalar = (base_scalar + scan_tweak) % SECP256K1_ORDER
+    spend_scalar = (base_scalar + spend_tweak) % SECP256K1_ORDER
+    if scan_scalar == 0 or spend_scalar == 0:
+        _fail("silent payment derivation produced an invalid zero private key")
+    scan_priv_bytes = scan_scalar.to_bytes(32, "big")
+    spend_priv_bytes = spend_scalar.to_bytes(32, "big")
+    return {
+        "scan_private_key_hex": scan_priv_bytes.hex(),
+        "spend_private_key_hex": spend_priv_bytes.hex(),
+        "scan_public_key_hex": _tweak_pubkey(base_pubkey, scan_tweak).hex(),
+        "spend_public_key_hex": _tweak_pubkey(base_pubkey, spend_tweak).hex(),
+        "bip340_normalized": "yes" if normalized else "no",
+        "base_public_key_hex": base_pubkey.hex(),
+    }
+
+
+def resolve_wallet_material(nsec: str, mode: str) -> dict[str, str]:
+    seed_bytes = nsec_to_privkey(nsec)
+    normalized_mode = (mode or "nsp").strip().lower()
+    if normalized_mode not in {"nsp", "bip352"}:
+        _fail("mode must be 'nsp' or 'bip352'")
+    material = derive_nsp_material(seed_bytes) if normalized_mode == "nsp" else derive_bip352_material(seed_bytes)
+    material["wallet_mode"] = normalized_mode
+    return material
+
+
+def _script_type(script_hex: str) -> str:
+    if script_hex.startswith("76a914") and script_hex.endswith("88ac") and len(script_hex) == 50:
+        return "p2pkh"
+    if script_hex.startswith("a914") and script_hex.endswith("87") and len(script_hex) == 46:
+        return "p2sh"
+    if script_hex.startswith("0014") and len(script_hex) == 44:
+        return "p2wpkh"
+    if script_hex.startswith("5120") and len(script_hex) == 68:
+        return "p2tr"
+    return "unknown"
+
+
+def _normalize_script_type_name(script_type: str) -> str:
+    normalized = script_type.strip().lower()
+    aliases = {
+        "v0_p2wpkh": "p2wpkh",
+        "v1_p2tr": "p2tr",
+        "v0_p2wsh": "p2wsh",
+        "p2sh-p2wpkh": "p2sh",
+    }
+    return aliases.get(normalized, normalized)
+
+
+def _compressed_pub_from_xonly(xonly_hex: str) -> bytes:
+    xonly = bytes.fromhex(xonly_hex)
+    if len(xonly) != 32:
+        _fail("x-only public key must be 32 bytes")
+    return b"\x02" + xonly
+
+
+def _xonly_pubkey_bytes(xonly_hex: str) -> bytes:
+    xonly = bytes.fromhex(xonly_hex)
+    if len(xonly) != 32:
+        _fail("x-only public key must be 32 bytes")
+    return xonly
+
+
+def _outpoint_bytes(txid: str, vout: int) -> bytes:
+    return bytes.fromhex(txid)[::-1] + int(vout).to_bytes(4, "little")
+
+
+def _ser32(value: int) -> bytes:
+    return int(value).to_bytes(4, "big")
+
+
+def _extract_input_pubkey(vin: dict[str, object]) -> bytes | None:
+    prevout = vin.get("prevout")
+    if not isinstance(prevout, dict):
+        return None
+    script_hex = str(prevout.get("scriptpubkey") or "")
+    script_type = _normalize_script_type_name(str(prevout.get("scriptpubkey_type") or _script_type(script_hex)))
+    witness = vin.get("witness") or []
+    scriptsig_hex = str(vin.get("scriptsig") or "")
+
+    if script_type == "p2wpkh":
+        if isinstance(witness, list) and witness:
+            pubkey = bytes.fromhex(str(witness[-1]))
+            if len(pubkey) == 33:
+                return pubkey
+        return None
+
+    if script_type == "p2sh":
+        redeem_hex = scriptsig_hex[2:] if scriptsig_hex.startswith("16") else scriptsig_hex
+        if redeem_hex.startswith("0014") and isinstance(witness, list) and witness:
+            pubkey = bytes.fromhex(str(witness[-1]))
+            if len(pubkey) == 33:
+                return pubkey
+        return None
+
+    if script_type == "p2tr":
+        if script_hex.startswith("5120"):
+            return _compressed_pub_from_xonly(script_hex[4:])
+        return None
+
+    if script_type == "p2pkh":
+        script_bytes = bytes.fromhex(scriptsig_hex)
+        for idx in range(len(script_bytes), 32, -1):
+            candidate = script_bytes[idx - 33:idx]
+            if len(candidate) == 33 and candidate[0] in (0x02, 0x03):
+                return candidate
+        return None
+
+    return None
+
+
+def _combine_pubkeys(pubkeys: list[bytes]) -> bytes | None:
+    if not pubkeys:
+        return None
+    try:
+        pubkey_objects = [secp256k1.PublicKey(pubkey, raw=True) for pubkey in pubkeys]
+        combined = secp256k1.PublicKey()
+        combined.combine([pubkey.public_key for pubkey in pubkey_objects])
+        return combined.serialize(compressed=True)
+    except Exception:
+        return None
+
+
+def _get_input_hash(outpoint_bytes: list[bytes], summed_input_pubkey: bytes) -> bytes:
+    return tagged_hash("BIP0352/Inputs", sorted(outpoint_bytes)[0] + summed_input_pubkey)
+
+
+def _http_json(url: str, timeout: float) -> object:
+    last_rate_limit_error: error.HTTPError | None = None
+    for attempt in range(4):
+        req = request.Request(url, headers={"Accept": "application/json", "User-Agent": "scan-silent-payment-standalone/0.1"})
+        try:
+            with request.urlopen(req, timeout=timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except error.HTTPError as exc:
+            if exc.code == 429 and attempt < 3:
+                last_rate_limit_error = exc
+                retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
+                try:
+                    delay = float(retry_after) if retry_after else (1.5 * (2 ** attempt))
+                except ValueError:
+                    delay = 1.5 * (2 ** attempt)
+                time.sleep(min(delay, 12.0))
+                continue
+            _fail(f"HTTP {exc.code} for {url}")
+        except error.URLError as exc:
+            _fail(f"request failed for {url}: {exc.reason}")
+        except TimeoutError:
+            _fail(f"request timed out for {url}")
+        except json.JSONDecodeError as exc:
+            _fail(f"invalid JSON from {url}: {exc}")
+    _fail(f"HTTP 429 after multiple retries for {url}: {last_rate_limit_error}")
+
+
+def fetch_transaction(txid: str, api_base: str, timeout: float) -> dict[str, object]:
+    payload = _http_json(f"{api_base.rstrip('/')}/tx/{parse.quote(txid)}", timeout)
+    if not isinstance(payload, dict):
+        _fail(f"unexpected transaction payload for {txid}")
+    return payload
+
+
+def scan_transaction(nsec: str, tx: dict[str, object], mode: str) -> dict[str, object]:
+    material = resolve_wallet_material(nsec, mode=mode)
+    vin = tx.get("vin")
+    vout = tx.get("vout")
+    if not isinstance(vin, list) or not isinstance(vout, list):
+        _fail("transaction payload is missing vin/vout arrays")
+
+    input_pubkeys: list[bytes] = []
+    outpoints: list[bytes] = []
+    for txin in vin:
+        if not isinstance(txin, dict):
+            continue
+        pubkey = _extract_input_pubkey(txin)
+        txid = str(txin.get("txid") or "")
+        vout_index = int(txin.get("vout", 0) or 0)
+        if pubkey is None or not txid:
+            continue
+        input_pubkeys.append(pubkey)
+        outpoints.append(_outpoint_bytes(txid, vout_index))
+
+    if not input_pubkeys or not outpoints:
+        return {
+            "txid": str(tx.get("txid", "")),
+            "matched_outputs": [],
+            "input_pubkey_count": 0,
+            "warning": "No eligible input public keys were found for Silent Payments scanning.",
+        }
+
+    summed_input_pubkey = _combine_pubkeys(input_pubkeys)
+    if summed_input_pubkey is None:
+        return {
+            "txid": str(tx.get("txid", "")),
+            "matched_outputs": [],
+            "input_pubkey_count": len(input_pubkeys),
+            "warning": "Input public keys summed to an invalid point for Silent Payments scanning.",
+        }
+
+    scan_priv_bytes = bytes.fromhex(material["scan_private_key_hex"])
+    spend_pubkey = bytes.fromhex(material["spend_public_key_hex"])
+    input_hash_scalar = int.from_bytes(_get_input_hash(outpoints, summed_input_pubkey), "big") % SECP256K1_ORDER
+    if input_hash_scalar == 0:
+        return {
+            "txid": str(tx.get("txid", "")),
+            "matched_outputs": [],
+            "input_pubkey_count": len(input_pubkeys),
+            "warning": "Silent Payments input hash resolved to an invalid zero scalar.",
+        }
+
+    scan_priv_scalar = int.from_bytes(scan_priv_bytes, "big")
+    shared_scalar = (input_hash_scalar * scan_priv_scalar) % SECP256K1_ORDER
+    if shared_scalar == 0:
+        return {
+            "txid": str(tx.get("txid", "")),
+            "matched_outputs": [],
+            "input_pubkey_count": len(input_pubkeys),
+            "warning": "Silent Payments shared secret resolved to an invalid zero scalar.",
+        }
+
+    summed_input_point = secp256k1.PublicKey(summed_input_pubkey, raw=True)
+    ecdh_point = summed_input_point.tweak_mul(shared_scalar.to_bytes(32, "big"))
+    ecdh_compressed = ecdh_point.serialize(compressed=True)
+
+    remaining_outputs: dict[bytes, dict[str, object]] = {}
+    for output in vout:
+        if not isinstance(output, dict):
+            continue
+        script_hex = str(output.get("scriptpubkey") or "")
+        script_type = _normalize_script_type_name(str(output.get("scriptpubkey_type") or _script_type(script_hex)))
+        if script_type != "p2tr":
+            continue
+        remaining_outputs[_xonly_pubkey_bytes(script_hex[4:])] = output
+
+    matched_outputs: list[dict[str, object]] = []
+    warning = ""
+    for k in range(SCAN_OUTPUT_SEARCH_LIMIT):
+        if not remaining_outputs:
+            break
+        tweak = tagged_hash("BIP0352/SharedSecret", ecdh_compressed + _ser32(k))
+        tweak_scalar = int.from_bytes(tweak, "big") % SECP256K1_ORDER
+        if tweak_scalar == 0:
+            continue
+        derived_pubkey = secp256k1.PublicKey(spend_pubkey, raw=True).tweak_add(tweak_scalar.to_bytes(32, "big")).serialize(compressed=True)
+        output = remaining_outputs.pop(derived_pubkey[1:], None)
+        if output is not None:
+            matched_outputs.append(
+                {
+                    "vout": int(output.get("vout", 0) or 0),
+                    "value": int(output.get("value", 0) or 0),
+                    "scriptpubkey_address": str(output.get("scriptpubkey_address") or ""),
+                    "output_pubkey_hex": derived_pubkey.hex(),
+                    "priv_key_tweak_hex": tweak.hex(),
+                    "shared_secret_index": k,
+                }
+            )
+    if remaining_outputs and not matched_outputs:
+        warning = (
+            "No matching Silent Payments outputs were found within the current scan window. "
+            "A larger search window or fuller BIP-352 labeling support may be required."
+        )
+
+    return {
+        "txid": str(tx.get("txid", "")),
+        "matched_outputs": matched_outputs,
+        "input_pubkey_count": len(input_pubkeys),
+        "warning": warning,
+    }
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Scan a single transaction locally for Silent Payments matches.")
+    parser.add_argument("nsec", help="Receiver nsec")
+    parser.add_argument("txid", help="Transaction id to inspect")
+    parser.add_argument("--mode", choices=["nsp", "bip352"], default="nsp", help="Silent Payments receiver derivation mode")
+    parser.add_argument("--api-base", default="https://blockstream.info/api", help="Esplora-compatible API base URL")
+    parser.add_argument("--timeout", type=float, default=5.0, help="HTTP timeout in seconds")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    tx = fetch_transaction(args.txid, api_base=args.api_base, timeout=args.timeout)
+    result = scan_transaction(args.nsec, tx, mode=args.mode)
+
+    print(f"wallet_mode:         {args.mode}")
+    print(f"txid:                {result['txid']}")
+    print(f"input_pubkey_count:  {result['input_pubkey_count']}")
+    if result["warning"]:
+        print(f"warning:             {result['warning']}")
+    print(f"matched_output_count: {len(result['matched_outputs'])}")
+    for index, match in enumerate(result["matched_outputs"], start=1):
+        print(f"match_{index}_vout:              {match['vout']}")
+        print(f"match_{index}_value_sats:        {match['value']}")
+        print(f"match_{index}_scriptpubkey_addr: {match['scriptpubkey_address']}")
+        print(f"match_{index}_output_pubkey_hex: {match['output_pubkey_hex']}")
+        print(f"match_{index}_priv_key_tweak:    {match['priv_key_tweak_hex']}")
+        print(f"match_{index}_shared_index:      {match['shared_secret_index']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
