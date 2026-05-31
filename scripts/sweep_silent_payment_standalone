@@ -22,6 +22,7 @@ import json
 import math
 import sys
 import time
+from typing import NoReturn
 from urllib import error, parse, request
 
 from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
@@ -57,7 +58,7 @@ def tagged_hash(tag: str, payload: bytes) -> bytes:
     return sha256(tag_hash + tag_hash + payload)
 
 
-def _fail(message: str) -> "NoReturn":
+def _fail(message: str) -> NoReturn:
     raise SystemExit(f"error: {message}")
 
 

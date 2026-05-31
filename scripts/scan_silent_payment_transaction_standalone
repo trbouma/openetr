@@ -19,6 +19,7 @@ import hashlib
 import json
 import sys
 import time
+from typing import NoReturn
 from urllib import error, parse, request
 
 from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
@@ -31,7 +32,7 @@ SILENT_PAYMENT_SPEND_TAG = "nostr-sp/spend"
 BECH32_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
 
-def _fail(message: str) -> "NoReturn":
+def _fail(message: str) -> NoReturn:
     raise SystemExit(f"error: {message}")
 
 
