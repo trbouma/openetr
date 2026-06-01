@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
-"""Standalone Silent Payments receipt sweep tool.
+"""Sweep a matched Silent Payments receipt with only Python standard libraries.
 
-This script intentionally avoids importing OpenETR modules. It supports:
+This script is provided for demonstration and experimental purposes only.
+It uses only standard libraries that ship with core Python to make trust review
+easier, but it is not a production wallet, not a hardened signing system, and
+not a substitute for a full independent security review.
+
+It intentionally avoids importing OpenETR modules or third-party packages. It supports:
 - nsec-only input
 - NSP or BIP352 receiver derivation
 - scanning a single txid for matching Silent Payments outputs
 - reconstructing the matched receipt private key
-- building/signing a Taproot sweep transaction
+- building/signing a Taproot key-path sweep transaction
 - optional Esplora broadcast
 
-Dependencies:
-- btclib
-- secp256k1
+Examples:
+    scripts/sweep_silent_payment_standalone nsec1... <txid> bc1p...
+    scripts/sweep_silent_payment_standalone nsec1... <txid> bc1p... --mode bip352 --broadcast
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import json
 import math
 import sys
@@ -25,32 +31,37 @@ import time
 from typing import NoReturn
 from urllib import error, parse, request
 
-from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
-from btclib.ecc import ssa
-from btclib.script import sig_hash
-from btclib.script.script_pub_key import ScriptPubKey
-from btclib.script.witness import Witness
-from btclib.tx import OutPoint, Tx, TxIn, TxOut
-import secp256k1
 
-
-SECP256K1_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-SCAN_OUTPUT_SEARCH_LIMIT = 4096
+BECH32_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+BECH32M_CONST = 0x2BC830A3
+BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+P = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+GX = 55066263022277343669578718895168534326250603453777594175500187360389116729240
+GY = 32670510020758816978083085130507043184471273380659243275938904335757337482424
 SILENT_PAYMENT_SCAN_TAG = "nostr-sp/scan"
 SILENT_PAYMENT_SPEND_TAG = "nostr-sp/spend"
-BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-BECH32_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+SCAN_OUTPUT_SEARCH_LIMIT = 4096
 DEFAULT_DUST_THRESHOLD_SATS = 546
 DUST_THRESHOLD_BY_TYPE = {
     "p2tr": 330,
     "p2wpkh": 294,
+    "p2wsh": 330,
     "p2pkh": 546,
     "p2sh": 540,
 }
 
 
+def fail(message: str) -> NoReturn:
+    raise SystemExit(f"error: {message}")
+
+
 def sha256(data: bytes) -> bytes:
     return hashlib.sha256(data).digest()
+
+
+def hash256(data: bytes) -> bytes:
+    return sha256(sha256(data))
 
 
 def tagged_hash(tag: str, payload: bytes) -> bytes:
@@ -58,15 +69,12 @@ def tagged_hash(tag: str, payload: bytes) -> bytes:
     return sha256(tag_hash + tag_hash + payload)
 
 
-def _fail(message: str) -> NoReturn:
-    raise SystemExit(f"error: {message}")
+def hmac_sha512(key: bytes, data: bytes) -> bytes:
+    return hmac.new(key, data, hashlib.sha512).digest()
 
 
-def _normalize_relayless_text(value: str, label: str) -> str:
-    cleaned = (value or "").strip()
-    if not cleaned:
-        _fail(f"{label} cannot be empty")
-    return cleaned
+def xor_bytes(left: bytes, right: bytes) -> bytes:
+    return bytes(a ^ b for a, b in zip(left, right))
 
 
 def bech32_polymod(values: list[int]) -> int:
@@ -85,12 +93,13 @@ def bech32_hrp_expand(hrp: str) -> list[int]:
     return [ord(char) >> 5 for char in hrp] + [0] + [ord(char) & 31 for char in hrp]
 
 
-def bech32_verify_checksum(hrp: str, data: list[int]) -> bool:
-    return bech32_polymod(bech32_hrp_expand(hrp) + data) == 1
+def bech32_verify_checksum(hrp: str, data: list[int], expect_bech32m: bool = False) -> bool:
+    constant = BECH32M_CONST if expect_bech32m else 1
+    return bech32_polymod(bech32_hrp_expand(hrp) + data) == constant
 
 
-def bech32_decode(value: str) -> tuple[str | None, list[int] | None]:
-    value = value.lower()
+def bech32_decode(value: str, expect_bech32m: bool = False) -> tuple[str | None, list[int] | None]:
+    value = (value or "").strip().lower()
     pos = value.rfind("1")
     if pos < 1:
         return None, None
@@ -100,7 +109,7 @@ def bech32_decode(value: str) -> tuple[str | None, list[int] | None]:
         if char not in BECH32_CHARSET:
             return None, None
         data.append(BECH32_CHARSET.find(char))
-    if not bech32_verify_checksum(hrp, data):
+    if not bech32_verify_checksum(hrp, data, expect_bech32m=expect_bech32m):
         return None, None
     return hrp, data[:-6]
 
@@ -111,6 +120,8 @@ def convertbits(data: bytes | list[int], frombits: int, tobits: int, pad: bool =
     ret: list[int] = []
     maxv = (1 << tobits) - 1
     for value in data:
+        if value < 0 or value >> frombits:
+            return None
         acc = (acc << frombits) | value
         bits += frombits
         while bits >= tobits:
@@ -124,85 +135,217 @@ def convertbits(data: bytes | list[int], frombits: int, tobits: int, pad: bool =
     return ret
 
 
-def nsec_to_privkey(nsec: str) -> bytes:
-    hrp, data = bech32_decode(_normalize_relayless_text(nsec, "nsec"))
-    if hrp != "nsec" or data is None:
-        _fail("invalid nsec")
-    decoded = convertbits(data, 5, 8, False)
-    if decoded is None:
-        _fail("invalid nsec payload")
-    raw = bytes(decoded)
-    if len(raw) != 32:
-        _fail("expected 32-byte nsec private key")
-    return raw
+def b58decode(value: str) -> bytes:
+    value = (value or "").strip()
+    if not value:
+        fail("base58 value cannot be empty")
+    number = 0
+    for char in value:
+        idx = BASE58_ALPHABET.find(char)
+        if idx == -1:
+            fail("invalid base58 character")
+        number = number * 58 + idx
+    encoded = number.to_bytes((number.bit_length() + 7) // 8, "big") if number else b""
+    pad = 0
+    for char in value:
+        if char == "1":
+            pad += 1
+        else:
+            break
+    return b"\x00" * pad + encoded
 
 
-def derive_compressed_pubkey(privkey_bytes: bytes) -> bytes:
-    return secp256k1.PrivateKey(privkey_bytes, raw=True).pubkey.serialize(compressed=True)
+def b58check_decode(value: str) -> tuple[int, bytes]:
+    raw = b58decode(value)
+    if len(raw) < 5:
+        fail("invalid base58check payload")
+    payload, checksum = raw[:-4], raw[-4:]
+    if hash256(payload)[:4] != checksum:
+        fail("invalid base58check checksum")
+    return payload[0], payload[1:]
+
+
+def inverse_mod(a: int, modulus: int) -> int:
+    return pow(a % modulus, modulus - 2, modulus)
+
+
+def point_add(p1: tuple[int, int] | None, p2: tuple[int, int] | None) -> tuple[int, int] | None:
+    if p1 is None:
+        return p2
+    if p2 is None:
+        return p1
+
+    x1, y1 = p1
+    x2, y2 = p2
+
+    if x1 == x2 and (y1 + y2) % P == 0:
+        return None
+
+    if p1 == p2:
+        if y1 == 0:
+            return None
+        slope = ((3 * x1 * x1) * inverse_mod(2 * y1, P)) % P
+    else:
+        slope = ((y2 - y1) * inverse_mod(x2 - x1, P)) % P
+
+    x3 = (slope * slope - x1 - x2) % P
+    y3 = (slope * (x1 - x3) - y1) % P
+    return x3, y3
+
+
+def scalar_mult(k: int, point: tuple[int, int]) -> tuple[int, int] | None:
+    result = None
+    addend = point
+    while k:
+        if k & 1:
+            result = point_add(result, addend)
+        addend = point_add(addend, addend)
+        k >>= 1
+    return result
+
+
+def compress_point(point: tuple[int, int] | None) -> bytes:
+    if point is None:
+        fail("invalid secp256k1 point")
+    x, y = point
+    prefix = 0x02 if y % 2 == 0 else 0x03
+    return bytes([prefix]) + x.to_bytes(32, "big")
+
+
+def decompress_compressed_pubkey(pubkey: bytes) -> tuple[int, int]:
+    if len(pubkey) != 33 or pubkey[0] not in (0x02, 0x03):
+        fail("compressed public key must be 33 bytes with prefix 02 or 03")
+    prefix = pubkey[0]
+    x = int.from_bytes(pubkey[1:], "big")
+    alpha = (pow(x, 3, P) + 7) % P
+    beta = pow(alpha, (P + 1) // 4, P)
+    if (beta % 2 == 0 and prefix == 0x02) or (beta % 2 == 1 and prefix == 0x03):
+        y = beta
+    else:
+        y = P - beta
+    return x, y
+
+
+def privkey_to_compressed_pubkey(privkey_bytes: bytes) -> bytes:
+    scalar = int.from_bytes(privkey_bytes, "big")
+    if scalar <= 0 or scalar >= N:
+        fail("private key is outside the valid secp256k1 scalar range")
+    return compress_point(scalar_mult(scalar, (GX, GY)))
+
+
+def pubkey_point_add_scalar(pubkey: bytes, tweak_scalar: int) -> bytes:
+    if tweak_scalar <= 0 or tweak_scalar >= N:
+        fail("tweak scalar is outside the valid secp256k1 scalar range")
+    point = decompress_compressed_pubkey(pubkey)
+    tweak_point = scalar_mult(tweak_scalar, (GX, GY))
+    return compress_point(point_add(point, tweak_point))
+
+
+def pubkey_point_mul_scalar(pubkey: bytes, scalar: int) -> bytes:
+    if scalar <= 0 or scalar >= N:
+        fail("scalar is outside the valid secp256k1 scalar range")
+    point = decompress_compressed_pubkey(pubkey)
+    return compress_point(scalar_mult(scalar, point))
+
+
+def combine_pubkeys(pubkeys: list[bytes]) -> bytes | None:
+    combined: tuple[int, int] | None = None
+    for pubkey in pubkeys:
+        combined = point_add(combined, decompress_compressed_pubkey(pubkey))
+    return None if combined is None else compress_point(combined)
 
 
 def normalize_bip340_private_key(privkey_bytes: bytes) -> tuple[bytes, bytes, bool]:
-    scalar = int.from_bytes(privkey_bytes, "big")
-    if scalar <= 0 or scalar >= SECP256K1_ORDER:
-        _fail("private key is outside the valid secp256k1 scalar range")
-    compressed_pubkey = derive_compressed_pubkey(privkey_bytes)
+    compressed_pubkey = privkey_to_compressed_pubkey(privkey_bytes)
     if compressed_pubkey[0] == 0x02:
         return privkey_bytes, compressed_pubkey, False
-    normalized_scalar = SECP256K1_ORDER - scalar
+    scalar = int.from_bytes(privkey_bytes, "big")
+    normalized_scalar = (N - scalar) % N
+    if normalized_scalar == 0:
+        fail("private key normalization produced zero")
     normalized_bytes = normalized_scalar.to_bytes(32, "big")
-    normalized_pubkey = derive_compressed_pubkey(normalized_bytes)
+    normalized_pubkey = privkey_to_compressed_pubkey(normalized_bytes)
     if normalized_pubkey[0] != 0x02:
-        _fail("failed to normalize private key to even-y form")
+        fail("failed to normalize private key to even-y form")
     return normalized_bytes, normalized_pubkey, True
 
 
-def _derive_tweak_scalar(base_pubkey: bytes, tag: str) -> int:
-    tweak_int = int.from_bytes(tagged_hash(tag, base_pubkey), "big") % SECP256K1_ORDER
-    if tweak_int == 0:
-        _fail(f"{tag} derivation produced an invalid zero tweak")
-    return tweak_int
+def xonly_bytes_from_compressed(pubkey: bytes) -> bytes:
+    if len(pubkey) != 33 or pubkey[0] not in (0x02, 0x03):
+        fail("compressed public key must be 33 bytes")
+    return pubkey[1:]
 
 
-def _tweak_pubkey(base_pubkey: bytes, tweak_scalar: int) -> bytes:
-    return secp256k1.PublicKey(base_pubkey, raw=True).tweak_add(tweak_scalar.to_bytes(32, "big")).serialize(compressed=True)
+def nsec_to_privkey(nsec: str) -> bytes:
+    hrp, data = bech32_decode((nsec or "").strip())
+    if hrp != "nsec" or data is None:
+        fail("invalid nsec")
+    decoded = convertbits(data, 5, 8, False)
+    if decoded is None:
+        fail("invalid nsec payload")
+    raw = bytes(decoded)
+    if len(raw) != 32:
+        fail("expected 32-byte nsec private key")
+    return raw
+
+
+def bip32_master_from_seed(seed_bytes: bytes) -> tuple[bytes, bytes]:
+    i = hmac_sha512(b"Bitcoin seed", seed_bytes)
+    master_secret = i[:32]
+    master_chain_code = i[32:]
+    if int.from_bytes(master_secret, "big") == 0 or int.from_bytes(master_secret, "big") >= N:
+        fail("invalid master key derived from seed")
+    return master_secret, master_chain_code
+
+
+def bip32_ckd_priv(parent_key: bytes, parent_chain_code: bytes, index: int) -> tuple[bytes, bytes]:
+    if index < 0 or index > 0xFFFFFFFF:
+        fail("invalid child index")
+    hardened = index >= 0x80000000
+    if hardened:
+        data = b"\x00" + parent_key + index.to_bytes(4, "big")
+    else:
+        data = privkey_to_compressed_pubkey(parent_key) + index.to_bytes(4, "big")
+    i = hmac_sha512(parent_chain_code, data)
+    il = int.from_bytes(i[:32], "big")
+    if il >= N:
+        fail("invalid BIP32 child tweak")
+    child_scalar = (il + int.from_bytes(parent_key, "big")) % N
+    if child_scalar == 0:
+        fail("invalid zero BIP32 child key")
+    return child_scalar.to_bytes(32, "big"), i[32:]
 
 
 def derive_bip352_material(seed_bytes: bytes) -> dict[str, str]:
-    master_xprv = rootxprv_from_seed(seed_bytes)
-    account_path = "m/352h/0h/0h"
-    spend_path = f"{account_path}/0h/0"
-    scan_path = f"{account_path}/1h/0"
-    spend_data = BIP32KeyData.b58decode(derive(master_xprv, spend_path))
-    scan_data = BIP32KeyData.b58decode(derive(master_xprv, scan_path))
-    spend_privkey_bytes = spend_data.key[1:]
-    scan_privkey_bytes = scan_data.key[1:]
+    key, chain = bip32_master_from_seed(seed_bytes)
+    for index in (352 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000):
+        key, chain = bip32_ckd_priv(key, chain, index)
+    spend_key, _ = bip32_ckd_priv(*bip32_ckd_priv(key, chain, 0 + 0x80000000), 0)
+    scan_key, _ = bip32_ckd_priv(*bip32_ckd_priv(key, chain, 1 + 0x80000000), 0)
     return {
-        "scan_private_key_hex": scan_privkey_bytes.hex(),
-        "spend_private_key_hex": spend_privkey_bytes.hex(),
-        "scan_public_key_hex": derive_compressed_pubkey(scan_privkey_bytes).hex(),
-        "spend_public_key_hex": derive_compressed_pubkey(spend_privkey_bytes).hex(),
-        "account_path": account_path,
-        "scan_path": scan_path,
-        "spend_path": spend_path,
+        "scan_private_key_hex": scan_key.hex(),
+        "spend_private_key_hex": spend_key.hex(),
+        "scan_public_key_hex": privkey_to_compressed_pubkey(scan_key).hex(),
+        "spend_public_key_hex": privkey_to_compressed_pubkey(spend_key).hex(),
     }
 
 
 def derive_nsp_material(seed_bytes: bytes) -> dict[str, str]:
     base_privkey_bytes, base_pubkey, normalized = normalize_bip340_private_key(seed_bytes)
     base_scalar = int.from_bytes(base_privkey_bytes, "big")
-    scan_tweak = _derive_tweak_scalar(base_pubkey, SILENT_PAYMENT_SCAN_TAG)
-    spend_tweak = _derive_tweak_scalar(base_pubkey, SILENT_PAYMENT_SPEND_TAG)
-    scan_scalar = (base_scalar + scan_tweak) % SECP256K1_ORDER
-    spend_scalar = (base_scalar + spend_tweak) % SECP256K1_ORDER
+    scan_tweak = int.from_bytes(tagged_hash(SILENT_PAYMENT_SCAN_TAG, base_pubkey), "big") % N
+    spend_tweak = int.from_bytes(tagged_hash(SILENT_PAYMENT_SPEND_TAG, base_pubkey), "big") % N
+    if scan_tweak == 0 or spend_tweak == 0:
+        fail("silent payment derivation produced an invalid zero tweak")
+    scan_scalar = (base_scalar + scan_tweak) % N
+    spend_scalar = (base_scalar + spend_tweak) % N
     if scan_scalar == 0 or spend_scalar == 0:
-        _fail("silent payment derivation produced an invalid zero private key")
-    scan_priv_bytes = scan_scalar.to_bytes(32, "big")
-    spend_priv_bytes = spend_scalar.to_bytes(32, "big")
+        fail("silent payment derivation produced an invalid zero private key")
     return {
-        "scan_private_key_hex": scan_priv_bytes.hex(),
-        "spend_private_key_hex": spend_priv_bytes.hex(),
-        "scan_public_key_hex": _tweak_pubkey(base_pubkey, scan_tweak).hex(),
-        "spend_public_key_hex": _tweak_pubkey(base_pubkey, spend_tweak).hex(),
+        "scan_private_key_hex": scan_scalar.to_bytes(32, "big").hex(),
+        "spend_private_key_hex": spend_scalar.to_bytes(32, "big").hex(),
+        "scan_public_key_hex": pubkey_point_add_scalar(base_pubkey, scan_tweak).hex(),
+        "spend_public_key_hex": pubkey_point_add_scalar(base_pubkey, spend_tweak).hex(),
         "bip340_normalized": "yes" if normalized else "no",
         "base_public_key_hex": base_pubkey.hex(),
     }
@@ -212,26 +355,14 @@ def resolve_wallet_material(nsec: str, mode: str) -> dict[str, str]:
     seed_bytes = nsec_to_privkey(nsec)
     normalized_mode = (mode or "nsp").strip().lower()
     if normalized_mode not in {"nsp", "bip352"}:
-        _fail("mode must be 'nsp' or 'bip352'")
+        fail("mode must be 'nsp' or 'bip352'")
     material = derive_nsp_material(seed_bytes) if normalized_mode == "nsp" else derive_bip352_material(seed_bytes)
     material["wallet_mode"] = normalized_mode
     return material
 
 
-def _script_type(script_hex: str) -> str:
-    if script_hex.startswith("76a914") and script_hex.endswith("88ac") and len(script_hex) == 50:
-        return "p2pkh"
-    if script_hex.startswith("a914") and script_hex.endswith("87") and len(script_hex) == 46:
-        return "p2sh"
-    if script_hex.startswith("0014") and len(script_hex) == 44:
-        return "p2wpkh"
-    if script_hex.startswith("5120") and len(script_hex) == 68:
-        return "p2tr"
-    return "unknown"
-
-
 def _normalize_script_type_name(script_type: str) -> str:
-    normalized = script_type.strip().lower()
+    normalized = (script_type or "").strip().lower()
     aliases = {
         "v0_p2wpkh": "p2wpkh",
         "v1_p2tr": "p2tr",
@@ -241,17 +372,31 @@ def _normalize_script_type_name(script_type: str) -> str:
     return aliases.get(normalized, normalized)
 
 
+def _script_type(script_hex: str) -> str:
+    if script_hex.startswith("76a914") and script_hex.endswith("88ac") and len(script_hex) == 50:
+        return "p2pkh"
+    if script_hex.startswith("a914") and script_hex.endswith("87") and len(script_hex) == 46:
+        return "p2sh"
+    if script_hex.startswith("0014") and len(script_hex) == 44:
+        return "p2wpkh"
+    if script_hex.startswith("0020") and len(script_hex) == 68:
+        return "p2wsh"
+    if script_hex.startswith("5120") and len(script_hex) == 68:
+        return "p2tr"
+    return "unknown"
+
+
 def _compressed_pub_from_xonly(xonly_hex: str) -> bytes:
     xonly = bytes.fromhex(xonly_hex)
     if len(xonly) != 32:
-        _fail("x-only public key must be 32 bytes")
+        fail("x-only public key must be 32 bytes")
     return b"\x02" + xonly
 
 
 def _xonly_pubkey_bytes(xonly_hex: str) -> bytes:
     xonly = bytes.fromhex(xonly_hex)
     if len(xonly) != 32:
-        _fail("x-only public key must be 32 bytes")
+        fail("x-only public key must be 32 bytes")
     return xonly
 
 
@@ -303,18 +448,6 @@ def _extract_input_pubkey(vin: dict[str, object]) -> bytes | None:
     return None
 
 
-def _combine_pubkeys(pubkeys: list[bytes]) -> bytes | None:
-    if not pubkeys:
-        return None
-    try:
-        pubkey_objects = [secp256k1.PublicKey(pubkey, raw=True) for pubkey in pubkeys]
-        combined = secp256k1.PublicKey()
-        combined.combine([pubkey.public_key for pubkey in pubkey_objects])
-        return combined.serialize(compressed=True)
-    except Exception:
-        return None
-
-
 def _get_input_hash(outpoint_bytes: list[bytes], summed_input_pubkey: bytes) -> bytes:
     return tagged_hash("BIP0352/Inputs", sorted(outpoint_bytes)[0] + summed_input_pubkey)
 
@@ -322,7 +455,7 @@ def _get_input_hash(outpoint_bytes: list[bytes], summed_input_pubkey: bytes) -> 
 def _http_json(url: str, timeout: float) -> object:
     last_rate_limit_error: error.HTTPError | None = None
     for attempt in range(4):
-        req = request.Request(url, headers={"Accept": "application/json", "User-Agent": "sweep-silent-payment-standalone/0.1"})
+        req = request.Request(url, headers={"Accept": "application/json", "User-Agent": "sweep-silent-payment-standalone/0.2"})
         try:
             with request.urlopen(req, timeout=timeout) as response:
                 return json.loads(response.read().decode("utf-8"))
@@ -336,28 +469,28 @@ def _http_json(url: str, timeout: float) -> object:
                     delay = 1.5 * (2 ** attempt)
                 time.sleep(min(delay, 12.0))
                 continue
-            _fail(f"HTTP {exc.code} for {url}")
+            fail(f"HTTP {exc.code} for {url}")
         except error.URLError as exc:
-            _fail(f"request failed for {url}: {exc.reason}")
+            fail(f"request failed for {url}: {exc.reason}")
         except TimeoutError:
-            _fail(f"request timed out for {url}")
+            fail(f"request timed out for {url}")
         except json.JSONDecodeError as exc:
-            _fail(f"invalid JSON from {url}: {exc}")
-    _fail(f"HTTP 429 after multiple retries for {url}: {last_rate_limit_error}")
+            fail(f"invalid JSON from {url}: {exc}")
+    fail(f"HTTP 429 after multiple retries for {url}: {last_rate_limit_error}")
 
 
 def fetch_transaction(txid: str, api_base: str, timeout: float) -> dict[str, object]:
     payload = _http_json(f"{api_base.rstrip('/')}/tx/{parse.quote(txid)}", timeout)
     if not isinstance(payload, dict):
-        _fail(f"unexpected transaction payload for {txid}")
+        fail(f"unexpected transaction payload for {txid}")
     return payload
 
 
 def fetch_address_utxos(address: str, api_base: str, timeout: float) -> list[dict[str, object]]:
     payload = _http_json(f"{api_base.rstrip('/')}/address/{parse.quote(address)}/utxo", timeout)
     if not isinstance(payload, list):
-        _fail(f"unexpected UTXO payload for {address}")
-    utxos = []
+        fail(f"unexpected UTXO payload for {address}")
+    utxos: list[dict[str, object]] = []
     for item in payload:
         if not isinstance(item, dict):
             continue
@@ -383,7 +516,7 @@ def scan_silent_payment_transaction(nsec: str, tx: dict[str, object], mode: str)
     vin = tx.get("vin")
     vout = tx.get("vout")
     if not isinstance(vin, list) or not isinstance(vout, list):
-        _fail("transaction payload is missing vin/vout arrays")
+        fail("transaction payload is missing vin/vout arrays")
 
     input_pubkeys: list[bytes] = []
     outpoints: list[bytes] = []
@@ -401,24 +534,22 @@ def scan_silent_payment_transaction(nsec: str, tx: dict[str, object], mode: str)
     if not input_pubkeys or not outpoints:
         return {"txid": str(tx.get("txid", "")), "matched_outputs": [], "warning": "No eligible input public keys were found."}
 
-    summed_input_pubkey = _combine_pubkeys(input_pubkeys)
+    summed_input_pubkey = combine_pubkeys(input_pubkeys)
     if summed_input_pubkey is None:
         return {"txid": str(tx.get("txid", "")), "matched_outputs": [], "warning": "Input public keys summed to an invalid point."}
 
     scan_priv_bytes = bytes.fromhex(material["scan_private_key_hex"])
     spend_pubkey = bytes.fromhex(material["spend_public_key_hex"])
-    input_hash_scalar = int.from_bytes(_get_input_hash(outpoints, summed_input_pubkey), "big") % SECP256K1_ORDER
+    input_hash_scalar = int.from_bytes(_get_input_hash(outpoints, summed_input_pubkey), "big") % N
     if input_hash_scalar == 0:
         return {"txid": str(tx.get("txid", "")), "matched_outputs": [], "warning": "Silent Payments input hash resolved to zero."}
 
     scan_priv_scalar = int.from_bytes(scan_priv_bytes, "big")
-    shared_scalar = (input_hash_scalar * scan_priv_scalar) % SECP256K1_ORDER
+    shared_scalar = (input_hash_scalar * scan_priv_scalar) % N
     if shared_scalar == 0:
         return {"txid": str(tx.get("txid", "")), "matched_outputs": [], "warning": "Silent Payments shared secret resolved to zero."}
 
-    summed_input_point = secp256k1.PublicKey(summed_input_pubkey, raw=True)
-    ecdh_point = summed_input_point.tweak_mul(shared_scalar.to_bytes(32, "big"))
-    ecdh_compressed = ecdh_point.serialize(compressed=True)
+    ecdh_compressed = pubkey_point_mul_scalar(summed_input_pubkey, shared_scalar)
 
     remaining_outputs: dict[bytes, dict[str, object]] = {}
     for output in vout:
@@ -435,10 +566,10 @@ def scan_silent_payment_transaction(nsec: str, tx: dict[str, object], mode: str)
         if not remaining_outputs:
             break
         tweak = tagged_hash("BIP0352/SharedSecret", ecdh_compressed + _ser32(k))
-        tweak_scalar = int.from_bytes(tweak, "big") % SECP256K1_ORDER
+        tweak_scalar = int.from_bytes(tweak, "big") % N
         if tweak_scalar == 0:
             continue
-        derived_pubkey = secp256k1.PublicKey(spend_pubkey, raw=True).tweak_add(tweak_scalar.to_bytes(32, "big")).serialize(compressed=True)
+        derived_pubkey = pubkey_point_add_scalar(spend_pubkey, tweak_scalar)
         output = remaining_outputs.pop(derived_pubkey[1:], None)
         if output is not None:
             matched_outputs.append(
@@ -446,6 +577,7 @@ def scan_silent_payment_transaction(nsec: str, tx: dict[str, object], mode: str)
                     "vout": int(output.get("vout", 0) or 0),
                     "value": int(output.get("value", 0) or 0),
                     "scriptpubkey_address": str(output.get("scriptpubkey_address") or ""),
+                    "scriptpubkey_hex": str(output.get("scriptpubkey") or ""),
                     "output_pubkey_hex": derived_pubkey.hex(),
                     "priv_key_tweak_hex": tweak.hex(),
                     "shared_secret_index": k,
@@ -457,100 +589,245 @@ def scan_silent_payment_transaction(nsec: str, tx: dict[str, object], mode: str)
 
 def _silent_payment_output_private_key_hex(spend_private_key_hex: str, tweak_hex: str, output_pubkey_hex: str) -> str:
     spend_scalar = int(spend_private_key_hex, 16)
-    tweak_scalar = int(tweak_hex, 16) % SECP256K1_ORDER
+    tweak_scalar = int(tweak_hex, 16) % N
     if tweak_scalar == 0:
-        _fail("receipt tweak resolved to zero")
-    output_scalar = (spend_scalar + tweak_scalar) % SECP256K1_ORDER
+        fail("receipt tweak resolved to zero")
+    output_scalar = (spend_scalar + tweak_scalar) % N
     if output_scalar == 0:
-        _fail("receipt spend key resolved to zero")
+        fail("receipt spend key resolved to zero")
     if output_pubkey_hex.startswith("03"):
-        output_scalar = (SECP256K1_ORDER - output_scalar) % SECP256K1_ORDER
+        output_scalar = (N - output_scalar) % N
         if output_scalar == 0:
-            _fail("receipt spend key normalization resolved to zero")
+            fail("receipt spend key normalization resolved to zero")
     return output_scalar.to_bytes(32, "big").hex()
 
 
-def dust_threshold_for_script_pub_key(script_pub_key: ScriptPubKey) -> int:
-    return DUST_THRESHOLD_BY_TYPE.get(script_pub_key.type, DEFAULT_DUST_THRESHOLD_SATS)
+def encode_varint(value: int) -> bytes:
+    if value < 0xFD:
+        return bytes([value])
+    if value <= 0xFFFF:
+        return b"\xfd" + value.to_bytes(2, "little")
+    if value <= 0xFFFFFFFF:
+        return b"\xfe" + value.to_bytes(4, "little")
+    return b"\xff" + value.to_bytes(8, "little")
 
 
-def _estimate_signed_p2tr_vsize(input_count: int, output_script_pub_keys: list[ScriptPubKey]) -> int:
-    vin = [
-        TxIn(
-            prev_out=OutPoint(bytes.fromhex("11" * 32), index, check_validity=False),
-            sequence=0xFFFFFFFD,
-            script_witness=Witness([b"\x00" * 64]),
-            check_validity=False,
-        )
-        for index in range(input_count)
-    ]
-    vout = [TxOut(1000, script_pub_key, check_validity=False) for script_pub_key in output_script_pub_keys]
-    tx = Tx(vin=vin, vout=vout, check_validity=False)
-    return tx.vsize
+def serialize_script(script_pubkey: bytes) -> bytes:
+    return encode_varint(len(script_pubkey)) + script_pubkey
 
 
-def build_signed_p2tr_transaction(taproot_private_key_hex: str, source_address: str, utxos: list[dict[str, object]], destination_address: str, amount_sats: int, fee_rate: float, change_address: str | None = None) -> dict[str, object]:
+def serialize_tx_input(utxo: dict[str, object], script_sig: bytes = b"", sequence: int = 0xFFFFFFFD) -> bytes:
+    return (
+        bytes.fromhex(str(utxo["txid"]))[::-1]
+        + int(utxo["vout"]).to_bytes(4, "little")
+        + serialize_script(script_sig)
+        + int(sequence).to_bytes(4, "little")
+    )
+
+
+def serialize_tx_output(value_sats: int, script_pubkey: bytes) -> bytes:
+    return int(value_sats).to_bytes(8, "little") + serialize_script(script_pubkey)
+
+
+def serialize_witness_item(item: bytes) -> bytes:
+    return encode_varint(len(item)) + item
+
+
+def serialize_witness_stack(items: list[bytes]) -> bytes:
+    return encode_varint(len(items)) + b"".join(serialize_witness_item(item) for item in items)
+
+
+def address_to_script_pubkey(address: str) -> tuple[bytes, str]:
+    address = (address or "").strip()
+    if not address:
+        fail("destination address cannot be empty")
+
+    if address.lower().startswith(("bc1", "tb1", "bcrt1")):
+        hrp = address[: address.rfind("1")].lower()
+        for expect_bech32m in (False, True):
+            decoded_hrp, data = bech32_decode(address, expect_bech32m=expect_bech32m)
+            if decoded_hrp != hrp or data is None or not data:
+                continue
+            witness_version = data[0]
+            program_data = convertbits(data[1:], 5, 8, False)
+            if program_data is None:
+                continue
+            program = bytes(program_data)
+            if witness_version == 0 and expect_bech32m:
+                continue
+            if witness_version > 0 and not expect_bech32m:
+                continue
+            if witness_version == 0 and len(program) not in {20, 32}:
+                continue
+            if witness_version == 1 and len(program) != 32:
+                continue
+            if witness_version > 16:
+                continue
+            opcode = b"\x00" if witness_version == 0 else bytes([0x50 + witness_version])
+            if len(program) > 75:
+                fail("unsupported segwit program length")
+            if witness_version == 1 and len(program) == 32:
+                return opcode + bytes([len(program)]) + program, "p2tr"
+            if witness_version == 0 and len(program) == 20:
+                return opcode + bytes([len(program)]) + program, "p2wpkh"
+            if witness_version == 0 and len(program) == 32:
+                return opcode + bytes([len(program)]) + program, "p2wsh"
+            return opcode + bytes([len(program)]) + program, f"segwit_v{witness_version}"
+        fail("invalid bech32/bech32m address")
+
+    version, payload = b58check_decode(address)
+    if len(payload) != 20:
+        fail("unsupported base58 address payload length")
+    if version in {0x00, 0x6F}:
+        return b"\x76\xa9\x14" + payload + b"\x88\xac", "p2pkh"
+    if version in {0x05, 0xC4}:
+        return b"\xa9\x14" + payload + b"\x87", "p2sh"
+    fail("unsupported base58 address version")
+
+
+def dust_threshold_for_type(script_type: str) -> int:
+    return DUST_THRESHOLD_BY_TYPE.get(script_type, DEFAULT_DUST_THRESHOLD_SATS)
+
+
+def serialize_base_transaction(inputs: list[dict[str, object]], outputs: list[tuple[int, bytes]], locktime: int = 0, sequence: int = 0xFFFFFFFD) -> bytes:
+    return (
+        (2).to_bytes(4, "little")
+        + encode_varint(len(inputs))
+        + b"".join(serialize_tx_input(utxo, sequence=sequence) for utxo in inputs)
+        + encode_varint(len(outputs))
+        + b"".join(serialize_tx_output(value, script) for value, script in outputs)
+        + int(locktime).to_bytes(4, "little")
+    )
+
+
+def serialize_transaction_with_witness(inputs: list[dict[str, object]], outputs: list[tuple[int, bytes]], witnesses: list[list[bytes]], locktime: int = 0, sequence: int = 0xFFFFFFFD) -> bytes:
+    return (
+        (2).to_bytes(4, "little")
+        + b"\x00\x01"
+        + encode_varint(len(inputs))
+        + b"".join(serialize_tx_input(utxo, sequence=sequence) for utxo in inputs)
+        + encode_varint(len(outputs))
+        + b"".join(serialize_tx_output(value, script) for value, script in outputs)
+        + b"".join(serialize_witness_stack(stack) for stack in witnesses)
+        + int(locktime).to_bytes(4, "little")
+    )
+
+
+def estimate_signed_p2tr_vsize(input_count: int, outputs: list[tuple[int, bytes]]) -> tuple[int, int]:
+    placeholder_inputs = [{"txid": "00" * 32, "vout": i} for i in range(input_count)]
+    dummy_sig = b"\x00" * 64
+    base = serialize_base_transaction(placeholder_inputs, outputs)
+    full = serialize_transaction_with_witness(placeholder_inputs, outputs, [[dummy_sig] for _ in range(input_count)])
+    weight = len(base) * 4 + (len(full) - len(base))
+    vsize = math.ceil(weight / 4)
+    return vsize, weight
+
+
+def taproot_sighash_all_default(inputs: list[dict[str, object]], outputs: list[tuple[int, bytes]], prevouts: list[dict[str, object]], input_index: int, locktime: int = 0, sequence: int = 0xFFFFFFFD) -> bytes:
+    if len(inputs) != len(prevouts):
+        fail("prevouts length must match input count")
+    outpoints_blob = b"".join(bytes.fromhex(str(utxo["txid"]))[::-1] + int(utxo["vout"]).to_bytes(4, "little") for utxo in inputs)
+    amounts_blob = b"".join(int(prev["value"]).to_bytes(8, "little") for prev in prevouts)
+    scriptpubkeys_blob = b"".join(serialize_script(bytes(prev["script_pubkey"])) for prev in prevouts)
+    sequences_blob = b"".join(int(sequence).to_bytes(4, "little") for _ in inputs)
+    outputs_blob = b"".join(serialize_tx_output(value, script) for value, script in outputs)
+
+    payload = bytearray()
+    payload.append(0x00)  # epoch
+    payload.append(0x00)  # SIGHASH_DEFAULT
+    payload += (2).to_bytes(4, "little")
+    payload += int(locktime).to_bytes(4, "little")
+    payload += sha256(outpoints_blob)
+    payload += sha256(amounts_blob)
+    payload += sha256(scriptpubkeys_blob)
+    payload += sha256(sequences_blob)
+    payload += sha256(outputs_blob)
+    payload.append(0x00)  # spend_type: ext_flag=0, annex_present=0
+    payload += int(input_index).to_bytes(4, "little")
+    return tagged_hash("TapSighash", bytes(payload))
+
+
+def schnorr_sign_bip340(secret_key_bytes: bytes, message: bytes) -> bytes:
+    if len(secret_key_bytes) != 32:
+        fail("secret key must be 32 bytes")
+    if len(message) != 32:
+        fail("message must be 32 bytes")
+
+    d0 = int.from_bytes(secret_key_bytes, "big")
+    if d0 <= 0 or d0 >= N:
+        fail("secret key scalar is outside the valid secp256k1 scalar range")
+    p = scalar_mult(d0, (GX, GY))
+    if p is None:
+        fail("failed to derive signing public key")
+    px, py = p
+    d = d0 if py % 2 == 0 else N - d0
+    p_bytes = px.to_bytes(32, "big")
+    aux = b"\x00" * 32
+    t = xor_bytes(d.to_bytes(32, "big"), tagged_hash("BIP0340/aux", aux))
+    k0 = int.from_bytes(tagged_hash("BIP0340/nonce", t + p_bytes + message), "big") % N
+    if k0 == 0:
+        fail("BIP340 nonce resolved to zero")
+    r_point = scalar_mult(k0, (GX, GY))
+    if r_point is None:
+        fail("failed to derive nonce point")
+    rx, ry = r_point
+    k = k0 if ry % 2 == 0 else N - k0
+    r_bytes = rx.to_bytes(32, "big")
+    e = int.from_bytes(tagged_hash("BIP0340/challenge", r_bytes + p_bytes + message), "big") % N
+    s = (k + e * d) % N
+    if s == 0:
+        fail("BIP340 signature scalar resolved to zero")
+    return r_bytes + s.to_bytes(32, "big")
+
+
+def build_signed_p2tr_transaction(taproot_private_key_hex: str, source_script_pubkey_hex: str, utxos: list[dict[str, object]], destination_address: str, fee_rate: float) -> dict[str, object]:
     if not utxos:
-        _fail(f"no UTXOs are available to spend from {source_address}")
+        fail("no UTXOs are available to spend")
     if fee_rate <= 0:
-        _fail("fee_rate must be greater than zero")
+        fail("fee_rate must be greater than zero")
 
-    source_spk = ScriptPubKey.from_address(source_address)
-    destination_spk = ScriptPubKey.from_address(destination_address)
-    change_spk = ScriptPubKey.from_address(change_address or source_address)
-
-    destination_dust_threshold = dust_threshold_for_script_pub_key(destination_spk)
-    if amount_sats < destination_dust_threshold:
-        _fail(f"destination amount {amount_sats} sats is dust for {destination_spk.type}")
+    source_script_pubkey = bytes.fromhex(source_script_pubkey_hex)
+    destination_script_pubkey, destination_type = address_to_script_pubkey(destination_address)
 
     total_in = sum(int(utxo["value"]) for utxo in utxos)
-    fee_sats = math.ceil(_estimate_signed_p2tr_vsize(len(utxos), [destination_spk]) * fee_rate)
-    if total_in < amount_sats + fee_sats:
-        _fail("insufficient funds for requested sweep amount and fee")
+    dust_threshold = dust_threshold_for_type(destination_type)
+    _, estimated_weight = estimate_signed_p2tr_vsize(len(utxos), [(0, destination_script_pubkey)])
+    fee_sats = math.ceil((estimated_weight / 4) * fee_rate)
+    amount_sats = total_in - fee_sats
+    if amount_sats <= 0:
+        fail("insufficient funds to sweep the matched receipt at the requested fee rate")
+    if amount_sats < dust_threshold:
+        fail(f"destination amount {amount_sats} sats is dust for {destination_type}")
 
-    change_amount = total_in - amount_sats - fee_sats
-    change_policy = "folded_dust_into_fee"
-    vout = [TxOut(amount_sats, destination_spk, check_validity=False)]
-    if change_amount >= dust_threshold_for_script_pub_key(change_spk):
-        vout.append(TxOut(change_amount, change_spk, check_validity=False))
-        change_policy = "change_output"
-    else:
-        fee_sats += change_amount
-        change_amount = 0
+    outputs = [(amount_sats, destination_script_pubkey)]
+    prevouts = [{"value": int(utxo["value"]), "script_pubkey": source_script_pubkey} for utxo in utxos]
+    signatures: list[list[bytes]] = []
+    secret_key_bytes = bytes.fromhex(taproot_private_key_hex)
+    for index in range(len(utxos)):
+        sighash = taproot_sighash_all_default(utxos, outputs, prevouts, index)
+        signatures.append([schnorr_sign_bip340(secret_key_bytes, sighash)])
 
-    vin = [
-        TxIn(
-            prev_out=OutPoint(bytes.fromhex(str(utxo["txid"])), int(utxo["vout"]), check_validity=False),
-            sequence=0xFFFFFFFD,
-            check_validity=False,
-        )
-        for utxo in utxos
-    ]
-    tx = Tx(vin=vin, vout=vout, check_validity=False)
-    prevouts = [TxOut(int(utxo["value"]), source_spk, check_validity=False) for utxo in utxos]
+    base_tx = serialize_base_transaction(utxos, outputs)
+    witness_tx = serialize_transaction_with_witness(utxos, outputs, signatures)
+    weight = len(base_tx) * 4 + (len(witness_tx) - len(base_tx))
+    vsize = math.ceil(weight / 4)
 
-    for index, _ in enumerate(utxos):
-        sighash = sig_hash.taproot(tx, index, prevouts, 0, 0, b"", b"")
-        sig = ssa.sign_(sighash, int(taproot_private_key_hex, 16)).serialize()
-        tx.vin[index].script_witness = Witness([sig])
-
-    tx_hex = tx.serialize(include_witness=True, check_validity=False).hex()
     return {
-        "tx_hex": tx_hex,
-        "txid": tx.id.hex(),
-        "vsize": tx.vsize,
-        "weight": tx.weight,
+        "tx_hex": witness_tx.hex(),
+        "txid": hash256(base_tx)[::-1].hex(),
+        "vsize": vsize,
+        "weight": weight,
         "fee_sats": fee_sats,
         "fee_rate": fee_rate,
         "amount_sats": amount_sats,
-        "change_sats": change_amount,
-        "source_address": source_address,
+        "change_sats": 0,
+        "source_script_pubkey_hex": source_script_pubkey_hex,
         "destination_address": destination_address,
-        "change_address": (change_address or source_address) if change_amount else "",
-        "change_policy": change_policy,
+        "change_address": "",
+        "change_policy": "full_sweep_no_change",
         "selected_utxos": utxos,
         "input_count": len(utxos),
-        "output_count": len(vout),
+        "output_count": len(outputs),
         "total_in_sats": total_in,
     }
 
@@ -563,7 +840,7 @@ def broadcast_transaction(tx_hex: str, api_base: str, timeout: float) -> str:
         headers={
             "Content-Type": "text/plain",
             "Accept": "text/plain",
-            "User-Agent": "sweep-silent-payment-standalone/0.1",
+            "User-Agent": "sweep-silent-payment-standalone/0.2",
         },
         method="POST",
     )
@@ -572,11 +849,11 @@ def broadcast_transaction(tx_hex: str, api_base: str, timeout: float) -> str:
             return response.read().decode("utf-8").strip()
     except error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace").strip()
-        _fail(f"broadcast failed: HTTP {exc.code}{': ' + detail if detail else ''}")
+        fail(f"broadcast failed: HTTP {exc.code}{': ' + detail if detail else ''}")
     except error.URLError as exc:
-        _fail(f"broadcast failed: {exc.reason}")
+        fail(f"broadcast failed: {exc.reason}")
     except TimeoutError:
-        _fail("broadcast timed out")
+        fail("broadcast timed out")
 
 
 def create_sweep_result(nsec: str, txid: str, destination_address: str, fee_rate: float, api_base: str, timeout: float, vout: int | None, mode: str) -> dict[str, object]:
@@ -585,7 +862,7 @@ def create_sweep_result(nsec: str, txid: str, destination_address: str, fee_rate
     scan_result = scan_silent_payment_transaction(nsec, tx, mode=mode)
     matches = scan_result["matched_outputs"]
     if not matches:
-        _fail(f"no Silent Payments receipt was detected in transaction {txid}")
+        fail(f"no Silent Payments receipt was detected in transaction {txid}")
 
     selected_match = None
     if vout is not None:
@@ -594,25 +871,30 @@ def create_sweep_result(nsec: str, txid: str, destination_address: str, fee_rate
                 selected_match = match
                 break
         if selected_match is None:
-            _fail(f"transaction {txid} does not contain a matched receipt at vout {vout}")
+            fail(f"transaction {txid} does not contain a matched receipt at vout {vout}")
     elif len(matches) == 1:
         selected_match = matches[0]
     else:
-        _fail("transaction contains multiple matched receipts; specify --vout")
+        fail("transaction contains multiple matched receipts; specify --vout")
 
     source_address = str(selected_match["scriptpubkey_address"])
     source_vout = int(selected_match["vout"])
-    confirmed_utxos = confirmed_utxos_only(fetch_address_utxos(source_address, api_base=api_base, timeout=timeout))
+    all_utxos = fetch_address_utxos(source_address, api_base=api_base, timeout=timeout)
+    confirmed_utxos = confirmed_utxos_only(all_utxos)
     selected_utxos = [utxo for utxo in confirmed_utxos if str(utxo["txid"]) == txid and int(utxo["vout"]) == source_vout]
     if not selected_utxos:
-        _fail(f"matched output {txid}:{source_vout} is not available as a confirmed unspent output")
-
-    total_in = sum(int(utxo["value"]) for utxo in selected_utxos)
-    destination_spk = ScriptPubKey.from_address(destination_address)
-    fee_sats = math.ceil(_estimate_signed_p2tr_vsize(len(selected_utxos), [destination_spk]) * fee_rate)
-    amount_sats = total_in - fee_sats
-    if amount_sats <= 0:
-        _fail("insufficient funds to sweep the matched receipt at the requested fee rate")
+        pending_utxos = [utxo for utxo in all_utxos if str(utxo["txid"]) == txid and int(utxo["vout"]) == source_vout]
+        if pending_utxos:
+            raise SystemExit(
+                f"matched output status: not yet confirmed\n"
+                f"sweepable: no\n"
+                f"sweepable_note: matched output {txid}:{source_vout} is still in the mempool"
+            )
+        raise SystemExit(
+            f"matched output status: already spent\n"
+            f"sweepable: no\n"
+            f"sweepable_note: matched output {txid}:{source_vout} has already been spent"
+        )
 
     receipt_private_key_hex = _silent_payment_output_private_key_hex(
         material["spend_private_key_hex"],
@@ -621,12 +903,10 @@ def create_sweep_result(nsec: str, txid: str, destination_address: str, fee_rate
     )
     result = build_signed_p2tr_transaction(
         receipt_private_key_hex,
-        source_address,
+        str(selected_match["scriptpubkey_hex"]),
         selected_utxos,
         destination_address,
-        amount_sats,
         fee_rate,
-        change_address=source_address,
     )
     result.update(
         {
@@ -637,6 +917,7 @@ def create_sweep_result(nsec: str, txid: str, destination_address: str, fee_rate
             "matched_tweak_hex": str(selected_match["priv_key_tweak_hex"]),
             "matched_output_pubkey_hex": str(selected_match["output_pubkey_hex"]),
             "matched_shared_secret_index": int(selected_match["shared_secret_index"]),
+            "source_address": source_address,
             "api_base": api_base.rstrip("/"),
         }
     )
@@ -644,7 +925,7 @@ def create_sweep_result(nsec: str, txid: str, destination_address: str, fee_rate
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Sweep a matched Silent Payments receipt without importing OpenETR modules.")
+    parser = argparse.ArgumentParser(description="Sweep a matched Silent Payments receipt using only Python standard libraries.")
     parser.add_argument("nsec", help="Receiver nsec")
     parser.add_argument("txid", help="Transaction id containing the receipt")
     parser.add_argument("destination_address", help="Address to receive the swept funds")
@@ -659,6 +940,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    print(
+        "WARNING: demonstration and experimental script only. "
+        "Uses only standard libraries shipped with core Python. "
+        "Not production-approved and not a substitute for independent security review."
+    )
     try:
         result = create_sweep_result(
             args.nsec,
@@ -681,6 +967,8 @@ def main() -> int:
     print(f"matched_vout:         {result['matched_vout']}")
     print(f"source_p2tr:          {result['source_address']}")
     print(f"matched_value_sats:   {result['matched_value']}")
+    print("sweepable:            yes")
+    print("sweepable_note:       matched receipt is confirmed, unspent, and can be swept")
     print(f"sweep_amount_sats:    {result['amount_sats']}")
     print(f"destination_address:  {result['destination_address']}")
     print(f"fee_rate:             {result['fee_rate']}")
@@ -697,7 +985,7 @@ def main() -> int:
     print(f"tx_hex:               {result['tx_hex']}")
 
     if args.broadcast:
-        broadcast_txid = broadcast_transaction(result['tx_hex'], args.api_base, args.timeout)
+        broadcast_txid = broadcast_transaction(result["tx_hex"], args.api_base, args.timeout)
         print(f"broadcast_txid:       {broadcast_txid}")
     else:
         print("broadcast:            no (dry run)")

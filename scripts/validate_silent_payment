@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
-"""Validate a Silent Payments address against a Nostr key with minimal dependencies.
+"""Validate a Silent Payments transaction against an nsec with minimal dependencies.
 
 This script uses only the Python standard library. It supports:
-- NSP validation from nsec or npub
+- deriving a Silent Payments address from an nsec
+- optionally validating a bitcoin transaction id locally
+- NSP validation from nsec
 - BIP352-compatible validation from nsec
-- explicit indication of whether the supplied address matches the derived address
+
+WARNING:
+This script is provided for demonstration and experimental purposes only.
+It is intentionally dependency-minimized to make trust review easier, but it
+is not a production wallet, not a hardened validation system, and not a
+substitute for a full independent security review.
 
 Examples:
-    scripts/validate_silent_payment npub1... sp1...
-    scripts/validate_silent_payment nsec1... sp1... --mode nsp
-    scripts/validate_silent_payment nsec1... sp1... --mode bip352
+    scripts/validate_silent_payment nsec1...
+    scripts/validate_silent_payment nsec1... <txid>
+    scripts/validate_silent_payment nsec1... <txid> --mode bip352
 """
 
 from __future__ import annotations
@@ -648,9 +655,9 @@ def scan_transaction(nostr_key: str, tx: dict[str, object], mode: str) -> dict[s
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate whether a bitcoin transaction contains a Silent Payments receipt for an nsec.")
+    parser = argparse.ArgumentParser(description="Derive a Silent Payments address from an nsec, and optionally validate a bitcoin transaction against it.")
     parser.add_argument("nsec", help="Receiver nsec")
-    parser.add_argument("txid", help="Bitcoin transaction id to scan locally")
+    parser.add_argument("txid", nargs="?", default=None, help="Optional bitcoin transaction id to scan locally")
     parser.add_argument("--mode", choices=["nsp", "bip352"], default="nsp", help="Validation mode")
     parser.add_argument("--api-base", default="https://blockstream.info/api", help="Esplora-compatible API base URL for tx lookup")
     parser.add_argument("--timeout", type=float, default=5.0, help="HTTP timeout in seconds for tx lookup")
@@ -658,8 +665,18 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    warning_banner = (
+        "WARNING: demonstration and experimental script only. "
+        "Not production-approved and not a substitute for independent security review."
+    )
     args = parse_args()
+    print(warning_banner)
     material = resolve_material(args.nsec, args.mode)
+    derived_address = encode_silent_payment_address(
+        bytes.fromhex(material['scan_public_key_hex']),
+        bytes.fromhex(material['spend_public_key_hex']),
+        hrp='sp',
+    )
 
     print(f"input_kind:            {material['input_kind']}")
     print(f"wallet_mode:           {material['wallet_mode']}")
@@ -667,6 +684,11 @@ def main() -> int:
         print(f"base_public_key_hex:   {material['base_public_key_hex']}")
     print(f"scan_public_key_hex:   {material['scan_public_key_hex']}")
     print(f"spend_public_key_hex:  {material['spend_public_key_hex']}")
+    print(f"silent_payment_addr:   {derived_address}")
+
+    if not args.txid:
+        print("valid:                 yes")
+        return 0
 
     tx = fetch_transaction(args.txid, api_base=args.api_base, timeout=args.timeout)
     scan_result = scan_transaction(args.nsec, tx, mode=args.mode)
