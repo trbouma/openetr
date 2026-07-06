@@ -157,13 +157,42 @@ def format_elapsed_compact(previous_value, current_value) -> str:
 def summary_token_for_control_event(action: str | None, elapsed: str, label: str) -> str:
     if action == "accept":
         return f"transfer accept/{elapsed}:{label}"
+    if action == "attest":
+        return f"attest/{elapsed}:{label}"
     if action == "terminate":
         return f"terminate/{elapsed}:{label}"
     return f"transfer initiate/{elapsed}:{label}"
 
 
+def summary_subject_pubkey_hex(evt: Event) -> str:
+    action = first_tag_value(evt, "action")
+    if action == "initiate":
+        return transfer_party_from_p_tag(evt) or evt.pub_key
+    if action == "accept":
+        return evt.pub_key
+    if action == "attest":
+        return transfer_party_from_p_tag(evt) or evt.pub_key
+    if action == "terminate":
+        return evt.pub_key
+    return transfer_party_from_p_tag(evt) or evt.pub_key
+
+
+def current_controller_after_event(previous_controller_pubkey_hex: str | None, evt: Event) -> str | None:
+    action = first_tag_value(evt, "action")
+    if action == "initiate":
+        return transfer_party_from_p_tag(evt) or previous_controller_pubkey_hex
+    if action == "terminate":
+        return None
+    return previous_controller_pubkey_hex
+
+
+def is_controller_state_event(evt: Event) -> bool:
+    action = first_tag_value(evt, "action")
+    return action in {"initiate", "terminate"}
+
+
 def event_to_view(evt: Event) -> dict[str, Any]:
-    transferee_hex = transfer_party_from_p_tag(evt)
+    subject_hex = transfer_party_from_p_tag(evt)
     return {
         "raw_event": evt,
         "id": evt.id,
@@ -177,8 +206,8 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "content": evt.content,
         "action": first_tag_value(evt, "action"),
         "prior_event_id": first_tag_value(evt, "e"),
-        "transferee_hex": transferee_hex,
-        "transferee_npub": format_pubkey(transferee_hex) if transferee_hex else None,
+        "subject_hex": subject_hex,
+        "subject_npub": format_pubkey(subject_hex) if subject_hex else None,
     }
 
 
@@ -337,33 +366,39 @@ async def build_query_etr_result(
             previous_event = initial_event
             previous_controller_pubkey_hex = initial_event.pub_key
             for evt in event_path:
-                transferee_pubkey_hex = transfer_party_from_p_tag(evt) or evt.pub_key
                 action = first_tag_value(evt, "action")
-                if action != "terminate" and transferee_pubkey_hex == previous_controller_pubkey_hex:
-                    previous_event = evt
-                    continue
+                subject_pubkey_hex = summary_subject_pubkey_hex(evt)
                 label = profile_chain_label(
-                    transferee_pubkey_hex,
-                    await cached_profile(transferee_pubkey_hex),
+                    subject_pubkey_hex,
+                    await cached_profile(subject_pubkey_hex),
                 )
                 elapsed = format_elapsed_compact(previous_event.created_at, evt.created_at)
                 token = summary_token_for_control_event(action, elapsed, label)
                 marker = "->"
                 if token.startswith("terminate/"):
                     marker = "--"
-                elif token.startswith("attest "):
+                elif token.startswith("attest/"):
                     marker = "=>"
                 steps.append({"marker": marker, "label": token})
                 previous_event = evt
-                previous_controller_pubkey_hex = transferee_pubkey_hex
+                previous_controller_pubkey_hex = current_controller_after_event(previous_controller_pubkey_hex, evt)
 
             label = f"control chain {group_index}"
             if len(root_paths) > 1:
                 label = f"{label}.{path_index}"
             result["summary_control_chains"].append({"label": label, "steps": steps})
 
+    state_events = [evt for evt in transfer_events if is_controller_state_event(evt)]
+    if not state_events:
+        result["current_controller"] = {
+            "npub": format_pubkey(initial_event.pub_key),
+            "basis": "origin issuer",
+            "profile": compact_profile(initial_profile),
+        }
+        return result
+
     latest_transfer_event = max(
-        transfer_events,
+        state_events,
         key=lambda evt: ((evt.created_at or 0), evt.id),
     )
     latest_action = first_tag_value(latest_transfer_event, "action")

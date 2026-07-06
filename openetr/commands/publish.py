@@ -42,6 +42,14 @@ from openetr.guards import evaluate_issue_etr_guard, find_existing_origin_record
 CONTROL_TRANSFER_KIND = 31416
 
 
+def _control_action_changes_controller(action: str | None) -> bool:
+    return action == "initiate"
+
+
+def _control_action_terminates(action: str | None) -> bool:
+    return action == "terminate"
+
+
 def _split_relays(relays: str) -> list[str]:
     return [relay.strip() for relay in relays.split(",") if relay.strip()]
 
@@ -259,6 +267,30 @@ async def _find_control_events_for_object(
     return events
 
 
+def _latest_chain_event(origin_event: Event, chain_events: list[Event]) -> Event:
+    if not chain_events:
+        return origin_event
+    return max(
+        chain_events,
+        key=lambda evt: ((evt.created_at or 0), evt.id),
+    )
+
+
+def _latest_state_event(origin_event: Event, chain_events: list[Event]) -> Event:
+    state_events = [
+        evt
+        for evt in chain_events
+        if _control_action_changes_controller(_event_tag_value(evt, "action"))
+        or _control_action_terminates(_event_tag_value(evt, "action"))
+    ]
+    if not state_events:
+        return origin_event
+    return max(
+        state_events,
+        key=lambda evt: ((evt.created_at or 0), evt.id),
+    )
+
+
 async def _find_origin_events_for_object(
     relays: str,
     object_digest: str,
@@ -361,17 +393,13 @@ async def _resolve_active_chain_for_controller(
     candidates: list[tuple[Event, Event]] = []
     for origin_event in origin_events:
         chain_transfers = transfers_by_origin_id.get(origin_event.id, [])
-        if not chain_transfers:
+        latest_event = _latest_state_event(origin_event, chain_transfers)
+        latest_action = _event_tag_value(latest_event, "action")
+        if _control_action_terminates(latest_action):
+            continue
+        if latest_event.kind == DEFAULT_KIND:
             current_controller_pubkey_hex = assert_hex_pubkey(origin_event.pub_key)
-            latest_event: Event = origin_event
         else:
-            latest_event = max(
-                chain_transfers,
-                key=lambda evt: ((evt.created_at or 0), evt.id),
-            )
-            latest_action = _event_tag_value(latest_event, "action")
-            if latest_action == "terminate":
-                continue
             current_controller_pubkey_hex = _event_tag_value(latest_event, "p")
             if current_controller_pubkey_hex is None:
                 current_controller_pubkey_hex = latest_event.pub_key
@@ -431,10 +459,7 @@ async def _resolve_pending_initiate_for_transferee(
         if not chain_transfers:
             continue
 
-        latest_event = max(
-            chain_transfers,
-            key=lambda evt: ((evt.created_at or 0), evt.id),
-        )
+        latest_event = _latest_state_event(origin_event, chain_transfers)
         latest_action = _event_tag_value(latest_event, "action")
         if latest_action != "initiate":
             continue
@@ -454,6 +479,57 @@ async def _resolve_pending_initiate_for_transferee(
         raise click.ClickException(
             "multiple pending transfer initiate events for this object are addressed to this signer; "
             "the target chain is ambiguous"
+        )
+
+    return candidates[0]
+
+
+async def _resolve_single_active_chain_for_object(
+    relays: str,
+    object_digest: str,
+    query_timeout: int,
+    limit: int,
+) -> tuple[Event, Event]:
+    origin_events = await _find_origin_events_for_object(
+        relays=relays,
+        object_digest=object_digest,
+        query_timeout=query_timeout,
+        limit=limit,
+    )
+    if not origin_events:
+        raise click.ClickException("no origin event was found for this object on the configured relays")
+
+    transfer_events = await _find_control_events_for_object(
+        relays=relays,
+        object_digest=object_digest,
+        query_timeout=query_timeout,
+        limit=limit,
+    )
+
+    origin_events_by_id = {event.id: event for event in origin_events}
+    all_events_by_id = {event.id: event for event in origin_events + transfer_events}
+    transfers_by_origin_id: dict[str, list[Event]] = {}
+    for event in transfer_events:
+        root_origin_id = _resolve_root_origin_id_for_event(event, origin_events_by_id, all_events_by_id)
+        if root_origin_id is not None:
+            transfers_by_origin_id.setdefault(root_origin_id, []).append(event)
+
+    candidates: list[tuple[Event, Event]] = []
+    for origin_event in origin_events:
+        chain_transfers = transfers_by_origin_id.get(origin_event.id, [])
+        latest_state_event = _latest_state_event(origin_event, chain_transfers)
+        latest_action = _event_tag_value(latest_state_event, "action")
+        if _control_action_terminates(latest_action):
+            continue
+        latest_event = _latest_chain_event(origin_event, chain_transfers)
+        candidates.append((origin_event, latest_event))
+
+    if not candidates:
+        raise click.ClickException("no active control chain was found for this object on the configured relays")
+
+    if len(candidates) > 1:
+        raise click.ClickException(
+            "multiple active control chains exist for this object; the target chain is ambiguous"
         )
 
     return candidates[0]
@@ -1428,6 +1504,174 @@ def terminate_etr(
                 ["origin", resolved_origin.id],
                 ["action", "terminate"],
             ],
+        )
+        event.sign(keys.private_key_hex())
+        await _run_publish_transfer_event(
+            relays=resolved_relays,
+            event=event,
+            publish_wait=resolved_publish_wait,
+            query_timeout=resolved_query_timeout,
+            verify=verify,
+        )
+
+    asyncio.run(_publish())
+
+
+@click.command("attest")
+@click.argument("digest_file", required=False, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to use.")
+@click.option(
+    "--prior-event",
+    default=None,
+    help="Prior event id in hex or simple nevent form to attach the attestation to.",
+)
+@click.option(
+    "--digest",
+    default=None,
+    help="nobj or 32-byte hex digest for the ETR object to attest.",
+)
+@click.option(
+    "--as-user",
+    default=None,
+    help="nsec private key to publish with; loaded from config or generated if omitted.",
+)
+@click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
+@click.option("--type", "attestation_type", default=None, help="Optional attestation type tag.")
+@click.option("--subject", default=None, help="Optional subject npub to place in the p tag.")
+@click.option("--ref", "external_ref", default=None, help="Optional external reference tag value.")
+@click.option(
+    "--comment",
+    default=None,
+    help="Optional event content. If omitted, a descriptive attestation comment is generated.",
+)
+@click.option("--publish-wait", type=float, default=None, help="Seconds to wait after publish before querying.")
+@click.option("--query-timeout", type=int, default=None, help="Seconds to wait for the query to complete.")
+@click.option("--limit", type=int, default=None, help="Query result limit.")
+@click.option(
+    "--verify",
+    default="any",
+    help="Verification mode after publish: any, majority, all, or a specific relay URL.",
+)
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def attest(
+    digest_file: Path | None,
+    profile: str | None,
+    relays: str | None,
+    prior_event: str | None,
+    digest: str | None,
+    as_user: str | None,
+    force: bool,
+    attestation_type: str | None,
+    subject: str | None,
+    external_ref: str | None,
+    comment: str | None,
+    publish_wait: float | None,
+    query_timeout: int | None,
+    limit: int | None,
+    verify: str,
+    debug: bool,
+) -> None:
+    """Publish an attestation event for an ETR object."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+
+    profile_name = profile or get_active_profile_name()
+    profile_config = get_profile_config(profile_name)
+    resolved_relays = relays or profile_config.get("relays", DEFAULT_RELAYS)
+    resolved_publish_wait = (
+        publish_wait if publish_wait is not None else profile_config.get("publish_wait", DEFAULT_PUBLISH_WAIT)
+    )
+    resolved_query_timeout = (
+        query_timeout if query_timeout is not None else profile_config.get("query_timeout", DEFAULT_QUERY_TIMEOUT)
+    )
+    resolved_limit = limit if limit is not None else profile_config.get("limit", DEFAULT_LIMIT)
+
+    keys = _resolve_publish_key(profile_name, as_user, force)
+    if prior_event is not None and (digest is not None or digest_file is not None):
+        raise click.ClickException("supply either --prior-event or one of --digest/DIGEST_FILE, not both")
+    if prior_event is None and (digest is None) == (digest_file is None):
+        raise click.ClickException("supply either --prior-event or exactly one of --digest or DIGEST_FILE")
+
+    prior_event_id = normalize_event_reference(prior_event) if prior_event is not None else None
+    object_digest = None
+    if prior_event is None:
+        object_digest, _ = resolve_query_digest(digest, digest_file)
+
+    async def _publish() -> None:
+        author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
+        if prior_event_id is not None:
+            resolved_origin, referenced_event = await _resolve_origin_from_prior_event(
+                relays=resolved_relays,
+                prior_event_id_hex=prior_event_id,
+                query_timeout=resolved_query_timeout,
+            )
+            object_digest_for_event = _derive_origin_object_digest(resolved_origin)
+        else:
+            resolved_origin, referenced_event = await _resolve_single_active_chain_for_object(
+                relays=resolved_relays,
+                object_digest=object_digest,
+                query_timeout=resolved_query_timeout,
+                limit=resolved_limit,
+            )
+            object_digest_for_event = object_digest
+
+        subject_pubkey_hex = None
+        if subject:
+            parsed_subjects = parse_authors(subject)
+            if not parsed_subjects:
+                raise click.ClickException("subject must resolve to a valid npub")
+            subject_pubkey_hex = parsed_subjects[0]
+
+        d_value = f"{object_digest_for_event}:attest"
+        resolved_comment = comment or (
+            "attest; "
+            f"object={format_object_identifier(object_digest_for_event)}; "
+            f"prior_event={referenced_event.id}; "
+            f"origin_event={resolved_origin.id}; "
+            f"attestor={format_pubkey(author_pubkey_hex)}"
+        )
+        existing_events = await _find_existing_transfer_records(
+            relays=resolved_relays,
+            d_value=d_value,
+            pubkey_hex=author_pubkey_hex,
+            query_timeout=resolved_query_timeout,
+            limit=resolved_limit,
+        )
+        if existing_events:
+            latest = existing_events[0]
+            click.secho(
+                "WARNING: an attestation event already exists for this author and object; "
+                "you may be overwriting an existing replaceable attestation record.",
+                fg="yellow",
+                bold=True,
+            )
+            click.echo(f"Existing event: {latest.id}")
+            click.echo(f"Object:         {format_object_identifier(object_digest_for_event)}")
+            click.confirm(
+                click.style("Continue publishing this attestation event?", fg="yellow", bold=True),
+                default=False,
+                abort=True,
+            )
+
+        tags = [
+            ["d", d_value],
+            ["o", object_digest_for_event],
+            ["e", referenced_event.id],
+            ["origin", resolved_origin.id],
+            ["action", "attest"],
+        ]
+        if attestation_type:
+            tags.append(["type", attestation_type])
+        if subject_pubkey_hex:
+            tags.append(["p", subject_pubkey_hex])
+        if external_ref:
+            tags.append(["ref", external_ref])
+
+        event = Event(
+            kind=CONTROL_TRANSFER_KIND,
+            content=resolved_comment,
+            pub_key=author_pubkey_hex,
+            tags=tags,
         )
         event.sign(keys.private_key_hex())
         await _run_publish_transfer_event(

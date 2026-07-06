@@ -359,19 +359,22 @@ async def _run_query_etr(
         if evt["prior_event_id"]:
             click.echo(f"{indent}  prior event id: {format_event_reference(evt['prior_event_id'])}")
         if node["signer_profile"]:
-            click.echo(f"{indent}  transfer event signer social profile:")
+            click.echo(f"{indent}  control event signer social profile:")
             for field, value in node["signer_profile"]:
                 click.echo(f"{indent}    {field}: {value}")
         else:
-            click.secho(f"{indent}  WARNING: no transfer event signer social profile found for this author.", fg="yellow", bold=True)
-        if evt["transferee_npub"] is not None:
-            click.echo(f"{indent}  transferee: {evt['transferee_npub']}")
+            click.secho(f"{indent}  WARNING: no control event signer social profile found for this author.", fg="yellow", bold=True)
+        if evt["subject_npub"] is not None:
+            subject_label = "transferee"
+            if evt["action"] == "attest":
+                subject_label = "subject"
+            click.echo(f"{indent}  {subject_label}: {evt['subject_npub']}")
             if node["transferee_profile"]:
-                click.echo(f"{indent}  transferee social profile:")
+                click.echo(f"{indent}  {subject_label} social profile:")
                 for field, value in node["transferee_profile"]:
                     click.echo(f"{indent}    {field}: {value}")
             else:
-                click.secho(f"{indent}  WARNING: no social profile found for the transferee.", fg="yellow", bold=True)
+                click.secho(f"{indent}  WARNING: no social profile found for the {subject_label}.", fg="yellow", bold=True)
         click.echo(f"{indent}  d value: {evt['d_values']}")
         click.echo(f"{indent}  o value: {evt['o_values']}")
         _print_event_details(evt["raw_event"], output, indent=f"{indent}  ", verbose=verbose)
@@ -393,7 +396,7 @@ async def _run_query_etr(
         click.echo(f"summary control chain for {digest_file}:")
     else:
         click.echo("summary control chain:")
-    click.echo("  legend: ++ origin, -> transfer initiate/accept, -- terminate, => attest initiate/accept")
+    click.echo("  legend: ++ origin, -> transfer initiate/accept, -- terminate, => attest")
     for chain in result["summary_control_chains"]:
         click.echo(f"  {chain['label']}:")
         for step in chain["steps"]:
