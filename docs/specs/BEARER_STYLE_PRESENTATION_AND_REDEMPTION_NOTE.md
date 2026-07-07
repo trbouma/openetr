@@ -104,6 +104,8 @@ It should therefore be treated as a distinct recognition profile rather than as 
 
 OpenETR can provide the evidence.
 
+It does not itself provide mandate or effect.
+
 It does not itself decide:
 
 - whether a given object should be treated as bearer-like

@@ -117,6 +117,7 @@ Key idea:
 
 - OpenETR records authenticated facts
 - the Recognition Layer determines legal or operational effect
+- OpenETR does not itself provide mandate or effect
 
 ## 7. Endorsement / Indorsement in the Revised Model
 

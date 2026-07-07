@@ -8,7 +8,7 @@ It is intended to describe control over a transferable electronic record in a wa
 - any specific legal recognition regime
 - any specific protocol implementation
 
-OpenETR is not a Recognition Layer system. It does not determine ownership, title, contractual rights, priority, or legal effect. It records authenticated control facts and control transitions for a Controlled Object.
+OpenETR is not a Recognition Layer system. It does not itself provide ownership, title, contractual rights, priority, mandate, or legal effect. It records authenticated control facts and control transitions for a Controlled Object.
 
 ## Purpose
 
@@ -21,6 +21,7 @@ It does not determine:
 - ownership
 - title
 - contractual rights
+- mandate
 - legal effect
 
 Those matters belong to the Recognition Layer.

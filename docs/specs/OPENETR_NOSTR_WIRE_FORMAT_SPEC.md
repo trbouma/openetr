@@ -28,6 +28,7 @@ This specification does not by itself determine:
 
 - ownership
 - title
+- mandate
 - legal effect
 - priority
 - recognition policy
@@ -349,6 +350,10 @@ Recognition concerns questions such as:
 - whether a termination should be recognized as effective
 - whether actor legitimacy requirements have been satisfied
 
+This wire format does not itself provide mandate or effect.
+
+It provides the event structure and evidence from which mandate or effect may later be recognized under the applicable framework.
+
 An event may therefore be:
 
 - valid but not recognized
@@ -390,4 +395,4 @@ The current OpenETR Nostr wire format is defined by:
 - `e` as the control-chain link
 - `action` as the semantic subtype within the control-event family
 
-This provides a coherent current working format for publishing, querying, and traversing OpenETR control history over Nostr while leaving recognition, attestation policy, and legal effect to higher layers.
+This provides a coherent current working format for publishing, querying, and traversing OpenETR control history over Nostr while leaving recognition, mandate, attestation policy, and legal effect to higher layers.

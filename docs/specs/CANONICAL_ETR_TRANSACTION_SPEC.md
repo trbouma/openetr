@@ -123,11 +123,11 @@ Attestation does not by itself change the current controller.
 
 In this specification, attestation is discussed separately from lifecycle actions because it operates as an associated evidence, witness, and recognition layer that may attach to relevant events rather than as a lifecycle transition in its own right.
 
-## Foundational Rule
+## Mandate and Effect
 
-OpenETR does not itself mandate effect.
+OpenETR does not itself provide a mandate or effect.
 
-Instead, the canonical model defines the action sets that may support recognition of effect when they are attested and recognized under the applicable framework.
+Instead, the canonical model defines the action sets and evidence structures that may support recognition of mandate or effect under the applicable framework.
 
 Therefore:
 
