@@ -88,7 +88,6 @@ Accordingly, OpenETR should be understood as supporting a spectrum:
 |-----------|----------------------|------------------------|
 | Issue | Declare Issue -> Attest(Declare) | — |
 | Transfer | Declare Transfer -> Attest(Declare) | Accept Transfer -> Attest(Accept) |
-| Attest | Declare Attestation -> Attest(Declare) | — |
 | Encumber | Declare Encumbrance -> Attest(Declare) | — |
 | Discharge | Declare Discharge -> Attest(Declare) | — |
 | Terminate | Declare Termination (Release / Cancel / Substitute) -> Attest(Declare) | — |
@@ -109,12 +108,13 @@ Therefore:
 
 - Issue requires `Declare + Attest`
 - Transfer requires `Declare + Accept + Attest(Declare) + Attest(Accept)`
-- Attest requires `Declare + Attest`
 - Encumber requires `Declare + Attest`
 - Discharge requires `Declare + Attest`
 - Terminate requires `Declare + Attest`
 
 Recognition is external to raw event publication. An event may exist on relays and still lack effect if the required action set has not been completed or if the attestors are not recognized under policy.
+
+Attestation is discussed separately below because it is not itself presented here as a lifecycle transition. Instead, it operates as an associated evidence, witness, and recognition layer that may attach to relevant lifecycle events.
 
 ## Terms
 
@@ -352,7 +352,7 @@ In a fuller OpenETR model, actor legitimacy attestation may bind an `npub` to on
 
 This is a separate layer from attesting whether a given transaction event or control chain should be recognized.
 
-## Canonical Action Types
+## Canonical Lifecycle Action Types
 
 ### 1. Issue
 
@@ -383,28 +383,7 @@ Required actions:
 
 Transfer provides a basis for recognized effect only when all four action components are recognized.
 
-### 3. Attest
-
-Attestation is an authenticated assertion relating to the object or to a control-relevant event in its lifecycle.
-
-Examples may include:
-
-- custody
-- inspection
-- quality
-- quantity
-- certification
-
-Required actions:
-
-- declare attestation
-- attest the declaration
-
-No counterparty acceptance is required in the canonical model, although an application profile may add additional conditions for recognition.
-
-Attestation does not by itself change the current controller.
-
-### 4. Encumber
+### 3. Encumber
 
 Encumbrance is an authenticated declaration that the object is subject to a claimed restriction, pledge, lien, security right, or similar burden relevant to recognition.
 
@@ -417,7 +396,7 @@ No counterparty acceptance is required in the canonical minimum model, although 
 
 Encumbrance does not by itself change the current controller.
 
-### 5. Discharge
+### 4. Discharge
 
 Discharge is an authenticated declaration that a previously claimed encumbrance has been released, satisfied, or otherwise brought to an end.
 
@@ -430,7 +409,7 @@ No counterparty acceptance is required in the canonical minimum model, although 
 
 Discharge does not by itself change the current controller.
 
-### 6. Terminate
+### 5. Terminate
 
 Termination ends or supersedes the current effective state of an object within the scheme.
 
@@ -446,6 +425,30 @@ Required actions:
 - attest the declaration
 
 No counterparty acceptance is required in the canonical model, although an application profile may impose one.
+
+## Attestation as a Separate Associated Layer
+
+Attestation is an authenticated assertion relating to the object or to a control-relevant event in its lifecycle.
+
+Examples may include:
+
+- custody
+- inspection
+- quality
+- quantity
+- certification
+- endorsement-like or indorsement-like instruction
+
+Required actions:
+
+- declare attestation
+- attest the declaration
+
+No counterparty acceptance is required in the canonical model, although an application profile may add additional conditions for recognition.
+
+Attestation does not by itself change the current controller.
+
+In this specification, attestation is discussed separately from lifecycle actions because it operates as an associated evidence, witness, and recognition layer that may attach to relevant events rather than as a lifecycle transition in its own right.
 
 ## Working Event Kind Allocation
 
