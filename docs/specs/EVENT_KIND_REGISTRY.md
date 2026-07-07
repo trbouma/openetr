@@ -71,6 +71,6 @@ That choice remains working and provisional.
 ## Notes
 
 - This registry does not yet define all future OpenETR event kinds.
-- Endorsement, substitution, cancellation, revocation, and attestation kinds are still open design areas.
+- Separate event kinds for attestation, encumbrance, discharge, redemption, substitution, cancellation, and revocation are still open design areas.
 - Termination is currently modeled as `action=terminate` within `31416`, but may later be revisited as a separate kind if implementation experience suggests that is clearer.
 - Event kind assignment alone does not determine legal or operational effect; effect depends on the wider OpenETR attestation and recognition model.

@@ -35,6 +35,10 @@ Unless explicitly stated otherwise, these events do not change the Current Contr
 
 `ATTEST` records an authenticated assertion relating to the Controlled Object.
 
+The attestation should reference the specific prior event being attested.
+
+That means the `e` tag should point to the concrete origin or control event whose declaration, occurrence, or effect is being attested, rather than merely to the latest event in the chain in general.
+
 Examples may include:
 
 - custody
@@ -51,7 +55,7 @@ An attestation does not change the Current Controller.
 - required tags:
   - `["d", "<object_hex>:attest"]`
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<specific_event_id_being_attested>"]`
   - `["action", "attest"]`
 
 ### Optional Tags

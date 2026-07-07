@@ -2,11 +2,15 @@
 
 This draft defines a canonical interaction model for OpenETR transactions.
 
+For a simplified visual companion, see [CANONICAL_ETR_TRANSACTION_INFOGRAPHIC.md](./CANONICAL_ETR_TRANSACTION_INFOGRAPHIC.md).
+
 It focuses on control-relevant actions and the minimum attestable structure required for an OpenETR scheme to express:
 
 - issuance
 - transfer
-- endorsement
+- attestation
+- encumbrance
+- discharge
 - termination
 - revocation of incomplete actions
 
@@ -58,14 +62,30 @@ This means OpenETR can support both:
 
 The decisive question is therefore not only whether an event was directly attested, but what the attestor is claiming to have validated and recognized.
 
+This canonical model is intentionally strong.
+
+In some limited operational contexts involving a small and otherwise trusted set of counterparties, the parties may choose to recognize the effect of a transfer without separate third-party attestation.
+
+In that case, recognition arises from the parties' own agreed policy and trust relationship rather than from the fuller OpenETR attestation model.
+
+Such a profile may be operationally sufficient for that narrower context, but it provides a weaker basis for independent verification, portability, and later dispute resolution.
+
 ## Canonical Interaction Matrix
 
 | Lifecycle | Declare (Initiator) | Accept (Counterparty) |
 |-----------|----------------------|------------------------|
 | Issue | Declare Issue -> Attest(Declare) | — |
 | Transfer | Declare Transfer -> Attest(Declare) | Accept Transfer -> Attest(Accept) |
-| Endorse | Declare Endorsement -> Attest(Declare) | Accept Endorsement -> Attest(Accept) |
+| Attest | Declare Attestation -> Attest(Declare) | — |
+| Encumber | Declare Encumbrance -> Attest(Declare) | — |
+| Discharge | Declare Discharge -> Attest(Declare) | — |
 | Terminate | Declare Termination (Release / Cancel / Substitute) -> Attest(Declare) | — |
+
+In this matrix:
+
+- `declare` means to publish the substantive control action or assertion being made
+- `accept` means to publish the counterparty's acceptance where the lifecycle requires it
+- `attest` means for an identifiable attestor to publish accountable recognition, witness, validation, or policy-backed support for the relevant declared or accepted action
 
 ## Foundational Rule
 
@@ -75,7 +95,9 @@ Therefore:
 
 - Issue requires `Declare + Attest`
 - Transfer requires `Declare + Accept + Attest(Declare) + Attest(Accept)`
-- Endorse requires `Declare + Accept + Attest(Declare) + Attest(Accept)`
+- Attest requires `Declare + Attest`
+- Encumber requires `Declare + Attest`
+- Discharge requires `Declare + Attest`
 - Terminate requires `Declare + Attest`
 
 Recognition is external to raw event publication. An event may exist on relays and still lack effect if the required action set has not been completed or if the attestors are not recognized under policy.
@@ -92,7 +114,7 @@ The party capable of exercising control over the object at a given moment.
 
 ### Initiator
 
-The party that declares a control-relevant action.
+The party that publishes the substantive control-relevant action or assertion.
 
 ### Counterparty
 
@@ -100,11 +122,105 @@ The party whose acceptance is required for the action to become effective.
 
 ### Attestor
 
-An identifiable signing party whose attestation anchors accountability for the application of policy to a specific action.
+An identifiable signing party whose attestation anchors accountable recognition, witness, validation, or policy-backed support for a specific declared or accepted action.
 
 ### Recognition
 
 The policy act of treating an attested action set as effective for the relevant legal or operational context.
+
+## Endorsement and Indorsement
+
+OpenETR does not treat endorsement or indorsement as a standalone universal protocol primitive.
+
+Instead, OpenETR records the underlying signed control actions and authenticated assertions from which a recognition framework may conclude that an endorsement or indorsement has occurred.
+
+At the Control Layer, the relevant questions are:
+
+- who signed
+- what was declared
+- which object was referenced
+- whether control changed
+- what assertions were made
+- whether the resulting chain is recognized under policy
+
+In the revised model:
+
+- actions that change control are typically modeled as `TRANSFER`
+- actions that add authenticated meaning, approval, instruction, limitation, or related assertions without themselves changing control are typically modeled as `ATTEST`
+
+Whether a particular combination of `TRANSFER`, `ATTEST`, and related recognized events constitutes an endorsement or indorsement for legal or commercial purposes is determined by the applicable Recognition Layer.
+
+## Event Validity and Recognition
+
+Because OpenETR operates in an open environment, the protocol must distinguish between:
+
+- event validity
+- recognition
+
+These are related, but they are not the same thing.
+
+### Event Validity
+
+Event validity concerns cryptographic and structural correctness.
+
+Examples include:
+
+- whether the event signature is valid
+- whether the event id is valid
+- whether the object identifier is well formed
+- whether required tags are present
+- whether referenced prior events exist
+- whether the event chain is structurally traversable
+
+These checks answer questions such as:
+
+- Did this event occur in the claimed form?
+- Is it well formed?
+- Is it authentically attributable?
+
+They do not determine whether the event should be treated as effective.
+
+### Recognition
+
+Recognition concerns the policy conditions under which an event or chain is treated as effective.
+
+Examples include:
+
+- whether the relevant controller was entitled to perform the action
+- whether a transfer requires a corresponding accept event
+- whether an encumbrance or discharge requires additional supporting conditions under policy
+- whether a signer is recognized as a legitimate actor for the claimed role
+- whether an attestation or chain is sufficient under the applicable policy
+
+These checks answer questions such as:
+
+- Should this event be treated as effective?
+- Does this event satisfy the conditions for recognition?
+
+### Consequence
+
+An event may therefore be:
+
+- valid but not recognized
+- recognized only under a particular policy profile
+- invalid and therefore incapable of recognition
+
+This distinction is essential in OpenETR because anyone may publish an event, but not every published event deserves recognition as effective.
+
+A useful way to express this distinction is to separate hard guards from soft guards.
+
+- hard guards protect validity
+- soft guards govern recognition
+
+Hard guards prevent a transition because the event fails minimum validity requirements.
+
+Soft guards do not necessarily prevent publication. Instead, they operate as policy conditions on the state transition model. They may:
+
+- emit a warning at declaration time
+- require confirmation by an operator or workflow
+- lead a later evaluator to refuse recognition
+
+In this sense, policy operates as a soft guard on state transitions. It does not necessarily prevent a declaration from being made, but it influences whether the resulting transition is later recognized as effective.
 
 ## Determination of Legal Effect and Recognition
 
@@ -169,6 +285,14 @@ It enables the determining party to validate the chain according to:
 - attestation policy
 - recognition policy
 
+This means OpenETR should not be understood as saying:
+
+> Publication equals effect.
+
+It should instead be understood as saying:
+
+> Publication provides evidence. Recognition determines effect.
+
 ## Actor Legitimacy Attestation
 
 OpenETR may also require a distinct form of attestation concerning the legitimacy of the participating actors themselves.
@@ -179,7 +303,7 @@ It addresses questions such as:
 
 - who this signer is
 - whether the signer is a legitimate actor for the role being claimed
-- whether the signer is recognized for purposes such as issuance, transfer, endorsement, custody, or attestation
+- whether the signer is recognized for purposes such as issuance, transfer, custody, attestation, encumbrance, discharge, redemption, or termination
 
 This creates a useful distinction between:
 
@@ -245,20 +369,54 @@ Required actions:
 
 Transfer becomes effective only when all four action components are recognized.
 
-### 3. Endorse
+### 3. Attest
 
-Endorsement is the application of additional meaning, authority, approval, or delegated effect to the object or to a pending transaction concerning the object.
+Attestation is an authenticated assertion relating to the object or to a control-relevant event in its lifecycle.
+
+Examples may include:
+
+- custody
+- inspection
+- quality
+- quantity
+- certification
 
 Required actions:
 
-- declare endorsement
-- accept endorsement
+- declare attestation
 - attest the declaration
-- attest the acceptance
 
-This keeps endorsement aligned with the same bilateral accountability rule as transfer when the endorsement affects control-relevant status.
+No counterparty acceptance is required in the canonical model, although an application profile may add additional conditions for recognition.
 
-### 4. Terminate
+Attestation does not by itself change the current controller.
+
+### 4. Encumber
+
+Encumbrance is an authenticated declaration that the object is subject to a claimed restriction, pledge, lien, security right, or similar burden relevant to recognition.
+
+Required actions:
+
+- declare encumbrance
+- attest the declaration
+
+No counterparty acceptance is required in the canonical minimum model, although an application profile may impose additional recognition conditions or require supporting evidence.
+
+Encumbrance does not by itself change the current controller.
+
+### 5. Discharge
+
+Discharge is an authenticated declaration that a previously claimed encumbrance has been released, satisfied, or otherwise brought to an end.
+
+Required actions:
+
+- declare discharge
+- attest the declaration
+
+No counterparty acceptance is required in the canonical minimum model, although an application profile may impose additional recognition conditions or require linkage to the encumbrance being discharged.
+
+Discharge does not by itself change the current controller.
+
+### 6. Terminate
 
 Termination ends or supersedes the current effective state of an object within the scheme.
 
@@ -380,7 +538,7 @@ This specification currently treats the following as the working minimum:
 - issue/origin mapped to `31415`
 - control transfer mapped to `31416`
 
-Endorsement, termination, substitution, cancellation, and revocation may later receive their own event kinds or remain subtyped within broader event families depending on implementation experience.
+Attestation, termination, substitution, cancellation, encumbrance, discharge, redemption, and revocation may later receive their own event kinds or remain subtyped within broader event families depending on implementation experience.
 
 This allocation should therefore be treated as:
 
@@ -508,7 +666,7 @@ Attestation events are the layer at which witnessed reliability and accountable 
 
 ## Revocation
 
-Revocation is not a lifecycle transition in the same sense as issue, transfer, endorse, or terminate.
+Revocation is not a lifecycle transition in the same sense as issue, transfer, attest, or terminate.
 
 Revocation applies only to actions that are:
 
@@ -679,7 +837,9 @@ This specification is intended to support transaction families such as:
 
 - canonical issue transactions
 - canonical transfer transactions
-- canonical endorsement transactions
+- canonical attestation transactions
+- canonical encumbrance transactions
+- canonical discharge transactions
 - canonical termination transactions
 - canonical revocation transactions for incomplete action sets
 
@@ -698,7 +858,7 @@ This draft does not yet define:
 - a complete JSON schema
 - a final Nostr event-kind assignment
 - jurisdiction-specific legal effect rules
-- substantive commercial law rules for title, endorsement, or negotiability
+- substantive commercial law rules for title, negotiability, or legal effect
 - a universal recognition policy
 
 ## Summary

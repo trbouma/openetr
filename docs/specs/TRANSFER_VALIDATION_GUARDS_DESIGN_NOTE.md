@@ -1,6 +1,6 @@
-# Transfer Validation Guards Design Note
+# Transfer Validation and Recognition Rules Design Note
 
-This note explains the role of CLI-side validation guards in the OpenETR transfer flow.
+This note explains the role of CLI-side validation and recognition rules in the OpenETR control-event flow.
 
 It is not a claim that OpenETR can prevent all invalid or conflicting events from being published.
 
@@ -33,7 +33,7 @@ The existence of that possibility does not weaken the value of validation rules.
 
 It clarifies their proper role.
 
-Validation guards in the CLI are useful because they:
+Validation rules in the CLI are useful because they:
 
 - make the expected transaction grammar explicit
 - reduce accidental misuse by ordinary operators
@@ -92,6 +92,93 @@ CLI guards are therefore not final enforcement.
 
 They are an executable expression of those rules.
 
+## Event Validity Versus Recognition Rules
+
+Because OpenETR operates in an open environment, anyone may publish an event.
+
+That means OpenETR must distinguish clearly between:
+
+- event validity
+- recognition rules
+
+These are not the same thing.
+
+### Event Validity
+
+Event validity concerns cryptographic and structural correctness.
+
+Examples include:
+
+- whether the event signature is valid
+- whether the event id is valid
+- whether the object identifier is well formed
+- whether the required tags are present
+- whether referenced prior events exist
+- whether the event chain can be traversed
+
+These checks answer questions such as:
+
+- Did this event occur in the claimed form?
+- Is it well formed?
+- Is it authentically attributable?
+
+They do not answer whether the event should be recognized as effective.
+
+### Recognition Rules
+
+Recognition rules concern the policy conditions under which an event or chain will be treated as effective.
+
+Examples include:
+
+- whether only the recognized current controller may transfer
+- whether a transfer requires a corresponding accept event
+- whether a termination must be recognized as coming from a particular role
+- whether an encumbrance blocks later recognition of transfer
+- whether a signer is a recognized actor for the claimed role
+
+These checks answer questions such as:
+
+- Should this event be treated as effective?
+- Does this event satisfy the applicable control or attestation policy?
+
+### Why the Distinction Matters
+
+OpenETR can authenticate events, but it does not by itself require that every authenticated event be recognized as effective.
+
+That distinction is foundational in a permissionless environment.
+
+The protocol can demonstrate:
+
+- correctness
+- attribution
+- continuity
+
+But recognition remains a matter of policy.
+
+Accordingly, some rules that may appear in the CLI as publication guards should be understood conceptually as recognition rules rather than as mere syntax checks.
+
+A useful way to describe this is to distinguish between hard guards and soft guards.
+
+- hard guards protect validity
+- soft guards govern recognition
+
+Hard guards prevent a transition because the event is not valid enough to publish or process.
+
+Examples include:
+
+- invalid signature
+- missing required tag
+- malformed object identifier
+- unresolvable prior reference
+
+Soft guards do not necessarily prevent a transition from being declared or published. Instead, they operate as policy conditions on the state transition model. They may:
+
+- emit a warning at declaration time
+- require operator confirmation
+- lead an attestor, assessor, or relying party to refuse recognition later
+
+In OpenETR, policy rules can therefore be understood as soft guards on state transitions. They do not necessarily prevent a transition, but they may influence whether that transition is later recognized as effective.
+
 ## Determination of Recognition or Effect
 
 In OpenETR, recognition or legal effect is not determined by the mere existence of a platform record.
@@ -142,7 +229,7 @@ The protocol carries the signed history.
 
 The determining party applies the rules.
 
-## Why Guards Matter Even If They Can Be Bypassed
+## Why Validation Rules Matter Even If They Can Be Bypassed
 
 A bypassable rule can still be valuable if it clearly states the expected policy.
 
@@ -186,7 +273,7 @@ CLI guards provide an early, concrete form of that checklist.
 
 ## Validation as Attestor Policy
 
-OpenETR should treat transfer validation rules as part of the emerging attestor policy layer.
+OpenETR should treat control-event validation rules as part of the emerging attestor policy layer.
 
 That does not mean:
 
@@ -196,7 +283,7 @@ That does not mean:
 
 It does mean:
 
-- OpenETR can define the conditions under which a transfer event is considered valid for recognition
+- OpenETR can define the conditions under which a control event is considered valid for recognition
 - attestors can later rely on those conditions when deciding whether to attest an event
 - the CLI can serve as a reference implementation of those conditions
 
@@ -237,11 +324,11 @@ The second asks whether the participants are recognized as appropriate actors wi
 
 Not every validation concern needs the same outcome.
 
-OpenETR should classify validation rules into three categories.
+OpenETR should classify rules into categories that reflect whether they concern correctness, operator warning, or later recognition.
 
 ### Error
 
-The command should block publication or completion.
+The command should block publication or completion because a minimum correctness condition has failed.
 
 Examples:
 
@@ -252,7 +339,7 @@ Examples:
 
 ### Warning
 
-The command should allow the action but require operator confirmation.
+The command should allow the action but require operator confirmation because the event is publishable but ambiguous, incomplete, or potentially inconsistent with later recognition policy.
 
 Examples:
 
@@ -260,15 +347,23 @@ Examples:
 - multiple origin events exist for the same object
 - a later event may supersede an earlier event but the operator is still choosing to proceed
 
-### Attestor Note
+### Recognition Rule
 
-The CLI may not yet block or warn, but the condition should be documented as a future recognition or attestation check.
+The CLI may or may not enforce the condition at publication time, but the condition should be treated as part of recognition, attestation, or assessment policy.
 
 Examples:
 
 - whether the initiating party is the latest recognized controller
 - whether a transfer is in conflict with another pending transfer for the same object
 - whether the relevant attestor policy recognizes a particular signer or counterparty
+
+This category is especially important because many OpenETR questions are not:
+
+- Can the event be published?
+
+but rather:
+
+- Should the event be recognized as effective?
 
 ## Initial Transfer Rules to Formalize
 
@@ -358,7 +453,7 @@ This preserves a useful distinction between:
 
 - publication rules, which determine whether an event is well-formed enough to be issued
 - warning rules, which surface incompleteness or ambiguity without preventing publication
-- attestation rules, which determine whether the resulting transfer chain is sufficient for recognition
+- recognition rules, which determine whether the resulting transfer chain is sufficient for recognition
 
 ## Event-Level and Chain-Level Attestation
 
@@ -423,23 +518,23 @@ As the CLI evolves, transfer validation should be treated as more than user-inte
 
 It is part of the specification effort.
 
-Each new guard should ideally answer three questions:
+Each new rule should ideally answer three questions:
 
 1. What condition is being checked?
 2. Why does that condition matter for valid recognition of the action?
-3. Should failure produce an error, a warning, or only an attestor note?
+3. Should failure produce an error, a warning, or be treated as a recognition rule?
 
 That keeps implementation and policy aligned.
 
 ## Summary
 
-OpenETR validation guards are valuable even if they do not make invalid publication impossible.
+OpenETR validation and recognition rules are valuable even if they do not make invalid publication impossible.
 
 Their real purpose is to:
 
 - reduce operator error
 - formalize transaction expectations
-- make attestor policy concrete
+- make recognition and attestor policy concrete
 - support accountable recognition of control-relevant events
 
 This includes making it explicit that:

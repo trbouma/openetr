@@ -153,6 +153,19 @@ Records that the Obligor has completed performance and that the Controlled Objec
 
 No further control events may occur after termination.
 
+## Endorsement and Indorsement
+
+OpenETR does not define endorsement or indorsement as a separate universal Control Event type.
+
+Instead, endorsement or indorsement is understood as a legal or commercial characterization that may be expressed through one or more OpenETR events and then recognized under the applicable framework.
+
+In the generic model:
+
+- if the relevant action changes the Current Controller, it is modeled as `TRANSFER`
+- if the relevant action adds authenticated meaning, authority, approval, instruction, limitation, or another assertion without itself changing control, it is modeled as `ATTEST`
+
+Whether those events amount to an endorsement or indorsement is determined outside the Control Layer by the relevant Recognition Layer, contractual framework, or governing law.
+
 ## Generic State Model
 
 ```text
@@ -213,6 +226,12 @@ Those questions are determined by the applicable Recognition Layer, for example:
 OpenETR provides authenticated evidence of control.
 
 Commercial relationships and legal consequences remain outside the Control Layer.
+
+Some implementation profiles may choose to recognize certain effects, especially transfers among a small and otherwise trusted set of counterparties, without separate third-party attestation at the time of transfer.
+
+Where that occurs, recognition arises from the participants' own trust relationship and agreed policy rather than from the stronger OpenETR model of independently attestable evidence.
+
+That may be operationally acceptable for a narrower environment, but it provides a weaker foundation for independent verification, broad portability, and later dispute resolution.
 
 The same generic model applies regardless of whether the Controlled Object represents:
 
