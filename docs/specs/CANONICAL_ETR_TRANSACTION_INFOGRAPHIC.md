@@ -41,9 +41,10 @@ Key idea:
 ```mermaid
 flowchart LR
     A["Current Controller"] --> B["Declare Transfer"]
-    B --> C["Counterparty Accepts"]
-    C --> D["Attested / Recognized"]
-    D --> E["New Current Controller"]
+    C["Counterparty"] --> D["Accept Transfer"]
+    B --> E["Attested / Recognized<br>as a transfer action set"]
+    D --> E
+    E --> F["New Current Controller"]
 ```
 
 Key idea:
@@ -56,8 +57,10 @@ Key idea:
 ```mermaid
 flowchart LR
     A["Current Controller"] --> B["Declare Transfer"]
-    B --> C["Counterparty Accepts"]
-    C --> D["Locally Recognized by Trusted Parties"]
+    C["Counterparty"] --> D["Accept Transfer"]
+    B --> E["Locally Recognized<br>by Trusted Parties"]
+    D --> E
+    E --> F["New Current Controller"]
 ```
 
 Key idea:
@@ -73,8 +76,6 @@ flowchart TD
     I --> A["Active"]
     A --> T["Transfer"]
     T --> A
-    A --> AT["Attest"]
-    AT --> A
     A --> E["Encumber"]
     E --> A
     A --> D["Discharge"]
@@ -83,11 +84,18 @@ flowchart TD
     R --> RP["Redemption Pending"]
     RP --> X["Terminate"]
     X --> Z["Terminated"]
+    AT["Attestation may attach<br>to relevant events"] -.-> I
+    AT -.-> T
+    AT -.-> E
+    AT -.-> D
+    AT -.-> R
+    AT -.-> X
 ```
 
 Key idea:
 
-- multiple actions may occur while the object is active
+- multiple lifecycle actions may occur while the object is active
+- attestation is not itself a lifecycle state transition, even though lifecycle events may be attested
 - termination ends the active lifecycle
 
 ## 6. Control Layer vs Recognition Layer
@@ -108,7 +116,8 @@ Key idea:
 ```mermaid
 flowchart LR
     A["TRANSFER<br>changes control"] --> C["Recognition framework may characterize result"]
-    B["ATTEST<br>adds authenticated meaning or instruction"] --> C["Recognition framework may characterize result"]
+    B["ATTEST<br>adds authenticated meaning or instruction"] --> A
+    B --> C
     C --> D["Endorsement / Indorsement<br>if applicable"]
 ```
 
