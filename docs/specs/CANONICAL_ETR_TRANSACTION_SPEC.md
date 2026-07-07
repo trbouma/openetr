@@ -1098,3 +1098,17 @@ Instead, the warehouse operator may use a public verification tool, such as a we
 Once satisfied, the warehouse operator may release the covered goods or recognize redemption for that receipt and then record the corresponding redeem or terminate event against the same object id.
 
 In this example, OpenETR allows multiple warehouse receipts from different issuers to be verified through the same open evidence model, while still leaving the final decision to release goods to the warehouse operator's governing policy, contract, and applicable law.
+
+### 8. Non-Transferable Club Membership
+
+A club issues a digital membership record as a Controlled Object.
+
+The membership is intended to be personal to the named member and not transferable to others.
+
+An associated restriction or `ENCUMBER` action set provides that only the identified member, or a person expressly authorized under the club's rules, may present or use the membership and that it may not be transferred in the ordinary course.
+
+In this example, the restriction does not itself transfer control.
+
+Instead, it provides signed evidence supporting recognition of an exclusive presentation and non-transfer condition attached to the membership record.
+
+If the membership later expires, is cancelled, or is revoked, a corresponding termination event may be recorded.
