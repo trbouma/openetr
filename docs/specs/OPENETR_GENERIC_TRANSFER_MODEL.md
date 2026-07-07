@@ -157,7 +157,7 @@ No further control events may occur after termination.
 
 OpenETR does not define endorsement or indorsement as a separate universal Control Event type.
 
-Instead, endorsement or indorsement is understood as a legal or commercial characterization that may be expressed through one or more OpenETR events and then recognized under the applicable framework.
+Instead, where relevant, endorsement or indorsement is expressed as an attestation associated with an underlying OpenETR event, with its legal or commercial characterization determined by the applicable recognition framework.
 
 In the generic model:
 

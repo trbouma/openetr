@@ -123,12 +123,12 @@ Key idea:
 ```mermaid
 flowchart LR
     A["TRANSFER<br>changes control"] --> C["Recognition framework may characterize result"]
-    B["ATTEST<br>adds authenticated meaning or instruction"] --> A
-    B --> C
+    B["ATTEST<br>adds authenticated meaning or instruction"] -.-> A
+    B -.-> C
     C --> D["Endorsement / Indorsement<br>if applicable"]
 ```
 
 Key idea:
 
 - endorsement or indorsement is not a standalone universal protocol primitive
-- it is a recognition-layer characterization of one or more underlying OpenETR events
+- it is an attestation-associated characterization of an underlying event where the attestation carries additional meaning or instruction

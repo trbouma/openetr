@@ -132,7 +132,7 @@ The policy act of treating an attested action set as effective for the relevant 
 
 OpenETR does not treat endorsement or indorsement as a standalone universal protocol primitive.
 
-Instead, OpenETR records the underlying signed control actions and authenticated assertions from which a recognition framework may conclude that an endorsement or indorsement has occurred.
+Instead, where relevant, OpenETR expresses endorsement or indorsement as an attestation associated with an underlying OpenETR event, with its legal or commercial characterization determined by the applicable recognition framework.
 
 At the Control Layer, the relevant questions are:
 
