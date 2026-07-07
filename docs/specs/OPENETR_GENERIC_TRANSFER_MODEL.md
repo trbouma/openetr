@@ -231,7 +231,15 @@ Some implementation profiles may choose to recognize certain effects, especially
 
 Where that occurs, recognition arises from the participants' own trust relationship and agreed policy rather than from the stronger OpenETR model of independently attestable evidence.
 
+In such a simplified local-recognition profile, ordinary transfers may be recognized without separate attestation, although a specific attestation may still be used where the parties want to attach additional meaning, instruction, endorsement, or indorsement to a particular event.
+
 That may be operationally acceptable for a narrower environment, but it provides a weaker foundation for independent verification, broad portability, and later dispute resolution.
+
+As the model scales outward, parties may increasingly require attestation in order to rely on actions taken by participants with whom they do not share the same direct trust relationship.
+
+In some settings, attestation may additionally be required for legal effect, institutional acceptance, or official recognition.
+
+OpenETR should therefore be understood as supporting a spectrum from simplified local recognition, to selective event-level attestation, to fuller attested models designed for broader reliance and recognition.
 
 The same generic model applies regardless of whether the Controlled Object represents:
 
