@@ -29,7 +29,6 @@ Key idea:
 flowchart TD
     O["Controlled Object"] --> I["Issue"]
     O --> T["Transfer"]
-    O --> AT["Attest"]
     O --> E["Encumber"]
     O --> D["Discharge"]
     O --> R["Redeem"]
@@ -39,7 +38,7 @@ flowchart TD
 Key idea:
 
 - `Issue`, `Transfer`, `Encumber`, `Discharge`, `Redeem`, and `Terminate` are lifecycle-relevant actions
-- `Attest` adds authenticated assertions and may also support recognition of other actions
+- attestation is not shown as a lifecycle action family here because it operates as a witness or recognition layer attached to relevant events
 
 ## 3. Transfer in the Strong Canonical Model
 
