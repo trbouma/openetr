@@ -41,9 +41,9 @@ This specification defines the minimal matrix for answering that question.
 
 ## Core Principle
 
-All control-relevant actions must be independently attested.
+All control-relevant actions in the strong canonical model are independently attested.
 
-Legal effect arises only when all required actions are:
+The model is designed to support recognition of effect where all required actions are:
 
 - performed
 - attested
@@ -62,7 +62,7 @@ This means OpenETR can support both:
 
 The decisive question is therefore not only whether an event was directly attested, but what the attestor is claiming to have validated and recognized.
 
-This canonical model is intentionally strong.
+This canonical model is intentionally more formal and evidence-based than the minimum profile that may be sufficient among a small trusted group of counterparties.
 
 In some limited operational contexts involving a small and otherwise trusted set of counterparties, the parties may choose to recognize the effect of a transfer without separate third-party attestation.
 
@@ -101,7 +101,9 @@ In this matrix:
 
 ## Foundational Rule
 
-Effect exists only when all required actions are attested and recognized.
+OpenETR does not itself mandate effect.
+
+Instead, the canonical model defines the action sets that may support recognition of effect when they are attested and recognized under the applicable framework.
 
 Therefore:
 
@@ -363,7 +365,7 @@ Required actions:
 
 No counterparty acceptance is required for issue in the canonical model.
 
-Issue becomes effective only when the declaration is both:
+Issue provides a basis for recognized effect only when the declaration is both:
 
 - attested
 - recognized
@@ -379,7 +381,7 @@ Required actions:
 - attest the declaration
 - attest the acceptance
 
-Transfer becomes effective only when all four action components are recognized.
+Transfer provides a basis for recognized effect only when all four action components are recognized.
 
 ### 3. Attest
 
@@ -888,3 +890,68 @@ That allows the scheme to express control-relevant transactions in a way that is
 - policy-aware
 - portable across infrastructures
 - aligned with the technology-neutral logic of MLETR
+
+## Illustrative Examples
+
+These examples are illustrative only.
+
+They are intended to show how the canonical model may be applied across different recognition profiles.
+
+### 1. Fully Attested Transfer in a Broad-Reliance Profile
+
+A carrier issues an electronic bill of lading into OpenETR.
+
+The current controller later declares a transfer to a buyer.
+
+The buyer accepts the transfer.
+
+An attestor validates:
+
+- the object identity
+- the transfer declaration
+- the acceptance
+- the signer legitimacy required by policy
+
+In this example, the resulting evidence set provides a strong basis for later independent reliance because the action set is declared, accepted, attested, and recognized.
+
+### 2. Simplified Transfer Among Trusted Counterparties
+
+Three known trading parties use OpenETR within a closed operational relationship.
+
+One party declares a transfer and the receiving party accepts it.
+
+The parties agree by prior policy that, within their own relationship, this is enough to recognize the transfer without separate third-party attestation.
+
+In this example, OpenETR still records the relevant action set, but recognition arises from the parties' own trust relationship and local policy rather than from the fuller attestation model.
+
+This may be operationally efficient, but it provides a weaker basis for outside reliance, independent verification, and later dispute resolution.
+
+### 3. Transfer with an Indorsement-Like Instruction
+
+A transfer is declared and accepted in the ordinary way.
+
+Later, an `ATTEST` event is associated with the relevant underlying event and carries additional meaning or instruction, such as presenter-entitled redemption or another endorsement-like instruction.
+
+In this example, the endorsement or indorsement is not a standalone control-event primitive.
+
+Instead, it is expressed as an attestation associated with the underlying OpenETR event, with its legal or commercial characterization determined by the applicable recognition framework.
+
+### 4. Encumbrance Without Change of Controller
+
+The current controller declares that the Controlled Object is subject to a security interest in favor of another party.
+
+That declaration is attested under the applicable policy.
+
+In this example, the event may support recognition of an encumbrance affecting the object, but it does not by itself change the Current Controller.
+
+The legal validity, perfection, and priority of the claimed encumbrance remain recognition-layer questions.
+
+### 5. Bearer-Style Presentation Profile
+
+A PDF is issued into OpenETR as a Controlled Object.
+
+An attestation is associated with the object or a relevant event stating, under the applicable recognition framework, that redemption is available to a valid presenter of the recognized evidence chain.
+
+The redeemer later recognizes the first valid redemption presented for that object id and records redemption or termination against the same object.
+
+In this example, OpenETR supplies the evidence structure for a bearer-like or presenter-entitled profile, but whether that profile has legal or operational effect remains a question for the relevant recognition framework.
