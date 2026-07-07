@@ -4,6 +4,11 @@ This note is a simplified visual companion to [CANONICAL_ETR_TRANSACTION_SPEC.md
 
 It is intended to help readers quickly visualize the canonical model without replacing the full specification.
 
+Diagram legend:
+
+- solid lines denote lifecycle or control-state progression
+- dotted lines denote witness, attestation, or recognition association rather than state transfer
+
 ## 1. Core Logic
 
 ```mermaid
@@ -42,15 +47,18 @@ Key idea:
 flowchart LR
     A["Current Controller"] --> B["Declare Transfer"]
     C["Counterparty"] --> D["Accept Transfer"]
-    B --> E["Attested / Recognized<br>as a transfer action set"]
+    B --> E["Recognized<br>as transfer action set"]
     D --> E
-    E --> F["New Current Controller"]
+    F["Attested"] -.-> B
+    F -.-> D
+    E --> G["New Current Controller"]
 ```
 
 Key idea:
 
 - the strong canonical model treats transfer as more than mere publication
-- recognition may depend on both declaration and acceptance
+- recognition depends on the declared transfer action set
+- attestation may attach to the relevant transfer events without itself being a state transition
 
 ## 4. Narrow Trusted-Counterparty Variant
 
@@ -58,9 +66,9 @@ Key idea:
 flowchart LR
     A["Current Controller"] --> B["Declare Transfer"]
     C["Counterparty"] --> D["Accept Transfer"]
-    B --> E["Locally Recognized<br>by Trusted Parties"]
+    B --> E["New Current Controller"]
     D --> E
-    E --> F["New Current Controller"]
+    F["Locally Recognized<br>by Trusted Parties"] -.-> E
 ```
 
 Key idea:
