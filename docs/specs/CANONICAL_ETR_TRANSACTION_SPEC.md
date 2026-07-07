@@ -88,8 +88,8 @@ Accordingly, OpenETR should be understood as supporting a spectrum:
 |-----------|----------------------|------------------------|
 | Issue | Declare Issue -> Attest(Declare) | — |
 | Transfer | Declare Transfer -> Attest(Declare) | Accept Transfer -> Attest(Accept) |
-| Encumber | Declare Encumbrance -> Attest(Declare) | — |
-| Discharge | Declare Discharge -> Attest(Declare) | — |
+| Encumber | Declare Encumbrance -> Attest(Declare) | Accept Encumbrance -> Attest(Accept) |
+| Discharge | Declare Discharge -> Attest(Declare) | Accept Discharge -> Attest(Accept) |
 | Terminate | Declare Termination (Release / Cancel / Substitute) -> Attest(Declare) | — |
 
 In this matrix:
@@ -133,8 +133,8 @@ Therefore:
 
 - Issue requires `Declare + Attest`
 - Transfer requires `Declare + Accept + Attest(Declare) + Attest(Accept)`
-- Encumber requires `Declare + Attest`
-- Discharge requires `Declare + Attest`
+- Encumber requires `Declare + Accept + Attest(Declare) + Attest(Accept)`
+- Discharge requires `Declare + Accept + Attest(Declare) + Attest(Accept)`
 - Terminate requires `Declare + Attest`
 
 Recognition is external to raw event publication. An event may exist on relays and still lack effect if the required action set has not been completed or if the attestors are not recognized under policy.
@@ -413,9 +413,17 @@ Encumbrance is an authenticated declaration that the object is subject to a clai
 Required actions:
 
 - declare encumbrance
+- accept encumbrance by the affected counterparty where the stronger canonical profile requires bilateral acknowledgment
 - attest the declaration
+- attest the acceptance
 
-No counterparty acceptance is required in the canonical minimum model, although an application profile may impose additional recognition conditions or require supporting evidence.
+In the stronger canonical model, counterparty acceptance is part of the full action set for recognized encumbrance.
+
+A unilateral encumbrance declaration may still be published in an open system and may still be relevant as evidence that a claim was asserted.
+
+However, in most recognition settings, publication alone should not be enough to treat the encumbrance as recognized.
+
+Some simplified or policy-specific profiles may nonetheless recognize a unilateral encumbrance declaration, but that is a weaker recognition pattern than the bilateral canonical model.
 
 Encumbrance does not by itself change the current controller.
 
@@ -426,9 +434,17 @@ Discharge is an authenticated declaration that a previously claimed encumbrance 
 Required actions:
 
 - declare discharge
+- accept discharge by the relevant counterparty where the stronger canonical profile requires bilateral acknowledgment
 - attest the declaration
+- attest the acceptance
 
-No counterparty acceptance is required in the canonical minimum model, although an application profile may impose additional recognition conditions or require linkage to the encumbrance being discharged.
+In the stronger canonical model, counterparty acceptance is part of the full action set for recognized discharge.
+
+A unilateral discharge declaration may still be published in an open system and may still be relevant as evidence that release or satisfaction was asserted.
+
+However, in most recognition settings, publication alone should not be enough to treat the discharge as recognized.
+
+Some simplified or policy-specific profiles may nonetheless recognize a unilateral discharge declaration, but that is a weaker recognition pattern than the bilateral canonical model.
 
 Discharge does not by itself change the current controller.
 
@@ -1035,7 +1051,23 @@ In this example, the event may support recognition of an encumbrance affecting t
 
 The legal validity, perfection, and priority of the claimed encumbrance remain recognition-layer questions.
 
-### 5. Bearer-Style Presentation Profile
+### 5. MLWR-Style Pledge Bond
+
+A warehouse operator issues a negotiable warehouse receipt covering stored goods.
+
+Under an MLWR-style dual receipt system, a related pledge bond is granted to a lender and gives that lender a security right in the goods covered by the warehouse receipt.
+
+In OpenETR terms, the warehouse receipt remains the Controlled Object, while the pledge-related claim may be expressed through an `ENCUMBER` action set associated with that receipt and identifying the secured party or pledge bond holder.
+
+If the stronger canonical model is used, the encumbrance is declared, accepted, and attested as the basis for recognized encumbrance effect.
+
+Later, once the secured obligation is satisfied or the pledge bond is otherwise released, a corresponding `DISCHARGE` action set may be recorded against the same Controlled Object.
+
+In this example, OpenETR does not itself create the pledge or determine its legal validity, perfection, priority, or enforceability.
+
+It provides the signed evidence structure through which an MLWR-style security right may be declared, recognized, and later discharged.
+
+### 6. Bearer-Style Presentation Profile
 
 A PDF is issued into OpenETR as a Controlled Object.
 
@@ -1045,7 +1077,7 @@ The redeemer later recognizes the first valid redemption presented for that obje
 
 In this example, OpenETR supplies the evidence structure for a bearer-like or presenter-entitled profile, but whether that profile has legal or operational effect remains a question for the relevant recognition framework.
 
-### 6. Warehouse Receipts for an Impending Export Shipment
+### 7. Warehouse Receipts for an Impending Export Shipment
 
 An exporter holds electronic warehouse receipts issued by multiple warehouse operators covering goods that must be assembled for an impending export shipment.
 
