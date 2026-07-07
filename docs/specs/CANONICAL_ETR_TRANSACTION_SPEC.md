@@ -875,6 +875,93 @@ This draft does not yet define:
 - substantive commercial law rules for title, negotiability, or legal effect
 - a universal recognition policy
 
+## Alignment with Existing Legal Frameworks
+
+This specification is intended to align with, and reinforce, existing and emerging legal frameworks for electronic records, control, and digital assets.
+
+It does not claim that OpenETR by itself satisfies every legal requirement of any given jurisdiction.
+
+Instead, the intended relationship is that OpenETR provides a structured evidence model that can support compliance, recognition, and analysis under the applicable framework.
+
+### UCC Article 12
+
+At a high level, this model is consistent with the UCC Article 12 emphasis on control-oriented treatment of electronic records and related digital rights.
+
+In particular, OpenETR reinforces the practical importance of:
+
+- identifying the relevant electronic record
+- identifying the person in control or the recognized claimant
+- preserving a coherent chain of signed actions
+- making transfer and related assertions inspectable and attributable
+
+This is intended as a high-level alignment statement, not a claim that every OpenETR event automatically constitutes a controllable electronic record or has Article 12 effect without the applicable legal conditions being met.
+
+### UNCITRAL MLETR
+
+The canonical OpenETR model closely tracks the MLETR focus on reliable methods, control, integrity, and identification of the person in control.
+
+OpenETR is designed to support those concerns by providing:
+
+- a durable object identifier
+- a signed event chain
+- explicit control-relevant actions
+- explicit identification of the acting participant
+- an evidence structure that can be evaluated for reliability
+
+In this sense, OpenETR is intended to reinforce the MLETR logic that legal recognition should depend on reliable identification, control, and integrity rather than on paper possession alone.
+
+### UNCITRAL-UNIDROIT MLWR
+
+The model also aligns naturally with the MLWR focus on issuance, transfer, and dealings in electronic and paper-based warehouse receipts.
+
+OpenETR does not replace the substantive warehouse-receipt rules of the MLWR.
+
+It can, however, reinforce them by providing:
+
+- a control history for the receipt
+- attributable transfer-related events
+- evidence relevant to warehouse-receipt transfer, protected-holder analysis, and related security-right questions
+
+This makes OpenETR a potentially useful evidentiary and operational layer for systems implementing electronic warehouse receipts under the MLWR approach.
+
+### UNIDROIT DAPL Principles
+
+The model is also broadly consistent with the DAPL Principles emphasis on control, transfer, custody, security rights, and the proprietary treatment of digital assets.
+
+OpenETR does not attempt to restate the DAPL Principles.
+
+However, it reinforces a number of the same structural ideas by:
+
+- treating the relevant record as an electronically identifiable object
+- emphasizing control and attributable action rather than platform assertion
+- supporting transfer, encumbrance, discharge, custody-style attestation, and related evidence chains
+
+This makes OpenETR a useful practical complement where digital-asset-style control and private-law analysis intersect with transferable records.
+
+### English Law Commission on Digital Assets
+
+The model is also broadly aligned with the English Law Commission's digital-assets work to the extent that it treats digitally native or digitally managed records through functional concepts such as control, attribution, transfer, and evidence rather than through older paper-bound categories alone.
+
+OpenETR reinforces that direction by providing a protocol-neutral control and evidence structure capable of supporting legal analysis without making legal effect depend on any single platform, registry, or database.
+
+### Overall Relationship
+
+Taken together, these frameworks point toward a common direction:
+
+- electronic records can be legally significant
+- control matters
+- integrity matters
+- attributable actions matter
+- legal effect depends on the applicable framework rather than on technical publication alone
+
+OpenETR is designed to reinforce that direction by supplying signed, portable, inspectable evidence of control-relevant events.
+
+Its role is therefore complementary:
+
+- not to replace the applicable law
+- not to override the governing legal framework
+- but to provide a stronger technical and evidentiary basis on which those frameworks may operate
+
 ## Summary
 
 The central move in this specification is simple:
@@ -955,3 +1042,25 @@ An attestation is associated with the object or a relevant event stating, under 
 The redeemer later recognizes the first valid redemption presented for that object id and records redemption or termination against the same object.
 
 In this example, OpenETR supplies the evidence structure for a bearer-like or presenter-entitled profile, but whether that profile has legal or operational effect remains a question for the relevant recognition framework.
+
+### 6. Warehouse Receipts for an Impending Export Shipment
+
+An exporter holds electronic warehouse receipts issued by multiple warehouse operators covering goods that must be assembled for an impending export shipment.
+
+Each receipt exists as a PDF or similar electronic record and has been issued into OpenETR as a Controlled Object with its own object id and control history.
+
+To prepare the shipment, the exporter sends the relevant receipt PDFs to the warehouse operators by email and requests redemption or release of the goods for export.
+
+Each warehouse operator has only basic internet access and does not need to run a specialized private platform.
+
+Instead, the warehouse operator may use a public verification tool, such as a web-based application like `OpenETR.org`, to:
+
+- compute or confirm the object digest from the received PDF
+- retrieve the corresponding OpenETR event history
+- verify the issuance and transfer chain
+- inspect any attestation, endorsement-like instruction, encumbrance, discharge, redeem, or terminate events relevant to the receipt
+- determine whether the presenter has shown a recognized basis for release
+
+Once satisfied, the warehouse operator may release the covered goods or recognize redemption for that receipt and then record the corresponding redeem or terminate event against the same object id.
+
+In this example, OpenETR allows multiple warehouse receipts from different issuers to be verified through the same open evidence model, while still leaving the final decision to release goods to the warehouse operator's governing policy, contract, and applicable law.
