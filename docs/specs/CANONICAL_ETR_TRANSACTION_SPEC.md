@@ -96,7 +96,32 @@ In this matrix:
 
 - `declare` means to publish the substantive control action or assertion being made
 - `accept` means to publish the counterparty's acceptance where the lifecycle requires it
-- `attest` means for an identifiable attestor to publish accountable recognition, witness, validation, or policy-backed support for the relevant declared or accepted action
+
+## Attestation
+
+In this specification, `attest` means for an identifiable attestor to publish accountable recognition, witness, validation, or policy-backed support for the relevant declared or accepted action.
+
+Attestation is an authenticated assertion relating to the object or to a control-relevant event in its lifecycle.
+
+Examples may include:
+
+- custody
+- inspection
+- quality
+- quantity
+- certification
+- endorsement-like or indorsement-like instruction
+
+Required actions:
+
+- declare attestation
+- attest the declaration
+
+No counterparty acceptance is required in the canonical model, although an application profile may add additional conditions for recognition.
+
+Attestation does not by itself change the current controller.
+
+In this specification, attestation is discussed separately from lifecycle actions because it operates as an associated evidence, witness, and recognition layer that may attach to relevant events rather than as a lifecycle transition in its own right.
 
 ## Foundational Rule
 
@@ -113,8 +138,6 @@ Therefore:
 - Terminate requires `Declare + Attest`
 
 Recognition is external to raw event publication. An event may exist on relays and still lack effect if the required action set has not been completed or if the attestors are not recognized under policy.
-
-Attestation is discussed separately below because it is not itself presented here as a lifecycle transition. Instead, it operates as an associated evidence, witness, and recognition layer that may attach to relevant lifecycle events.
 
 ## Terms
 
@@ -425,30 +448,6 @@ Required actions:
 - attest the declaration
 
 No counterparty acceptance is required in the canonical model, although an application profile may impose one.
-
-## Attestation as a Separate Associated Layer
-
-Attestation is an authenticated assertion relating to the object or to a control-relevant event in its lifecycle.
-
-Examples may include:
-
-- custody
-- inspection
-- quality
-- quantity
-- certification
-- endorsement-like or indorsement-like instruction
-
-Required actions:
-
-- declare attestation
-- attest the declaration
-
-No counterparty acceptance is required in the canonical model, although an application profile may add additional conditions for recognition.
-
-Attestation does not by itself change the current controller.
-
-In this specification, attestation is discussed separately from lifecycle actions because it operates as an associated evidence, witness, and recognition layer that may attach to relevant events rather than as a lifecycle transition in its own right.
 
 ## Working Event Kind Allocation
 
