@@ -39,6 +39,7 @@ from openetr.config import (
     load_raw_user_config,
     load_user_config,
     remove_local_profile_secret,
+    resolve_home_relays,
     resolve_root_nsec,
     render_user_config_template,
     runtime_bootstrap_enabled,
@@ -1128,6 +1129,48 @@ def whoami(show_nsec: bool) -> None:
             click.echo(entry)
     else:
         click.echo("  none")
+
+
+@click.command("root")
+@click.option("--nsec", "show_nsec", is_flag=True, help="Display the resolved root nsec and profile signer nsecs.")
+def root_identity(show_nsec: bool) -> None:
+    """Show the root admin identity and the profiles it controls."""
+    config = hydrate_local_profiles_from_index(load_user_config())
+    root_nsec = resolve_root_nsec(config)
+    if not root_nsec:
+        raise click.ClickException("no root nsec is configured; initialize or bootstrap OpenETR first")
+
+    root_keys = resolve_keys(root_nsec)
+    active_profile = get_active_profile_name(config)
+
+    click.echo("Root admin identity")
+    click.echo(f"  root_npub: {root_keys.public_key_bech32()}")
+    if show_nsec:
+        click.echo(f"  root_nsec: {root_nsec}")
+    click.echo(f"  home_relays: {','.join(resolve_home_relays(config))}")
+
+    click.echo("")
+    click.echo("Profiles controlled by this root:")
+    profiles = list_profiles(config)
+    entries = _profile_list_entries(config)
+    if not entries:
+        click.echo("  none")
+        return
+
+    for entry in entries:
+        click.echo(entry)
+    if show_nsec:
+        click.echo("")
+        click.echo("Profile signer secrets:")
+    for profile_name in profiles:
+        if not show_nsec:
+            continue
+        signer_nsec = get_profile_signer_nsec(profile_name, config)
+        if signer_nsec:
+            click.echo(f"  {profile_name}: {signer_nsec}")
+
+    click.echo("")
+    click.echo(f"Active acting profile: {active_profile}")
 
 
 @profile_group.command("show")

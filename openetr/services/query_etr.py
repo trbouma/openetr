@@ -8,9 +8,23 @@ from monstr.client.client import ClientPool
 from monstr.event.event import Event
 
 from openetr.config import DEFAULT_KIND, DEFAULT_LIMIT, DEFAULT_QUERY_TIMEOUT
+from openetr.control import (
+    ACTION_ACCEPT,
+    ACTION_ATTEST,
+    ACTION_INITIATE,
+    ACTION_REDEEM,
+    ACTION_TERMINATE,
+    CONTROL_EVENT_KIND,
+    action_spec,
+    control_action,
+    first_p_tag_pubkey,
+    first_tag_value,
+    is_controller_state_action,
+    is_lifecycle_state_action,
+)
 from openetr.helpers import format_event_reference, format_object_identifier, format_pubkey
 
-CONTROL_TRANSFER_KIND = 31416
+CONTROL_TRANSFER_KIND = CONTROL_EVENT_KIND
 PROFILE_FIELDS = [
     "name",
     "display_name",
@@ -69,20 +83,8 @@ def compact_profile(profile: dict | None) -> list[tuple[str, Any]]:
     return [(field, profile.get(field)) for field in PROFILE_FIELDS if profile.get(field)]
 
 
-def first_tag_value(event: Event, tag_name: str) -> str | None:
-    values = event.get_tags_value(tag_name)
-    return values[0] if values else None
-
-
 def transfer_party_from_p_tag(event: Event) -> str | None:
-    candidate = first_tag_value(event, "p")
-    if candidate is None or len(candidate) != 64:
-        return None
-    try:
-        int(candidate, 16)
-    except ValueError:
-        return None
-    return candidate.lower()
+    return first_p_tag_pubkey(event)
 
 
 def group_transfer_events(transfer_events: list[Event]) -> tuple[list[Event], dict[str, list[Event]]]:
@@ -155,44 +157,43 @@ def format_elapsed_compact(previous_value, current_value) -> str:
 
 
 def summary_token_for_control_event(action: str | None, elapsed: str, label: str) -> str:
-    if action == "accept":
-        return f"transfer accept/{elapsed}:{label}"
-    if action == "attest":
-        return f"attest/{elapsed}:{label}"
-    if action == "terminate":
-        return f"terminate/{elapsed}:{label}"
-    return f"transfer initiate/{elapsed}:{label}"
+    return f"{action_spec(action).label}/{elapsed}:{label}"
 
 
 def summary_subject_pubkey_hex(evt: Event) -> str:
-    action = first_tag_value(evt, "action")
-    if action == "initiate":
+    action = control_action(evt)
+    if action == ACTION_INITIATE:
         return transfer_party_from_p_tag(evt) or evt.pub_key
-    if action == "accept":
+    if action == ACTION_ACCEPT:
         return evt.pub_key
-    if action == "attest":
+    if action in {ACTION_ATTEST, ACTION_REDEEM}:
         return transfer_party_from_p_tag(evt) or evt.pub_key
-    if action == "terminate":
+    if action == ACTION_TERMINATE:
         return evt.pub_key
     return transfer_party_from_p_tag(evt) or evt.pub_key
 
 
 def current_controller_after_event(previous_controller_pubkey_hex: str | None, evt: Event) -> str | None:
-    action = first_tag_value(evt, "action")
-    if action == "initiate":
+    action = control_action(evt)
+    if action == ACTION_INITIATE:
         return transfer_party_from_p_tag(evt) or previous_controller_pubkey_hex
-    if action == "terminate":
+    if action == ACTION_TERMINATE:
         return None
     return previous_controller_pubkey_hex
 
 
 def is_controller_state_event(evt: Event) -> bool:
-    action = first_tag_value(evt, "action")
-    return action in {"initiate", "terminate"}
+    return is_controller_state_action(control_action(evt))
+
+
+def is_lifecycle_state_event(evt: Event) -> bool:
+    return is_lifecycle_state_action(control_action(evt))
 
 
 def event_to_view(evt: Event) -> dict[str, Any]:
     subject_hex = transfer_party_from_p_tag(evt)
+    action = control_action(evt)
+    spec = action_spec(action)
     return {
         "raw_event": evt,
         "id": evt.id,
@@ -204,8 +205,14 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "d_values": evt.get_tags_value("d"),
         "o_values": evt.get_tags_value("o"),
         "content": evt.content,
-        "action": first_tag_value(evt, "action"),
+        "action": action,
+        "action_label": spec.label,
+        "action_marker": spec.marker,
+        "participant_label": spec.participant_label,
         "prior_event_id": first_tag_value(evt, "e"),
+        "encumbrance_event_id": first_tag_value(evt, "enc"),
+        "external_ref": first_tag_value(evt, "ref"),
+        "type": first_tag_value(evt, "type"),
         "subject_hex": subject_hex,
         "subject_npub": format_pubkey(subject_hex) if subject_hex else None,
     }
@@ -277,6 +284,8 @@ async def build_query_etr_result(
         "transfer_groups": [],
         "summary_control_chains": [],
         "current_controller": None,
+        "lifecycle_state": "unknown",
+        "lifecycle_basis": None,
     }
     if not events:
         return result
@@ -317,6 +326,8 @@ async def build_query_etr_result(
             "basis": "origin issuer",
             "profile": compact_profile(initial_profile),
         }
+        result["lifecycle_state"] = "active"
+        result["lifecycle_basis"] = "origin event"
         return result
 
     roots, children = group_transfer_events(transfer_events)
@@ -366,7 +377,7 @@ async def build_query_etr_result(
             previous_event = initial_event
             previous_controller_pubkey_hex = initial_event.pub_key
             for evt in event_path:
-                action = first_tag_value(evt, "action")
+                action = control_action(evt)
                 subject_pubkey_hex = summary_subject_pubkey_hex(evt)
                 label = profile_chain_label(
                     subject_pubkey_hex,
@@ -374,11 +385,7 @@ async def build_query_etr_result(
                 )
                 elapsed = format_elapsed_compact(previous_event.created_at, evt.created_at)
                 token = summary_token_for_control_event(action, elapsed, label)
-                marker = "->"
-                if token.startswith("terminate/"):
-                    marker = "--"
-                elif token.startswith("attest/"):
-                    marker = "=>"
+                marker = action_spec(action).marker
                 steps.append({"marker": marker, "label": token})
                 previous_event = evt
                 previous_controller_pubkey_hex = current_controller_after_event(previous_controller_pubkey_hex, evt)
@@ -395,14 +402,16 @@ async def build_query_etr_result(
             "basis": "origin issuer",
             "profile": compact_profile(initial_profile),
         }
+        result["lifecycle_state"] = "active"
+        result["lifecycle_basis"] = "no lifecycle-changing control events"
         return result
 
     latest_transfer_event = max(
         state_events,
         key=lambda evt: ((evt.created_at or 0), evt.id),
     )
-    latest_action = first_tag_value(latest_transfer_event, "action")
-    if latest_action == "terminate":
+    latest_action = control_action(latest_transfer_event)
+    if latest_action == ACTION_TERMINATE:
         current_controller_pubkey_hex = None
         current_controller_basis = "latest control event is a termination"
         current_controller_profile = None
@@ -419,4 +428,23 @@ async def build_query_etr_result(
         "basis": current_controller_basis,
         "profile": compact_profile(current_controller_profile),
     }
+
+    lifecycle_events = [evt for evt in transfer_events if is_lifecycle_state_event(evt)]
+    latest_lifecycle_event = max(
+        lifecycle_events,
+        key=lambda evt: ((evt.created_at or 0), evt.id),
+    ) if lifecycle_events else None
+    latest_lifecycle_action = control_action(latest_lifecycle_event) if latest_lifecycle_event else None
+    if latest_lifecycle_action == ACTION_TERMINATE:
+        result["lifecycle_state"] = "terminated"
+        result["lifecycle_basis"] = "latest lifecycle event is terminate"
+    elif latest_lifecycle_action == ACTION_REDEEM:
+        result["lifecycle_state"] = "redemption_pending"
+        result["lifecycle_basis"] = "latest lifecycle event is redeem"
+    elif latest_lifecycle_action == ACTION_INITIATE:
+        result["lifecycle_state"] = "active"
+        result["lifecycle_basis"] = "latest lifecycle event is transfer initiate"
+    else:
+        result["lifecycle_state"] = "active"
+        result["lifecycle_basis"] = "origin event"
     return result
