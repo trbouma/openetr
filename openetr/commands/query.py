@@ -320,6 +320,10 @@ async def _run_query_etr(
 
     if origin_only:
         click.echo()
+        click.echo("lifecycle state:")
+        click.echo(f"  state: {result['lifecycle_state']}")
+        click.echo(f"  basis: {result['lifecycle_basis']}")
+        click.echo()
         click.echo("current controller:")
         click.echo(f"  npub: {result['current_controller']['npub']}")
         click.echo(f"  basis: {result['current_controller']['basis']}")
@@ -333,6 +337,10 @@ async def _run_query_etr(
     click.echo("matching control events (kind 31416):")
     if not result["transfer_groups"]:
         click.echo("No control transfer events were found for this object.")
+        click.echo()
+        click.echo("lifecycle state:")
+        click.echo(f"  state: {result['lifecycle_state']}")
+        click.echo(f"  basis: {result['lifecycle_basis']}")
         click.echo()
         click.echo("current controller:")
         click.echo(f"  npub: {result['current_controller']['npub']}")
@@ -356,8 +364,15 @@ async def _run_query_etr(
         click.echo(f"{indent}  object id: {format_object_identifier(digest)}")
         if evt["action"]:
             click.echo(f"{indent}  action: {evt['action']}")
+            click.echo(f"{indent}  action label: {evt['action_label']}")
         if evt["prior_event_id"]:
             click.echo(f"{indent}  prior event id: {format_event_reference(evt['prior_event_id'])}")
+        if evt["encumbrance_event_id"]:
+            click.echo(f"{indent}  encumbrance event id: {format_event_reference(evt['encumbrance_event_id'])}")
+        if evt["type"]:
+            click.echo(f"{indent}  type: {evt['type']}")
+        if evt["external_ref"]:
+            click.echo(f"{indent}  ref: {evt['external_ref']}")
         if node["signer_profile"]:
             click.echo(f"{indent}  control event signer social profile:")
             for field, value in node["signer_profile"]:
@@ -365,9 +380,7 @@ async def _run_query_etr(
         else:
             click.secho(f"{indent}  WARNING: no control event signer social profile found for this author.", fg="yellow", bold=True)
         if evt["subject_npub"] is not None:
-            subject_label = "transferee"
-            if evt["action"] == "attest":
-                subject_label = "subject"
+            subject_label = evt["participant_label"] or "participant"
             click.echo(f"{indent}  {subject_label}: {evt['subject_npub']}")
             if node["transferee_profile"]:
                 click.echo(f"{indent}  {subject_label} social profile:")
@@ -391,18 +404,45 @@ async def _run_query_etr(
         click.echo("  control chain:")
         _print_transfer_node(group["root"], 0)
 
+    encumbrance_summary = result["encumbrance_summary"]
+    click.echo()
+    click.echo("encumbrance summary:")
+    click.echo(f"  total: {encumbrance_summary['total']}")
+    click.echo(f"  outstanding: {encumbrance_summary['outstanding']}")
+    click.echo(f"  discharged: {encumbrance_summary['discharged']}")
+    if result["outstanding_encumbrances"]:
+        click.echo("  outstanding encumbrances:")
+        for item in result["outstanding_encumbrances"]:
+            evt = item["event"]
+            click.echo(f"    - event id: {evt['event_ref']}")
+            click.echo(f"      author: {evt['author_npub']}")
+            if evt["subject_npub"]:
+                click.echo(f"      beneficiary: {evt['subject_npub']}")
+            if evt["type"]:
+                click.echo(f"      type: {evt['type']}")
+            if evt["external_ref"]:
+                click.echo(f"      ref: {evt['external_ref']}")
+            if item["beneficiary_profile"]:
+                click.echo("      beneficiary social profile:")
+                for field, value in item["beneficiary_profile"]:
+                    click.echo(f"        {field}: {value}")
+
     click.echo()
     if digest_file is not None:
         click.echo(f"summary control chain for {digest_file}:")
     else:
         click.echo("summary control chain:")
-    click.echo("  legend: ++ origin, -> transfer initiate/accept, -- terminate, => attest")
+    click.echo("  legend: ++ origin, -> transfer, -- terminate, => attest, +$ encumber, -$ discharge, ** redeem")
     for chain in result["summary_control_chains"]:
         click.echo(f"  {chain['label']}:")
         for step in chain["steps"]:
             click.echo(f"    {step['marker']} {step['label']}")
 
     current_controller = result["current_controller"]
+    click.echo()
+    click.echo("lifecycle state:")
+    click.echo(f"  state: {result['lifecycle_state']}")
+    click.echo(f"  basis: {result['lifecycle_basis']}")
     click.echo()
     click.echo("current controller:")
     if current_controller["npub"] is None:

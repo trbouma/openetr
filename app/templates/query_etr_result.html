@@ -167,6 +167,8 @@
           <div class="muted">Relay Filter</div><div class="mono">{{ query.relay_filter }}</div>
           <div class="muted">Transfer Filter</div><div class="mono">{{ query.transfer_filter }}</div>
           <div class="muted">Returned</div><div>{{ query.count }} event(s)</div>
+          <div class="muted">Lifecycle State</div><div>{{ query.lifecycle_state }}</div>
+          <div class="muted">Lifecycle Basis</div><div>{{ query.lifecycle_basis }}</div>
         </div>
       </section>
 
@@ -280,15 +282,18 @@
               {% if node.is_current_profile_author %}<div class="muted">Current Session Signer</div><div>Yes</div>{% endif %}
               <div class="muted">Created At</div><div>{{ node.event.created_at }}</div>
               <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
-              {% if node.event.action %}<div class="muted">Action</div><div>{{ node.event.action }}</div>{% endif %}
+              {% if node.event.action %}<div class="muted">Action</div><div>{{ node.event.action_label }} (<span class="mono">{{ node.event.action }}</span>)</div>{% endif %}
               {% if node.event.prior_event_id %}<div class="muted">Prior Event ID</div><div class="mono">{{ node.event.prior_event_id }}</div>{% endif %}
-              {% if node.event.transferee_npub %}<div class="muted">Transferee</div><div class="mono">{{ node.event.transferee_npub }}</div>{% endif %}
+              {% if node.event.encumbrance_event_id %}<div class="muted">Encumbrance Event</div><div class="mono">{{ node.event.encumbrance_event_id }}</div>{% endif %}
+              {% if node.event.type %}<div class="muted">Type</div><div>{{ node.event.type }}</div>{% endif %}
+              {% if node.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ node.event.external_ref }}</div>{% endif %}
+              {% if node.event.subject_npub %}<div class="muted">{{ node.event.participant_label or "Participant" }}</div><div class="mono">{{ node.event.subject_npub }}</div>{% endif %}
               <div class="muted">d value</div><div class="mono">{{ node.event.d_values }}</div>
               <div class="muted">o value</div><div class="mono">{{ node.event.o_values }}</div>
               <div class="muted">Content</div><div class="mono">{{ node.event.content }}</div>
             </div>
             {% if node.signer_profile %}
-            <h3>Transfer Event Signer Social Profile</h3>
+            <h3>Control Event Signer Social Profile</h3>
             <ul>
               {% for field, value in node.signer_profile %}
               <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -296,7 +301,7 @@
             </ul>
             {% endif %}
             {% if node.transferee_profile %}
-            <h3>Transferee Social Profile</h3>
+            <h3>{{ node.event.participant_label or "Participant" }} Social Profile</h3>
             <ul>
               {% for field, value in node.transferee_profile %}
               <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -327,6 +332,7 @@
 
       <section class="panel">
         <h2>Summary Control Chain</h2>
+        <p class="muted">Legend: ++ origin, -> transfer, -- terminate, => attest, +$ encumber, -$ discharge, ** redeem</p>
         {% for chain in query.summary_control_chains %}
         <div class="event">
           <h3>{{ chain.label }}</h3>
@@ -335,6 +341,48 @@
           {% endfor %}
         </div>
         {% endfor %}
+      </section>
+
+      <section class="panel">
+        <h2>Encumbrance Summary</h2>
+        <div class="kv">
+          <div class="muted">Total</div><div>{{ query.encumbrance_summary.total }}</div>
+          <div class="muted">Outstanding</div><div>{{ query.encumbrance_summary.outstanding }}</div>
+          <div class="muted">Discharged</div><div>{{ query.encumbrance_summary.discharged }}</div>
+        </div>
+        {% if query.outstanding_encumbrances %}
+        <h3>Outstanding Encumbrances</h3>
+        {% for item in query.outstanding_encumbrances %}
+        <div class="event">
+          <div class="kv">
+            <div class="muted">Event ID</div><div class="mono">{{ item.event.event_ref }}</div>
+            <div class="muted">Author</div><div class="mono" title="{{ item.event.author_npub }}">{{ item.event.author_npub | short_id }}</div>
+            {% if item.event.subject_npub %}<div class="muted">Beneficiary</div><div class="mono">{{ item.event.subject_npub }}</div>{% endif %}
+            {% if item.event.type %}<div class="muted">Type</div><div>{{ item.event.type }}</div>{% endif %}
+            {% if item.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ item.event.external_ref }}</div>{% endif %}
+            <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
+          </div>
+          {% if item.beneficiary_profile %}
+          <h3>Beneficiary Social Profile</h3>
+          <ul>
+            {% for field, value in item.beneficiary_profile %}
+            <li><strong>{{ field }}</strong>: {{ value }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="muted">No outstanding encumbrances were found for this object.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Lifecycle State</h2>
+        <div class="kv">
+          <div class="muted">State</div><div>{{ query.lifecycle_state }}</div>
+          <div class="muted">Basis</div><div>{{ query.lifecycle_basis }}</div>
+        </div>
       </section>
 
       <section class="panel">

@@ -22,6 +22,15 @@ from openetr.config import (
     remove_local_profile_secret,
     store_profile_secret,
 )
+from openetr.control import (
+    ACTION_DISCHARGE,
+    ACTION_ENCUMBER,
+    ACTION_INITIATE,
+    ACTION_REDEEM,
+    ACTION_TERMINATE,
+    CONTROL_EVENT_KIND,
+    action_d_value,
+)
 from openetr.helpers import (
     GENERATE_LEI_SENTINEL,
     assert_hex_event_id,
@@ -39,15 +48,15 @@ from openetr.helpers import (
 )
 from openetr.guards import evaluate_issue_etr_guard, find_existing_origin_records_for_object
 
-CONTROL_TRANSFER_KIND = 31416
+CONTROL_TRANSFER_KIND = CONTROL_EVENT_KIND
 
 
 def _control_action_changes_controller(action: str | None) -> bool:
-    return action == "initiate"
+    return action == ACTION_INITIATE
 
 
 def _control_action_terminates(action: str | None) -> bool:
-    return action == "terminate"
+    return action == ACTION_TERMINATE
 
 
 def _split_relays(relays: str) -> list[str]:
@@ -1683,6 +1692,368 @@ def attest(
         )
 
     asyncio.run(_publish())
+
+
+async def _publish_auxiliary_control_event(
+    relays: str,
+    object_digest: str | None,
+    prior_event_id: str | None,
+    keys: Keys,
+    action: str,
+    comment: str | None,
+    publish_wait: float,
+    query_timeout: int,
+    limit: int,
+    verify: str,
+    participant_pubkey_hex: str | None = None,
+    control_type: str | None = None,
+    external_ref: str | None = None,
+    encumbrance_event_id: str | None = None,
+) -> None:
+    author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
+    if prior_event_id is not None:
+        resolved_origin, referenced_event = await _resolve_origin_from_prior_event(
+            relays=relays,
+            prior_event_id_hex=prior_event_id,
+            query_timeout=query_timeout,
+        )
+        object_digest_for_event = _derive_origin_object_digest(resolved_origin)
+    else:
+        resolved_origin, referenced_event = await _resolve_single_active_chain_for_object(
+            relays=relays,
+            object_digest=object_digest,
+            query_timeout=query_timeout,
+            limit=limit,
+        )
+        object_digest_for_event = object_digest
+
+    if encumbrance_event_id is not None:
+        encumbrance_event = await _fetch_event_by_id(
+            relays=relays,
+            event_id_hex=encumbrance_event_id,
+            query_timeout=query_timeout,
+        )
+        if encumbrance_event is None:
+            raise click.ClickException("encumbrance event could not be found on the configured relays")
+        if (
+            encumbrance_event.kind != CONTROL_TRANSFER_KIND
+            or _event_tag_value(encumbrance_event, "action") != ACTION_ENCUMBER
+        ):
+            raise click.ClickException("encumbrance event must be a kind 31416 action=encumber event")
+
+    d_value = action_d_value(object_digest_for_event, action)
+    resolved_comment = comment or (
+        f"{action}; "
+        f"object={format_object_identifier(object_digest_for_event)}; "
+        f"prior_event={referenced_event.id}; "
+        f"origin_event={resolved_origin.id}; "
+        f"signer={format_pubkey(author_pubkey_hex)}"
+    )
+    existing_events = await _find_existing_transfer_records(
+        relays=relays,
+        d_value=d_value,
+        pubkey_hex=author_pubkey_hex,
+        query_timeout=query_timeout,
+        limit=limit,
+    )
+    if existing_events:
+        latest = existing_events[0]
+        click.secho(
+            f"WARNING: an {action} event already exists for this author and object; "
+            f"you may be overwriting an existing replaceable {action} record.",
+            fg="yellow",
+            bold=True,
+        )
+        click.echo(f"Existing event: {latest.id}")
+        click.echo(f"Object:         {format_object_identifier(object_digest_for_event)}")
+        click.confirm(
+            click.style(f"Continue publishing this {action} event?", fg="yellow", bold=True),
+            default=False,
+            abort=True,
+        )
+
+    tags = [
+        ["d", d_value],
+        ["o", object_digest_for_event],
+        ["e", referenced_event.id],
+        ["origin", resolved_origin.id],
+        ["action", action],
+    ]
+    if participant_pubkey_hex is not None:
+        tags.append(["p", participant_pubkey_hex])
+    if encumbrance_event_id is not None:
+        tags.append(["enc", encumbrance_event_id])
+    if control_type:
+        tags.append(["type", control_type])
+    if external_ref:
+        tags.append(["ref", external_ref])
+
+    event = Event(
+        kind=CONTROL_TRANSFER_KIND,
+        content=resolved_comment,
+        pub_key=author_pubkey_hex,
+        tags=tags,
+    )
+    event.sign(keys.private_key_hex())
+    await _run_publish_transfer_event(
+        relays=relays,
+        event=event,
+        publish_wait=publish_wait,
+        query_timeout=query_timeout,
+        verify=verify,
+    )
+
+
+def _resolve_control_publish_context(
+    profile: str | None,
+    relays: str | None,
+    as_user: str | None,
+    force: bool,
+    publish_wait: float | None,
+    query_timeout: int | None,
+    limit: int | None,
+) -> tuple[str, float, int, int, Keys]:
+    profile_name = profile or get_active_profile_name()
+    profile_config = get_profile_config(profile_name)
+    resolved_relays = relays or profile_config.get("relays", DEFAULT_RELAYS)
+    resolved_publish_wait = (
+        publish_wait if publish_wait is not None else profile_config.get("publish_wait", DEFAULT_PUBLISH_WAIT)
+    )
+    resolved_query_timeout = (
+        query_timeout if query_timeout is not None else profile_config.get("query_timeout", DEFAULT_QUERY_TIMEOUT)
+    )
+    resolved_limit = limit if limit is not None else profile_config.get("limit", DEFAULT_LIMIT)
+    keys = _resolve_publish_key(profile_name, as_user, force)
+    return resolved_relays, resolved_publish_wait, resolved_query_timeout, resolved_limit, keys
+
+
+def _resolve_control_object_args(
+    prior_event: str | None,
+    digest: str | None,
+    digest_file: Path | None,
+) -> tuple[str | None, str | None]:
+    if prior_event is not None and (digest is not None or digest_file is not None):
+        raise click.ClickException("supply either --prior-event or one of --digest/DIGEST_FILE, not both")
+    if prior_event is None and (digest is None) == (digest_file is None):
+        raise click.ClickException("supply either --prior-event or exactly one of --digest or DIGEST_FILE")
+    prior_event_id = normalize_event_reference(prior_event) if prior_event is not None else None
+    object_digest = None
+    if prior_event is None:
+        object_digest, _ = resolve_query_digest(digest, digest_file)
+    return prior_event_id, object_digest
+
+
+@click.command("encumber")
+@click.argument("digest_file", required=False, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to use.")
+@click.option("--prior-event", default=None, help="Prior event id in hex or simple nevent form.")
+@click.option("--digest", default=None, help="nobj or 32-byte hex digest for the ETR object to encumber.")
+@click.option("--beneficiary", required=True, help="Beneficiary or secured-party npub for the p tag.")
+@click.option(
+    "--as-user",
+    default=None,
+    help="nsec private key to publish with; loaded from config or generated if omitted.",
+)
+@click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
+@click.option("--type", "control_type", default=None, help="Optional encumbrance type tag.")
+@click.option("--ref", "external_ref", default=None, help="Optional external reference tag value.")
+@click.option("--comment", default=None, help="Optional event content.")
+@click.option("--publish-wait", type=float, default=None, help="Seconds to wait after publish before querying.")
+@click.option("--query-timeout", type=int, default=None, help="Seconds to wait for the query to complete.")
+@click.option("--limit", type=int, default=None, help="Query result limit.")
+@click.option(
+    "--verify",
+    default="any",
+    help="Verification mode after publish: any, majority, all, or a specific relay URL.",
+)
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def encumber(
+    digest_file: Path | None,
+    profile: str | None,
+    relays: str | None,
+    prior_event: str | None,
+    digest: str | None,
+    beneficiary: str,
+    as_user: str | None,
+    force: bool,
+    control_type: str | None,
+    external_ref: str | None,
+    comment: str | None,
+    publish_wait: float | None,
+    query_timeout: int | None,
+    limit: int | None,
+    verify: str,
+    debug: bool,
+) -> None:
+    """Publish an encumbrance event for an ETR object."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+    resolved_relays, resolved_publish_wait, resolved_query_timeout, resolved_limit, keys = (
+        _resolve_control_publish_context(profile, relays, as_user, force, publish_wait, query_timeout, limit)
+    )
+    prior_event_id, object_digest = _resolve_control_object_args(prior_event, digest, digest_file)
+    parsed_beneficiary = parse_authors(beneficiary)
+    if not parsed_beneficiary:
+        raise click.ClickException("beneficiary must resolve to a valid npub")
+    asyncio.run(
+        _publish_auxiliary_control_event(
+            relays=resolved_relays,
+            object_digest=object_digest,
+            prior_event_id=prior_event_id,
+            keys=keys,
+            action=ACTION_ENCUMBER,
+            comment=comment,
+            publish_wait=resolved_publish_wait,
+            query_timeout=resolved_query_timeout,
+            limit=resolved_limit,
+            verify=verify,
+            participant_pubkey_hex=parsed_beneficiary[0],
+            control_type=control_type,
+            external_ref=external_ref,
+        )
+    )
+
+
+@click.command("discharge")
+@click.argument("digest_file", required=False, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to use.")
+@click.option("--prior-event", default=None, help="Prior event id in hex or simple nevent form.")
+@click.option("--digest", default=None, help="nobj or 32-byte hex digest for the ETR object to discharge.")
+@click.option("--encumbrance-event", required=True, help="Encumbrance event id in hex or simple nevent form.")
+@click.option("--releasing-party", default=None, help="Optional beneficiary or releasing-party npub for the p tag.")
+@click.option(
+    "--as-user",
+    default=None,
+    help="nsec private key to publish with; loaded from config or generated if omitted.",
+)
+@click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
+@click.option("--ref", "external_ref", default=None, help="Optional external reference tag value.")
+@click.option("--comment", default=None, help="Optional event content.")
+@click.option("--publish-wait", type=float, default=None, help="Seconds to wait after publish before querying.")
+@click.option("--query-timeout", type=int, default=None, help="Seconds to wait for the query to complete.")
+@click.option("--limit", type=int, default=None, help="Query result limit.")
+@click.option(
+    "--verify",
+    default="any",
+    help="Verification mode after publish: any, majority, all, or a specific relay URL.",
+)
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def discharge(
+    digest_file: Path | None,
+    profile: str | None,
+    relays: str | None,
+    prior_event: str | None,
+    digest: str | None,
+    encumbrance_event: str,
+    releasing_party: str | None,
+    as_user: str | None,
+    force: bool,
+    external_ref: str | None,
+    comment: str | None,
+    publish_wait: float | None,
+    query_timeout: int | None,
+    limit: int | None,
+    verify: str,
+    debug: bool,
+) -> None:
+    """Publish a discharge event for a prior encumbrance."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+    resolved_relays, resolved_publish_wait, resolved_query_timeout, resolved_limit, keys = (
+        _resolve_control_publish_context(profile, relays, as_user, force, publish_wait, query_timeout, limit)
+    )
+    prior_event_id, object_digest = _resolve_control_object_args(prior_event, digest, digest_file)
+    participant_pubkey_hex = None
+    if releasing_party:
+        parsed_releasing_party = parse_authors(releasing_party)
+        if not parsed_releasing_party:
+            raise click.ClickException("releasing-party must resolve to a valid npub")
+        participant_pubkey_hex = parsed_releasing_party[0]
+    asyncio.run(
+        _publish_auxiliary_control_event(
+            relays=resolved_relays,
+            object_digest=object_digest,
+            prior_event_id=prior_event_id,
+            keys=keys,
+            action=ACTION_DISCHARGE,
+            comment=comment,
+            publish_wait=resolved_publish_wait,
+            query_timeout=resolved_query_timeout,
+            limit=resolved_limit,
+            verify=verify,
+            participant_pubkey_hex=participant_pubkey_hex,
+            external_ref=external_ref,
+            encumbrance_event_id=normalize_event_reference(encumbrance_event),
+        )
+    )
+
+
+@click.command("redeem")
+@click.argument("digest_file", required=False, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--profile", default=None, help="Profile to use; defaults to the active profile.")
+@click.option("--relays", default=None, help="Comma separated relay URLs to use.")
+@click.option("--prior-event", default=None, help="Prior event id in hex or simple nevent form.")
+@click.option("--digest", default=None, help="nobj or 32-byte hex digest for the ETR object to redeem.")
+@click.option("--obligor", required=True, help="Obligor npub for the p tag.")
+@click.option(
+    "--as-user",
+    default=None,
+    help="nsec private key to publish with; loaded from config or generated if omitted.",
+)
+@click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
+@click.option("--ref", "external_ref", default=None, help="Optional presentation or claim reference tag value.")
+@click.option("--comment", default=None, help="Optional event content.")
+@click.option("--publish-wait", type=float, default=None, help="Seconds to wait after publish before querying.")
+@click.option("--query-timeout", type=int, default=None, help="Seconds to wait for the query to complete.")
+@click.option("--limit", type=int, default=None, help="Query result limit.")
+@click.option(
+    "--verify",
+    default="any",
+    help="Verification mode after publish: any, majority, all, or a specific relay URL.",
+)
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def redeem(
+    digest_file: Path | None,
+    profile: str | None,
+    relays: str | None,
+    prior_event: str | None,
+    digest: str | None,
+    obligor: str,
+    as_user: str | None,
+    force: bool,
+    external_ref: str | None,
+    comment: str | None,
+    publish_wait: float | None,
+    query_timeout: int | None,
+    limit: int | None,
+    verify: str,
+    debug: bool,
+) -> None:
+    """Publish a redemption-presentation event for an ETR object."""
+    logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+    resolved_relays, resolved_publish_wait, resolved_query_timeout, resolved_limit, keys = (
+        _resolve_control_publish_context(profile, relays, as_user, force, publish_wait, query_timeout, limit)
+    )
+    prior_event_id, object_digest = _resolve_control_object_args(prior_event, digest, digest_file)
+    parsed_obligor = parse_authors(obligor)
+    if not parsed_obligor:
+        raise click.ClickException("obligor must resolve to a valid npub")
+    asyncio.run(
+        _publish_auxiliary_control_event(
+            relays=resolved_relays,
+            object_digest=object_digest,
+            prior_event_id=prior_event_id,
+            keys=keys,
+            action=ACTION_REDEEM,
+            comment=comment,
+            publish_wait=resolved_publish_wait,
+            query_timeout=resolved_query_timeout,
+            limit=resolved_limit,
+            verify=verify,
+            participant_pubkey_hex=parsed_obligor[0],
+            external_ref=external_ref,
+        )
+    )
 
 
 @transfer_group.command("accept")

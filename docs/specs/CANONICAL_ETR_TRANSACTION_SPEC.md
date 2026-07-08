@@ -474,7 +474,7 @@ The working registry for these assignments is maintained in [EVENT_KIND_REGISTRY
 Working allocation:
 
 - `31415` = origin event
-- `31416` = control transfer event
+- `31416` = control-event family
 
 ### Origin Event
 
@@ -490,16 +490,17 @@ In the current working model, origin events are published as:
 
 - `kind = 31415`
 
-### Control Transfer Event
+### Control Event Family
 
-The control transfer event is the event by which control moves after origin.
+The control-event family is the event family for later control-relevant actions after origin.
 
 It is intended to represent:
 
 - transfer of control from one controller to another
 - later control transitions in the object lifecycle
+- later control-relevant assertions, limitations, discharges, and presentation actions
 
-In the current working model, control transfer events are published as:
+In the current working model, control events are published as:
 
 - `kind = 31416`
 
@@ -512,14 +513,24 @@ The action distinction is currently expressed through the `action` tag:
 - `action=initiate`
 - `action=accept`
 - `action=terminate`
+- `action=attest`
+- `action=encumber`
+- `action=discharge`
+- `action=redeem`
 
 This means that:
 
 - transfer initiation
 - transfer acceptance
 - termination
+- attestation
+- encumbrance
+- discharge
+- redemption
 
 are presently modeled as distinct actions within the same `31416` event family rather than as separate event kinds.
+
+The current reference implementation exposes these actions through the CLI commands documented in [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md). The minimum event shapes are specified in [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md), and the wire-level tag grammar is specified in [OPENETR_NOSTR_WIRE_FORMAT_SPEC.md](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md).
 
 This is a working design choice, not yet a final registry decision.
 
@@ -543,6 +554,18 @@ Current working examples:
   - `o = <object_hex>`
 - terminate:
   - `d = <object_hex>:terminate`
+  - `o = <object_hex>`
+- attest:
+  - `d = <object_hex>:attest`
+  - `o = <object_hex>`
+- encumber:
+  - `d = <object_hex>:encumber`
+  - `o = <object_hex>`
+- discharge:
+  - `d = <object_hex>:discharge`
+  - `o = <object_hex>`
+- redeem:
+  - `d = <object_hex>:redeem`
   - `o = <object_hex>`
 
 This keeps the full chain object-centric while allowing replaceable slots to distinguish action types for the same object.
@@ -568,9 +591,9 @@ It also allows an implementation to identify the initial OpenETR record without 
 This specification currently treats the following as the working minimum:
 
 - issue/origin mapped to `31415`
-- control transfer mapped to `31416`
+- control-relevant actions mapped to `31416` and distinguished by `action`
 
-Attestation, termination, substitution, cancellation, encumbrance, discharge, redemption, and revocation may later receive their own event kinds or remain subtyped within broader event families depending on implementation experience.
+Substitution, cancellation, and revocation may later receive their own event kinds or remain subtyped within broader event families depending on implementation experience. Attestation, termination, encumbrance, discharge, and redemption are currently implemented as subtyped `31416` actions.
 
 This allocation should therefore be treated as:
 
@@ -582,13 +605,13 @@ This allocation should therefore be treated as:
 Under this split-kind model:
 
 - initial-record discovery should query origin events
-- control-history traversal should query control transfer events
+- control-history traversal should query control events
 - full object-state evaluation will typically need both event families
 
 In practice that means an implementation may need to:
 
 1. query the object's origin event using `kind = 31415`
-2. query subsequent control transfer events using `kind = 31416`
+2. query subsequent control events using `kind = 31416`
 3. evaluate the attested action chain across both families
 
 In the current reference flow, object-history evaluation is therefore object-centric first.
