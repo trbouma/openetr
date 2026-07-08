@@ -344,6 +344,40 @@
       </section>
 
       <section class="panel">
+        <h2>Encumbrance Summary</h2>
+        <div class="kv">
+          <div class="muted">Total</div><div>{{ query.encumbrance_summary.total }}</div>
+          <div class="muted">Outstanding</div><div>{{ query.encumbrance_summary.outstanding }}</div>
+          <div class="muted">Discharged</div><div>{{ query.encumbrance_summary.discharged }}</div>
+        </div>
+        {% if query.outstanding_encumbrances %}
+        <h3>Outstanding Encumbrances</h3>
+        {% for item in query.outstanding_encumbrances %}
+        <div class="event">
+          <div class="kv">
+            <div class="muted">Event ID</div><div class="mono">{{ item.event.event_ref }}</div>
+            <div class="muted">Author</div><div class="mono" title="{{ item.event.author_npub }}">{{ item.event.author_npub | short_id }}</div>
+            {% if item.event.subject_npub %}<div class="muted">Beneficiary</div><div class="mono">{{ item.event.subject_npub }}</div>{% endif %}
+            {% if item.event.type %}<div class="muted">Type</div><div>{{ item.event.type }}</div>{% endif %}
+            {% if item.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ item.event.external_ref }}</div>{% endif %}
+            <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
+          </div>
+          {% if item.beneficiary_profile %}
+          <h3>Beneficiary Social Profile</h3>
+          <ul>
+            {% for field, value in item.beneficiary_profile %}
+            <li><strong>{{ field }}</strong>: {{ value }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="muted">No outstanding encumbrances were found for this object.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
         <h2>Lifecycle State</h2>
         <div class="kv">
           <div class="muted">State</div><div>{{ query.lifecycle_state }}</div>

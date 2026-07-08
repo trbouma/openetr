@@ -404,6 +404,29 @@ async def _run_query_etr(
         click.echo("  control chain:")
         _print_transfer_node(group["root"], 0)
 
+    encumbrance_summary = result["encumbrance_summary"]
+    click.echo()
+    click.echo("encumbrance summary:")
+    click.echo(f"  total: {encumbrance_summary['total']}")
+    click.echo(f"  outstanding: {encumbrance_summary['outstanding']}")
+    click.echo(f"  discharged: {encumbrance_summary['discharged']}")
+    if result["outstanding_encumbrances"]:
+        click.echo("  outstanding encumbrances:")
+        for item in result["outstanding_encumbrances"]:
+            evt = item["event"]
+            click.echo(f"    - event id: {evt['event_ref']}")
+            click.echo(f"      author: {evt['author_npub']}")
+            if evt["subject_npub"]:
+                click.echo(f"      beneficiary: {evt['subject_npub']}")
+            if evt["type"]:
+                click.echo(f"      type: {evt['type']}")
+            if evt["external_ref"]:
+                click.echo(f"      ref: {evt['external_ref']}")
+            if item["beneficiary_profile"]:
+                click.echo("      beneficiary social profile:")
+                for field, value in item["beneficiary_profile"]:
+                    click.echo(f"        {field}: {value}")
+
     click.echo()
     if digest_file is not None:
         click.echo(f"summary control chain for {digest_file}:")

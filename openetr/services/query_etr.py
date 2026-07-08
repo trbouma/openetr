@@ -11,6 +11,8 @@ from openetr.config import DEFAULT_KIND, DEFAULT_LIMIT, DEFAULT_QUERY_TIMEOUT
 from openetr.control import (
     ACTION_ACCEPT,
     ACTION_ATTEST,
+    ACTION_DISCHARGE,
+    ACTION_ENCUMBER,
     ACTION_INITIATE,
     ACTION_REDEEM,
     ACTION_TERMINATE,
@@ -286,6 +288,9 @@ async def build_query_etr_result(
         "current_controller": None,
         "lifecycle_state": "unknown",
         "lifecycle_basis": None,
+        "encumbrance_summary": {"total": 0, "discharged": 0, "outstanding": 0},
+        "outstanding_encumbrances": [],
+        "discharged_encumbrances": [],
     }
     if not events:
         return result
@@ -329,6 +334,41 @@ async def build_query_etr_result(
         result["lifecycle_state"] = "active"
         result["lifecycle_basis"] = "origin event"
         return result
+
+    async def encumbrance_item(encumber_event: Event, discharge_events: list[Event]) -> dict[str, Any]:
+        beneficiary_hex = transfer_party_from_p_tag(encumber_event)
+        beneficiary_profile = await cached_profile(beneficiary_hex) if beneficiary_hex else None
+        return {
+            "event": event_to_view(encumber_event),
+            "beneficiary_profile": compact_profile(beneficiary_profile),
+            "discharge_events": [event_to_view(evt) for evt in discharge_events],
+        }
+
+    encumber_events = [evt for evt in transfer_events if control_action(evt) == ACTION_ENCUMBER]
+    discharge_events_by_encumbrance_id: dict[str, list[Event]] = {}
+    for evt in transfer_events:
+        if control_action(evt) != ACTION_DISCHARGE:
+            continue
+        encumbrance_event_id = first_tag_value(evt, "enc")
+        if encumbrance_event_id:
+            discharge_events_by_encumbrance_id.setdefault(encumbrance_event_id, []).append(evt)
+
+    for encumbrance_id in discharge_events_by_encumbrance_id:
+        Event.sort(discharge_events_by_encumbrance_id[encumbrance_id], inplace=True, reverse=False)
+
+    for encumber_event in encumber_events:
+        matching_discharges = discharge_events_by_encumbrance_id.get(encumber_event.id, [])
+        item = await encumbrance_item(encumber_event, matching_discharges)
+        if matching_discharges:
+            result["discharged_encumbrances"].append(item)
+        else:
+            result["outstanding_encumbrances"].append(item)
+
+    result["encumbrance_summary"] = {
+        "total": len(encumber_events),
+        "discharged": len(result["discharged_encumbrances"]),
+        "outstanding": len(result["outstanding_encumbrances"]),
+    }
 
     roots, children = group_transfer_events(transfer_events)
 
