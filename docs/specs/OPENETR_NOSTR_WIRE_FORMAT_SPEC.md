@@ -70,6 +70,8 @@ Current working `31416` actions are:
 - `discharge`
 - `redeem`
 
+The current reference CLI command mapping is summarized in [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
+
 ## Core Tag Model
 
 The current OpenETR wire format uses the following core tags.
@@ -160,6 +162,16 @@ Examples:
 - `["enc", "<encumbrance_event_id_hex>"]` for a discharge event
 - `["type", "<subtype>"]` for attestation or encumbrance typing
 - `["ref", "<external_reference>"]` for external linkage
+
+Current reference CLI usage:
+
+| Tag | Used by | Meaning |
+| --- | --- | --- |
+| `enc` | `openetr discharge` | event id of the encumbrance being discharged |
+| `type` | `openetr attest`, `openetr encumber` | action-specific subtype such as attestation type or encumbrance type |
+| `ref` | `openetr attest`, `openetr encumber`, `openetr discharge`, `openetr redeem` | external reference or business reference |
+
+These tags are part of the working wire convention. Their legal or operational effect depends on the applicable recognition profile.
 
 ## Minimum Event Shapes
 
@@ -311,6 +323,18 @@ Implementations should generally:
 
 In current practice, the object digest is commonly queried through the `o` tag across both event families.
 
+The reference `openetr query-etr` command currently derives and displays:
+
+- the initial origin event
+- matching `kind 31416` control events
+- summary control chains from linked `e` references
+- lifecycle state
+- current controller
+- social profile information where available
+- encumbrance totals, discharged encumbrances, and outstanding encumbrances
+
+The web app query result uses the same query service and should therefore expose the same derived object-state view.
+
 ## Current Controller Implications
 
 At the wire-format level, events express candidate control history.
@@ -378,6 +402,7 @@ This specification is intended to consolidate the wire-level aspects of the curr
 
 Related documents include:
 
+- [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md)
 - [CANONICAL_ETR_TRANSACTION_SPEC.md](./CANONICAL_ETR_TRANSACTION_SPEC.md)
 - [EVENT_KIND_REGISTRY.md](./EVENT_KIND_REGISTRY.md)
 - [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md)

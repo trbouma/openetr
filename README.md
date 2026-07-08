@@ -110,21 +110,28 @@ Nostr provides a simple model of signed events + relay distribution + independen
 
 ## CLI Example
 
-Once Poetry dependencies are installed, you can publish a probe event using this repository's own [README.md](/Users/trbouma/projects/etrix/README.md) as the source file:
+The current CLI can issue, transfer, encumber, discharge, redeem, terminate, and query OpenETR records using the Nostr `31415` / `31416` event-family model.
+
+For a focused spec-to-implementation walkthrough, see [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
+
+A minimal flow looks like:
 
 ```bash
-shasum -a 256 ./README.md
+openetr profile use warehouse
+openetr issue-etr examples/MLWR001.pdf
+openetr query-etr examples/MLWR001.pdf
 ```
 
-That prints the SHA-256 digest for `README.md` locally so you can inspect or compare it before publishing.
+Transfer control to another profile:
 
 ```bash
-poetry run openetr publish-object \
-  --relay wss://relay.getsafebox.app/ \
-  --digest-file ./README.md
+openetr transfer initiate examples/MLWR001.pdf --transferee exporter
+openetr profile use exporter
+openetr transfer accept examples/MLWR001.pdf
+openetr query-etr examples/MLWR001.pdf
 ```
 
-This hashes `README.md` with SHA-256, uses that digest for both the `d` and `o` tags, publishes the event, and then queries the relay for the matching record.
+Query output includes the origin event, matching control events, lifecycle state, current controller, social profile information where available, and encumbrance summaries.
 
 ## Get Involved
 OpenETR is an open invitation to developers, legal experts, standards bodies, and institutions to collaborate on a shared layer for transferable records.
