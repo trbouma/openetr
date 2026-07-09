@@ -10,6 +10,7 @@ This directory is for long-form OpenETR articles that should live in the reposit
 
 ## Published posts
 
+- [Progress Toward Generalized Control](./progress-toward-generalized-control.md)
 - [Introducing OpenETR](./introducing-openetr.md)
 
 ## Notes
