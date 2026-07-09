@@ -1,5 +1,6 @@
 ---
 title: Progress Toward Generalized Control
+date: 2026-07-09
 eyebrow: Project Update
 description: A progress update on the OpenETR protocol, CLI, web app, and the move toward a generalized control layer for multiple legal frameworks.
 ---
@@ -191,4 +192,3 @@ That means improving validation rules, policy profiles, attestation flows, and e
 OpenETR is becoming less about one document type and more about a portable way to express control over electronic records.
 
 That is the useful direction: a small, inspectable protocol layer that lets different legal systems and institutions recognize the evidence they are prepared to recognize, without forcing every record back into a single platform boundary.
-
