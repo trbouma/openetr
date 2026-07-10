@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_title }} Warehouse Receipt Result</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #f4f0e8;
+        --panel: #fffdf8;
+        --text: #1e1a14;
+        --accent: #6d4f24;
+        --border: #d5c7ad;
+        --muted: #665d4f;
+        --heading: #17130e;
+      }
+      body {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #fbf6ec 0%, var(--bg) 100%);
+      }
+      main {
+        max-width: 74rem;
+        margin: 2rem auto 4rem;
+        padding: 0 1.25rem;
+      }
+      .top-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      a {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.25rem 1.4rem;
+        box-shadow: 0 10px 28px rgba(71, 44, 17, 0.07);
+        margin-bottom: 1rem;
+      }
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.75rem;
+        background: #eef8ee;
+        border: 1px solid #9cc39c;
+      }
+      .warning {
+        background: #fff5e3;
+        border-color: #d1a96f;
+      }
+      h1, h2, h3 {
+        margin-top: 0;
+        color: var(--heading);
+        letter-spacing: -0.03em;
+      }
+      h1 {
+        margin-bottom: 0.4rem;
+        font-size: clamp(2rem, 5vw, 3.6rem);
+        line-height: 1;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .eyebrow {
+        margin: 0 0 0.7rem;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: 13rem minmax(0, 1fr);
+        gap: 0.38rem 1rem;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        word-break: break-all;
+      }
+      .event {
+        border-top: 1px dashed var(--border);
+        margin-top: 1rem;
+        padding-top: 1rem;
+      }
+      .chain-step {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        margin: 0.15rem 0;
+      }
+      code {
+        background: rgba(109, 79, 36, 0.1);
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.3rem;
+      }
+      form {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 0.85rem;
+      }
+      label {
+        display: grid;
+        gap: 0.35rem;
+        font-weight: 800;
+        color: var(--heading);
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 0.7rem;
+        padding: 0.7rem;
+        font: inherit;
+      }
+      button {
+        width: fit-content;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.8rem 1.1rem;
+        background: var(--accent);
+        color: white;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+      .action-card {
+        border: 1px solid rgba(109, 79, 36, 0.16);
+        border-radius: 0.85rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.52);
+      }
+      @media (max-width: 680px) {
+        main {
+          padding: 0 0.9rem;
+        }
+        .kv {
+          grid-template-columns: 1fr;
+        }
+        .action-grid {
+          grid-template-columns: 1fr;
+        }
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="top-nav">
+        <a href="/warehouse-receipts">Warehouse Receipts</a>
+        <a href="/">Home</a>
+        <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+
+      {% if success_message %}<div class="notice">{{ success_message }}</div>{% endif %}
+
+      <section class="panel">
+        <p class="eyebrow">Warehouse Receipt State</p>
+        <h1>{{ filename }}</h1>
+        <p>
+          This page renders a warehouse receipt view from the general OpenETR query result.
+          The underlying object id, origin event, control events, and encumbrance state are produced by shared OpenETR services.
+        </p>
+        <div class="kv">
+          <div class="muted">Receipt file</div><div>{{ filename }}</div>
+          <div class="muted">Size</div><div>{{ size_bytes }} bytes</div>
+          <div class="muted">Receipt digest</div><div class="mono">{{ sha256 }}</div>
+          <div class="muted">Object id</div><div class="mono">{{ object_id }}</div>
+          <div class="muted">Relays</div><div class="mono">{{ relays }}</div>
+          <div class="muted">Lifecycle</div><div>{{ query.lifecycle_state }}</div>
+          <div class="muted">Lifecycle basis</div><div>{{ query.lifecycle_basis }}</div>
+        </div>
+      </section>
+
+      {% if issue_result %}
+      <section class="panel">
+        <h2>Receipt Issuance</h2>
+        <div class="kv">
+          <div class="muted">Origin event</div><div class="mono">{{ issue_result.event_id }}</div>
+          <div class="muted">Issuing profile signer</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
+          <div class="muted">Issue statement</div><div class="mono">{{ issue_result.comment }}</div>
+          <div class="muted">Existing before issue</div><div>{{ issue_result.existing_count_before_publish }}</div>
+          <div class="muted">Returned after issue</div><div>{{ issue_result.query_count_after_publish }}</div>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if control_result %}
+      <section class="panel">
+        <h2>Receipt Action Published</h2>
+        <div class="kv">
+          <div class="muted">Action</div><div>{{ control_result.action }}</div>
+          <div class="muted">Event id</div><div class="mono">{{ control_result.event_id }}</div>
+          <div class="muted">Prior event</div><div class="mono">{{ control_result.prior_event_id }}</div>
+          <div class="muted">Origin event</div><div class="mono">{{ control_result.origin_event_id }}</div>
+          <div class="muted">Verification</div><div>{{ control_result.verification.exact }}/{{ control_result.verification.total }} exact relay match(es)</div>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if query.no_events %}
+      <section class="panel warning">
+        <h2>No Receipt Origin Found</h2>
+        <p>No OpenETR origin event was returned for this warehouse receipt digest.</p>
+      </section>
+      {% else %}
+      <section class="panel">
+        <h2>Warehouse Receipt Origin</h2>
+        <div class="kv">
+          <div class="muted">Origin event</div><div class="mono">{{ query.initial_event.event_ref }}</div>
+          <div class="muted">Issuer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
+          <div class="muted">Created at</div><div>{{ query.initial_event.created_at }}</div>
+          <div class="muted">Receipt content</div><div class="mono">{{ query.initial_event.content }}</div>
+        </div>
+        <h3>Issuer Profile</h3>
+        {% if query.initial_profile %}
+        <ul>
+          {% for field, value in query.initial_profile %}
+          <li><strong>{{ field }}</strong>: {{ value }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>No issuer social profile was found.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Current Holder / Controller</h2>
+        <div class="kv">
+          <div class="muted">Controller npub</div><div class="mono">{{ query.current_controller.npub or "none" }}</div>
+          <div class="muted">Basis</div><div>{{ query.current_controller.basis }}</div>
+        </div>
+        {% if query.current_controller.profile %}
+        <h3>Controller Profile</h3>
+        <ul>
+          {% for field, value in query.current_controller.profile %}
+          <li><strong>{{ field }}</strong>: {{ value }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Pledges, Liens, And Restrictions</h2>
+        <div class="kv">
+          <div class="muted">Total encumbrances</div><div>{{ query.encumbrance_summary.total }}</div>
+          <div class="muted">Outstanding</div><div>{{ query.encumbrance_summary.outstanding }}</div>
+          <div class="muted">Released / discharged</div><div>{{ query.encumbrance_summary.discharged }}</div>
+        </div>
+        {% if query.outstanding_encumbrances %}
+        <h3>Outstanding Claims</h3>
+        {% for item in query.outstanding_encumbrances %}
+        <div class="event">
+          <div class="kv">
+            <div class="muted">Encumbrance event</div><div class="mono">{{ item.event.event_ref }}</div>
+            <div class="muted">Declared by</div><div class="mono" title="{{ item.event.author_npub }}">{{ item.event.author_npub | short_id }}</div>
+            {% if item.event.subject_npub %}<div class="muted">Secured party</div><div class="mono">{{ item.event.subject_npub }}</div>{% endif %}
+            {% if item.event.type %}<div class="muted">Claim type</div><div>{{ item.event.type }}</div>{% endif %}
+            {% if item.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ item.event.external_ref }}</div>{% endif %}
+            <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
+          </div>
+          {% if item.beneficiary_profile %}
+          <h3>Secured Party Profile</h3>
+          <ul>
+            {% for field, value in item.beneficiary_profile %}
+            <li><strong>{{ field }}</strong>: {{ value }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No outstanding pledge, lien, or restriction was found for this receipt.</p>
+        {% endif %}
+      </section>
+
+      {% if identity.logged_in %}
+      <section class="panel">
+        <h2>Warehouse Receipt Actions</h2>
+        <p>These forms use warehouse receipt language and publish general OpenETR control events underneath.</p>
+        <div class="action-grid">
+          <div class="action-card">
+            <h3>Transfer Receipt</h3>
+            <form action="/warehouse-receipts/transfer/initiate" method="post">
+              <input type="hidden" name="digest" value="{{ sha256 }}">
+              <input type="hidden" name="relays" value="{{ relays }}">
+              <label>Transferee profile or npub<input type="text" name="transferee" placeholder="exporter or npub..." required></label>
+              <label>Reference<input type="text" name="reference" placeholder="transfer reference"></label>
+              <button type="submit">Initiate Transfer</button>
+            </form>
+          </div>
+          <div class="action-card">
+            <h3>Accept Transfer</h3>
+            <form action="/warehouse-receipts/transfer/accept" method="post">
+              <input type="hidden" name="digest" value="{{ sha256 }}">
+              <input type="hidden" name="relays" value="{{ relays }}">
+              <label>Reference<input type="text" name="reference" placeholder="acceptance reference"></label>
+              <button type="submit">Accept Transfer</button>
+            </form>
+          </div>
+          <div class="action-card">
+            <h3>Record Pledge Or Lien</h3>
+            <form action="/warehouse-receipts/encumber" method="post">
+              <input type="hidden" name="digest" value="{{ sha256 }}">
+              <input type="hidden" name="relays" value="{{ relays }}">
+              <label>Secured party profile or npub<input type="text" name="beneficiary" placeholder="bank or npub..." required></label>
+              <label>Claim type<input type="text" name="claim_type" value="pledge"></label>
+              <label>Reference<input type="text" name="reference" placeholder="loan or registry reference"></label>
+              <button type="submit">Record Claim</button>
+            </form>
+          </div>
+          <div class="action-card">
+            <h3>Release Pledge Or Lien</h3>
+            <form action="/warehouse-receipts/discharge" method="post">
+              <input type="hidden" name="digest" value="{{ sha256 }}">
+              <input type="hidden" name="relays" value="{{ relays }}">
+              <label>Encumbrance event id or nevent<input type="text" name="encumbrance_event" placeholder="event id or nevent..." required></label>
+              <label>Releasing party profile or npub<input type="text" name="releasing_party" placeholder="bank or npub..."></label>
+              <label>Reference<input type="text" name="reference" placeholder="release reference"></label>
+              <button type="submit">Release Claim</button>
+            </form>
+          </div>
+          <div class="action-card">
+            <h3>Present For Delivery</h3>
+            <form action="/warehouse-receipts/redeem" method="post">
+              <input type="hidden" name="digest" value="{{ sha256 }}">
+              <input type="hidden" name="relays" value="{{ relays }}">
+              <label>Warehouse operator / obligor<input type="text" name="obligor" placeholder="warehouse or npub..." required></label>
+              <label>Reference<input type="text" name="reference" placeholder="delivery request"></label>
+              <button type="submit">Present Receipt</button>
+            </form>
+          </div>
+          <div class="action-card">
+            <h3>Complete Delivery</h3>
+            <form action="/warehouse-receipts/terminate" method="post">
+              <input type="hidden" name="digest" value="{{ sha256 }}">
+              <input type="hidden" name="relays" value="{{ relays }}">
+              <label>Reference<input type="text" name="reference" placeholder="delivery completion reference"></label>
+              <button type="submit">Complete Lifecycle</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      {% endif %}
+
+      <section class="panel">
+        <h2>Receipt Control History</h2>
+        <p class="muted">Legend: ++ issue, -> transfer, -- termination, => attestation, +$ encumbrance, -$ discharge, ** presentation/redemption.</p>
+        {% for chain in query.summary_control_chains %}
+        <div class="event">
+          <h3>{{ chain.label }}</h3>
+          {% for step in chain.steps %}
+          <div class="chain-step">{{ step.marker }} {{ step.label }}</div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>No control chain summary is available.</p>
+        {% endfor %}
+      </section>
+
+      <section class="panel">
+        <h2>Underlying OpenETR Query</h2>
+        <div class="kv">
+          <div class="muted">Origin filter</div><div class="mono">{{ query.relay_filter }}</div>
+          <div class="muted">Control-event filter</div><div class="mono">{{ query.transfer_filter }}</div>
+          <div class="muted">Returned</div><div>{{ query.count }} event(s)</div>
+        </div>
+      </section>
+      {% endif %}
+    </main>
+  </body>
+</html>

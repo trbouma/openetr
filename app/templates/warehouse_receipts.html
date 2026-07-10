@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_title }} Warehouse Receipts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #f4f0e8;
+        --panel: #fffdf8;
+        --text: #1e1a14;
+        --accent: #6d4f24;
+        --border: #d5c7ad;
+        --muted: #665d4f;
+        --heading: #17130e;
+      }
+      body {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #fbf6ec 0%, var(--bg) 100%);
+      }
+      main {
+        max-width: 72rem;
+        margin: 2rem auto 4rem;
+        padding: 0 1.25rem;
+      }
+      .top-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      a {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .panel, .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        box-shadow: 0 10px 28px rgba(71, 44, 17, 0.07);
+      }
+      .panel {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .card {
+        padding: 1.15rem;
+      }
+      h1, h2, h3 {
+        margin-top: 0;
+        color: var(--heading);
+        letter-spacing: -0.03em;
+      }
+      h1 {
+        margin-bottom: 0.45rem;
+        font-size: clamp(2.3rem, 6vw, 4rem);
+        line-height: 1;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .eyebrow {
+        margin: 0 0 0.7rem;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.75rem;
+      }
+      .notice.error {
+        background: #fff1ec;
+        border: 1px solid #e1a18d;
+      }
+      .notice.success {
+        background: #eef8ee;
+        border: 1px solid #9cc39c;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+      .role-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+      }
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+      }
+      .profile-card {
+        padding: 0.85rem;
+        border: 1px solid rgba(109, 79, 36, 0.16);
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.52);
+      }
+      .profile-card form {
+        margin-top: 0.65rem;
+      }
+      form {
+        display: grid;
+        gap: 0.85rem;
+        margin-top: 1rem;
+      }
+      label {
+        display: grid;
+        gap: 0.4rem;
+        font-weight: 800;
+        color: var(--heading);
+      }
+      input[type="file"], input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 0.7rem;
+        padding: 0.75rem;
+        font: inherit;
+      }
+      input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+      }
+      button {
+        width: fit-content;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.85rem 1.2rem;
+        background: var(--accent);
+        color: white;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      code {
+        background: rgba(109, 79, 36, 0.1);
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.3rem;
+      }
+      .field-help, .muted {
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+      .action-list {
+        display: grid;
+        gap: 0.65rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .action-list li {
+        padding: 0.75rem;
+        border: 1px solid rgba(109, 79, 36, 0.16);
+        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.52);
+      }
+      @media (max-width: 760px) {
+        main {
+          padding: 0 0.9rem;
+        }
+        .grid, .role-grid, .profile-grid {
+          grid-template-columns: 1fr;
+        }
+        button {
+          width: 100%;
+        }
+        .top-nav {
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/overview">Overview</a>
+        <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        {% if identity.logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Login</a>{% endif %}
+      </nav>
+
+      <header class="panel">
+        <p class="eyebrow">Warehouse Receipts</p>
+        <h1>MLWR Control Desk</h1>
+        <p>
+          Work with warehouse receipts in domain terms while the app translates each action into the general OpenETR control layer.
+          The receipt file is hashed into an object id, then issued, queried, and evaluated through shared OpenETR services.
+        </p>
+        {% if identity.logged_in %}
+        <p><strong>Acting profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        {% else %}
+        <p><strong>Read-only mode:</strong> query receipts without logging in. Log in to issue a receipt as a warehouse operator or issuer profile.</p>
+        {% endif %}
+      </header>
+
+      {% if error_message %}<div class="notice error">{{ error_message }}</div>{% endif %}
+      {% if success_message %}<div class="notice success">{{ success_message }}</div>{% endif %}
+
+      {% if identity.logged_in %}
+      <section class="panel">
+        <h2>Acting Profile</h2>
+        <p>
+          Select the role that will sign warehouse receipt actions. The page uses domain language, but each profile is still an independent OpenETR/Nostr signer.
+        </p>
+        <p><strong>Current:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        {% if selected_profile_social %}
+        <ul>
+          {% for field, value in selected_profile_social %}
+          <li><strong>{{ field }}</strong>: {{ value }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if available_profiles %}
+        <div class="profile-grid">
+          {% for profile in available_profiles %}
+          <div class="profile-card">
+            <h3>{{ profile.name }}</h3>
+            <p class="muted">
+              {% if profile.is_selected %}Selected{% elif profile.is_active %}CLI active{% else %}Available{% endif %}
+            </p>
+            {% if profile.signer_npub %}
+            <p class="muted">Signer: <code title="{{ profile.signer_npub }}">{{ profile.signer_npub | short_id }}</code></p>
+            {% endif %}
+            <p class="muted">{{ profile.usable_label }}</p>
+            {% if profile.can_select and not profile.is_selected %}
+            <form action="/profiles/use" method="post">
+              <input type="hidden" name="profile" value="{{ profile.name }}">
+              <button type="submit">Act As {{ profile.name }}</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="muted">No relay-backed profiles are configured yet for this root identity.</p>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      <section class="panel">
+        <h2>Receipt Roles</h2>
+        <div class="role-grid">
+          <div class="card"><h3>Warehouse Operator</h3><p>Issues the receipt and commonly acts as obligor for delivery.</p></div>
+          <div class="card"><h3>Holder</h3><p>The current controller derived from the OpenETR control chain.</p></div>
+          <div class="card"><h3>Secured Party</h3><p>The beneficiary of a pledge, lien, or other encumbrance.</p></div>
+          <div class="card"><h3>Attestor</h3><p>A registry, warehouse, auditor, or relying party that can add recognition evidence.</p></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Query Receipt State</h2>
+          <p>Upload a warehouse receipt document and inspect its origin, holder, lifecycle, and outstanding pledge or encumbrance state.</p>
+          <form action="/warehouse-receipts/query" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <label>
+              Relays
+              <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
+              <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
+            </label>
+            <button type="submit">Query Warehouse Receipt</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Issue Receipt</h2>
+          <p>Publish a warehouse receipt origin event. Underneath, this calls the general OpenETR issue service for the uploaded receipt digest.</p>
+          <form action="/warehouse-receipts/issue" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <label>
+              Receipt reference
+              <input type="text" name="receipt_reference" placeholder="MLWR001">
+            </label>
+            <label>
+              Goods description
+              <input type="text" name="goods_description" placeholder="Stored goods described in the receipt">
+            </label>
+            <label>
+              Relays
+              <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
+            </label>
+            <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
+              <input type="checkbox" name="force" value="true">
+              Publish even if this profile already issued this receipt digest
+            </label>
+            <button type="submit">Issue Warehouse Receipt</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Domain Actions</h2>
+        <p>
+          These receipt actions are domain names for general OpenETR control events. Query or issue a receipt first, then use the receipt-state page
+          to transfer, pledge, release, present, or complete the receipt lifecycle.
+        </p>
+        <ul class="action-list">
+          <li><strong>Transfer receipt</strong>: maps to <code>openetr transfer initiate</code> and <code>openetr transfer accept</code>.</li>
+          <li><strong>Record pledge or lien</strong>: maps to <code>openetr encumber</code> with the secured party as beneficiary.</li>
+          <li><strong>Release pledge or lien</strong>: maps to <code>openetr discharge</code> referencing the encumbrance event.</li>
+          <li><strong>Present for delivery</strong>: maps to <code>openetr redeem</code> with the warehouse operator as obligor.</li>
+          <li><strong>Complete delivery</strong>: maps to <code>openetr terminate-etr</code> after the receipt lifecycle is complete.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Recognition Boundary</h2>
+        <p>
+          OpenETR records signed evidence of control and control-relevant assertions. MLWR-style law, local enactment,
+          registry rules, contract, and institutional policy decide legal validity, protected-holder status, pledge effect,
+          priority, warehouse obligations, and final recognition.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

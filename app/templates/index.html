@@ -315,6 +315,7 @@
     <main>
       <div class="top-nav">
         <a href="/overview">Overview</a>
+        <a href="/warehouse-receipts">Warehouse Receipts</a>
         <a href="/bitcoin/check-balance">Bitcoin Balance</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
         {% if identity.logged_in %}
@@ -358,6 +359,9 @@
       <div class="notice info">
         This web app is one of four OpenETR delivery surfaces. The intended model is one shared <code>openetr</code> core with four adapters:
         web app, CLI for human use, CLI for agent use, and API for agent use.
+      </div>
+      <div class="notice info">
+        Working with warehouse receipts? Use the dedicated <a href="/warehouse-receipts">Warehouse Receipts</a> page for MLWR-style domain language backed by the same OpenETR core.
       </div>
       <section class="panel">
         {% if not identity.logged_in %}

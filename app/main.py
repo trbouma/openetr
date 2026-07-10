@@ -17,7 +17,9 @@ from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_
 from app.encrypted_session import EncryptedSessionMiddleware
 from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
 from openetr.guards import evaluate_issue_etr_guard
-from openetr.helpers import format_object_identifier, format_pubkey, normalize_relays, resolve_keys, validate_relays
+from openetr.helpers import assert_hex_object_identifier, format_object_identifier, format_pubkey, normalize_relays, parse_authors, resolve_keys, validate_relays
+from openetr.control import ACTION_DISCHARGE, ACTION_ENCUMBER, ACTION_REDEEM, ACTION_TERMINATE
+from openetr.services.control_events import ControlEventError, publish_auxiliary_control_event, publish_transfer_accept_event, publish_transfer_initiate_event
 from openetr.services.issue_etr import publish_issue_etr
 from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
 from openetr.services.profile_publish import PROFILE_FIELDS, publish_profile_updates
@@ -460,7 +462,7 @@ async def build_bitcoin_wallet_context(identity: dict[str, Any]) -> dict[str, An
             5.0,
         )
         wallet["balance_error"] = None
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         wallet["balance"] = None
         wallet["balance_error"] = str(exc)
     return wallet
@@ -586,7 +588,7 @@ async def update_settings(
     try:
         normalized_bootstrap_relays = await validate_relays(bootstrap_relays or configured_home_relays(), timeout=DEFAULT_QUERY_TIMEOUT)
         normalized_default_relays = await validate_relays(default_relays or DEFAULT_RELAYS, timeout=DEFAULT_QUERY_TIMEOUT)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
             request,
@@ -718,6 +720,98 @@ def profile_form_values(profile: dict[str, Any] | None) -> dict[str, str]:
     source = profile or {}
     return {field: str(source.get(field, "")) for field in PROFILE_FIELDS}
 
+
+async def render_warehouse_receipts_page(
+    request: Request,
+    identity: dict[str, Any],
+    *,
+    error_message: str | None = None,
+    success_message: str | None = None,
+    status_code: int = 200,
+):
+    template_context = await get_default_template_context(identity)
+    template_context["error_message"] = error_message
+    template_context["success_message"] = success_message
+    return templates.TemplateResponse(
+        request,
+        "warehouse_receipts.html",
+        template_context,
+        status_code=status_code,
+    )
+
+
+async def render_warehouse_receipt_result(
+    request: Request,
+    identity: dict[str, Any],
+    *,
+    filename: str,
+    size_bytes: int,
+    digest: str,
+    relays: str,
+    query_context: dict[str, Any],
+    issue_result: dict[str, Any] | None = None,
+    control_result: dict[str, Any] | None = None,
+    success_message: str | None = None,
+):
+    return templates.TemplateResponse(
+        request,
+        "warehouse_receipt_result.html",
+        {
+            "app_title": APP_TITLE,
+            "site_url": SITE_URL,
+            "git_commit": GIT_COMMIT,
+            "identity": identity,
+            "available_profiles": await get_available_profiles(identity),
+            "filename": filename,
+            "size_bytes": size_bytes,
+            "sha256": digest,
+            "object_id": format_object_identifier(digest),
+            "relays": relays,
+            "query": query_context,
+            "issue_result": issue_result,
+            "control_result": control_result,
+            "success_message": success_message,
+        },
+    )
+
+
+async def read_uploaded_receipt(file: UploadFile) -> tuple[bytes, str, int, str]:
+    content = await file.read()
+    digest = hashlib.sha256(content).hexdigest()
+    filename = file.filename or "warehouse-receipt"
+    return content, filename, len(content), digest
+
+
+def parse_optional_force(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+async def render_warehouse_control_result(
+    request: Request,
+    identity: dict[str, Any],
+    *,
+    digest: str,
+    relays: str,
+    control_result: dict[str, Any],
+    success_message: str,
+):
+    query_context = await build_query_etr_result(
+        digest=digest,
+        relays=relays,
+        author_pubkey_hex=identity.get("pubkey_hex"),
+    )
+    return await render_warehouse_receipt_result(
+        request,
+        identity,
+        filename="warehouse receipt object",
+        size_bytes=0,
+        digest=digest,
+        relays=relays,
+        query_context=query_context,
+        control_result=control_result,
+        success_message=success_message,
+    )
+
 @app.get("/")
 async def index(
     request: Request,
@@ -756,6 +850,419 @@ async def overview_page(
     )
 
 
+@app.get("/warehouse-receipts")
+async def warehouse_receipts_page(
+    request: Request,
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    return await render_warehouse_receipts_page(request, identity)
+
+
+@app.post("/warehouse-receipts/query")
+async def warehouse_receipts_query(
+    request: Request,
+    file: UploadFile = File(...),
+    relays: str = Depends(normalize_relays_form),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    _, filename, size_bytes, digest = await read_uploaded_receipt(file)
+    query_context = await build_query_etr_result(
+        digest=digest,
+        relays=validated_relays,
+        author_pubkey_hex=identity.get("pubkey_hex"),
+    )
+    return await render_warehouse_receipt_result(
+        request,
+        identity,
+        filename=filename,
+        size_bytes=size_bytes,
+        digest=digest,
+        relays=validated_relays,
+        query_context=query_context,
+    )
+
+
+@app.post("/warehouse-receipts/issue")
+async def warehouse_receipts_issue(
+    request: Request,
+    file: UploadFile = File(...),
+    relays: str = Depends(normalize_relays_form),
+    receipt_reference: str = Form(""),
+    goods_description: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    if not identity.get("logged_in"):
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message="Log in with an nsec before issuing a warehouse receipt.",
+            status_code=400,
+        )
+
+    if not identity.get("profile"):
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message="Select a warehouse operator or issuer profile before issuing a warehouse receipt.",
+            status_code=400,
+        )
+
+    _, filename, size_bytes, digest = await read_uploaded_receipt(file)
+    guard = await evaluate_issue_etr_guard(
+        relays=validated_relays,
+        digest=digest,
+        author_pubkey_hex=identity["pubkey_hex"],
+        query_timeout=DEFAULT_QUERY_TIMEOUT,
+        limit=DEFAULT_LIMIT,
+    )
+    if guard["should_warn"] and force != "true":
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message=(
+                "This receipt file has already been issued by the current signer. "
+                "Select the force checkbox if you intentionally want to publish a replacement origin event."
+            ),
+            status_code=400,
+        )
+
+    comment_parts = [
+        "warehouse receipt issue",
+        f"name={filename}",
+        f"size_bytes={size_bytes}",
+    ]
+    if receipt_reference.strip():
+        comment_parts.append(f"receipt_reference={receipt_reference.strip()}")
+    if goods_description.strip():
+        comment_parts.append(f"goods={goods_description.strip()}")
+    comment = "; ".join(comment_parts)
+
+    issue_result = await publish_issue_etr(
+        filename=filename,
+        size_bytes=size_bytes,
+        digest=digest,
+        relays=validated_relays,
+        signer_nsec=identity["nsec"],
+        comment=comment,
+    )
+    query_context = await build_query_etr_result(
+        digest=issue_result["sha256"],
+        relays=validated_relays,
+        author_pubkey_hex=identity["pubkey_hex"],
+    )
+    return await render_warehouse_receipt_result(
+        request,
+        identity,
+        filename=issue_result["filename"],
+        size_bytes=issue_result["size_bytes"],
+        digest=issue_result["sha256"],
+        relays=validated_relays,
+        query_context=query_context,
+        issue_result=issue_result,
+        success_message="Warehouse receipt origin event published through the general OpenETR issue service.",
+    )
+
+
+async def require_warehouse_action_context(
+    request: Request,
+    identity: dict[str, Any],
+    relays: str,
+    digest: str,
+) -> tuple[str, str] | Any:
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+        object_digest = assert_hex_object_identifier(digest.strip())
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+
+    if not identity.get("logged_in"):
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message="Log in with an nsec before publishing a warehouse receipt action.",
+            status_code=400,
+        )
+    if not identity.get("profile"):
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message="Select a warehouse receipt profile before publishing this action.",
+            status_code=400,
+        )
+    return validated_relays, object_digest
+
+
+@app.post("/warehouse-receipts/transfer/initiate")
+async def warehouse_receipts_transfer_initiate(
+    request: Request,
+    digest: str = Form(""),
+    relays: str = Depends(normalize_relays_form),
+    transferee: str = Form(""),
+    reference: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    context = await require_warehouse_action_context(request, identity, relays, digest)
+    if not isinstance(context, tuple):
+        return context
+    validated_relays, object_digest = context
+    with session_bootstrap(identity):
+        parsed_transferee = parse_authors(transferee)
+    if not parsed_transferee:
+        return await render_warehouse_receipts_page(request, identity, error_message="Transferee must be a profile alias or npub.", status_code=400)
+    comment = "warehouse receipt transfer initiate"
+    if reference.strip():
+        comment += f"; ref={reference.strip()}"
+    try:
+        control_result = await publish_transfer_initiate_event(
+            relays=validated_relays,
+            object_digest=object_digest,
+            prior_event_id=None,
+            signer_nsec=identity["nsec"],
+            transferee_pubkey_hex=parsed_transferee[0],
+            comment=comment,
+            force=parse_optional_force(force),
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+    return await render_warehouse_control_result(
+        request,
+        identity,
+        digest=object_digest,
+        relays=validated_relays,
+        control_result=control_result,
+        success_message="Warehouse receipt transfer initiated.",
+    )
+
+
+@app.post("/warehouse-receipts/transfer/accept")
+async def warehouse_receipts_transfer_accept(
+    request: Request,
+    digest: str = Form(""),
+    relays: str = Depends(normalize_relays_form),
+    reference: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    context = await require_warehouse_action_context(request, identity, relays, digest)
+    if not isinstance(context, tuple):
+        return context
+    validated_relays, object_digest = context
+    comment = "warehouse receipt transfer accept"
+    if reference.strip():
+        comment += f"; ref={reference.strip()}"
+    try:
+        control_result = await publish_transfer_accept_event(
+            relays=validated_relays,
+            object_digest=object_digest,
+            signer_nsec=identity["nsec"],
+            comment=comment,
+            force=parse_optional_force(force),
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+    return await render_warehouse_control_result(
+        request,
+        identity,
+        digest=object_digest,
+        relays=validated_relays,
+        control_result=control_result,
+        success_message="Warehouse receipt transfer accepted.",
+    )
+
+
+@app.post("/warehouse-receipts/encumber")
+async def warehouse_receipts_encumber(
+    request: Request,
+    digest: str = Form(""),
+    relays: str = Depends(normalize_relays_form),
+    beneficiary: str = Form(""),
+    claim_type: str = Form("pledge"),
+    reference: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    context = await require_warehouse_action_context(request, identity, relays, digest)
+    if not isinstance(context, tuple):
+        return context
+    validated_relays, object_digest = context
+    with session_bootstrap(identity):
+        parsed_beneficiary = parse_authors(beneficiary)
+    if not parsed_beneficiary:
+        return await render_warehouse_receipts_page(request, identity, error_message="Secured party must be a profile alias or npub.", status_code=400)
+    try:
+        control_result = await publish_auxiliary_control_event(
+            relays=validated_relays,
+            object_digest=object_digest,
+            prior_event_id=None,
+            signer_nsec=identity["nsec"],
+            action=ACTION_ENCUMBER,
+            comment="warehouse receipt encumbrance",
+            participant_pubkey_hex=parsed_beneficiary[0],
+            control_type=claim_type.strip() or "pledge",
+            external_ref=reference.strip() or None,
+            force=parse_optional_force(force),
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+    return await render_warehouse_control_result(
+        request,
+        identity,
+        digest=object_digest,
+        relays=validated_relays,
+        control_result=control_result,
+        success_message="Warehouse receipt pledge, lien, or restriction recorded.",
+    )
+
+
+@app.post("/warehouse-receipts/discharge")
+async def warehouse_receipts_discharge(
+    request: Request,
+    digest: str = Form(""),
+    relays: str = Depends(normalize_relays_form),
+    encumbrance_event: str = Form(""),
+    releasing_party: str = Form(""),
+    reference: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    context = await require_warehouse_action_context(request, identity, relays, digest)
+    if not isinstance(context, tuple):
+        return context
+    validated_relays, object_digest = context
+    participant_pubkey_hex = None
+    if releasing_party.strip():
+        with session_bootstrap(identity):
+            parsed_releasing_party = parse_authors(releasing_party)
+        if not parsed_releasing_party:
+            return await render_warehouse_receipts_page(request, identity, error_message="Releasing party must be a profile alias or npub.", status_code=400)
+        participant_pubkey_hex = parsed_releasing_party[0]
+    try:
+        control_result = await publish_auxiliary_control_event(
+            relays=validated_relays,
+            object_digest=object_digest,
+            prior_event_id=None,
+            signer_nsec=identity["nsec"],
+            action=ACTION_DISCHARGE,
+            comment="warehouse receipt encumbrance discharge",
+            participant_pubkey_hex=participant_pubkey_hex,
+            encumbrance_event_id=encumbrance_event,
+            external_ref=reference.strip() or None,
+            force=parse_optional_force(force),
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+    return await render_warehouse_control_result(
+        request,
+        identity,
+        digest=object_digest,
+        relays=validated_relays,
+        control_result=control_result,
+        success_message="Warehouse receipt pledge, lien, or restriction released.",
+    )
+
+
+@app.post("/warehouse-receipts/redeem")
+async def warehouse_receipts_redeem(
+    request: Request,
+    digest: str = Form(""),
+    relays: str = Depends(normalize_relays_form),
+    obligor: str = Form(""),
+    reference: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    context = await require_warehouse_action_context(request, identity, relays, digest)
+    if not isinstance(context, tuple):
+        return context
+    validated_relays, object_digest = context
+    with session_bootstrap(identity):
+        parsed_obligor = parse_authors(obligor)
+    if not parsed_obligor:
+        return await render_warehouse_receipts_page(request, identity, error_message="Warehouse operator / obligor must be a profile alias or npub.", status_code=400)
+    try:
+        control_result = await publish_auxiliary_control_event(
+            relays=validated_relays,
+            object_digest=object_digest,
+            prior_event_id=None,
+            signer_nsec=identity["nsec"],
+            action=ACTION_REDEEM,
+            comment="warehouse receipt presentation for delivery",
+            participant_pubkey_hex=parsed_obligor[0],
+            external_ref=reference.strip() or None,
+            force=parse_optional_force(force),
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+    return await render_warehouse_control_result(
+        request,
+        identity,
+        digest=object_digest,
+        relays=validated_relays,
+        control_result=control_result,
+        success_message="Warehouse receipt presented for delivery.",
+    )
+
+
+@app.post("/warehouse-receipts/terminate")
+async def warehouse_receipts_terminate(
+    request: Request,
+    digest: str = Form(""),
+    relays: str = Depends(normalize_relays_form),
+    reference: str = Form(""),
+    force: str | None = Form(None),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    context = await require_warehouse_action_context(request, identity, relays, digest)
+    if not isinstance(context, tuple):
+        return context
+    validated_relays, object_digest = context
+    comment = "warehouse receipt delivery complete"
+    if reference.strip():
+        comment += f"; ref={reference.strip()}"
+    try:
+        control_result = await publish_auxiliary_control_event(
+            relays=validated_relays,
+            object_digest=object_digest,
+            prior_event_id=None,
+            signer_nsec=identity["nsec"],
+            action=ACTION_TERMINATE,
+            comment=comment,
+            force=parse_optional_force(force),
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
+    return await render_warehouse_control_result(
+        request,
+        identity,
+        digest=object_digest,
+        relays=validated_relays,
+        control_result=control_result,
+        success_message="Warehouse receipt lifecycle completed.",
+    )
+
+
 @app.get("/bitcoin/check-balance")
 async def bitcoin_balance_page(
     request: Request,
@@ -775,7 +1282,7 @@ async def bitcoin_balance_page(
             nostr_key,
             transaction_limit,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -817,7 +1324,7 @@ async def bitcoin_balance_submit(
             nostr_key,
             transaction_limit,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -855,7 +1362,7 @@ async def bitcoin_silent_payment_ownership(
             nostr_key,
             silent_payment_address,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -896,7 +1403,7 @@ async def bitcoin_silent_payment_transactions(
             blockheight,
             mode,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -916,7 +1423,7 @@ async def bitcoin_silent_payment_transactions(
             silent_payment_scan_form["nostr_key"],
             silent_payment_scan_form["transaction_limit"],
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1006,7 +1513,7 @@ async def bitcoin_silent_payment_transactions(
                 if entry.get("tx_hash")
             ],
         }
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1095,7 +1602,7 @@ async def bitcoin_sweep_preview(
             sweep_form["nostr_key"],
             balance_form["transaction_limit"],
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1147,7 +1654,7 @@ async def bitcoin_sweep_preview(
             BLOCKSTREAM_API_BASE,
             5.0,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1229,7 +1736,7 @@ async def bitcoin_sweep_broadcast(
             sweep_form["nostr_key"],
             balance_form["transaction_limit"],
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1242,7 +1749,7 @@ async def bitcoin_sweep_broadcast(
 
     try:
         broadcast_txid = await asyncio.to_thread(broadcast_blockstream_transaction, tx_hex, BLOCKSTREAM_API_BASE, 10.0)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         sweep_preview = {
             "tx_hex": tx_hex,
             "txid": txid,
@@ -1332,7 +1839,7 @@ async def bitcoin_silent_payment_preview(
                 5.0,
                 None,
             )
-        except click.ClickException as exc:
+        except (click.ClickException, ControlEventError) as exc:
             return render_silent_payment_preview_fragment(
                 request,
                 preview_target_id=target_id,
@@ -1373,7 +1880,7 @@ async def bitcoin_silent_payment_preview(
             silent_payment_form["nostr_key"],
             balance_form["transaction_limit"],
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1427,7 +1934,7 @@ async def bitcoin_silent_payment_preview(
             5.0,
             None,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1488,7 +1995,7 @@ async def bitcoin_silent_payment_broadcast(
                 BLOCKSTREAM_API_BASE,
                 10.0,
             )
-        except click.ClickException as exc:
+        except (click.ClickException, ControlEventError) as exc:
             return render_silent_payment_preview_fragment(
                 request,
                 preview_target_id=target_id,
@@ -1530,7 +2037,7 @@ async def bitcoin_silent_payment_broadcast(
             silent_payment_form["nostr_key"],
             balance_form["transaction_limit"],
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return render_bitcoin_balance_response(
             request,
             identity,
@@ -1548,7 +2055,7 @@ async def bitcoin_silent_payment_broadcast(
             BLOCKSTREAM_API_BASE,
             10.0,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         try:
             fee_rate_value = float(silent_payment_form["fee_rate"])
             silent_payment_preview = await asyncio.to_thread(
@@ -1613,7 +2120,7 @@ async def login(
 ):
     try:
         keys = resolve_keys(nsec.strip())
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
             request,
@@ -1624,7 +2131,7 @@ async def login(
 
     try:
         normalized_bootstrap_relays = await validate_relays(bootstrap_relays or configured_home_relays(), timeout=DEFAULT_QUERY_TIMEOUT)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
             request,
@@ -1640,7 +2147,7 @@ async def login(
     )
     try:
         profiles_index = await _async_load_profiles_index(load_user_config())
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         reset_runtime_bootstrap_overrides(bootstrap_token)
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
@@ -1717,7 +2224,7 @@ async def generate_login(
 ):
     try:
         normalized_bootstrap_relays = await validate_relays(bootstrap_relays or configured_home_relays(), timeout=DEFAULT_QUERY_TIMEOUT)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
             request,
@@ -1734,7 +2241,7 @@ async def generate_login(
     )
     try:
         await initialize_relay_backed_root(load_user_config())
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         reset_runtime_bootstrap_overrides(bootstrap_token)
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
@@ -1788,7 +2295,7 @@ async def create_profile(
         try:
             provided_keys = resolve_keys(provided_signer)
             root_keys = resolve_keys(identity["root_nsec"])
-        except click.ClickException as exc:
+        except (click.ClickException, ControlEventError) as exc:
             template_context["error_message"] = str(exc)
             return templates.TemplateResponse(
                 request,
@@ -1828,7 +2335,7 @@ async def create_profile(
             template_context,
             status_code=400,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(
             request,
@@ -1871,7 +2378,7 @@ async def use_profile(
 
     try:
         keys = resolve_keys(signer_nsec)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context["error_message"] = f"Profile '{profile}' signer is invalid: {exc}"
         return templates.TemplateResponse(
             request,
@@ -1972,7 +2479,7 @@ async def edit_profile_submit(
 
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         if is_htmx_request(request):
             return render_profile_publish_response(
                 request,
@@ -2001,7 +2508,7 @@ async def edit_profile_submit(
                 publish_wait=2.0,
                 query_timeout=DEFAULT_QUERY_TIMEOUT,
             )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         current_profile = await fetch_profile(
             relays=validated_relays,
             pubkey_hex=identity["pubkey_hex"],
@@ -2108,7 +2615,7 @@ async def bitcoin_send_preview(
             spend_form["change_address"] or None,
             5.0,
         )
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         return await render_profile_edit_response(
             request, identity, relays, identity["profile"], profile_form_values(current_profile), compact_profile(current_profile),
             error_message=str(exc), spend_form=spend_form, status_code=400,
@@ -2160,7 +2667,7 @@ async def bitcoin_send_broadcast(
 
     try:
         broadcast_txid = await asyncio.to_thread(broadcast_blockstream_transaction, tx_hex, BLOCKSTREAM_API_BASE, 10.0)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         spend_preview = {"tx_hex": tx_hex, "txid": txid, "destination_address": spend_form["destination_address"], "amount_sats": spend_form["amount_sats"], "fee_rate": spend_form["fee_rate"], "change_address": spend_form["change_address"]}
         return await render_profile_edit_response(
             request, identity, relays, identity["profile"], profile_form_values(current_profile), compact_profile(current_profile),
@@ -2199,7 +2706,7 @@ async def query_etr_from_upload(
 ):
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context = await get_default_template_context(identity)
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
@@ -2243,7 +2750,7 @@ async def issue_etr_from_upload(
 ):
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
-    except click.ClickException as exc:
+    except (click.ClickException, ControlEventError) as exc:
         template_context = await get_default_template_context(identity)
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
