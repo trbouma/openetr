@@ -23,6 +23,37 @@ OpenETR is intended to support multiple independent integration styles:
 
 The important point is that OpenETR does not require every participant to use the same application.
 
+## No Runtime Dependency On Someone Else's Code
+
+The core philosophy is that an OpenETR user should not be required to rely on someone else's running code at the time of performance.
+
+OpenETR depends on cryptographically signed events, not on a particular live application service.
+
+In the common networked case, those events can be served by a publicly available relay pool. A relying party may retrieve the relevant origin events, control events, profile records, and configuration records from relays, verify signatures, traverse event links, and apply its own recognition policy.
+
+But public relay availability is a distribution convenience, not the trust anchor.
+
+The trust anchor is the signed event data:
+
+- each event is cryptographically attributable to its signer;
+- each event has a content-derived event id;
+- the controlled object is identified by digest;
+- event relationships are expressed through signed tags such as `o`, `d`, `e`, `p`, `action`, `enc`, `type`, and `ref`;
+- verification can be performed independently by any implementation that understands the OpenETR wire format.
+
+It should therefore be possible to do everything locally when needed:
+
+- store OpenETR events in a local event store;
+- retrieve events from local files, a local database, or a local relay;
+- verify event signatures without contacting the original publisher;
+- derive object history from locally available events;
+- replay or re-index the event set later;
+- move the same event set to another relay or verifier without changing its cryptographic identity.
+
+This does not eliminate the usefulness of hosted services, shared relays, APIs, or third-party providers. Those systems can make OpenETR easier to operate, discover, index, and integrate.
+
+But they should remain replaceable. If a service disappears, a relying party that has the signed events and the applicable policy should still be able to verify what was published.
+
 ## Relay-Backed State Model
 
 OpenETR increasingly treats relays as the durable backing store for operational configuration and record evidence.
@@ -52,6 +83,8 @@ OpenETR record evidence is also relay-backed:
 - action-specific participants and references through tags such as `p`, `enc`, `type`, and `ref`.
 
 This means an integrated system does not need to own all OpenETR state in a private database. It may cache or index relay data, but the portable evidence lives as signed protocol events.
+
+Because the events are cryptographically unique and independently verifiable, a relay is best understood as a publication, retrieval, and replication mechanism rather than as the source of truth itself.
 
 ## Bootstrap Behind Existing Accounts
 
