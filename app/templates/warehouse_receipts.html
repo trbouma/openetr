@@ -96,19 +96,19 @@
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0.75rem;
       }
-      .profile-grid {
+      .profile-select {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 0.75rem;
+        align-items: end;
       }
-      .profile-card {
-        padding: 0.85rem;
-        border: 1px solid rgba(109, 79, 36, 0.16);
-        border-radius: 0.8rem;
-        background: rgba(255, 255, 255, 0.52);
+      .htmx-indicator {
+        opacity: 0;
+        transition: opacity 160ms ease;
       }
-      .profile-card form {
-        margin-top: 0.65rem;
+      .htmx-request .htmx-indicator,
+      .htmx-request.htmx-indicator {
+        opacity: 1;
       }
       form {
         display: grid;
@@ -121,7 +121,7 @@
         font-weight: 800;
         color: var(--heading);
       }
-      input[type="file"], input[type="text"] {
+      input[type="file"], input[type="text"], select {
         width: 100%;
         box-sizing: border-box;
         background: white;
@@ -171,7 +171,7 @@
         main {
           padding: 0 0.9rem;
         }
-        .grid, .role-grid, .profile-grid {
+        .grid, .role-grid, .profile-select {
           grid-template-columns: 1fr;
         }
         button {
@@ -185,7 +185,7 @@
     </style>
   </head>
   <body>
-    <main>
+    <main id="mlwr-page">
       <nav class="top-nav">
         <a href="/">Home</a>
         <a href="/overview">Overview</a>
@@ -225,26 +225,23 @@
         </ul>
         {% endif %}
         {% if available_profiles %}
-        <div class="profile-grid">
-          {% for profile in available_profiles %}
-          <div class="profile-card">
-            <h3>{{ profile.name }}</h3>
-            <p class="muted">
-              {% if profile.is_selected %}Selected{% elif profile.is_active %}CLI active{% else %}Available{% endif %}
-            </p>
-            {% if profile.signer_npub %}
-            <p class="muted">Signer: <code title="{{ profile.signer_npub }}">{{ profile.signer_npub | short_id }}</code></p>
-            {% endif %}
-            <p class="muted">{{ profile.usable_label }}</p>
-            {% if profile.can_select and not profile.is_selected %}
-            <form action="/profiles/use" method="post">
-              <input type="hidden" name="profile" value="{{ profile.name }}">
-              <button type="submit">Act As {{ profile.name }}</button>
-            </form>
-            {% endif %}
+        <form action="/profiles/use" method="post" hx-post="/profiles/use" hx-target="#mlwr-page" hx-select="#mlwr-page" hx-swap="outerHTML" hx-indicator="#profile-switch-indicator" hx-disabled-elt="find button">
+          <input type="hidden" name="return_to" value="/warehouse-receipts">
+          <div class="profile-select">
+            <label>
+              Acting profile
+              <select name="profile" required>
+                {% for profile in available_profiles %}
+                <option value="{{ profile.name }}" {% if profile.is_selected %}selected{% endif %} {% if not profile.can_select %}disabled{% endif %}>
+                  {{ profile.name }}{% if profile.is_selected %} - selected{% elif profile.is_active %} - CLI active{% endif %}{% if profile.signer_npub %} - {{ profile.signer_npub | short_id }}{% endif %}
+                </option>
+                {% endfor %}
+              </select>
+            </label>
+            <button type="submit">Use Profile</button>
           </div>
-          {% endfor %}
-        </div>
+          <p id="profile-switch-indicator" class="muted htmx-indicator" aria-live="polite">Switching acting profile...</p>
+        </form>
         {% else %}
         <p class="muted">No relay-backed profiles are configured yet for this root identity.</p>
         {% endif %}
@@ -326,5 +323,6 @@
         </p>
       </section>
     </main>
+    {% include "_global_scripts.html" %}
   </body>
 </html>

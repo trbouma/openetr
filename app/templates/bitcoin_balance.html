@@ -309,7 +309,7 @@
       </div>
       {% include "bitcoin_balance_fragment.html" %}
     </main>
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    {% include "_global_scripts.html" %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
       function buildBalanceShareUrl() {

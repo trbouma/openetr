@@ -38,6 +38,18 @@ Its responsibilities are:
 
 It should not become the place where core OpenETR rules are reimplemented.
 
+The preferred web application style is hypermedia-first.
+
+OpenETR web flows should follow a HATEOAS-oriented philosophy:
+
+- server-rendered pages and fragments represent the current application state
+- forms and links express the actions that are available from that state
+- the server returns the next useful representation after each action
+- client-side JavaScript is kept to a minimum
+- htmx may be used to improve responsiveness while preserving ordinary HTML form semantics
+
+In this model, htmx is a progressive enhancement over server-rendered HTML, not a separate client application. A profile switch, issue action, query, transfer, or confirmation should still be understandable as a form submission or link traversal. The browser may update a page fragment in place, but the state transition remains owned by the server and the shared `openetr` services.
+
 ### 2. CLI for Human Use
 
 The human CLI exists for operators, testers, and developers who want direct terminal workflows.
@@ -140,6 +152,7 @@ The web app should handle:
 - form parsing
 - Jinja templates
 - browser-oriented confirmation flows
+- hypermedia controls, including links, forms, and htmx-enhanced fragments
 
 ### Human CLI Adapter
 

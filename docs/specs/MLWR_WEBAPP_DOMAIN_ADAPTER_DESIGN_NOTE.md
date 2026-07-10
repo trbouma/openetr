@@ -397,6 +397,20 @@ The webapp should call the same service-layer workflows that CLI, agent CLI, and
 
 Where command logic exists only inside CLI functions, it should be promoted into a service before being reused by the webapp.
 
+### Hypermedia Web Flow
+
+The MLWR Control Desk should remain a hypermedia application rather than becoming a separate client-side app.
+
+The preferred pattern is:
+
+- render receipt state and available actions in HTML
+- expose actions as ordinary forms and links
+- use htmx for targeted swaps, loading indicators, and small interaction improvements
+- keep custom client-side JavaScript to a minimum
+- let the server return the next receipt or page representation after each action
+
+This keeps the webapp aligned with a HATEOAS philosophy: the current page should tell the user which actions are available, and each action should produce the next server-rendered representation of the OpenETR state.
+
 ### Profile-Aware Signing
 
 The active profile determines the signer.

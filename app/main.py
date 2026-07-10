@@ -2361,12 +2361,20 @@ async def create_profile(
 async def use_profile(
     request: Request,
     profile: str = Form(...),
+    return_to: str = Form("/"),
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
     with session_bootstrap(template_context["identity"]):
         config = load_user_config()
         signer_nsec, signer_source = await resolve_profile_signer_nsec(profile, config)
     if signer_nsec is None:
+        if return_to == "/warehouse-receipts":
+            return await render_warehouse_receipts_page(
+                request,
+                template_context["identity"],
+                error_message=f"No signer nsec is available for profile '{profile}'.",
+                status_code=200 if is_htmx_request(request) else 400,
+            )
         template_context["error_message"] = f"No signer nsec is available for profile '{profile}'."
         return templates.TemplateResponse(
             request,
@@ -2378,6 +2386,13 @@ async def use_profile(
     try:
         keys = resolve_keys(signer_nsec)
     except (click.ClickException, ControlEventError) as exc:
+        if return_to == "/warehouse-receipts":
+            return await render_warehouse_receipts_page(
+                request,
+                template_context["identity"],
+                error_message=f"Profile '{profile}' signer is invalid: {exc}",
+                status_code=200 if is_htmx_request(request) else 400,
+            )
         template_context["error_message"] = f"Profile '{profile}' signer is invalid: {exc}"
         return templates.TemplateResponse(
             request,
@@ -2392,6 +2407,12 @@ async def use_profile(
     template_context["success_message"] = (
         f"Switched to profile '{profile}' using the {signer_source} signer secret."
     )
+    if return_to == "/warehouse-receipts":
+        return await render_warehouse_receipts_page(
+            request,
+            template_context["identity"],
+            success_message=template_context["success_message"],
+        )
     return templates.TemplateResponse(
         request,
         "index.html",
