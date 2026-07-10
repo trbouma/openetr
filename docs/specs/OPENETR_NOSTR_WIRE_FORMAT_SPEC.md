@@ -76,6 +76,28 @@ The current reference CLI command mapping is summarized in [OPENETR_CLI_IMPLEMEN
 
 The current OpenETR wire format uses the following core tags.
 
+OpenETR distinguishes between:
+
+- tags used as relay query anchors
+- tags used as signed structured event data
+- event `content` used as human-readable narrative or unstructured context
+
+Only the first category requires relay indexing support.
+
+Nostr relay filters express tag queries with leading `#` keys, such as `#d`, `#o`, `#e`, or `#p`.
+
+OpenETR therefore uses short, stable tags such as `d`, `o`, `e`, and `p` for object identity, graph traversal, and participant lookup.
+
+OpenETR may also use named tags such as `name`, `size_bytes`, `receipt_reference`, or `goods_description` for structured metadata that does not need to be relay-queryable.
+
+Those named tags are still part of the signed event. They should be read from the event tag list after the event has been retrieved through the core query anchors. Implementations should not need to parse the `content` field to recover structured OpenETR metadata.
+
+The recommended convention is:
+
+- use core single-letter tags for lookup and traversal
+- use named tags for signed structured metadata
+- use `content` for readable summaries, comments, or other unstructured event data
+
 ### `d`
 
 `d` is the replaceable addressing slot for the specific author, object, and action context being expressed.
@@ -173,6 +195,35 @@ Current reference CLI usage:
 
 These tags are part of the working wire convention. Their legal or operational effect depends on the applicable recognition profile.
 
+### Named Structured Metadata Tags
+
+Named metadata tags may be used when an implementation wants to carry signed structured data without requiring relay-level filtering on that data.
+
+Examples for an origin event may include:
+
+- `["name", "MLWR001.pdf"]`
+- `["size_bytes", "282796"]`
+- `["receipt_reference", "MLWR001"]`
+- `["goods_description", "Stored goods described in the receipt"]`
+
+Examples for domain or policy context may include:
+
+- `["domain", "mlwr"]`
+- `["document_type", "warehouse_receipt"]`
+- `["schema", "<schema_identifier_or_uri>"]`
+- `["schema_digest", "<schema_digest_hex>"]`
+
+These tags are:
+
+- signed by the event author
+- available to any verifier that retrieves the event
+- useful for structured display, validation, policy mapping, and domain adapters
+- not assumed to be relay-indexed unless an implementation explicitly chooses and tests relay support
+
+Implementations should treat these named tags as structured event data.
+
+The `content` field should not be the primary machine interface for such data.
+
 ## Minimum Event Shapes
 
 The wire-level event structures below define the current minimum working format.
@@ -186,6 +237,14 @@ The wire-level event structures below define the current minimum working format.
 - optional tags:
   - `["action", "issue"]`
   - profile or identity tags such as `name`, `display_name`, `lei`, or related metadata where a given implementation chooses to include them
+  - document metadata tags such as `name`, `size_bytes`, `receipt_reference`, or `goods_description`
+  - domain tags such as `domain`, `document_type`, `schema`, or `schema_digest`
+
+Recommended `content` convention:
+
+- a short human-readable summary of the issue event
+- no required machine parsing
+- structured values should be carried in tags where practical
 
 Control meaning:
 
@@ -365,6 +424,7 @@ Wire-level validity concerns questions such as:
 - is the object identifier well formed
 - is the event signature valid
 - is the referenced prior event structurally coherent
+- where structured metadata is required by a profile, is it present in tags rather than only embedded in `content`
 
 Recognition concerns questions such as:
 
@@ -419,5 +479,7 @@ The current OpenETR Nostr wire format is defined by:
 - `d` as the replaceable action slot
 - `e` as the control-chain link
 - `action` as the semantic subtype within the control-event family
+- named non-indexed tags as the convention for signed structured metadata
+- `content` as human-readable or unstructured event data
 
 This provides a coherent current working format for publishing, querying, and traversing OpenETR control history over Nostr while leaving recognition, mandate, attestation policy, and legal effect to higher layers.

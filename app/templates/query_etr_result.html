@@ -227,6 +227,14 @@
           <div class="muted">o value</div><div class="mono">{{ query.initial_event.o_values }}</div>
           <div class="muted">Content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
+        {% if query.initial_event.structured_tags %}
+        <h3>Event Data</h3>
+        <div class="kv">
+          {% for tag in query.initial_event.structured_tags %}
+          <div class="muted">{{ tag.name }}</div><div class="mono">{{ tag.value }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
         <h3>Issuer Profile</h3>
         {% if query.initial_profile %}
         <ul>
@@ -254,6 +262,14 @@
             <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
             <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
           </div>
+          {% if item.event.structured_tags %}
+          <h3>Event Data</h3>
+          <div class="kv">
+            {% for tag in item.event.structured_tags %}
+            <div class="muted">{{ tag.name }}</div><div class="mono">{{ tag.value }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
           {% if item.issuer_profile %}
           <h3>Issuer Profile</h3>
           <ul>

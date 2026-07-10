@@ -1,5 +1,11 @@
 # Title Transfer Authority Trust Assumptions
 
+> Status: Legacy / specialized recognition-pattern note.
+>
+> This document reflects an earlier authority-centered title model. The current OpenETR model has evolved toward a broader Control Layer that records signed control evidence and leaves title, priority, protected-holder status, and legal effect to a separate Recognition Layer.
+>
+> The trust analysis remains useful for registry-style integrations, institutional attestors, public authorities, and other recognition anchors that may still act like a Title Transfer Authority within a particular policy profile.
+
 This note summarizes the trust assumptions for a digest-addressed title registry built on Nostr.
 
 ## Overview

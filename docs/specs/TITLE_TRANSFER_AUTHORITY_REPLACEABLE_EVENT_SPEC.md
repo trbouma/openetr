@@ -1,5 +1,11 @@
 # Title Transfer Authority Replaceable Event Specification
 
+> Status: Legacy / specialized recognition-pattern note.
+>
+> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. The current OpenETR model has evolved toward a broader Control Layer with `31415` origin events, `31416` control events, relay-backed profiles, and separate Recognition Layer policy.
+>
+> The note remains useful as a specialized pattern for registry-style or attestor-led recognition, and as background for trust-anchor design. It should not be read as the primary current OpenETR model.
+
 This note describes a proposed implementation of title and transfer attestations on Nostr using replaceable events.
 
 It is intended as a companion to [TITLE_TRANSFER_AUTHORITY_TRUST_ASSUMPTIONS.md](TITLE_TRANSFER_AUTHORITY_TRUST_ASSUMPTIONS.md).

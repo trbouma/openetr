@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Iterable, Sequence
 
 from monstr.client.client import ClientPool
 from monstr.event.event import Event
@@ -12,6 +12,39 @@ from openetr.guards import evaluate_issue_etr_guard
 from openetr.helpers import format_object_identifier, format_pubkey, resolve_keys
 
 
+def build_issue_event_content(filename: str) -> str:
+    return f"Issued OpenETR object {filename}"
+
+
+def build_issue_event_tags(
+    digest: str,
+    filename: str,
+    size_bytes: int | None,
+    generated_at: datetime,
+    extra_tags: Iterable[Sequence[str]] | None = None,
+) -> list[list[str]]:
+    tags = [
+        ["d", digest],
+        ["o", digest],
+        ["name", filename],
+        ["digest_generated_at", generated_at.isoformat()],
+    ]
+    if size_bytes is not None:
+        tags.append(["size_bytes", str(size_bytes)])
+
+    for tag in extra_tags or []:
+        if len(tag) < 2:
+            continue
+        name = str(tag[0]).strip()
+        values = [str(value).strip() for value in tag[1:] if str(value).strip()]
+        if not name or not values:
+            continue
+        if name in {"d", "o"}:
+            continue
+        tags.append([name, *values])
+    return tags
+
+
 async def publish_issue_etr(
     filename: str,
     size_bytes: int,
@@ -19,16 +52,20 @@ async def publish_issue_etr(
     relays: str,
     signer_nsec: str,
     comment: str | None,
+    extra_tags: Iterable[Sequence[str]] | None = None,
     publish_wait: float = 2.0,
     timeout: int = DEFAULT_QUERY_TIMEOUT,
     limit: int = DEFAULT_LIMIT,
 ) -> dict[str, Any]:
     keys = resolve_keys(signer_nsec)
     generated_at = datetime.now(timezone.utc)
-    resolved_comment = comment or (
-        f"name={filename}; "
-        f"digest_generated_at={generated_at.isoformat()}; "
-        f"size_bytes={size_bytes}"
+    resolved_comment = comment or build_issue_event_content(filename)
+    event_tags = build_issue_event_tags(
+        digest=digest,
+        filename=filename,
+        size_bytes=size_bytes,
+        generated_at=generated_at,
+        extra_tags=extra_tags,
     )
     issue_guard = await evaluate_issue_etr_guard(
         relays=relays,
@@ -53,7 +90,7 @@ async def publish_issue_etr(
         kind=DEFAULT_KIND,
         content=resolved_comment,
         pub_key=keys.public_key_hex(),
-        tags=[["d", digest], ["o", digest]],
+        tags=event_tags,
     )
     event.sign(keys.private_key_hex())
 
@@ -89,6 +126,7 @@ async def publish_issue_etr(
         "signer_npub": keys.public_key_bech32(),
         "signer_pubkey": format_pubkey(keys.public_key_hex()),
         "comment": resolved_comment,
+        "tags": event_tags,
         "existing_count_before_publish": issue_guard["existing_count"],
         "existing_latest_event_id": issue_guard["latest_event_id"],
         "query_count_after_publish": len(matching_events),

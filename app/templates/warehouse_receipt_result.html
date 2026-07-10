@@ -230,8 +230,16 @@
           <div class="muted">Origin event</div><div class="mono">{{ query.initial_event.event_ref }}</div>
           <div class="muted">Issuer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
           <div class="muted">Created at</div><div>{{ query.initial_event.created_at }}</div>
-          <div class="muted">Origin Event Data</div><div class="mono">{{ query.initial_event.content }}</div>
+          <div class="muted">Content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
+        {% if query.initial_event.structured_tags %}
+        <h3>Event Data</h3>
+        <div class="kv">
+          {% for tag in query.initial_event.structured_tags %}
+          <div class="muted">{{ tag.name }}</div><div class="mono">{{ tag.value }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
         <h3>Issuer Profile</h3>
         {% if query.initial_profile %}
         <ul>

@@ -133,6 +133,7 @@ def _print_profile(profile: dict) -> None:
 
 
 def _print_event_details(evt: Event, output: str, indent: str = "", verbose: bool = False) -> None:
+    structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"d", "o", "e", "p"}]
     if output == "raw":
         click.echo(f"{indent}event:")
         click.echo(f"{indent}{evt.event_data()}")
@@ -155,6 +156,10 @@ def _print_event_details(evt: Event, output: str, indent: str = "", verbose: boo
         click.echo(f"{indent}content:")
         for line in evt.content.splitlines() or [""]:
             click.echo(f"{indent}  {line}")
+        if structured_tags:
+            click.echo(f"{indent}event data:")
+            for tag in structured_tags:
+                click.echo(f"{indent}  {tag[0]}: {' '.join(tag[1:])}")
         return
 
     click.echo(f"{indent}content: {evt.content}")

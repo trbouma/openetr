@@ -192,6 +192,21 @@ def is_lifecycle_state_event(evt: Event) -> bool:
     return is_lifecycle_state_action(control_action(evt))
 
 
+def structured_event_tags(evt: Event) -> list[dict[str, Any]]:
+    structured_tags = []
+    for tag in evt.tags:
+        if len(tag) < 2 or tag[0] in {"d", "o", "e", "p"}:
+            continue
+        structured_tags.append(
+            {
+                "name": tag[0],
+                "values": tag[1:],
+                "value": " ".join(tag[1:]),
+            }
+        )
+    return structured_tags
+
+
 def event_to_view(evt: Event) -> dict[str, Any]:
     subject_hex = transfer_party_from_p_tag(evt)
     action = control_action(evt)
@@ -206,6 +221,7 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "kind": evt.kind,
         "d_values": evt.get_tags_value("d"),
         "o_values": evt.get_tags_value("o"),
+        "structured_tags": structured_event_tags(evt),
         "content": evt.content,
         "action": action,
         "action_label": spec.label,

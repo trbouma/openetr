@@ -947,16 +947,14 @@ async def warehouse_receipts_issue(
             status_code=400,
         )
 
-    comment_parts = [
-        "warehouse receipt issue",
-        f"name={filename}",
-        f"size_bytes={size_bytes}",
+    extra_tags = [
+        ["domain", "mlwr"],
+        ["document_type", "warehouse_receipt"],
     ]
     if receipt_reference.strip():
-        comment_parts.append(f"receipt_reference={receipt_reference.strip()}")
+        extra_tags.append(["receipt_reference", receipt_reference.strip()])
     if goods_description.strip():
-        comment_parts.append(f"goods={goods_description.strip()}")
-    comment = "; ".join(comment_parts)
+        extra_tags.append(["goods_description", goods_description.strip()])
 
     issue_result = await publish_issue_etr(
         filename=filename,
@@ -964,7 +962,8 @@ async def warehouse_receipts_issue(
         digest=digest,
         relays=validated_relays,
         signer_nsec=identity["nsec"],
-        comment=comment,
+        comment=f"Issued warehouse receipt {receipt_reference.strip() or filename}",
+        extra_tags=extra_tags,
     )
     query_context = await build_query_etr_result(
         digest=issue_result["sha256"],

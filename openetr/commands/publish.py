@@ -47,6 +47,7 @@ from openetr.helpers import (
     resolve_lei,
 )
 from openetr.guards import evaluate_issue_etr_guard, find_existing_origin_records_for_object
+from openetr.services.issue_etr import build_issue_event_content, build_issue_event_tags
 
 CONTROL_TRANSFER_KIND = CONTROL_EVENT_KIND
 
@@ -82,7 +83,10 @@ async def _run_publish_object(
     query_timeout: int,
     limit: int,
     digest_file: Path | None,
+    digest_generated_at,
+    digest_file_size: int | None,
     display_hex_tags: bool = False,
+    extra_tags: list[list[str]] | None = None,
 ) -> None:
     ok_results = []
     assert_hex_object_identifier(digest)
@@ -102,7 +106,13 @@ async def _run_publish_object(
         kind=DEFAULT_KIND,
         content=comment,
         pub_key=as_user.public_key_hex(),
-        tags=[["d", digest], ["o", digest]],
+        tags=build_issue_event_tags(
+            digest=digest,
+            filename=digest_file.name if digest_file is not None else format_object_identifier(digest),
+            size_bytes=digest_file_size,
+            generated_at=digest_generated_at,
+            extra_tags=extra_tags,
+        ),
     )
     event.sign(as_user.private_key_hex())
 
@@ -116,8 +126,9 @@ async def _run_publish_object(
     if digest_file is not None:
         click.echo(f"Source:  sha256({digest_file})")
     click.echo(f"Content: {event.content}")
-    click.echo("Event content payload:")
-    click.echo(event.content)
+    click.echo("Event tags:")
+    for tag in event.tags:
+        click.echo(f"  {tag}")
     click.echo()
 
     async with ClientPool(
@@ -1085,6 +1096,8 @@ def publish_object(
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
             digest_file=resolved_file,
+            digest_generated_at=generated_at,
+            digest_file_size=file_size,
             display_hex_tags=False,
         )
     )
@@ -1165,12 +1178,8 @@ def issue_etr(
         digest_file=str(digest_file) if digest_file is not None else None,
         keys=keys,
     )
-    resolved_comment = build_comment(
-        comment=comment,
-        digest=resolved_digest,
-        generated_at=generated_at,
-        digest_file=resolved_file,
-        digest_file_size=file_size,
+    resolved_comment = comment or build_issue_event_content(
+        resolved_file.name if resolved_file is not None else format_object_identifier(resolved_digest)
     )
 
     issue_guard = asyncio.run(
@@ -1203,6 +1212,8 @@ def issue_etr(
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
             digest_file=resolved_file,
+            digest_generated_at=generated_at,
+            digest_file_size=file_size,
             display_hex_tags=True,
         )
     )
