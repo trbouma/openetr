@@ -66,6 +66,7 @@ from openetr.helpers import (
     validate_lei,
     validate_npub,
 )
+from openetr.services.profile_admin import create_relay_backed_profile
 MLETR_TRIVIA_PATH = files("openetr").joinpath("mletr_trivia.yaml")
 
 
@@ -1243,6 +1244,36 @@ def profile_delete(profile: str, force: bool) -> None:
         delete_alias(normalized_alias)
         click.echo(f"Deleted alias {normalized_alias}")
     click.echo(f"Deleted profile {profile}")
+
+
+@profile_group.command("add-existing")
+@click.argument("profile")
+@click.option("--as-user", required=True, help="Existing profile signer nsec to add under the current root.")
+@click.option("--relays", default=None, help="Relay URL or comma-separated relay pool where the signer's profile can be found.")
+def profile_add_existing(profile: str, as_user: str, relays: str | None) -> None:
+    """Add an existing published profile signer to the current root."""
+    config = hydrate_local_profiles_from_index(load_user_config())
+    resolved_relays = _normalize_relays(relays or DEFAULT_RELAYS)
+    root_nsec = resolve_root_nsec(config)
+    try:
+        created_profile = asyncio.run(
+            create_relay_backed_profile(
+                profile_name=profile,
+                relays=resolved_relays,
+                config=config,
+                signer_nsec=as_user,
+                root_nsec=root_nsec,
+                require_existing_profile=True,
+            )
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(
+        f"Added existing profile {created_profile['profile_name']} to the current root "
+        f"using signer {created_profile['signer_npub']}."
+    )
+    click.echo(f"Relays: {created_profile['relays']}")
 
 
 @profile_group.command("set")

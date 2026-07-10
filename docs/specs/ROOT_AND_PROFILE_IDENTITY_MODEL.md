@@ -98,6 +98,28 @@ In practical terms:
 - profiles act within OpenETR workflows
 - each profile remains an independent Nostr identity
 
+## Why This Model Is Flexible
+
+The root-and-profile model is powerful because the root organizes access to identities without pretending to create their cryptographic authority.
+
+At the Nostr layer, a profile key can exist independently before it is known to any OpenETR root. It may have its own public profile, history, counterparties, and operational reputation.
+
+OpenETR can later add that profile signer to a root-managed environment by storing the profile configuration and encrypted signer material under the root's relay-backed configuration.
+
+This means:
+
+- a profile can be created inside one OpenETR environment and later imported into another;
+- an existing external Nostr identity can become an OpenETR operational profile;
+- one administrative root can organize many operational profiles;
+- the same operational profile may be known to more than one administrative context where the signer secret has intentionally been shared;
+- existing systems can map their own account, tenant, role, or custody model onto OpenETR profiles.
+
+The important principle is:
+
+> OpenETR does not pretend the root creates the identity. The root organizes access to identities.
+
+That makes the model suitable for integration with existing systems while preserving independent signer attribution at the event layer.
+
 ## CLI Semantics
 
 The current CLI reflects this distinction through separate commands.

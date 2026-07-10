@@ -114,6 +114,45 @@ The platform should still preserve the OpenETR separation between:
 
 That separation lets an account-based product give users a conventional experience without collapsing account identity, configuration authority, and operational authorship into one key.
 
+## Root-And-Profile As An Integration Pattern
+
+The root-and-profile identity model is one of the main ways OpenETR can fit into existing system contexts.
+
+It is similar to a master-key and delegated-key pattern:
+
+- the root key anchors recovery, configuration, profile discovery, and encrypted signer management;
+- profile keys are delegated operational identities that sign day-to-day OpenETR actions;
+- the host system can decide how profiles map to users, roles, departments, tenants, legal entities, counterparties, or workflow actors.
+
+This analogy is useful for integration planning, but it should not be read as a cryptographic hierarchy at the Nostr layer.
+
+Each profile remains an independent Nostr keypair. The root does not make a profile key valid by cryptographic derivation. Instead, OpenETR uses relay-backed configuration to organize, recover, and manage the profile set.
+
+In a conventional enterprise or SaaS integration, the host application may hide the root key behind its own account, tenant, organization, custody, or secrets-management model. Users may only see operational profiles such as:
+
+- carrier;
+- warehouse;
+- exporter;
+- bank;
+- consignee;
+- auditor;
+- registry.
+
+Those profiles can then sign OpenETR events independently, while the root provides administration and recovery for the profile set.
+
+This is also useful when a participant already has an operational identity before it joins a new OpenETR environment. If the participant supplies an existing profile `nsec`, the receiving root can add that signer to its own root-managed profile set after verifying that the signer has a published profile on the selected relays.
+
+The previous root does not need to participate in that import. The signer key is independent. The new root is not creating the identity; it is organizing access to an identity that already exists.
+
+This preserves a useful separation:
+
+- the existing account system controls login, permissions, user experience, and business workflow;
+- the OpenETR root manages portable configuration and profile recovery;
+- OpenETR profiles create signed, attributable, operational evidence;
+- relying parties can verify signed events without trusting the host application's runtime database as the source of truth.
+
+The root may also be used as a profile in simple or demonstration deployments. For production-like integrations, however, separate profile signers are usually preferable because they preserve the distinction between administrative recovery and operational authorship.
+
 ## Python Component Integration
 
 OpenETR includes an installable Python component named `openetr`.

@@ -662,6 +662,12 @@ async def resolve_profile_signer_nsec(profile_name: str, config: dict | None = N
     return None, "none"
 
 
+def profile_switch_signer_source_label(signer_source: str) -> str:
+    if signer_source == "relay":
+        return "its root-managed signer"
+    return f"the {signer_source} signer secret"
+
+
 async def get_available_profiles(identity: dict[str, Any]) -> list[dict[str, Any]]:
     if not identity.get("logged_in"):
         return []
@@ -2325,6 +2331,7 @@ async def create_profile(
                 config=load_user_config(),
                 signer_nsec=signer_nsec,
                 root_nsec=identity.get("root_nsec"),
+                require_existing_profile=bool(provided_signer),
             )
     except ValueError as exc:
         template_context["error_message"] = str(exc)
@@ -2346,9 +2353,14 @@ async def create_profile(
     request.session[SESSION_SIGNER_NSEC_KEY] = created_profile["signer_nsec"]
     request.session[SESSION_PROFILE_KEY] = created_profile["profile_name"]
     template_context = await get_default_template_context(session_identity(request))
-    template_context["success_message"] = (
-        f"Created relay-backed profile '{created_profile['profile_name']}' and selected it for this session."
-    )
+    if created_profile["generated_signer"]:
+        template_context["success_message"] = (
+            f"Created relay-backed profile '{created_profile['profile_name']}' and selected it for this session."
+        )
+    else:
+        template_context["success_message"] = (
+            f"Added existing profile '{created_profile['profile_name']}' to this root and selected it for this session."
+        )
     template_context["created_profile"] = created_profile
     return templates.TemplateResponse(
         request,
@@ -2405,7 +2417,7 @@ async def use_profile(
     request.session[SESSION_PROFILE_KEY] = profile
     template_context = await get_default_template_context(session_identity(request))
     template_context["success_message"] = (
-        f"Switched to profile '{profile}' using the {signer_source} signer secret."
+        f"Switched to profile '{profile}' using {profile_switch_signer_source_label(signer_source)}."
     )
     if return_to == "/warehouse-receipts":
         return await render_warehouse_receipts_page(
