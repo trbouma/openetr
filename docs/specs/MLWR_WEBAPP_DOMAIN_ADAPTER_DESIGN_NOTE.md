@@ -83,6 +83,8 @@ The services publish and query the generalized OpenETR Nostr wire format:
 
 - `kind 31415` for origin events
 - `kind 31416` for control-relevant events
+- named structured tags such as `name`, `digest_generated_at`, and `size_bytes` for origin-event metadata
+- MLWR domain tags such as `domain=mlwr`, `document_type=warehouse_receipt`, `receipt_reference`, and `goods_description`
 - `action` tags for control-event subtype
 - `o` for object identity
 - `d` for replaceable action slot
@@ -90,6 +92,12 @@ The services publish and query the generalized OpenETR Nostr wire format:
 - `p` for action-specific participant
 - `enc` for discharge of a specific encumbrance
 - `type` and `ref` for additional action metadata
+
+The MLWR adapter treats signed event tags as the structured data interface.
+
+The event `content` field is used for a short human-readable narrative, such as `Issued warehouse receipt MLWR001`, and should not be parsed to recover receipt reference, goods description, file name, or byte size.
+
+This mirrors the general OpenETR convention: relay-query anchors and graph links live in core tags; domain and document data live in named signed tags; `content` remains readable context.
 
 ## Current Web Routes
 
@@ -305,7 +313,7 @@ OpenETR mapping:
 
 - `kind = 31416`
 - `action = terminate`
-- optional `ref` in content or future tag extension
+- optional signed `ref` tag
 
 Current service:
 
@@ -408,18 +416,18 @@ The current implementation is intentionally practical and early.
 Known limitations include:
 
 - the warehouse receipt data model is still document-format neutral
-- action forms operate from a known object digest rather than structured receipt records
+- action forms operate from a known object digest and signed origin-event tags rather than a full structured receipt schema
 - attestation forms are not yet exposed directly on the MLWR page
 - amendment, cancellation, split receipts, partial delivery, substitution, and bulk goods are not yet modeled as first-class domain actions
 - recognition profiles are not yet machine-enforced beyond current OpenETR chain and action checks
-- the CLI still contains some older inline publishing logic that should eventually call the same service layer
+- the CLI still contains some older inline control-event publishing logic that should eventually call the same service layer
 
 ## Next Steps
 
 Useful next implementation steps:
 
 1. Add MLWR-specific attestation forms.
-2. Add structured receipt metadata extraction or optional JSON fields.
+2. Add richer structured receipt metadata tags or optional schema-backed fields.
 3. Add domain result sections for discharged claims, redemption events, and termination events.
 4. Refactor CLI control commands to call `openetr.services.control_events`.
 5. Add policy profiles for minimal demo, registry-backed, and secured-finance recognition modes.
@@ -443,4 +451,3 @@ The MLWR Control Desk establishes a domain-adapter pattern for OpenETR.
 Users see warehouse receipt workflows. The system publishes and queries generalized OpenETR events.
 
 That keeps the protocol portable while making the application surface intelligible to people working with warehouse receipts.
-

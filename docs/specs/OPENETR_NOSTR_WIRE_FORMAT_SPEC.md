@@ -88,7 +88,7 @@ Nostr relay filters express tag queries with leading `#` keys, such as `#d`, `#o
 
 OpenETR therefore uses short, stable tags such as `d`, `o`, `e`, and `p` for object identity, graph traversal, and participant lookup.
 
-OpenETR may also use named tags such as `name`, `size_bytes`, `receipt_reference`, or `goods_description` for structured metadata that does not need to be relay-queryable.
+OpenETR also uses named tags such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `receipt_reference`, or `goods_description` for structured metadata that does not need to be relay-queryable.
 
 Those named tags are still part of the signed event. They should be read from the event tag list after the event has been retrieved through the core query anchors. Implementations should not need to parse the `content` field to recover structured OpenETR metadata.
 
@@ -202,6 +202,7 @@ Named metadata tags may be used when an implementation wants to carry signed str
 Examples for an origin event may include:
 
 - `["name", "MLWR001.pdf"]`
+- `["digest_generated_at", "2026-07-10T12:00:00+00:00"]`
 - `["size_bytes", "282796"]`
 - `["receipt_reference", "MLWR001"]`
 - `["goods_description", "Stored goods described in the receipt"]`
@@ -222,7 +223,7 @@ These tags are:
 
 Implementations should treat these named tags as structured event data.
 
-The `content` field should not be the primary machine interface for such data.
+The `content` field should not be the primary machine interface for such data. It is reserved for readable narrative, comments, or unstructured context that helps a person understand the event after the structured tags have been read.
 
 ## Minimum Event Shapes
 
@@ -234,17 +235,21 @@ The wire-level event structures below define the current minimum working format.
 - required tags:
   - `["d", "<object_hex>"]`
   - `["o", "<object_hex>"]`
-- optional tags:
+- current implementation structured tags:
+  - `["name", "<source_name>"]`
+  - `["digest_generated_at", "<iso_8601_timestamp>"]`
+  - `["size_bytes", "<decimal_byte_count>"]`
+- optional structured tags:
   - `["action", "issue"]`
-  - profile or identity tags such as `name`, `display_name`, `lei`, or related metadata where a given implementation chooses to include them
-  - document metadata tags such as `name`, `size_bytes`, `receipt_reference`, or `goods_description`
+  - profile or identity tags such as `display_name`, `lei`, or related metadata where a given implementation chooses to include them
+  - document metadata tags such as `receipt_reference` or `goods_description`
   - domain tags such as `domain`, `document_type`, `schema`, or `schema_digest`
 
 Recommended `content` convention:
 
 - a short human-readable summary of the issue event
 - no required machine parsing
-- structured values should be carried in tags where practical
+- structured values are carried in tags
 
 Control meaning:
 
