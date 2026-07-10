@@ -75,7 +75,7 @@ openetr discharge examples/MLWR001.pdf \
   --ref discharge-MLWR001-001
 ```
 
-The query surface has also become more useful. `openetr query-etr` now shows the origin event, matching control events, lifecycle state, current controller, social profile information where available, and an encumbrance summary.
+The query surface has also become more useful. `openetr query-etr` now shows the origin event, matching control events, lifecycle state, current controller, profile information where available, and an encumbrance summary.
 
 That means a user can ask a practical question such as:
 

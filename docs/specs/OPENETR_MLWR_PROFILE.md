@@ -373,7 +373,7 @@ These rule sets are not part of the base OpenETR wire format. They are recogniti
 One MLWR-style lifecycle may look like:
 
 1. Warehouse operator creates a profile.
-2. Warehouse operator publishes a social profile with legal name, address, and optional registry identifiers.
+2. Warehouse operator publishes a profile with legal name, address, and optional registry identifiers.
 3. Warehouse operator issues a warehouse receipt:
 
    ```bash
@@ -443,7 +443,7 @@ The MLWR profile still needs answers to several design questions:
 - How should priority among multiple encumbrances be represented or referenced?
 - Should encumbrance acceptance be a separate event or an attestation attached to the encumbrance event?
 - Should redemption require discharge of all outstanding encumbrances?
-- What is the minimum social profile metadata for warehouse operators and secured parties?
+- What is the minimum profile metadata for warehouse operators and secured parties?
 
 ## Related Specifications
 
@@ -461,4 +461,3 @@ The MLWR profile should treat OpenETR as a signed evidence layer for warehouse r
 OpenETR can identify the receipt, publish and query the control history, expose the current controller under a chosen recognition profile, and report encumbrance, discharge, redemption, and termination evidence.
 
 The MLWR or local enactment remains responsible for legal validity, protected-holder status, warehouse obligations, pledge effect, priority, enforcement, and final recognition.
-

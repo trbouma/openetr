@@ -60,7 +60,7 @@ Profile signers may publish operational events such as:
 - discharge events
 - redemption events
 - termination events
-- social profile metadata
+- profile metadata
 
 When a command publishes an ETR event, the event is signed by the active profile signer unless a command explicitly overrides the signer.
 

@@ -475,9 +475,9 @@ That way the configuration remains:
 
 This fits the larger OpenETR claim that important protocol state can exist across multiple independent relays rather than inside one application boundary.
 
-## Relationship to Kind `0` Social Profiles
+## Relationship to Kind `0` Profiles
 
-Relay-backed CLI configuration is different from kind `0` social profile metadata.
+Relay-backed CLI configuration is different from kind `0` profile metadata.
 
 Kind `0` is for public-facing identity metadata such as:
 
@@ -499,7 +499,7 @@ These should remain conceptually separate even if both are stored on relays.
 The current OpenETR implementation therefore distinguishes clearly between:
 
 - relay-backed CLI administration records under the root CLI key
-- public kind `0` social profile records under the operational profile keys
+- public kind `0` profile records under the operational profile keys
 
 ## Advantages
 

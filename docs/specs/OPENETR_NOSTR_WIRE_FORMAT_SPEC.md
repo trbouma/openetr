@@ -330,7 +330,7 @@ The reference `openetr query-etr` command currently derives and displays:
 - summary control chains from linked `e` references
 - lifecycle state
 - current controller
-- social profile information where available
+- profile information where available
 - encumbrance totals, discharged encumbrances, and outstanding encumbrances
 
 The web app query result uses the same query service and should therefore expose the same derived object-state view.

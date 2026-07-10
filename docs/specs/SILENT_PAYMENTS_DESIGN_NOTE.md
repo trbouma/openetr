@@ -457,7 +457,7 @@ In this use case, the recipient may have:
 
 - a generated `npub`
 - a matching `nsec`
-- and no published social profile, website, or human-facing payment page
+- and no published profile, website, or human-facing payment page
 
 That means there may be no practical address-distribution channel at all beyond the public identity key itself.
 

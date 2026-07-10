@@ -48,7 +48,7 @@ The current demo app renders an OpenETR `query-etr` style result page from an up
 The result page includes the same categories of information shown by the CLI:
 
 - the initial ETR origin event
-- issuer social profile details
+- issuer profile details
 - matching origin records
 - matching control events
 - the summary control chain

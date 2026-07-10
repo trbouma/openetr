@@ -286,11 +286,11 @@ async def _run_query_etr(
     if initial_event.get("is_current_profile_author"):
         click.secho("current profile author", fg="blue", bold=True)
     if result["initial_profile"]:
-        click.echo("issuer social profile:")
+        click.echo("issuer profile:")
         for field, value in result["initial_profile"]:
             click.echo(f"  {field}: {value}")
     else:
-        click.echo("issuer social profile: none found")
+        click.echo("issuer profile: none found")
 
     click.echo(f"d value: {initial_event['d_values']}")
     click.echo(f"o value: {initial_event['o_values']}")
@@ -311,11 +311,11 @@ async def _run_query_etr(
             click.echo(f"created_at: {evt['created_at']}")
             click.echo(f"object id: {format_object_identifier(digest)}")
             if item["issuer_profile"]:
-                click.echo("issuer social profile:")
+                click.echo("issuer profile:")
                 for field, value in item["issuer_profile"]:
                     click.echo(f"  {field}: {value}")
             else:
-                click.secho("WARNING: no issuer social profile found for this issuer.", fg="yellow", bold=True)
+                click.secho("WARNING: no issuer profile found for this issuer.", fg="yellow", bold=True)
             _print_separator()
 
     if origin_only:
@@ -328,7 +328,7 @@ async def _run_query_etr(
         click.echo(f"  npub: {result['current_controller']['npub']}")
         click.echo(f"  basis: {result['current_controller']['basis']}")
         if result["current_controller"]["profile"]:
-            click.echo("  current controller social profile:")
+            click.echo("  current controller profile:")
             for field, value in result["current_controller"]["profile"]:
                 click.echo(f"    {field}: {value}")
         return
@@ -346,7 +346,7 @@ async def _run_query_etr(
         click.echo(f"  npub: {result['current_controller']['npub']}")
         click.echo(f"  basis: {result['current_controller']['basis']}")
         if result["current_controller"]["profile"]:
-            click.echo("  current controller social profile:")
+            click.echo("  current controller profile:")
             for field, value in result["current_controller"]["profile"]:
                 click.echo(f"    {field}: {value}")
         return
@@ -374,20 +374,20 @@ async def _run_query_etr(
         if evt["external_ref"]:
             click.echo(f"{indent}  ref: {evt['external_ref']}")
         if node["signer_profile"]:
-            click.echo(f"{indent}  control event signer social profile:")
+            click.echo(f"{indent}  control event signer profile:")
             for field, value in node["signer_profile"]:
                 click.echo(f"{indent}    {field}: {value}")
         else:
-            click.secho(f"{indent}  WARNING: no control event signer social profile found for this author.", fg="yellow", bold=True)
+            click.secho(f"{indent}  WARNING: no control event signer profile found for this author.", fg="yellow", bold=True)
         if evt["subject_npub"] is not None:
             subject_label = evt["participant_label"] or "participant"
             click.echo(f"{indent}  {subject_label}: {evt['subject_npub']}")
             if node["transferee_profile"]:
-                click.echo(f"{indent}  {subject_label} social profile:")
+                click.echo(f"{indent}  {subject_label} profile:")
                 for field, value in node["transferee_profile"]:
                     click.echo(f"{indent}    {field}: {value}")
             else:
-                click.secho(f"{indent}  WARNING: no social profile found for the {subject_label}.", fg="yellow", bold=True)
+                click.secho(f"{indent}  WARNING: no profile found for the {subject_label}.", fg="yellow", bold=True)
         click.echo(f"{indent}  d value: {evt['d_values']}")
         click.echo(f"{indent}  o value: {evt['o_values']}")
         _print_event_details(evt["raw_event"], output, indent=f"{indent}  ", verbose=verbose)
@@ -423,7 +423,7 @@ async def _run_query_etr(
             if evt["external_ref"]:
                 click.echo(f"      ref: {evt['external_ref']}")
             if item["beneficiary_profile"]:
-                click.echo("      beneficiary social profile:")
+                click.echo("      beneficiary profile:")
                 for field, value in item["beneficiary_profile"]:
                     click.echo(f"        {field}: {value}")
 
@@ -454,7 +454,7 @@ async def _run_query_etr(
     else:
         click.echo(f"  basis: {current_controller['basis']}")
     if current_controller["npub"] is not None and current_controller["profile"]:
-            click.echo("  current controller social profile:")
+            click.echo("  current controller profile:")
             for field, value in current_controller["profile"]:
                 click.echo(f"    {field}: {value}")
 
@@ -719,7 +719,7 @@ def query_profile(
     ssl_disable_verify: bool,
     debug: bool,
 ) -> None:
-    """Look up the Nostr kind 0 social profile for an npub, NIP-05 name, or nsec."""
+    """Look up the Nostr kind 0 profile for an npub, NIP-05 name, or nsec."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
     profile_config = get_profile_config(profile or get_active_profile_name())

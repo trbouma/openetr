@@ -139,7 +139,7 @@ By contrast, in a plain BIP352 operating model, the receiver can more plausibly 
 
 NSP is also a strong fit for machine or agentic identity.
 
-In many automated systems there is no human-maintained social profile at all. A component, service, agent, or device may simply have:
+In many automated systems there is no human-maintained profile at all. A component, service, agent, or device may simply have:
 
 - a generated `npub`
 - a corresponding `nsec`

@@ -227,7 +227,7 @@
           <div class="muted">o value</div><div class="mono">{{ query.initial_event.o_values }}</div>
           <div class="muted">Content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
-        <h3>Issuer Social Profile</h3>
+        <h3>Issuer Profile</h3>
         {% if query.initial_profile %}
         <ul>
           {% for field, value in query.initial_profile %}
@@ -235,7 +235,7 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p class="muted">No issuer social profile found.</p>
+        <p class="muted">No issuer profile found.</p>
         {% endif %}
       </section>
 
@@ -255,14 +255,14 @@
             <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
           </div>
           {% if item.issuer_profile %}
-          <h3>Issuer Social Profile</h3>
+          <h3>Issuer Profile</h3>
           <ul>
             {% for field, value in item.issuer_profile %}
             <li><strong>{{ field }}</strong>: {{ value }}</li>
             {% endfor %}
           </ul>
           {% else %}
-          <p class="muted">No issuer social profile found.</p>
+          <p class="muted">No issuer profile found.</p>
           {% endif %}
         </div>
         {% endfor %}
@@ -294,7 +294,7 @@
               <div class="muted">Content</div><div class="mono">{{ node.event.content }}</div>
             </div>
             {% if node.signer_profile %}
-            <h3>Control Event Signer Social Profile</h3>
+            <h3>Control Event Signer Profile</h3>
             <ul>
               {% for field, value in node.signer_profile %}
               <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -302,7 +302,7 @@
             </ul>
             {% endif %}
             {% if node.transferee_profile %}
-            <h3>{{ node.event.participant_label or "Participant" }} Social Profile</h3>
+            <h3>{{ node.event.participant_label or "Participant" }} Profile</h3>
             <ul>
               {% for field, value in node.transferee_profile %}
               <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -364,7 +364,7 @@
             <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
           </div>
           {% if item.beneficiary_profile %}
-          <h3>Beneficiary Social Profile</h3>
+          <h3>Beneficiary Profile</h3>
           <ul>
             {% for field, value in item.beneficiary_profile %}
             <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -395,7 +395,7 @@
           <div>{{ query.current_controller.basis }}</div>
         </div>
         {% if query.current_controller.profile %}
-        <h3>Current Controller Social Profile</h3>
+        <h3>Current Controller Profile</h3>
         <ul>
           {% for field, value in query.current_controller.profile %}
           <li><strong>{{ field }}</strong>: {{ value }}</li>

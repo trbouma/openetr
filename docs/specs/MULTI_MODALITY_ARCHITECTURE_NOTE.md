@@ -224,13 +224,13 @@ It is not intended to act as a public-facing user identity.
 
 As a design rule, the root key should:
 
-- not publish a social profile
+- not publish a profile
 - not serve as an operational signer for normal ETR workflows
 - not be treated as a user-facing identity in the web app or CLI
 
 The purpose of this separation is to reduce attack surface and preserve cleaner key hygiene.
 
-Operational profile signers may publish social profiles and perform public or transactional actions.
+Operational profile signers may publish profiles and perform public or transactional actions.
 
 The root key should remain an administrative control and recovery key only.
 

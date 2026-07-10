@@ -42,7 +42,7 @@ openetr profile set warehouse \
   --query-output full
 ```
 
-Publish the public social profile metadata:
+Publish the public profile metadata:
 
 ```bash
 openetr profile publish \
@@ -104,7 +104,7 @@ The query command resolves:
 - control-event chains linked by `e` tags
 - lifecycle state, including active, redemption-pending, or terminated
 - current controller
-- social profiles for relevant signers and participants where available
+- profiles for relevant signers and participants where available
 - encumbrance summary, including outstanding and discharged encumbrances
 
 This is the main CLI surface for verifying the effect of the event shapes described in the wire-format and control-event specs.
@@ -250,4 +250,3 @@ The CLI publishes and queries signed wire-level events.
 It does not by itself decide legal title, mandate, priority, perfection, or binding effect.
 
 Those questions remain part of the recognition layer described in the canonical and generic transfer specs.
-

@@ -128,7 +128,7 @@
         </div>
         {% if existing_issuer_profile %}
         <div class="profile">
-          <h2>Existing Issuer Social Profile</h2>
+          <h2>Existing Issuer Profile</h2>
           <div class="kv">
             {% for field, value in existing_issuer_profile %}
             <div>{{ field }}</div><div{% if field in ["picture", "banner", "website"] %} class="mono"{% endif %}>{{ value }}</div>

@@ -131,7 +131,7 @@ openetr transfer accept examples/MLWR001.pdf
 openetr query-etr examples/MLWR001.pdf
 ```
 
-Query output includes the origin event, matching control events, lifecycle state, current controller, social profile information where available, and encumbrance summaries.
+Query output includes the origin event, matching control events, lifecycle state, current controller, profile information where available, and encumbrance summaries.
 
 ## Get Involved
 OpenETR is an open invitation to developers, legal experts, standards bodies, and institutions to collaborate on a shared layer for transferable records.

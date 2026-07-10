@@ -225,7 +225,7 @@ async def _fetch_kind0_profile(relays: str, pubkey_hex: str, timeout: int) -> di
 
 
 def _print_social_profile(profile: dict) -> None:
-    click.echo("social profile:")
+    click.echo("profile:")
     ordered_fields = [
         "name",
         "display_name",
@@ -1119,7 +1119,7 @@ def whoami(show_nsec: bool) -> None:
         if social_profile:
             _print_social_profile(social_profile)
         else:
-            click.echo("social profile: none found")
+            click.echo("profile: none found")
 
     other_profiles = _profile_list_entries(config, include_active=False)
     click.echo("")
@@ -1207,7 +1207,7 @@ def profile_show(profile: str | None, show_nsec: bool) -> None:
     if social_profile:
         _print_social_profile(social_profile)
     else:
-        click.echo("social profile: none found")
+        click.echo("profile: none found")
 
 
 @profile_group.command("use")

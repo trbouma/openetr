@@ -2412,7 +2412,7 @@ async def edit_profile_page(
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before editing its social profile."
+        template_context["error_message"] = "Select a profile before editing its profile."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     with session_bootstrap(identity):
@@ -2460,7 +2460,7 @@ async def edit_profile_submit(
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before editing its social profile."
+        template_context["error_message"] = "Select a profile before editing its profile."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     field_values = {
@@ -2539,7 +2539,7 @@ async def edit_profile_submit(
             request,
             current_profile=compact_profile(latest_profile),
             publish_result=publish_result,
-            success_message="Published updated social profile.",
+            success_message="Published updated profile.",
         )
     return await render_profile_edit_response(
         request,
@@ -2548,7 +2548,7 @@ async def edit_profile_submit(
         identity["profile"],
         profile_form_values(latest_profile),
         compact_profile(latest_profile),
-        success_message="Published updated social profile.",
+        success_message="Published updated profile.",
         publish_result=publish_result,
     )
 
