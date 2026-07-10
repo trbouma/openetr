@@ -6,7 +6,7 @@
     <title>OpenETR</title>
     <meta
       name="description"
-      content="OpenETR is a durable, portable foundation for electronic transferable records."
+      content="OpenETR is a relay-backed control layer, Python component, CLI, and protocol profile for portable electronic transferable records."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -41,35 +41,35 @@
               style="max-width: 42vw; height: auto;"
             />
             <p class="eyebrow">Durable Control. Portable Records.</p>
-            <h1>Transferable records for an open world.</h1>
+            <h1>A portable control layer for transferable records.</h1>
             <p class="lede">
-              OpenETR is an open scheme for electronic transferable records, built on the Nostr
-              protocol, where control is durable, verification is portable, and authority can move
-              without platform lock-in.
+              OpenETR is an open control layer for electronic transferable records: a Nostr wire
+              format, installable Python component, CLI, and demonstration web app for records that
+              need signed, inspectable control history outside any one platform.
             </p>
             <p class="lede">
-              OpenETR can turn any file into an ETR by deriving a durable object identifier from
-              the file itself and binding control history to that object over time, with the
-              resulting control events stored on open relays.
+              The current work generalizes beyond a single document type. A record can be issued,
+              transferred, encumbered, discharged, presented, and terminated, while legal or
+              institutional recognition remains with the applicable framework.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="https://github.com/trbouma/openetr/blob/main/README.md">Explore the Project</a>
-              <a class="button button-secondary" href="#model">See the Model</a>
+              <a class="button button-secondary" href="#implementation">See the Implementation</a>
             </div>
           </div>
 
           <div class="hero-panel">
             <div class="signal-card">
               <span class="signal-label">Control Layer</span>
-              <h2>Object. Controller. Event.</h2>
+              <h2>Origin. Control. Recognition.</h2>
               <p>
-                A minimal technical fabric for transfer, endorsement, and enforcement across
-                jurisdictions, systems, and infrastructures.
+                A small protocol surface for signed record evidence: origin events, control events,
+                relay-backed state, and local recognition by the systems that rely on it.
               </p>
               <ul class="signal-list">
-                <li>Cryptographically verifiable</li>
-                <li>Portable across environments</li>
-                <li>Designed for independent validation</li>
+                <li>Nostr kinds 31415 and 31416</li>
+                <li>Relay-backed profiles and aliases</li>
+                <li>Python, CLI, web, and protocol integration</li>
               </ul>
             </div>
           </div>
@@ -80,20 +80,20 @@
         <section class="section" id="model">
           <div class="section-heading">
             <p class="eyebrow">Core Model</p>
-            <h2>Three primitives, three operations, one portable record layer.</h2>
+            <h2>Objects, profiles, and events form one portable record layer.</h2>
           </div>
           <div class="feature-grid">
             <article class="feature-card">
               <h3>Objects</h3>
-              <p>The record that carries meaning, authority, and transfer semantics.</p>
+              <p>The document or record identified by a digest and carried forward by an object id.</p>
             </article>
             <article class="feature-card">
-              <h3>Controllers</h3>
-              <p>The keys or actors able to exercise exclusive control over the record.</p>
+              <h3>Profiles</h3>
+              <p>Operational signers that issue, transfer, attest, encumber, discharge, or terminate records.</p>
             </article>
             <article class="feature-card">
               <h3>Events</h3>
-              <p>The signed actions that express transfer, endorsement, and enforcement.</p>
+              <p>Signed origin and control events that make the record history independently queryable.</p>
             </article>
           </div>
           <div class="model-figure">
@@ -125,6 +125,38 @@
           </div>
         </section>
 
+        <section class="section section-accent" id="implementation">
+          <div class="section-heading">
+            <p class="eyebrow">Current Implementation</p>
+            <h2>The project now has a working control-event family and multiple integration surfaces.</h2>
+          </div>
+          <div class="feature-grid implementation-grid">
+            <article class="feature-card">
+              <h3>General Control Events</h3>
+              <p>
+                <code>kind 31415</code> introduces an object. <code>kind 31416</code> records later
+                actions such as transfer initiation, acceptance, attestation, encumbrance,
+                discharge, redemption, and termination.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Root And Profiles</h3>
+              <p>
+                A root identity manages relay-backed configuration, while profiles act as
+                operational signers for real workflow roles such as warehouse operator, exporter,
+                bank, carrier, consignee, or attestor.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Queryable State</h3>
+              <p>
+                The query service derives origin, current controller, lifecycle state, control
+                history, profiles, and outstanding encumbrances from signed relay events.
+              </p>
+            </article>
+          </div>
+        </section>
+
         <section class="section section-accent">
           <div class="section-heading">
             <p class="eyebrow">Why It Matters</p>
@@ -148,29 +180,86 @@
 
         <section class="section">
           <div class="section-heading">
-            <p class="eyebrow">First Reference Implementation</p>
-            <h2>Nostr is the first protocol foundation for the OpenETR scheme.</h2>
+            <p class="eyebrow">Relay-Backed By Design</p>
+            <h2>State can move between independent systems because the evidence is not trapped in one app.</h2>
           </div>
           <div class="feature-grid implementation-grid">
             <article class="feature-card">
-              <h3>Signed Events</h3>
+              <h3>Minimal Bootstrap</h3>
               <p>
-                Nostr already models portable, signed event data, which makes it a natural starting
-                point for expressing records, controllers, and transfer actions.
+                Only the root key and bootstrap relays need to be held locally or behind an account
+                system. Profiles, aliases, defaults, and signer secrets are increasingly
+                relay-backed.
               </p>
             </article>
             <article class="feature-card">
-              <h3>Relay Distribution</h3>
+              <h3>Independent Relays</h3>
               <p>
-                Events can move across independent relays instead of being trapped inside a single
-                registry, platform, or institution.
+                Origin and control events can be published and queried across relay infrastructure,
+                allowing multiple systems to participate without sharing one database.
               </p>
             </article>
             <article class="feature-card">
               <h3>Independent Verification</h3>
               <p>
-                OpenETR builds on Nostr's verification model to show how durable control and portable
-                records can work on open infrastructure today.
+                Applications may cache, index, or render OpenETR state, but the signed protocol
+                evidence remains portable and machine-checkable.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Integration Paths</p>
+            <h2>Use the component, call a service, run the CLI, or publish the protocol directly.</h2>
+            <p class="lede">
+              OpenETR is meant to fit into existing systems without forcing every participant into
+              one application boundary.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>Installable Python Component</h3>
+              <p>
+                Existing Python services can import <code>openetr</code> and call reusable services for
+                issuance, query, transfer, encumbrance, discharge, redemption, and termination.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Agent-Friendly CLI</h3>
+              <p>
+                The <code>openetr</code> command line is being shaped for shell workflows, scripts,
+                CI jobs, and coding agents, with explicit inputs and parseable output modes as a
+                design goal.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>REST And Domain APIs</h3>
+              <p>
+                The FastAPI demonstration app exposes upload, issue, query, profile, and warehouse
+                receipt routes that can be reused, wrapped, or replaced by production services.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Protocol-Level Integration</h3>
+              <p>
+                Integrators can publish and query Nostr events directly by following the OpenETR
+                wire format for kinds, tags, object identity, and control-event traversal.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Account-Based Products</h3>
+              <p>
+                Existing platforms can hide root keys and bootstrap relays behind ordinary account
+                flows while still preserving relay-backed OpenETR state underneath.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Independent Systems</h3>
+              <p>
+                Warehouses, banks, logistics platforms, registries, auditors, and relying parties
+                can interoperate through shared event conventions rather than one shared backend.
               </p>
             </article>
           </div>
@@ -281,20 +370,55 @@
 
         <section class="section">
           <div class="section-heading">
-            <p class="eyebrow">Early Uses</p>
-            <h2>Starting points for open, transferable digital instruments.</h2>
+            <p class="eyebrow">Warehouse Receipts</p>
+            <h2>The current domain focus is the Model Law on Warehouse Receipts.</h2>
             <p class="lede">
-              Under MLETR-style legal frameworks, electronic bills of lading are one of the clearest
-              examples of why durable digital control matters.
+              The MLWR Control Desk shows how a domain-specific application can speak warehouse
+              receipt language while translating each action into the general OpenETR control
+              model.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>Domain Adapter</h3>
+              <p>
+                The web app exposes warehouse receipt actions: issue, query, transfer, accept,
+                pledge or lien, release, presentation for delivery, and lifecycle completion.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>General Core</h3>
+              <p>
+                Under the domain language, the app calls the same generic OpenETR services and
+                publishes the same Nostr event families used by other record types.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Article Mapping</h3>
+              <p>
+                The specs now include an MLWR article requirements mapping that links legal concepts
+                to implementation evidence and identifies remaining recognition-policy gaps.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Applicable Frameworks</p>
+            <h2>One evidence layer can support multiple recognition frameworks.</h2>
+            <p class="lede">
+              OpenETR does not replace statutes, registries, courts, or private rulebooks. It
+              supplies signed evidence that different recognition frameworks can evaluate.
             </p>
           </div>
           <div class="use-case-grid">
+            <article class="use-case">MLETR-style transferable records</article>
+            <article class="use-case">MLWR-style warehouse receipts</article>
             <article class="use-case">Electronic bills of lading</article>
-            <article class="use-case">Warehouse receipts</article>
+            <article class="use-case">UCC Article 12 analysis</article>
+            <article class="use-case">Secured finance and pledges</article>
             <article class="use-case">Promissory notes</article>
-            <article class="use-case">Transferable credentials</article>
-            <article class="use-case">Cross-border record portability</article>
-            <article class="use-case">Open verification services</article>
           </div>
         </section>
 
@@ -313,6 +437,30 @@
               <p>
                 <a href="./docs/posts/index.html">
                   Browse the posts index
+                </a>
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Generalized Control Update</h3>
+              <p>
+                A recent project update explains the expanded control-event family, CLI and web app
+                progress, root/profile model, and how the protocol maps across legal frameworks.
+              </p>
+              <p>
+                <a href="./docs/posts/progress-toward-generalized-control.html">
+                  Read the progress update
+                </a>
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Specs And Design Notes</h3>
+              <p>
+                The specs now cover the Nostr wire format, CLI mapping, relay-backed configuration,
+                system integration, MLWR profile, and MLWR article requirements mapping.
+              </p>
+              <p>
+                <a href="./docs/specs/INDEX.html">
+                  Browse the specs
                 </a>
               </p>
             </article>
@@ -382,7 +530,9 @@
             <h2>See the OpenETR flow in motion.</h2>
             <p class="lede">
               A short terminal walkthrough showing how OpenETR can issue, inspect, and work with
-              transferable record events in practice.
+              transferable record events in practice. The CLI has since expanded to include
+              transfer acceptance, encumbrance, discharge, redemption, termination, profiles, and
+              root identity inspection.
             </p>
           </div>
           <figure class="demo-panel">
