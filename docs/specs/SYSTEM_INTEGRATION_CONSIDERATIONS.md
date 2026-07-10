@@ -390,6 +390,85 @@ For MLWR-style integrations, that recognition framework may include:
 - institutional policy;
 - required attestations.
 
+## High-Level Integration Diagram
+
+The following diagram shows the intended integration shape at a high level.
+
+Different products and domains may choose different entry points into OpenETR, but interoperable evidence is expressed as signed events that can be stored, replicated, served, queried, and verified independently.
+
+```mermaid
+flowchart TB
+  subgraph Products["Existing Or New Product Systems"]
+    AccountApp["Account-Based App<br/>Users, tenants, permissions"]
+    WarehouseApp["Warehouse Receipt Platform<br/>MLWR domain workflows"]
+    FinanceApp["Finance / Bank Platform<br/>Pledges, liens, discharges"]
+    LogisticsApp["Logistics / Trade Platform<br/>Bills of lading, delivery, audit"]
+    RegistryApp["Registry / Attestor<br/>Policy-backed assertions"]
+  end
+
+  subgraph Integration["Integration Surfaces"]
+    PythonComponent["Installable Python Component<br/>openetr services"]
+    CLI["CLI / Agent Surface<br/>sh, scripts, CI, command runners"]
+    RestService["REST / Domain APIs<br/>demo app or production service"]
+    ProtocolClient["Protocol Client<br/>direct Nostr event publishing"]
+  end
+
+  subgraph OpenETR["OpenETR Control Layer"]
+    Bootstrap["Root Key + Bootstrap Relays<br/>hidden behind account systems if desired"]
+    Profiles["Operational Profiles<br/>warehouse, exporter, bank, carrier, attestor"]
+    Origin["Origin Events<br/>kind 31415"]
+    Control["Control Events<br/>kind 31416 actions"]
+    Query["Query + Traversal<br/>current controller, lifecycle, encumbrances"]
+  end
+
+  subgraph Stores["Event Storage And Distribution"]
+    PublicRelays["Public / Shared Relay Pool"]
+    PrivateRelays["Private / Consortium Relays"]
+    LocalStore["Local Event Store<br/>files, database, local relay"]
+  end
+
+  subgraph Recognition["Domain Recognition Layers"]
+    MLWR["MLWR / Warehouse Receipt Rules"]
+    MLETR["MLETR / Transferable Record Rules"]
+    UCC12["UCC Article 12 / Digital Asset Rules"]
+    Policy["Institutional / Contract / Registry Policy"]
+  end
+
+  AccountApp --> PythonComponent
+  WarehouseApp --> RestService
+  FinanceApp --> RestService
+  LogisticsApp --> CLI
+  RegistryApp --> ProtocolClient
+
+  PythonComponent --> Bootstrap
+  CLI --> Bootstrap
+  RestService --> Bootstrap
+  ProtocolClient --> Origin
+  ProtocolClient --> Control
+
+  Bootstrap --> Profiles
+  Profiles --> Origin
+  Profiles --> Control
+  Origin --> Query
+  Control --> Query
+
+  Origin --> PublicRelays
+  Control --> PublicRelays
+  Origin --> PrivateRelays
+  Control --> PrivateRelays
+  Origin --> LocalStore
+  Control --> LocalStore
+
+  PublicRelays --> Query
+  PrivateRelays --> Query
+  LocalStore --> Query
+
+  Query --> MLWR
+  Query --> MLETR
+  Query --> UCC12
+  Query --> Policy
+```
+
 ## Related Documents
 
 - [Relay-Backed Configuration Design Note](./RELAY_BACKED_CONFIGURATION_DESIGN_NOTE.md)
