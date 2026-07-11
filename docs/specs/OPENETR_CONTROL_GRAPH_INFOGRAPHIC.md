@@ -4,6 +4,10 @@ This infographic ties together the main OpenETR design idea:
 
 > A cryptographically verifiable control graph sits at the center. Nostr provides correctness and portability, domain adapters translate the graph into domain language, and root-and-profile identity lets existing systems connect authenticated users to operational signing profiles.
 
+![OpenETR control graph](/assets/images/openetr-control-graph.jpg)
+
+The publication-ready graphic above is the preferred visual for posts, presentations, and project pages. The Mermaid diagram below is the editable source model for the same architecture.
+
 ```mermaid
 flowchart TB
     subgraph Domain["Domain Adapters"]

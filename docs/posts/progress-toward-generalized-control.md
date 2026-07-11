@@ -11,6 +11,8 @@ That distinction matters. OpenETR is not trying to be a statute, registry, court
 
 The latest implementation work makes that boundary much clearer.
 
+![OpenETR control graph](/assets/images/openetr-control-graph.jpg)
+
 ## What changed
 
 The current reference implementation now has a working event family for the core lifecycle of a controlled electronic record.
