@@ -88,7 +88,7 @@ Nostr relay filters express tag queries with leading `#` keys, such as `#d`, `#o
 
 OpenETR therefore uses short, stable tags such as `d`, `o`, `e`, and `p` for object identity, graph traversal, and participant lookup.
 
-OpenETR also uses named tags such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `receipt_reference`, or `goods_description` for structured metadata that does not need to be relay-queryable.
+OpenETR also uses named tags such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `record_reference`, or `record_description` for structured metadata that does not need to be relay-queryable.
 
 Those named tags are still part of the signed event. They should be read from the event tag list after the event has been retrieved through the core query anchors. Implementations should not need to parse the `content` field to recover structured OpenETR metadata.
 
@@ -204,8 +204,8 @@ Examples for an origin event may include:
 - `["name", "MLWR001.pdf"]`
 - `["digest_generated_at", "2026-07-10T12:00:00+00:00"]`
 - `["size_bytes", "282796"]`
-- `["receipt_reference", "MLWR001"]`
-- `["goods_description", "Stored goods described in the receipt"]`
+- `["record_reference", "MLWR001"]`
+- `["record_description", "Stored goods described in the receipt"]`
 
 Examples for domain or policy context may include:
 
@@ -242,7 +242,7 @@ The wire-level event structures below define the current minimum working format.
 - optional structured tags:
   - `["action", "issue"]`
   - profile or identity tags such as `display_name`, `lei`, or related metadata where a given implementation chooses to include them
-  - document metadata tags such as `receipt_reference` or `goods_description`
+  - document metadata tags such as `record_reference` or `record_description`
   - domain tags such as `domain`, `document_type`, `schema`, or `schema_digest`
 
 Recommended `content` convention:
@@ -398,6 +398,33 @@ The reference `openetr query-etr` command currently derives and displays:
 - encumbrance totals, discharged encumbrances, and outstanding encumbrances
 
 The web app query result uses the same query service and should therefore expose the same derived object-state view.
+
+## Cryptographic Control Chain Verification
+
+The OpenETR control chain is not database state maintained by a single application. It is a graph of signed Nostr events that any verifier can retrieve and independently evaluate.
+
+For a candidate object history, an implementation should verify:
+
+1. the origin event uses `kind = 31415` and carries the expected object identifier in `d` and `o`
+2. each later control event uses `kind = 31416`
+3. each event signature is valid for the event author
+4. each event id matches the serialized event data under the Nostr event id rules
+5. each event has the required minimum tags for its event shape
+6. each event in the candidate chain carries the same `o` object identifier
+7. each control event carries an `e` tag that points to the prior event being relied on
+8. action-specific references such as `p`, `enc`, `type`, and `ref` are present where required by the action or local recognition profile
+9. the linked chain can be replayed in order to derive lifecycle state, current controller, and outstanding control conditions
+
+The `e` tag follows the Nostr convention for event references. In OpenETR, it is the primary cryptographic link between control-relevant events:
+
+- for the first later control event, `e` should point to the origin event
+- for later control-transition events, `e` should point to the immediately prior control-relevant event being extended
+- for attestations, `e` should point to the specific event being attested
+- for discharges, `enc` identifies the encumbrance being discharged, while `e` links the discharge into the current control chain
+
+This produces an independently verifiable sequence of signed statements about the same controlled object. A verifier can reject events with invalid signatures, inconsistent object identifiers, missing required tags, or broken `e` references without relying on the application that originally displayed the state.
+
+Cryptographic control-chain verification is still not the same thing as legal or operational recognition. After the chain is structurally verified, an implementation must apply the relevant recognition profile, domain adapter, policy rules, and applicable law to decide which structurally valid events are effective for a particular purpose.
 
 ## Current Controller Implications
 

@@ -84,7 +84,7 @@ The services publish and query the generalized OpenETR Nostr wire format:
 - `kind 31415` for origin events
 - `kind 31416` for control-relevant events
 - named structured tags such as `name`, `digest_generated_at`, and `size_bytes` for origin-event metadata
-- MLWR domain tags such as `domain=mlwr`, `document_type=warehouse_receipt`, `receipt_reference`, and `goods_description`
+- MLWR domain interpretation of generic tags such as `domain=mlwr`, `document_type=warehouse_receipt`, `record_reference`, and `record_description`
 - `action` tags for control-event subtype
 - `o` for object identity
 - `d` for replaceable action slot
@@ -95,7 +95,7 @@ The services publish and query the generalized OpenETR Nostr wire format:
 
 The MLWR adapter treats signed event tags as the structured data interface.
 
-The event `content` field is used for a short human-readable narrative, such as `Issued warehouse receipt MLWR001`, and should not be parsed to recover receipt reference, goods description, file name, or byte size.
+The event `content` field is used for a short human-readable narrative, such as `Issued warehouse receipt MLWR001`, and should not be parsed to recover receipt reference, goods description, file name, or byte size. In MLWR terms, the UI may label `record_reference` as a receipt reference and `record_description` as a goods description.
 
 This mirrors the general OpenETR convention: relay-query anchors and graph links live in core tags; domain and document data live in named signed tags; `content` remains readable context.
 

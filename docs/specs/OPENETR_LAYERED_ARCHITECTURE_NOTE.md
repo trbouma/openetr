@@ -26,7 +26,7 @@ At this layer, OpenETR defines:
 
 - event kinds such as `31415` for origin events and `31416` for control events
 - core query and traversal tags such as `d`, `o`, `e`, and `p`
-- signed named tags for structured event data such as `name`, `size_bytes`, `domain`, `document_type`, `receipt_reference`, or `goods_description`
+- signed named tags for structured event data such as `name`, `size_bytes`, `domain`, `document_type`, `record_reference`, or `record_description`
 - readable event `content` for narrative context rather than machine parsing
 - relay-backed publication and retrieval conventions
 
@@ -94,8 +94,8 @@ The adapter may add domain-specific signed tags, such as:
 
 - `["domain", "mlwr"]`
 - `["document_type", "warehouse_receipt"]`
-- `["receipt_reference", "<reference>"]`
-- `["goods_description", "<description>"]`
+- `["record_reference", "<receipt_reference_or_other_domain_reference>"]`
+- `["record_description", "<goods_description_or_other_domain_description>"]`
 
 These tags make the event intelligible to the domain without changing the core OpenETR control machinery.
 
@@ -148,4 +148,3 @@ Current implementation artifacts roughly map as follows:
 The central design rule is:
 
 > Domain adapters translate domain language into OpenETR control operations. OpenETR translates control operations into signed Nostr wire-format events. Recognition layers decide what those events mean in law, policy, or institutional practice.
-

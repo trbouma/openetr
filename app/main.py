@@ -958,9 +958,9 @@ async def warehouse_receipts_issue(
         ["document_type", "warehouse_receipt"],
     ]
     if receipt_reference.strip():
-        extra_tags.append(["receipt_reference", receipt_reference.strip()])
+        extra_tags.append(["record_reference", receipt_reference.strip()])
     if goods_description.strip():
-        extra_tags.append(["goods_description", goods_description.strip()])
+        extra_tags.append(["record_description", goods_description.strip()])
 
     issue_result = await publish_issue_etr(
         filename=filename,
