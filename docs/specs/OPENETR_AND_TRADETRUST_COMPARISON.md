@@ -45,6 +45,162 @@ The important contrast is therefore not whether document hashing is used. Both m
 - TradeTrust anchors document state in a blockchain smart contract.
 - OpenETR anchors control evidence in a signed event graph that can be retrieved from relays or local stores.
 
+## Transferable Records: Token Registry Versus Control Graph
+
+TradeTrust's transferable-record model uses the document digest as the bridge from the off-chain document to on-chain transfer state.
+
+According to the TradeTrust documentation, Transferable Records consist of two smart contracts:
+
+- a Token Registry
+- a Title Escrow
+
+The Token Registry is deployed by the transferable-record issuer, such as a land title registry or shipping line. It replaces the simpler Document Store contract used for non-transferable verification. Its identity is bound to the issuer using DNS.
+
+The Token Registry stores the ownership state of transferable records using a mapping:
+
+```text
+document ID -> smart contract address
+```
+
+In that model:
+
+- the `document ID`, also called the `token ID`, is the target hash and Merkle root of the individual TradeTrust document
+- the mapped smart contract address is the Title Escrow contract for that document
+- an unissued document maps to the zero address
+- an issued document maps to a Title Escrow contract address
+- a returned document maps back to the Token Registry address
+
+This means the issued document is anchored into the smart-contract system through its digest-backed token id.
+
+The Title Escrow then handles the transferable-record roles. TradeTrust distinguishes legal ownership from physical-style possession by modeling:
+
+- an Owner
+- a Holder
+
+The Title Escrow holds the token and enforces the rules for changes in token status. The current holder can transfer holdership. The owner can change ownership where the applicable owner/holder conditions are satisfied. Return to issuer is also handled through the Title Escrow lifecycle.
+
+The TradeTrust flow can therefore be summarized as:
+
+```text
+issued document
+  -> target hash / Merkle root
+  -> document ID / token ID
+  -> Token Registry mapping
+  -> Title Escrow contract
+  -> owner / holder state
+```
+
+OpenETR uses the same kind of digest foundation, but does not create an ERC-721-style token or Title Escrow contract.
+
+The OpenETR flow is:
+
+```text
+issued document
+  -> SHA-256 digest
+  -> controlled object id
+  -> origin event
+  -> linked control events
+  -> verifier-derived state
+```
+
+At the OpenETR layer:
+
+- the origin event introduces the digest-identified object
+- transfer, acceptance, encumbrance, discharge, redemption, termination, and attestation are expressed as signed control events
+- `e` tags link events into the control graph
+- `p`, `enc`, `action`, and related tags express participants and action semantics
+- verifiers reconstruct the candidate state and then apply recognition policy
+
+So the compact contrast is:
+
+```text
+TradeTrust:
+document digest -> token id -> smart contract state
+
+OpenETR:
+document digest -> object id -> signed control graph
+```
+
+TradeTrust is more concrete and prescriptive for transferable title documents. It provides a smart-contract state machine with owner and holder roles. OpenETR is more general and policy-driven. It provides cryptographic control evidence that can be interpreted by multiple domain adapters, including MLWR warehouse receipts, MLETR bills of lading, credentials, secured-finance records, and other control-relevant electronic records.
+
+## Comparative Example: Transfer Of A Bill Of Lading
+
+Consider an electronic bill of lading issued by a shipping line to a shipper, then transferred to a bank or consignee.
+
+### TradeTrust-style flow
+
+In a TradeTrust-style transferable-record flow:
+
+1. The electronic bill of lading document is wrapped and hashed.
+2. The document's target hash / Merkle root becomes the `document ID` or `token ID`.
+3. The issuer's Token Registry records the document as issued by mapping that token ID to a Title Escrow contract.
+4. The Title Escrow holds the token and stores the current Owner and Holder.
+5. A holdership transfer changes the Holder field.
+6. An endorsement or owner transfer changes the Owner field, subject to the Title Escrow rules.
+7. The endorsement chain can display the transaction history and current owner / holder wallet addresses.
+8. When the document is returned to the issuer, the Token Registry and Title Escrow lifecycle reflect that returned state.
+
+The state path is:
+
+```text
+bill of lading PDF / wrapped document
+  -> target hash / Merkle root
+  -> token ID
+  -> Token Registry
+  -> Title Escrow
+  -> Owner / Holder state
+```
+
+The smart contracts are doing important work. They provide the state machine for the transferable record and enforce the permitted transitions for owner, holder, endorsement, and return.
+
+### OpenETR-style flow
+
+In an OpenETR-style flow:
+
+1. The bill of lading PDF is hashed with SHA-256.
+2. The digest becomes the OpenETR controlled object id.
+3. The issuing profile signs a `kind 31415` origin event carrying the object id in `d` and `o`.
+4. The current controller signs a `kind 31416` transfer initiation event.
+5. The transferee signs a `kind 31416` transfer acceptance event.
+6. Later actions such as encumbrance, discharge, redemption, attestation, or termination are signed as additional `kind 31416` control events.
+7. Each control event carries the same `o` object id and uses `e` to link to the prior event being relied on.
+8. A verifier reconstructs the control graph and applies its accepted recognition policy to decide which events have effect.
+
+The state path is:
+
+```text
+bill of lading PDF
+  -> SHA-256 digest
+  -> object id
+  -> origin event
+  -> transfer / accept / other control events
+  -> verifier-derived controller and lifecycle state
+```
+
+The OpenETR events are doing a different kind of work. They provide signed, portable evidence of control-relevant actions. The effective owner, holder, controller, or protected party status is then determined by the relevant domain adapter and recognition policy.
+
+### Side-by-side interpretation
+
+| Step | TradeTrust | OpenETR |
+| --- | --- | --- |
+| Document identity | Target hash / Merkle root becomes token ID. | SHA-256 digest becomes object id. |
+| Issuance | Token Registry maps token ID to Title Escrow. | Origin event introduces the object. |
+| Transfer state | Title Escrow stores Owner and Holder. | Control graph records transfer and acceptance events. |
+| Transition enforcement | Smart contract logic enforces allowed state changes. | Verifier policy determines which signed events are recognized as effective. |
+| Current state query | Read Token Registry / Title Escrow state and endorsement chain. | Retrieve events by object id and replay the linked control graph. |
+| Identity | Wallet addresses act as technical identifiers for owner / holder roles. | Profile `npub` keys act as technical identifiers for signers / participants. |
+| Legal mapping | Platform, registry, issuer, contract, and law map wallet roles to legal actors and effect. | Root/profile systems, attestations, domain adapters, and law map profile keys to legal actors and effect. |
+
+This example shows the shared conceptual pattern:
+
+```text
+document identity -> cryptographic control representation -> recognized transfer effect
+```
+
+The difference is where the control representation lives.
+
+TradeTrust places it in a smart-contract token and Title Escrow model. OpenETR places it in a signed event graph that can be replicated through relays or local stores and evaluated by any verifier.
+
 ## Architectural Contrast
 
 | Topic | TradeTrust / OpenAttestation Document Store | OpenETR |
@@ -186,4 +342,8 @@ In short: TradeTrust shows the value of a blockchain-backed document state model
 ## Sources
 
 - TradeTrust, "What is TradeTrust", https://www.tradetrust.io/
+- TradeTrust, "Transferable Records", https://docs.tradetrust.io/docs/introduction/key-components-of-tradetrust/transferability/overview/
+- TradeTrust, "Title Escrow", https://docs.tradetrust.io/docs/introduction/key-components-of-tradetrust/transferability/title-transfer/
+- TradeTrust, "Title Transfer Example", https://docs.tradetrust.io/docs/introduction/key-components-of-tradetrust/transferability/title-transfer-example/
+- TradeTrust, "Endorsement Chain", https://docs.tradetrust.io/docs/introduction/key-components-of-tradetrust/transferability/endorsement-chain/
 - OpenAttestation Document Store README, https://github.com/Open-Attestation/document-store/blob/master/README.md

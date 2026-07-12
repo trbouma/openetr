@@ -162,6 +162,12 @@
         border-radius: 0.75rem;
         background: rgba(255, 255, 255, 0.52);
       }
+      .trivia-panel {
+        border-style: dashed;
+      }
+      .trivia-panel p:last-child {
+        margin-bottom: 0;
+      }
       @media (max-width: 760px) {
         main {
           padding: 0 0.9rem;
@@ -313,6 +319,13 @@
           priority, warehouse obligations, and final recognition.
         </p>
       </section>
+
+      {% if trivia_fact %}
+      <section class="panel trivia-panel">
+        <p class="eyebrow">OpenETR Trivia</p>
+        <p>{{ trivia_fact }}</p>
+      </section>
+      {% endif %}
     </main>
     {% include "_global_scripts.html" %}
   </body>

@@ -3,16 +3,15 @@ from importlib.resources import files
 import asyncio
 import json
 from pathlib import Path
-from random import choice
 
 import click
 from monstr.client.client import ClientPool
 from monstr.encrypt import Keys
 from monstr.event.event import Event
-import yaml
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_material_with_balance, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input
 from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, frigate_debug_subscription, frigate_scan_subscribe, inspect_silent_payment_transaction, resolve_silent_payment_wallet_mode_material, scan_silent_payment_receipts
+from openetr.trivia import OPENETR_TRIVIA_PATH, load_openetr_trivia_facts, random_openetr_trivia_fact
 from openetr.config import (
     ALIASES_KEY,
     CONFIG_AS_USER_KEY,
@@ -67,18 +66,6 @@ from openetr.helpers import (
     validate_npub,
 )
 from openetr.services.profile_admin import create_relay_backed_profile
-MLETR_TRIVIA_PATH = files("openetr").joinpath("mletr_trivia.yaml")
-
-
-def _load_mletr_trivia_facts() -> list[str]:
-    with MLETR_TRIVIA_PATH.open("r", encoding="utf-8") as handle:
-        data = yaml.safe_load(handle) or {}
-
-    facts = data.get("facts", [])
-    if not facts:
-        raise click.ClickException("No MLETR trivia facts were found in the packaged data file.")
-
-    return [str(fact) for fact in facts]
 
 
 def _normalize_relays(relays: str) -> str:
@@ -344,8 +331,8 @@ def info() -> None:
 
     _echo_info_section("Resources")
     click.echo(f"  Packaged defaults : {files('openetr').joinpath('defaults.yaml')}")
-    click.echo(f"  Packaged trivia   : {MLETR_TRIVIA_PATH}")
-    click.echo(f"  MLETR trivia facts: {len(_load_mletr_trivia_facts())}")
+    click.echo(f"  Packaged trivia   : {OPENETR_TRIVIA_PATH}")
+    click.echo(f"  OpenETR trivia facts: {len(load_openetr_trivia_facts())}")
 
     _echo_info_section("Config")
     click.echo(f"  Config directory: {USER_CONFIG_DIR}")
@@ -1454,5 +1441,5 @@ def set_config(
 
 @click.command("trivia")
 def trivia() -> None:
-    """Print a random MLETR fact."""
-    click.echo(f"MLETR trivia: {choice(_load_mletr_trivia_facts())}")
+    """Print a random OpenETR fact."""
+    click.echo(f"OpenETR trivia: {random_openetr_trivia_fact()}")

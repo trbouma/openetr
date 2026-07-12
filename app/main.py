@@ -25,6 +25,7 @@ from openetr.services.profile_admin import create_relay_backed_profile, initiali
 from openetr.services.profile_publish import PROFILE_FIELDS, publish_profile_updates
 from openetr.services.query_etr import build_query_etr_result, compact_profile, fetch_profile
 from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, fetch_blockstream_tip_height, frigate_scan_subscribe, resolve_silent_payment_wallet_mode_material, silent_payment_address_belongs_to_nostr_key
+from openetr.trivia import random_openetr_trivia_fact
 
 
 APP_TITLE = "OpenETR Demo App"
@@ -738,6 +739,7 @@ async def render_warehouse_receipts_page(
     template_context = await get_default_template_context(identity)
     template_context["error_message"] = error_message
     template_context["success_message"] = success_message
+    template_context["trivia_fact"] = random_openetr_trivia_fact()
     return templates.TemplateResponse(
         request,
         "warehouse_receipts.html",
