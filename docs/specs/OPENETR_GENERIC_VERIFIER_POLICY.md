@@ -39,6 +39,62 @@ A domain policy may add:
 
 A domain policy should not replace the baseline enumeration behavior. Even where a domain policy refuses recognition, the verifier should still show the signed evidence and explain the policy reason.
 
+## Organizational Rule Books
+
+Because OpenETR is an open signed-event system, no single implementation needs to be the only source of recognition rules.
+
+Any organization can write its own verifier rule book that sits on top of OpenETR.
+
+Examples include:
+
+- a warehouse receipt registry
+- a shipping platform
+- a bank or secured lender
+- a trade finance network
+- an insurer
+- a customs or port authority
+- an enterprise document-management system
+- a court, regulator, or dispute-resolution process
+
+Each rule book can use the same OpenETR event evidence and ask its own recognition questions:
+
+- Which issuers are recognized?
+- Which profile keys map to approved legal entities or operational roles?
+- Which relays, archives, or evidence sources are acceptable?
+- Which event shapes are required for a complete transfer?
+- Are transfer initiation and acceptance both required?
+- Does an outstanding encumbrance block transfer recognition or merely require disclosure?
+- Which attestors, registries, or external systems must confirm a state?
+- Are missing profile records fatal, warning-only, or cured by another source?
+- Which domain-specific fields or schemas are mandatory?
+
+This is not a fork of the protocol.
+
+The protocol remains the shared evidence substrate:
+
+- signed events
+- object identifiers
+- control-event kinds
+- tags
+- relay-backed or locally stored event retrieval
+- chain traversal through `e` links
+
+The organizational rule book is the recognition layer applied to that substrate.
+
+Two organizations may therefore inspect the same signed OpenETR graph and reach different policy conclusions. One may recognize a transfer as effective. Another may classify the same transfer as warning-only, pending attestation, blocked by an encumbrance, or outside its mandate.
+
+That difference is expected. It is one of the reasons OpenETR keeps event publication, cryptographic verification, and recognition separate.
+
+The generic verifier policy should make these differences visible rather than hiding them. A good verifier can show:
+
+- the shared signed evidence
+- the baseline OpenETR structural result
+- the selected organizational rule book
+- the warnings or policy failures under that rule book
+- the resulting recognized or candidate state
+
+This lets organizations innovate at the policy layer without needing to change the base OpenETR wire format.
+
 ## Current Component Behavior
 
 The current `openetr` query service is intentionally object-wide.
@@ -93,6 +149,8 @@ Examples include:
 - a discharge references an encumbrance that the verifier does not recognize
 - a termination appears while an encumbrance remains outstanding
 - multiple candidate chains compete for recognition
+- a prior event referenced by an `e` tag is missing because a relay no longer returns an older replaceable event
+- an origin event appears to have been replaced after later control events already depended on its event id
 - a participant profile is missing or does not satisfy the verifier's actor policy
 - an event is structurally valid but lacks an attestation required by the selected policy
 
@@ -129,20 +187,72 @@ Recommended fields for future structured verifier output include:
 | `message` | Human-readable explanation |
 | `recognition_effect` | How the selected policy treated the event or transition |
 
+## Replaceable Events And Missing Prior Links
+
+The generic verifier should treat broken `e` links as a first-class graph-continuity issue.
+
+This is especially important because OpenETR currently assumes events may be published as Nostr replaceable events within an author/kind/`d` slot.
+
+If an origin event is republished by the same author for the same object slot, the replacement event normally has a different event id. A relay may then stop returning the older origin event. Later control events that point to the older origin through `e` still point to that exact older event id, not to the newer replacement event.
+
+The verifier should therefore distinguish:
+
+- exact rebroadcast of the same event, where the event id remains the same
+- replacement publication, where the event id changes
+- missing prior-event evidence, where a later event references an event id that cannot be retrieved
+
+The generic policy should not silently repair the graph by treating a newer replacement origin as the parent of older control events.
+
+Instead, it should enumerate the available evidence and emit a warning such as:
+
+```text
+broken_prior_link:
+  control event references prior event A,
+  but A was not available from the queried evidence sources
+```
+
+or:
+
+```text
+origin_replaced_after_control:
+  newer origin event B exists for the same author/kind/d slot,
+  but later control events reference older origin event A
+```
+
+A domain or organizational rule book can decide the effect of that warning. It may:
+
+- refuse recognition of the affected chain
+- require archived evidence of the older event
+- require attestation that the older event existed and was relied on
+- recognize the chain only for limited purposes
+- allow the replacement in a controlled correction workflow
+
+The important generic rule is that event-id graph links are specific. A verifier should not treat replaceable-coordinate continuity as equivalent to event-id continuity.
+
 ## Enumeration Before Recognition
 
 The verifier should first enumerate the available graph before applying recognition effects.
 
 The sequence is:
 
-1. retrieve candidate origin and control events for the object
+1. retrieve candidate origin and control events for the object using the object query anchor, currently `#o`
 2. verify structural and cryptographic requirements
-3. group events by `o` and `e` references
-4. construct candidate chains
-5. apply the selected verifier policy to those chains
-6. annotate policy breaks as warnings
-7. derive recognized or candidate state from the policy result
-8. present both the evidence and the policy outcome
+3. index retrieved events by event id
+4. use `e` references to reconstruct candidate chains inside the object graph
+5. inspect `action` and action-specific tags to interpret graph nodes
+6. apply the selected verifier policy to those chains
+7. annotate policy breaks as warnings
+8. derive recognized or candidate state from the policy result
+9. present both the evidence and the policy outcome
+
+In compact form:
+
+```text
+o = find the graph
+e = walk the graph
+action = understand each node
+policy = decide effect
+```
 
 This lets the verifier answer two separate questions:
 

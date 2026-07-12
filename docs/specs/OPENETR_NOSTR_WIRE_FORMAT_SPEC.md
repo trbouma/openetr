@@ -488,6 +488,51 @@ Accordingly:
 
 This means the wire format should be understood as the event grammar for OpenETR publication and traversal, not as a guarantee of effect by publication alone.
 
+### Replacement And Control Graph Continuity
+
+OpenETR control chains use event ids as graph links.
+
+This creates a tension with Nostr replaceable-event behavior.
+
+If an origin event is merely rebroadcast unchanged, it has the same event id and the control graph remains linked.
+
+If the same author republishes the origin as a new replaceable event for the same `kind` and `d` coordinate, the new event normally has a different event id because the Nostr event id commits to the serialized event data, including fields such as `created_at`, tags, and content.
+
+For example:
+
+```text
+same pubkey
+same kind 31415
+same d tag / object slot
+new created_at or changed tags/content
+=> different event id
+```
+
+Under ordinary replaceable-event relay behavior, the relay may stop returning the older origin event for that author/kind/`d` coordinate and return only the newer replacement.
+
+That can break later control-chain traversal:
+
+```text
+old origin event id = A
+later control event e tag -> A
+new replacement origin event id = B
+relay stops returning A
+=> later control event does not extend B
+=> verifier cannot fully traverse the chain unless A is available from another source
+```
+
+For this reason, origin events that already have dependent control events should be treated as effectively immutable for ordinary recognized flows.
+
+A verifier should not silently relink old control events to the newer origin. The `e` tag points to a specific event id, not merely to the latest replaceable coordinate.
+
+Recommended policy treatment:
+
+- rebroadcasting the exact same event is safe because the event id is unchanged
+- republishing an origin after dependent control events exist should produce a strong warning or policy failure
+- missing prior events referenced by `e` should be reported as broken graph continuity
+- archives, attestations, or local event stores may be needed to verify older graph links when relays have replaced earlier events
+- domain policies may require origin immutability once the first control event is recognized
+
 ## Relationship to Other Specifications
 
 This specification is intended to consolidate the wire-level aspects of the current model.
