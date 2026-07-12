@@ -24,8 +24,8 @@ def build_issue_event_tags(
     extra_tags: Iterable[Sequence[str]] | None = None,
 ) -> list[list[str]]:
     tags = [
-        ["d", digest],
         ["o", digest],
+        ["action", "issue"],
         ["name", filename],
         ["digest_generated_at", generated_at.isoformat()],
     ]
@@ -39,7 +39,7 @@ def build_issue_event_tags(
         values = [str(value).strip() for value in tag[1:] if str(value).strip()]
         if not name or not values:
             continue
-        if name in {"d", "o"}:
+        if name in {"d", "o", "action"}:
             continue
         tags.append([name, *values])
     return tags
@@ -108,7 +108,6 @@ async def publish_issue_etr(
                 "authors": [keys.public_key_hex()],
                 "kinds": [DEFAULT_KIND],
                 "#o": [digest],
-                "#d": [digest],
                 "limit": limit,
             },
             emulate_single=True,

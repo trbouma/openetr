@@ -292,7 +292,7 @@ The current implementation uses or is converging on the following reserved relay
 - `config:profile:<name>:as_user`
   stores the encrypted signer secret for a named profile
 
-## Why Labeled Records Are Better Than One Big Blob
+## Labeled Record Rationale
 
 OpenETR should prefer labeled relay-backed configuration records over one monolithic encrypted config object.
 

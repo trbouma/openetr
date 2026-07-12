@@ -338,7 +338,7 @@ Agent-oriented surfaces should prefer:
 
 This distinction is important because it allows OpenETR to support both operator usability and automation reliability without splitting the domain logic into parallel implementations.
 
-## Why This Matters
+## Design Significance
 
 OpenETR is intended to operate as an open system rather than a closed platform.
 

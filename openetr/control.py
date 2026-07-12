@@ -5,8 +5,10 @@ from dataclasses import dataclass
 from monstr.event.event import Event
 
 
-ORIGIN_KIND = 31415
-CONTROL_EVENT_KIND = 31416
+ORIGIN_KIND = 1415
+CONTROL_EVENT_KIND = 1416
+LEGACY_ORIGIN_KIND = 31415
+LEGACY_CONTROL_EVENT_KIND = 31416
 
 ACTION_INITIATE = "initiate"
 ACTION_ACCEPT = "accept"

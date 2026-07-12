@@ -18,7 +18,7 @@ from app.encrypted_session import EncryptedSessionMiddleware
 from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
 from openetr.guards import evaluate_issue_etr_guard
 from openetr.helpers import assert_hex_object_identifier, format_object_identifier, format_pubkey, normalize_relays, parse_authors, resolve_keys, validate_relays
-from openetr.control import ACTION_DISCHARGE, ACTION_ENCUMBER, ACTION_REDEEM, ACTION_TERMINATE
+from openetr.control import ACTION_DISCHARGE, ACTION_ENCUMBER, ACTION_REDEEM, ACTION_TERMINATE, CONTROL_EVENT_KIND
 from openetr.services.control_events import ControlEventError, publish_auxiliary_control_event, publish_transfer_accept_event, publish_transfer_initiate_event
 from openetr.services.issue_etr import publish_issue_etr
 from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
@@ -29,7 +29,7 @@ from openetr.trivia import random_openetr_trivia_fact
 
 
 APP_TITLE = "OpenETR Demo App"
-CONTROL_TRANSFER_KIND = 31416
+CONTROL_TRANSFER_KIND = CONTROL_EVENT_KIND
 NOBJ_PREFIX = "nobj"
 SESSION_ROOT_NSEC_KEY = "openetr_root_nsec"
 SESSION_SIGNER_NSEC_KEY = "openetr_signer_nsec"

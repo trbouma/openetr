@@ -26,12 +26,14 @@ Suggested status values:
 
 | Kind | Name | Status | Purpose | Notes |
 |------|------|--------|---------|-------|
-| `31415` | origin event | working | Initial OpenETR record bringing an object into the scheme | Currently used for initial issuance/origin flows |
-| `31416` | control event family | working | Control-relevant events after origin | Currently subtyped by `action=initiate`, `action=accept`, and `action=terminate` |
+| `1415` | origin event | working | Initial OpenETR record bringing an object into the scheme | Regular event used for initial issuance/origin flows |
+| `1416` | control event family | working | Control-relevant events after origin | Regular event family subtyped by the `action` tag |
+| `31415` | legacy origin event | deprecated | Earlier addressable/replaceable origin prototype | Do not use for new OpenETR graph events |
+| `31416` | legacy control event family | deprecated | Earlier addressable/replaceable control prototype | Do not use for new OpenETR graph events |
 
 ## Current Interpretation
 
-### `31415` Origin Event
+### `1415` Origin Event
 
 The origin event is the initial event by which an object enters the OpenETR scheme.
 
@@ -41,9 +43,9 @@ Current intended role:
 - bind the object identifier into the scheme
 - serve as the starting point for later control analysis
 
-### `31416` Control Event Family
+### `1416` Control Event Family
 
-The `31416` event family is currently used to express control-relevant actions after origin.
+The `1416` event family is currently used to express control-relevant actions after origin.
 
 Current intended role:
 
@@ -59,18 +61,21 @@ Current working action subtypes:
 - `action=accept`
 - `action=terminate`
 
-This means `31416` is presently being used as a shared control-event family rather than as a single-action kind.
+This means `1416` is presently being used as a shared control-event family rather than as a single-action kind.
 
 That choice remains working and provisional.
 
 ## Related Specifications
 
 - [CANONICAL_ETR_TRANSACTION_SPEC.md](./CANONICAL_ETR_TRANSACTION_SPEC.md)
+- [REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md](./REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md)
 - [TITLE_TRANSFER_AUTHORITY_REPLACEABLE_EVENT_SPEC.md](./TITLE_TRANSFER_AUTHORITY_REPLACEABLE_EVENT_SPEC.md)
 
 ## Notes
 
 - This registry does not yet define all future OpenETR event kinds.
 - Separate event kinds for attestation, encumbrance, discharge, redemption, substitution, cancellation, and revocation are still open design areas.
-- Termination is currently modeled as `action=terminate` within `31416`, but may later be revisited as a separate kind if implementation experience suggests that is clearer.
+- New graph events use regular event kinds `1415` and `1416`; the event id is the durable graph node.
+- The `o` tag is the object-wide query anchor, the `e` tag links to a prior event, and the named `action` tag identifies the semantic action.
+- Termination is currently modeled as `action=terminate` within `1416`, but may later be revisited as a separate kind if implementation experience suggests that is clearer.
 - Event kind assignment alone does not determine legal or operational effect; effect depends on the wider OpenETR attestation and recognition model.

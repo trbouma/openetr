@@ -203,7 +203,7 @@
 
       {% if query.warning_multiple_origin_events %}
       <section class="panel warning">
-        <strong>Warning:</strong> multiple ETR origin events (kind 31415) were found for this object.
+        <strong>Warning:</strong> multiple ETR origin events (kind {{ query.origin_kind }}) were found for this object.
       </section>
       {% endif %}
 
@@ -214,7 +214,7 @@
       </section>
       {% else %}
       <section class="panel">
-        <h2>Initial ETR Origin Event (kind 31415)</h2>
+        <h2>Initial ETR Origin Event (kind {{ query.origin_kind }})</h2>
         <div class="kv">
           <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
           <div class="muted">Origin Event ID</div><div class="mono">{{ query.initial_event.event_ref }}</div>
@@ -223,7 +223,9 @@
           <div class="muted">Current Session Signer</div><div>Yes</div>
           {% endif %}
           <div class="muted">Created At</div><div>{{ query.initial_event.created_at }}</div>
-          <div class="muted">d value</div><div class="mono">{{ query.initial_event.d_values }}</div>
+          {% if query.initial_event.d_values %}
+          <div class="muted">Legacy d value</div><div class="mono">{{ query.initial_event.d_values }}</div>
+          {% endif %}
           <div class="muted">o value</div><div class="mono">{{ query.initial_event.o_values }}</div>
           <div class="muted">Content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
@@ -249,7 +251,7 @@
 
       {% if query.origin_events|length > 1 %}
       <section class="panel">
-        <h2>Matching ETR Origin Events (kind 31415)</h2>
+        <h2>Matching ETR Origin Events (kind {{ query.origin_kind }})</h2>
         {% for item in query.origin_events %}
         <div class="event">
           <div class="kv">
@@ -286,7 +288,7 @@
       {% endif %}
 
       <section class="panel">
-        <h2>Matching Control Events (kind 31416)</h2>
+        <h2>Matching Control Events (kind {{ query.control_event_kind }})</h2>
         {% if not query.transfer_groups %}
         <p>No control transfer events were found for this object.</p>
         {% else %}
@@ -305,7 +307,7 @@
               {% if node.event.type %}<div class="muted">Type</div><div>{{ node.event.type }}</div>{% endif %}
               {% if node.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ node.event.external_ref }}</div>{% endif %}
               {% if node.event.subject_npub %}<div class="muted">{{ node.event.participant_label or "Participant" }}</div><div class="mono">{{ node.event.subject_npub }}</div>{% endif %}
-              <div class="muted">d value</div><div class="mono">{{ node.event.d_values }}</div>
+              {% if node.event.d_values %}<div class="muted">Legacy d value</div><div class="mono">{{ node.event.d_values }}</div>{% endif %}
               <div class="muted">o value</div><div class="mono">{{ node.event.o_values }}</div>
               <div class="muted">Content</div><div class="mono">{{ node.event.content }}</div>
             </div>

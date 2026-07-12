@@ -29,7 +29,6 @@ from openetr.control import (
     ACTION_REDEEM,
     ACTION_TERMINATE,
     CONTROL_EVENT_KIND,
-    action_d_value,
 )
 from openetr.helpers import (
     GENERATE_LEI_SENTINEL,
@@ -121,7 +120,6 @@ async def _run_publish_object(
     click.echo(f"Event ID:{event.id}")
     click.echo(f"Object:  {format_object_identifier(digest)}")
     click.echo(f"Kind:    {event.kind}")
-    click.echo(f"d tag:   {digest if display_hex_tags else format_object_identifier(digest)}")
     click.echo(f"o tag:   {digest if display_hex_tags else format_object_identifier(digest)}")
     if digest_file is not None:
         click.echo(f"Source:  sha256({digest_file})")
@@ -148,7 +146,6 @@ async def _run_publish_object(
             "authors": [as_user.public_key_hex()],
             "kinds": [DEFAULT_KIND],
             "#o": [digest],
-            "#d": [digest],
             "limit": limit,
         }
 
@@ -167,14 +164,15 @@ async def _run_publish_object(
     for evt in events:
         d_values = evt.get_tags_value("d")
         o_values = evt.get_tags_value("o")
-        has_tag_match = digest in d_values and digest in o_values
+        has_tag_match = digest in o_values
         same_event = evt.id == event.id
         click.echo(
             f"- id={evt.id} created_at={evt.created_at} kind={evt.kind} "
             f"author={format_pubkey(evt.pub_key)} "
-            f"d_values={[format_object_identifier(value) for value in d_values]} "
             f"o_values={[format_object_identifier(value) for value in o_values]}"
         )
+        if d_values:
+            click.echo(f"  legacy_d_values={[format_object_identifier(value) for value in d_values]}")
         click.echo(f"  content={evt.content}")
         if has_tag_match:
             matched.append(evt)
@@ -183,13 +181,13 @@ async def _run_publish_object(
 
     click.echo()
     if matched:
-        click.echo("PASS: relay returned at least one event for the combined #d and #o filter.")
+        click.echo("PASS: relay returned at least one event for the #o object filter.")
         if any(evt.id == event.id for evt in matched):
-            click.echo("PASS: the exact event we published was returned by the combined #d and #o filter.")
+            click.echo("PASS: the exact event we published was returned by the #o object filter.")
         else:
-            click.echo("PARTIAL: query matched the d/o tags, but not the exact event id we just published.")
+            click.echo("PARTIAL: query matched the object tag, but not the exact event id we just published.")
     else:
-        click.echo("FAIL: relay did not return any events for the combined #d and #o filter.")
+        click.echo("FAIL: relay did not return any events for the #o object filter.")
 
     if ok_results:
         last_ok = ok_results[-1]
@@ -219,7 +217,7 @@ async def _find_existing_object_records(
             {
                 "authors": [pubkey_hex],
                 "kinds": [DEFAULT_KIND],
-                "#d": [digest],
+                "#o": [digest],
                 "limit": limit,
             },
             emulate_single=True,
@@ -233,11 +231,13 @@ async def _find_existing_object_records(
 
 async def _find_existing_transfer_records(
     relays: str,
-    d_value: str,
+    object_digest: str,
+    action: str,
     pubkey_hex: str,
     query_timeout: int,
     limit: int,
 ) -> list[Event]:
+    assert_hex_object_identifier(object_digest)
     assert_hex_pubkey(pubkey_hex)
     async with ClientPool(
         relays.split(","),
@@ -248,7 +248,7 @@ async def _find_existing_transfer_records(
             {
                 "authors": [pubkey_hex],
                 "kinds": [CONTROL_TRANSFER_KIND],
-                "#d": [d_value],
+                "#o": [object_digest],
                 "limit": limit,
             },
             emulate_single=True,
@@ -257,7 +257,7 @@ async def _find_existing_transfer_records(
         )
 
     Event.sort(events, inplace=True, reverse=True)
-    return events
+    return [event for event in events if _event_tag_value(event, "action") == action]
 
 
 async def _find_control_events_for_object(
@@ -733,15 +733,12 @@ async def _run_publish_transfer_event(
     else:
         verify_relays = [normalized_verify]
 
-    d_value = _event_tag_value(event, "d")
     o_value = _event_tag_value(event, "o")
     fallback_filter = {
         "authors": [assert_hex_pubkey(event.pub_key)],
         "kinds": [event.kind],
         "limit": 10,
     }
-    if d_value is not None:
-        fallback_filter["#d"] = [d_value]
     if o_value is not None:
         fallback_filter["#o"] = [assert_hex_object_identifier(o_value)]
 
@@ -822,7 +819,7 @@ async def _run_publish_transfer_event(
     if pass_condition:
         click.echo("PASS: transfer verification requirement was satisfied.")
     elif slot_relays:
-        click.echo("PARTIAL: transfer verification found the replaceable transfer slot, but not enough exact event matches.")
+        click.echo("PARTIAL: transfer verification found events for the object graph, but not enough exact event matches.")
         click.echo(f"Published event id: {event.id}")
         for relay in verify_relays:
             relay_events = verification_results.get(relay, [])
@@ -1017,7 +1014,7 @@ def _profile_updates(
 @click.option(
     "--digest",
     default=None,
-    help="nobj or 32-byte hex digest to use as the d and o tag values; autogenerated if omitted.",
+    help="nobj or 32-byte hex digest to use as the controlled object id; autogenerated if omitted.",
 )
 @click.option(
     "--as-user",
@@ -1062,7 +1059,7 @@ def publish_object(
     limit: int | None,
     debug: bool,
 ) -> None:
-    """Publish and query a replaceable event with matching d and o tags."""
+    """Publish and query a regular OpenETR origin event for an object."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
     profile_name = profile or get_active_profile_name()
@@ -1110,7 +1107,7 @@ def publish_object(
 @click.option(
     "--digest",
     default=None,
-    help="nobj or 32-byte hex digest to use as the d and o tag values; autogenerated if omitted.",
+    help="nobj or 32-byte hex digest to use as the controlled object id; autogenerated if omitted.",
 )
 @click.option(
     "--as-user",
@@ -1351,7 +1348,6 @@ def transfer_initiate(
                 f"prior event must be kind {DEFAULT_KIND} (origin) or {CONTROL_TRANSFER_KIND} (control transfer)"
             )
         _warn_if_missing_prior_accept(referenced_event)
-        d_value = f"{object_digest_for_event}:initiate"
         resolved_comment = comment or (
             "transfer initiate; "
             f"object={format_object_identifier(object_digest_for_event)}; "
@@ -1362,7 +1358,8 @@ def transfer_initiate(
         )
         existing_events = await _find_existing_transfer_records(
             relays=resolved_relays,
-            d_value=d_value,
+            object_digest=object_digest_for_event,
+            action="initiate",
             pubkey_hex=author_pubkey_hex,
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
@@ -1371,7 +1368,7 @@ def transfer_initiate(
             latest = existing_events[0]
             click.secho(
                 "WARNING: a transfer initiate event already exists for this author and object; "
-                "you may be overwriting an existing replaceable transfer record.",
+                "you may be publishing another transfer initiate record.",
                 fg="yellow",
                 bold=True,
             )
@@ -1387,7 +1384,6 @@ def transfer_initiate(
             content=resolved_comment,
             pub_key=author_pubkey_hex,
             tags=[
-                ["d", d_value],
                 ["o", object_digest_for_event],
                 ["e", referenced_event.id],
                 ["origin", resolved_origin.id],
@@ -1480,7 +1476,6 @@ def terminate_etr(
         )
 
         _warn_if_missing_prior_accept(referenced_event)
-        d_value = f"{object_digest}:terminate"
         resolved_comment = comment or (
             "terminate etr; "
             f"object={format_object_identifier(object_digest)}; "
@@ -1490,7 +1485,8 @@ def terminate_etr(
         )
         existing_events = await _find_existing_transfer_records(
             relays=resolved_relays,
-            d_value=d_value,
+            object_digest=object_digest,
+            action="terminate",
             pubkey_hex=author_pubkey_hex,
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
@@ -1499,7 +1495,7 @@ def terminate_etr(
             latest = existing_events[0]
             click.secho(
                 "WARNING: a terminate event already exists for this author and object; "
-                "you may be overwriting an existing replaceable termination record.",
+                "you may be publishing another termination record.",
                 fg="yellow",
                 bold=True,
             )
@@ -1518,7 +1514,6 @@ def terminate_etr(
             content=resolved_comment,
             pub_key=author_pubkey_hex,
             tags=[
-                ["d", d_value],
                 ["o", object_digest],
                 ["e", referenced_event.id],
                 ["origin", resolved_origin.id],
@@ -1642,7 +1637,6 @@ def attest(
                 raise click.ClickException("subject must resolve to a valid npub")
             subject_pubkey_hex = parsed_subjects[0]
 
-        d_value = f"{object_digest_for_event}:attest"
         resolved_comment = comment or (
             "attest; "
             f"object={format_object_identifier(object_digest_for_event)}; "
@@ -1652,7 +1646,8 @@ def attest(
         )
         existing_events = await _find_existing_transfer_records(
             relays=resolved_relays,
-            d_value=d_value,
+            object_digest=object_digest_for_event,
+            action="attest",
             pubkey_hex=author_pubkey_hex,
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
@@ -1661,7 +1656,7 @@ def attest(
             latest = existing_events[0]
             click.secho(
                 "WARNING: an attestation event already exists for this author and object; "
-                "you may be overwriting an existing replaceable attestation record.",
+                "you may be publishing another attestation record.",
                 fg="yellow",
                 bold=True,
             )
@@ -1674,7 +1669,6 @@ def attest(
             )
 
         tags = [
-            ["d", d_value],
             ["o", object_digest_for_event],
             ["e", referenced_event.id],
             ["origin", resolved_origin.id],
@@ -1750,9 +1744,8 @@ async def _publish_auxiliary_control_event(
             encumbrance_event.kind != CONTROL_TRANSFER_KIND
             or _event_tag_value(encumbrance_event, "action") != ACTION_ENCUMBER
         ):
-            raise click.ClickException("encumbrance event must be a kind 31416 action=encumber event")
+            raise click.ClickException(f"encumbrance event must be a kind {CONTROL_TRANSFER_KIND} action=encumber event")
 
-    d_value = action_d_value(object_digest_for_event, action)
     resolved_comment = comment or (
         f"{action}; "
         f"object={format_object_identifier(object_digest_for_event)}; "
@@ -1762,7 +1755,8 @@ async def _publish_auxiliary_control_event(
     )
     existing_events = await _find_existing_transfer_records(
         relays=relays,
-        d_value=d_value,
+        object_digest=object_digest_for_event,
+        action=action,
         pubkey_hex=author_pubkey_hex,
         query_timeout=query_timeout,
         limit=limit,
@@ -1771,7 +1765,7 @@ async def _publish_auxiliary_control_event(
         latest = existing_events[0]
         click.secho(
             f"WARNING: an {action} event already exists for this author and object; "
-            f"you may be overwriting an existing replaceable {action} record.",
+            f"you may be publishing another {action} record.",
             fg="yellow",
             bold=True,
         )
@@ -1784,7 +1778,6 @@ async def _publish_auxiliary_control_event(
         )
 
     tags = [
-        ["d", d_value],
         ["o", object_digest_for_event],
         ["e", referenced_event.id],
         ["origin", resolved_origin.id],
@@ -2178,7 +2171,6 @@ def transfer_accept(
                 f"({format_pubkey(intended_transferee_pubkey_hex)})"
             )
 
-        d_value = f"{object_digest_for_event}:accept"
         resolved_comment = comment or (
             "transfer accept; "
             f"object={format_object_identifier(object_digest_for_event)}; "
@@ -2188,7 +2180,8 @@ def transfer_accept(
         )
         existing_events = await _find_existing_transfer_records(
             relays=resolved_relays,
-            d_value=d_value,
+            object_digest=object_digest_for_event,
+            action="accept",
             pubkey_hex=author_pubkey_hex,
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
@@ -2197,7 +2190,7 @@ def transfer_accept(
             latest = existing_events[0]
             click.secho(
                 "WARNING: a transfer accept event already exists for this author and object; "
-                "you may be overwriting an existing replaceable accept record.",
+                "you may be publishing another transfer accept record.",
                 fg="yellow",
                 bold=True,
             )
@@ -2218,7 +2211,6 @@ def transfer_accept(
             content=resolved_comment,
             pub_key=author_pubkey_hex,
             tags=[
-                ["d", d_value],
                 ["o", object_digest_for_event],
                 ["e", current_initiate_event_id],
                 ["p", initiate.pub_key],

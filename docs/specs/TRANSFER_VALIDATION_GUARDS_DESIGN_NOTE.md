@@ -141,7 +141,7 @@ These checks answer questions such as:
 - Should this event be treated as effective?
 - Does this event satisfy the applicable control or attestation policy?
 
-### Why the Distinction Matters
+### Distinction Rationale
 
 OpenETR can authenticate events, but it does not by itself require that every authenticated event be recognized as effective.
 
@@ -229,7 +229,7 @@ The protocol carries the signed history.
 
 The determining party applies the rules.
 
-## Why Validation Rules Matter Even If They Can Be Bypassed
+## Validation Rule Rationale
 
 A bypassable rule can still be valuable if it clearly states the expected policy.
 

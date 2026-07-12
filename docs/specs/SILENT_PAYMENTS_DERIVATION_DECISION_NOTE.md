@@ -12,7 +12,7 @@ This means OpenETR will continue to derive the Silent Payments address from a No
 
 OpenETR will not replace this model with a BIP-32-only Silent Payments derivation scheme as the default OpenETR behavior.
 
-## Why
+## Rationale
 
 The current OpenETR derivation model is intentionally identity-linked.
 
@@ -162,7 +162,7 @@ This makes the BIP-32 approach:
 - more compatible with wallet import/export expectations
 - not publicly derivable from Nostr identity
 
-## Why Both Approaches Are Sound
+## Soundness Of Both Approaches
 
 Both approaches are valid because both produce a consistent `scan` key and `spend` key pair that can be used within the Silent Payments protocol.
 

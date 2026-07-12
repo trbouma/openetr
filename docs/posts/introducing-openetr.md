@@ -33,7 +33,7 @@ An object is the record surface. A controller is the key or actor able to exerci
 
 From those primitives, a record can move without being trapped inside the original system that first created it.
 
-## Why Nostr is the first reference implementation
+## Nostr As The First Reference Implementation
 
 OpenETR is not trying to invent a new transport protocol from scratch. Nostr already gives us a useful foundation:
 
@@ -43,7 +43,7 @@ OpenETR is not trying to invent a new transport protocol from scratch. Nostr alr
 
 That makes it a practical first environment for expressing durable control and portable records on open infrastructure.
 
-## Why this matters for MLETR
+## MLETR Significance
 
 The UNCITRAL Model Law on Electronic Transferable Records points toward a legal world where certain electronic records can function like their paper equivalents. But legal recognition still needs technical patterns that can support control, transfer, and independent verification.
 

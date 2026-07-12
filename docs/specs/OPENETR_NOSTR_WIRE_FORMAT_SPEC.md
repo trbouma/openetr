@@ -12,7 +12,7 @@ Its purpose is to express the OpenETR control model as concrete Nostr events, ki
 
 Draft.
 
-This is a current working specification for the OpenETR reference direction. It reflects the present `31415` / `31416` event-family split and current tag conventions. It should not yet be treated as a final permanent registry decision.
+This is a current working specification for the OpenETR reference direction. It reflects the present `1415` / `1416` regular-event split and current tag conventions. It should not yet be treated as a final permanent registry decision.
 
 ## Scope
 
@@ -39,10 +39,11 @@ Those remain outside the wire format and are determined by the applicable OpenET
 
 The current OpenETR wire format uses two event families:
 
-- `kind 31415` for the origin event
-- `kind 31416` for later control events
+- `kind 1415` for the origin event
+- `kind 1416` for later control events
+- legacy prototype `kind 31415` / `kind 31416` events may exist, but new OpenETR graph events use regular kinds `1415` / `1416`
 
-### `31415` Origin Event
+### `1415` Origin Event
 
 The origin event is the event by which a Controlled Object first enters the OpenETR scheme.
 
@@ -52,15 +53,15 @@ Its current wire-level role is to:
 - express initial issuance or origin
 - provide the starting point for later control traversal
 
-### `31416` Control Event Family
+### `1416` Control Event Family
 
 The control-event family is used for later control-relevant actions concerning the same Controlled Object.
 
-In the current working model, `31416` is a shared action family rather than a single semantic event type.
+In the current working model, `1416` is a shared action family rather than a single semantic event type.
 
 The action is carried by the `action` tag.
 
-Current working `31416` actions are:
+Current working `1416` actions are:
 
 - `initiate`
 - `accept`
@@ -84,9 +85,9 @@ OpenETR distinguishes between:
 
 Only the first category requires relay indexing support.
 
-Nostr relay filters express tag queries with leading `#` keys, such as `#d`, `#o`, `#e`, or `#p`.
+Nostr relay filters express tag queries with leading `#` keys, such as `#o`, `#e`, or `#p`.
 
-OpenETR therefore uses short, stable tags such as `d`, `o`, `e`, and `p` for object identity, graph traversal, and participant lookup.
+OpenETR therefore uses short, stable tags such as `o`, `e`, and `p` for object identity, graph traversal, and participant lookup.
 
 OpenETR also uses named tags such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `record_reference`, or `record_description` for structured metadata that does not need to be relay-queryable.
 
@@ -100,31 +101,14 @@ The recommended convention is:
 
 ### `d`
 
-`d` is the replaceable addressing slot for the specific author, object, and action context being expressed.
+`d` is not required for new regular OpenETR graph events.
 
-Current working convention:
+Earlier prototype events used `d` as the addressable / replaceable slot:
 
 - origin event: `d = <object_hex>`
 - control event: `d = <object_hex>:<action>`
 
-Examples:
-
-- `<object_hex>`
-- `<object_hex>:initiate`
-- `<object_hex>:accept`
-- `<object_hex>:terminate`
-- `<object_hex>:attest`
-- `<object_hex>:encumber`
-- `<object_hex>:discharge`
-- `<object_hex>:redeem`
-
-This gives one replaceable slot per:
-
-- author
-- object
-- action
-
-This convention is sufficient for the current working model, but some actions may later need more specific `d` values if multiple distinct events of the same action type must coexist for the same author and object.
+Readers may display `d` when inspecting legacy events, but new graph reconstruction should not rely on it.
 
 ### `o`
 
@@ -163,7 +147,7 @@ The exact semantics of `p` are action-dependent.
 
 ### `action`
 
-`action` distinguishes the semantic subtype within the `31416` control-event family.
+`action` distinguishes the semantic subtype within the `1416` control-event family.
 
 Examples:
 
@@ -231,10 +215,10 @@ The wire-level event structures below define the current minimum working format.
 
 ### Origin / Issue Event
 
-- `kind = 31415`
+- `kind = 1415`
 - required tags:
-  - `["d", "<object_hex>"]`
   - `["o", "<object_hex>"]`
+  - `["action", "issue"]`
 - current implementation structured tags:
   - `["name", "<source_name>"]`
   - `["digest_generated_at", "<iso_8601_timestamp>"]`
@@ -258,9 +242,8 @@ Control meaning:
 
 ### Transfer Initiate Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:initiate"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_event_id_hex>"]`
   - `["p", "<transferee_pubkey_hex>"]`
@@ -273,9 +256,8 @@ Control meaning:
 
 ### Transfer Accept Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:accept"]`
   - `["o", "<object_hex>"]`
   - `["e", "<initiate_event_id_hex_or_prior_control_event_id_hex>"]`
   - `["action", "accept"]`
@@ -289,9 +271,8 @@ Control meaning:
 
 ### Terminate Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:terminate"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "terminate"]`
@@ -303,9 +284,8 @@ Control meaning:
 
 ### Attest Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:attest"]`
   - `["o", "<object_hex>"]`
   - `["e", "<specific_event_id_being_attested>"]`
   - `["action", "attest"]`
@@ -322,9 +302,8 @@ Control meaning:
 
 ### Encumber Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:encumber"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "encumber"]`
@@ -340,9 +319,8 @@ Control meaning:
 
 ### Discharge Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:discharge"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "discharge"]`
@@ -358,9 +336,8 @@ Control meaning:
 
 ### Redeem Event
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:redeem"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "redeem"]`
@@ -380,8 +357,8 @@ OpenETR wire-level evaluation is object-centric first.
 Implementations should generally:
 
 1. determine the object digest
-2. query origin events using `kind = 31415` and object matching
-3. query control events using `kind = 31416` and object matching
+2. query origin events using `kind = 1415` and `#o`
+3. query control events using `kind = 1416` and `#o`
 4. group candidate chains by `e` references
 5. evaluate those chains under local validity and recognition rules
 
@@ -390,7 +367,7 @@ In current practice, the object digest is commonly queried through the `o` tag a
 The reference `openetr query-etr` command currently derives and displays:
 
 - the initial origin event
-- matching `kind 31416` control events
+- matching `kind 1416` control events
 - summary control chains from linked `e` references
 - lifecycle state
 - current controller
@@ -405,8 +382,8 @@ The OpenETR control chain is not database state maintained by a single applicati
 
 For a candidate object history, an implementation should verify:
 
-1. the origin event uses `kind = 31415` and carries the expected object identifier in `d` and `o`
-2. each later control event uses `kind = 31416`
+1. the origin event uses `kind = 1415` and carries the expected object identifier in `o`
+2. each later control event uses `kind = 1416`
 3. each event signature is valid for the event author
 4. each event id matches the serialized event data under the Nostr event id rules
 5. each event has the required minimum tags for its event shape
@@ -476,15 +453,18 @@ An event may therefore be:
 - recognized only under a specific policy profile
 - invalid and therefore not capable of recognition
 
-## Replaceable-Event Assumption
+## Legacy Replaceable-Event Rationale
 
-The current working model assumes that these OpenETR events may be published as Nostr replaceable events within their author and `d` slot.
+The earlier prototype model assumed that OpenETR graph events could be published as Nostr addressable / replaceable events within their author and `d` slot.
 
-Accordingly:
+That is now treated as a legacy design stage. New OpenETR graph events use regular event kinds `1415` and `1416`.
+
+The reason for the migration is important:
 
 - relay persistence alone is not the source of effect
-- deletion or replacement risk must be assumed at the raw event layer
-- later attestation or external evidence may remain critical for recognition
+- graph continuity should be based on exact event ids
+- a verifier should not silently relink old control events to a newer replacement event
+- archives, attestations, local event stores, or relay diversity may still matter for evidentiary completeness
 
 This means the wire format should be understood as the event grammar for OpenETR publication and traversal, not as a guarantee of effect by publication alone.
 
@@ -521,7 +501,7 @@ relay stops returning A
 => verifier cannot fully traverse the chain unless A is available from another source
 ```
 
-For this reason, origin events that already have dependent control events should be treated as effectively immutable for ordinary recognized flows.
+For this reason, the reference implementation moved origin and control graph events to regular event kinds.
 
 A verifier should not silently relink old control events to the newer origin. The `e` tag points to a specific event id, not merely to the latest replaceable coordinate.
 
@@ -551,10 +531,9 @@ Related documents include:
 
 The current OpenETR Nostr wire format is defined by:
 
-- `31415` for origin
-- `31416` for later control events
+- `1415` for origin
+- `1416` for later control events
 - `o` as the object-history anchor
-- `d` as the replaceable action slot
 - `e` as the control-chain link
 - `action` as the semantic subtype within the control-event family
 - named non-indexed tags as the convention for signed structured metadata

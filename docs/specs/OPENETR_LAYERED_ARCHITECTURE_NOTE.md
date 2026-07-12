@@ -24,8 +24,8 @@ The Nostr wire format is the publication and retrieval substrate.
 
 At this layer, OpenETR defines:
 
-- event kinds such as `31415` for origin events and `31416` for control events
-- core query and traversal tags such as `d`, `o`, `e`, and `p`
+- event kinds such as `1415` for origin events and `1416` for control events
+- core query and traversal tags such as `o`, `e`, and `p`
 - signed named tags for structured event data such as `name`, `size_bytes`, `domain`, `document_type`, `record_reference`, or `record_description`
 - readable event `content` for narrative context rather than machine parsing
 - relay-backed publication and retrieval conventions
@@ -120,7 +120,82 @@ OpenETR does not answer those questions by itself.
 
 Instead, it provides signed, portable, inspectable evidence that a recognition layer can evaluate.
 
-## Why This Separation Matters
+## Recognition Inputs: TRQP, WoT, Registries, And Attestations
+
+The recognition layer may use many different inputs.
+
+Two important examples are:
+
+- Trust Registry Query Protocol (TRQP);
+- Nostr Web of Trust (WoT).
+
+These models complement OpenETR because they mostly answer recognition questions rather than control questions.
+
+OpenETR is focused on control evidence:
+
+- what object exists;
+- what event created the origin record;
+- which signed events reference the object;
+- how control events link through exact `e` references;
+- which profile key signed each event;
+- what candidate state can be derived from the graph.
+
+TRQP and WoT ask different questions.
+
+TRQP can answer authority and recognition questions such as:
+
+- is this entity authorized by this authority to perform this action on this resource?
+- does one authority recognize another authority for this action and resource?
+- was the authorization or recognition valid in the relevant context?
+
+Nostr Web of Trust can answer reputational and community-context questions such as:
+
+- is this signer close to a trusted seed set?
+- is this profile recognized by a community's social graph?
+- does a trusted assertion provider publish a score or classification for this pubkey?
+- should this signer, relay, attestor, or graph branch be ranked higher, warned about, or sent for manual review?
+
+Other recognition inputs may include:
+
+- explicit OpenETR attestation events;
+- domain registries;
+- local allow lists or deny lists;
+- contractual network rules;
+- statutory or regulatory requirements;
+- enterprise account and role systems;
+- court, regulator, bank, carrier, warehouse, or platform policies.
+
+The design rule is:
+
+> OpenETR should produce and verify portable control evidence. Recognition inputs decide what effect a verifier gives to that evidence.
+
+This separation keeps OpenETR general.
+
+A verifier can inspect the same signed OpenETR graph under different rule books:
+
+- one verifier may recognize a transition because a TRQP registry says the signer was authorized;
+- another may treat the same transition as warning-only because the signer is not known in its WoT graph;
+- another may require both formal TRQP authorization and a high-confidence attestation;
+- another may accept the graph locally under a private contract or enterprise policy.
+
+Those differences do not fork the OpenETR control model. They are recognition overlays applied to the same signed evidence.
+
+The verifier should therefore present:
+
+- the shared signed control graph;
+- structural and cryptographic validity;
+- domain interpretation;
+- recognition inputs consulted;
+- warnings, denials, or confidence scores;
+- the final recognized or candidate state under the selected policy.
+
+Related recognition-input notes:
+
+- [OPENETR_TRQP_INTEGRATION_NOTE.md](./OPENETR_TRQP_INTEGRATION_NOTE.md)
+- [OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md](./OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md)
+- [OPENETR_GENERIC_VERIFIER_POLICY.md](./OPENETR_GENERIC_VERIFIER_POLICY.md)
+
+## Separation Rationale
 
 This layering keeps the project flexible.
 
@@ -140,10 +215,10 @@ Current implementation artifacts roughly map as follows:
 
 | Layer | Implementation artifacts |
 | --- | --- |
-| Nostr wire format | `OPENETR_NOSTR_WIRE_FORMAT_SPEC.md`, event kinds `31415` and `31416`, event tags, relay queries |
+| Nostr wire format | `OPENETR_NOSTR_WIRE_FORMAT_SPEC.md`, event kinds `1415` and `1416`, event tags, relay queries |
 | OpenETR control layer | `openetr` Python package, CLI commands, `openetr.services.issue_etr`, `openetr.services.control_events`, `openetr.services.query_etr` |
 | Domain adapters | MLWR Control Desk routes and templates, `MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md`, `OPENETR_MLWR_PROFILE.md` |
-| Recognition layer | MLWR article mapping, policy profiles, attestations, legal or institutional rules outside the base protocol |
+| Recognition layer | generic verifier policy, MLWR article mapping, policy profiles, attestations, TRQP, WoT, legal or institutional rules outside the base protocol |
 
 The central design rule is:
 

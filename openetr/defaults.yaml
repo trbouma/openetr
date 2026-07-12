@@ -1,5 +1,5 @@
 relays: "wss://relay.openetr.org"
-kind: 31415
+kind: 1415
 query_timeout: 10
 publish_wait: 2.0
 limit: 20

@@ -13,7 +13,6 @@ from openetr.control import (
     ACTION_INITIATE,
     ACTION_TERMINATE,
     CONTROL_EVENT_KIND,
-    action_d_value,
 )
 from openetr.helpers import (
     assert_hex_event_id,
@@ -59,12 +58,14 @@ def normalize_verify_value(verify: str) -> str:
 
 async def find_existing_control_records(
     relays: str,
-    d_value: str,
+    object_digest: str,
+    action: str,
     pubkey_hex: str,
     query_timeout: int,
     limit: int,
 ) -> list[Event]:
     assert_hex_pubkey(pubkey_hex)
+    assert_hex_object_identifier(object_digest)
     async with ClientPool(
         split_relays(relays),
         timeout=query_timeout,
@@ -74,7 +75,7 @@ async def find_existing_control_records(
             {
                 "authors": [pubkey_hex],
                 "kinds": [CONTROL_EVENT_KIND],
-                "#d": [d_value],
+                "#o": [object_digest],
                 "limit": limit,
             },
             emulate_single=True,
@@ -82,6 +83,7 @@ async def find_existing_control_records(
             timeout=query_timeout,
         )
 
+    events = [event for event in events if event_tag_value(event, "action") == action]
     Event.sort(events, inplace=True, reverse=True)
     return events
 
@@ -396,15 +398,12 @@ async def publish_event_and_verify(
 
     normalized_verify = normalize_verify_value(verify)
     verify_relays = relay_list if normalized_verify in {"any", "majority", "all"} else [normalized_verify]
-    d_value = event_tag_value(event, "d")
     o_value = event_tag_value(event, "o")
     fallback_filter: dict[str, Any] = {
         "authors": [assert_hex_pubkey(event.pub_key)],
         "kinds": [event.kind],
         "limit": 10,
     }
-    if d_value is not None:
-        fallback_filter["#d"] = [d_value]
     if o_value is not None:
         fallback_filter["#o"] = [assert_hex_object_identifier(o_value)]
 
@@ -509,13 +508,14 @@ async def publish_auxiliary_control_event(
         if encumbrance_event is None:
             raise ControlEventError("encumbrance event could not be found on the configured relays")
         if encumbrance_event.kind != CONTROL_EVENT_KIND or event_tag_value(encumbrance_event, "action") != ACTION_ENCUMBER:
-            raise ControlEventError("encumbrance event must be a kind 31416 action=encumber event")
+            raise ControlEventError(f"encumbrance event must be a kind {CONTROL_EVENT_KIND} action=encumber event")
 
-    d_value = action_d_value(object_digest_for_event, action)
-    existing_events = await find_existing_control_records(relays, d_value, author_pubkey_hex, query_timeout, limit)
+    existing_events = await find_existing_control_records(
+        relays, object_digest_for_event, action, author_pubkey_hex, query_timeout, limit
+    )
     if existing_events and not force:
         raise ControlEventError(
-            f"an {action} event already exists for this author and object; pass force to replace it"
+            f"an {action} event already exists for this author and object; pass force to publish another event"
         )
 
     resolved_comment = comment or (
@@ -523,7 +523,6 @@ async def publish_auxiliary_control_event(
         f"prior_event={referenced_event.id}; origin_event={resolved_origin.id}; signer={format_pubkey(author_pubkey_hex)}"
     )
     tags = [
-        ["d", d_value],
         ["o", object_digest_for_event],
         ["e", referenced_event.id],
         ["origin", resolved_origin.id],
@@ -548,7 +547,8 @@ async def publish_auxiliary_control_event(
             "object_id": format_object_identifier(object_digest_for_event),
             "origin_event_id": resolved_origin.id,
             "prior_event_id": referenced_event.id,
-            "replaced_existing_event_id": existing_events[0].id if existing_events else None,
+            "previous_existing_event_id": existing_events[0].id if existing_events else None,
+            "replaced_existing_event_id": None,
         }
     )
     return result
@@ -595,10 +595,13 @@ async def publish_transfer_initiate_event(
         if prior_transferee is None or author_pubkey_hex != assert_hex_pubkey(prior_transferee):
             raise ControlEventError("transfer initiate signer must match the transferee named in the referenced prior transfer event")
 
-    d_value = action_d_value(object_digest_for_event, ACTION_INITIATE)
-    existing_events = await find_existing_control_records(relays, d_value, author_pubkey_hex, query_timeout, limit)
+    existing_events = await find_existing_control_records(
+        relays, object_digest_for_event, ACTION_INITIATE, author_pubkey_hex, query_timeout, limit
+    )
     if existing_events and not force:
-        raise ControlEventError("a transfer initiate event already exists for this author and object; pass force to replace it")
+        raise ControlEventError(
+            "a transfer initiate event already exists for this author and object; pass force to publish another event"
+        )
 
     transferee_pubkey_hex = assert_hex_pubkey(transferee_pubkey_hex)
     resolved_comment = comment or (
@@ -612,7 +615,6 @@ async def publish_transfer_initiate_event(
         content=resolved_comment,
         pub_key=author_pubkey_hex,
         tags=[
-            ["d", d_value],
             ["o", object_digest_for_event],
             ["e", referenced_event.id],
             ["origin", resolved_origin.id],
@@ -629,7 +631,8 @@ async def publish_transfer_initiate_event(
             "object_id": format_object_identifier(object_digest_for_event),
             "origin_event_id": resolved_origin.id,
             "prior_event_id": referenced_event.id,
-            "replaced_existing_event_id": existing_events[0].id if existing_events else None,
+            "previous_existing_event_id": existing_events[0].id if existing_events else None,
+            "replaced_existing_event_id": None,
         }
     )
     return result
@@ -653,10 +656,13 @@ async def publish_transfer_accept_event(
     resolved_origin, initiate_event = await resolve_pending_initiate_for_transferee(
         relays, object_digest, author_pubkey_hex, query_timeout, limit
     )
-    d_value = action_d_value(object_digest, ACTION_ACCEPT)
-    existing_events = await find_existing_control_records(relays, d_value, author_pubkey_hex, query_timeout, limit)
+    existing_events = await find_existing_control_records(
+        relays, object_digest, ACTION_ACCEPT, author_pubkey_hex, query_timeout, limit
+    )
     if existing_events and not force:
-        raise ControlEventError("a transfer accept event already exists for this author and object; pass force to replace it")
+        raise ControlEventError(
+            "a transfer accept event already exists for this author and object; pass force to publish another event"
+        )
 
     resolved_comment = comment or (
         "transfer accept; "
@@ -668,7 +674,6 @@ async def publish_transfer_accept_event(
         content=resolved_comment,
         pub_key=author_pubkey_hex,
         tags=[
-            ["d", d_value],
             ["o", object_digest],
             ["e", initiate_event.id],
             ["origin", resolved_origin.id],
@@ -684,7 +689,8 @@ async def publish_transfer_accept_event(
             "object_id": format_object_identifier(object_digest),
             "origin_event_id": resolved_origin.id,
             "prior_event_id": initiate_event.id,
-            "replaced_existing_event_id": existing_events[0].id if existing_events else None,
+            "previous_existing_event_id": existing_events[0].id if existing_events else None,
+            "replaced_existing_event_id": None,
         }
     )
     return result

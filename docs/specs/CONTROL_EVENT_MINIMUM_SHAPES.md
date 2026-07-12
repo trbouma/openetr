@@ -4,10 +4,10 @@ This note defines minimum event shapes for additional OpenETR control events wit
 
 It is intended to extend the current OpenETR working model in which:
 
-- `kind 31415` represents the origin or issue event
-- `kind 31416` represents the control-event family
+- `kind 1415` represents the origin or issue event
+- `kind 1416` represents the control-event family
 
-The goal is to define a minimal, internally consistent event shape for the current working `31416` action family:
+The goal is to define a minimal, internally consistent event shape for the current working `1416` action family:
 
 - `INITIATE`
 - `ACCEPT`
@@ -21,14 +21,13 @@ These definitions are intentionally minimal. They are not intended to settle the
 
 ## Shared Control-Event Pattern
 
-Each of the events in this note is a `kind 31416` event.
+Each of the events in this note is a `kind 1416` event.
 
 They follow the same general pattern:
 
 - `o` identifies the Controlled Object
 - `e` links the event to the current control chain
 - `action` identifies the event type
-- `d` provides the replaceable addressing slot for that author, object, and action
 
 Unless explicitly stated otherwise, these events do not change the Current Controller.
 
@@ -40,13 +39,13 @@ The current CLI maps these action shapes as follows:
 
 | CLI command | Event kind | `action` | Participant tag |
 | --- | --- | --- | --- |
-| `openetr transfer initiate` | `31416` | `initiate` | `p` = transferee |
-| `openetr transfer accept` | `31416` | `accept` | optional `p` = counterparty |
-| `openetr terminate-etr` | `31416` | `terminate` | none |
-| `openetr attest` | `31416` | `attest` | optional `p` = subject |
-| `openetr encumber` | `31416` | `encumber` | `p` = beneficiary |
-| `openetr discharge` | `31416` | `discharge` | optional `p` = releasing party |
-| `openetr redeem` | `31416` | `redeem` | `p` = obligor |
+| `openetr transfer initiate` | `1416` | `initiate` | `p` = transferee |
+| `openetr transfer accept` | `1416` | `accept` | optional `p` = counterparty |
+| `openetr terminate-etr` | `1416` | `terminate` | none |
+| `openetr attest` | `1416` | `attest` | optional `p` = subject |
+| `openetr encumber` | `1416` | `encumber` | `p` = beneficiary |
+| `openetr discharge` | `1416` | `discharge` | optional `p` = releasing party |
+| `openetr redeem` | `1416` | `redeem` | `p` = obligor |
 
 `openetr query-etr` consumes the same event family to derive lifecycle state, current controller, control chains, and encumbrance state.
 
@@ -60,9 +59,8 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:initiate"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "initiate"]`
@@ -81,9 +79,8 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:accept"]`
   - `["o", "<object_hex>"]`
   - `["e", "<initiate_event_id_or_prior_control_event_id>"]`
   - `["action", "accept"]`
@@ -105,9 +102,8 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:terminate"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "terminate"]`
@@ -139,9 +135,8 @@ An attestation does not change the Current Controller.
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:attest"]`
   - `["o", "<object_hex>"]`
   - `["e", "<specific_event_id_being_attested>"]`
   - `["action", "attest"]`
@@ -173,9 +168,8 @@ OpenETR records the declaration but does not determine legal validity, perfectio
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:encumber"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "encumber"]`
@@ -200,9 +194,8 @@ This event should identify the encumbrance event being discharged.
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:discharge"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "discharge"]`
@@ -227,9 +220,8 @@ This event should identify the encumbrance event being discharged.
 
 ### Minimum Shape
 
-- `kind = 31416`
+- `kind = 1416`
 - required tags:
-  - `["d", "<object_hex>:redeem"]`
   - `["o", "<object_hex>"]`
   - `["e", "<prior_control_event_id_or_origin_event_id>"]`
   - `["action", "redeem"]`
@@ -245,53 +237,34 @@ This event should identify the encumbrance event being discharged.
 - does not itself terminate the object
 - does not by itself change the Current Controller unless a later policy layer says otherwise
 
-## Minimum `d` Tag Convention
+## Graph Reconstruction Convention
 
 The minimum convention in this note is:
 
-- `initiate` -> `<object_hex>:initiate`
-- `accept` -> `<object_hex>:accept`
-- `terminate` -> `<object_hex>:terminate`
-- `attest` -> `<object_hex>:attest`
-- `encumber` -> `<object_hex>:encumber`
-- `discharge` -> `<object_hex>:discharge`
-- `redeem` -> `<object_hex>:redeem`
+- `o` finds all candidate graph events for the Controlled Object
+- `e` links each non-origin graph event to the exact prior event id
+- `action` identifies how the event should be interpreted
+- action-specific tags such as `p`, `enc`, `type`, and `ref` provide signed structured event data
 
-This provides one replaceable slot per:
-
-- author
-- object
-- action
-
-That is sufficient for a minimum working model.
-
-However, this may later prove too coarse for event types that commonly occur multiple times for the same author and object.
-
-Examples:
-
-- multiple attestations by the same participant
-- multiple encumbrances affecting the same object
-- multiple discharge actions against distinct encumbrances
-
-Accordingly, later refinements may choose to make `d` more specific while keeping the minimum shape otherwise intact.
+The `d` tag is not required for new regular OpenETR graph events. Older prototype events may still contain `d`; readers may display it as legacy data, but should not rely on it to reconstruct the current graph.
 
 ## Summary
 
 The minimum required tags for each event are:
 
 - `INITIATE`
-  - `d`, `o`, `e`, `action`, `p`
+  - `o`, `e`, `action`, `p`
 - `ACCEPT`
-  - `d`, `o`, `e`, `action`
+  - `o`, `e`, `action`
 - `TERMINATE`
-  - `d`, `o`, `e`, `action`
+  - `o`, `e`, `action`
 - `ATTEST`
-  - `d`, `o`, `e`, `action`
+  - `o`, `e`, `action`
 - `ENCUMBER`
-  - `d`, `o`, `e`, `action`, `p`
+  - `o`, `e`, `action`, `p`
 - `DISCHARGE`
-  - `d`, `o`, `e`, `action`, `enc`
+  - `o`, `e`, `action`, `enc`
 - `REDEEM`
-  - `d`, `o`, `e`, `action`, `p`
+  - `o`, `e`, `action`, `p`
 
-These definitions provide a minimum event grammar for extending the existing OpenETR control-event family without changing the current `31415` / `31416` architectural split.
+These definitions provide a minimum event grammar for extending the OpenETR regular-event control family.

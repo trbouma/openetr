@@ -570,7 +570,7 @@ Current working examples:
 
 This keeps the full chain object-centric while allowing replaceable slots to distinguish action types for the same object.
 
-### Why Split Kinds
+### Event Kind Split Rationale
 
 This split is useful because it distinguishes:
 
@@ -684,7 +684,7 @@ Instead, it relies on the proposition:
 
 > the attestor is accountable for having witnessed and evaluated the event under policy
 
-### Why This Matters
+### Design Significance
 
 This distinction allows OpenETR to avoid making legal or operational effect depend entirely on:
 
@@ -801,7 +801,7 @@ Instead, it adopts actor-based reliability:
 
 Every control-relevant action must be attested by an identifiable party whose public key anchors accountability for the application of policy.
 
-## Why This Is Stronger Than Platform Trust
+## Strength Compared With Platform Trust
 
 ### 1. Granular accountability
 

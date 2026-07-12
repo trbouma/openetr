@@ -64,7 +64,7 @@ async def evaluate_issue_etr_guard(
         if same_author:
             warning_message = (
                 "WARNING: this file has already been issued as an ETR by the current signer. "
-                "Issuing it again may overwrite or conflict with the existing origin record."
+                "Issuing it again may create another origin record for the same object."
             )
 
     return {

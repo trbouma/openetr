@@ -98,7 +98,7 @@ In practical terms:
 - profiles act within OpenETR workflows
 - each profile remains an independent Nostr identity
 
-## Why This Model Is Flexible
+## Model Flexibility
 
 The root-and-profile model is powerful because the root organizes access to identities without pretending to create their cryptographic authority.
 

@@ -20,6 +20,7 @@ from openetr.config import (
     USER_CONFIG_PATH,
     load_user_config,
 )
+from openetr.control import CONTROL_EVENT_KIND
 from openetr.helpers import (
     assert_hex_object_identifier,
     assert_hex_pubkey,
@@ -187,7 +188,7 @@ async def _run_query_object(
 
     query_filter = {
         "kinds": [DEFAULT_KIND],
-        "#d": [digest],
+        "#o": [digest],
         "limit": limit,
     }
     if authors:
@@ -229,7 +230,8 @@ async def _run_query_object(
         )
         if profile:
             _print_profile(profile)
-        click.echo(f"d value: {d_values}")
+        if d_values:
+            click.echo(f"legacy d value: {d_values}")
         click.echo(f"o value: {o_values}")
         print_event(evt, output)
 
@@ -275,7 +277,7 @@ async def _run_query_etr(
 
     if result["warning_multiple_origin_events"]:
         click.secho(
-            "WARNING: multiple ETR origin events (kind 31415) were found for this object. "
+            f"WARNING: multiple ETR origin events (kind {DEFAULT_KIND}) were found for this object. "
             "These records are distinguished by issuer and should not be assumed to represent the same ETR. "
             "Use --all to see all of the origin records in question.",
             fg="yellow",
@@ -283,7 +285,7 @@ async def _run_query_etr(
         )
 
     initial_event = result["initial_event"]
-    click.echo("initial etr origin event (kind 31415):")
+    click.echo(f"initial etr origin event (kind {DEFAULT_KIND}):")
     _print_separator()
     click.echo(f"object id: {format_object_identifier(digest)}")
     click.echo(f"origin event id: {initial_event['event_ref']}")
@@ -297,14 +299,15 @@ async def _run_query_etr(
     else:
         click.echo("issuer profile: none found")
 
-    click.echo(f"d value: {initial_event['d_values']}")
+    if initial_event["d_values"]:
+        click.echo(f"legacy d value: {initial_event['d_values']}")
     click.echo(f"o value: {initial_event['o_values']}")
     print_event(initial_event["raw_event"], output)
     _print_separator()
 
     if len(result["origin_events"]) > 1:
         click.echo()
-        click.echo("matching etr origin events (kind 31415) for these control events:")
+        click.echo(f"matching etr origin events (kind {DEFAULT_KIND}) for these control events:")
         for index, item in enumerate(result["origin_events"], start=1):
             evt = item["event"]
             _print_separator()
@@ -339,7 +342,7 @@ async def _run_query_etr(
         return
 
     click.echo()
-    click.echo("matching control events (kind 31416):")
+    click.echo(f"matching control events (kind {CONTROL_EVENT_KIND}):")
     if not result["transfer_groups"]:
         click.echo("No control transfer events were found for this object.")
         click.echo()
@@ -393,7 +396,8 @@ async def _run_query_etr(
                     click.echo(f"{indent}    {field}: {value}")
             else:
                 click.secho(f"{indent}  WARNING: no profile found for the {subject_label}.", fg="yellow", bold=True)
-        click.echo(f"{indent}  d value: {evt['d_values']}")
+        if evt["d_values"]:
+            click.echo(f"{indent}  legacy d value: {evt['d_values']}")
         click.echo(f"{indent}  o value: {evt['o_values']}")
         _print_event_details(evt["raw_event"], output, indent=f"{indent}  ", verbose=verbose)
         _print_separator(indent)
@@ -588,7 +592,7 @@ def query_object(
     ssl_disable_verify: bool,
     debug: bool,
 ) -> None:
-    """Query for replaceable kind 31415 events using the d tag value."""
+    """Query for OpenETR origin events using the object tag."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
     profile_config = get_profile_config(profile or get_active_profile_name())

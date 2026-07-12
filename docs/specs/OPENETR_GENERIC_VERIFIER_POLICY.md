@@ -81,6 +81,23 @@ The protocol remains the shared evidence substrate:
 
 The organizational rule book is the recognition layer applied to that substrate.
 
+Recognition inputs can come from many places.
+
+Examples include:
+
+- formal trust registries queried through TRQP;
+- Nostr Web of Trust graphs or NIP-85-style trusted assertions;
+- OpenETR attestation events;
+- domain registries;
+- local allow lists or deny lists;
+- enterprise account and role systems;
+- contractual network rules;
+- statutory or regulatory requirements.
+
+These inputs complement OpenETR because they answer recognition questions, not base control-graph questions.
+
+OpenETR establishes the signed evidence and candidate control state. The verifier policy decides which recognition inputs to consult and what effect to give them.
+
 Two organizations may therefore inspect the same signed OpenETR graph and reach different policy conclusions. One may recognize a transfer as effective. Another may classify the same transfer as warning-only, pending attestation, blocked by an encumbrance, or outside its mandate.
 
 That difference is expected. It is one of the reasons OpenETR keeps event publication, cryptographic verification, and recognition separate.
@@ -101,8 +118,8 @@ The current `openetr` query service is intentionally object-wide.
 
 For a document digest / object id, it:
 
-1. queries origin events using `kind = 31415` and `#o`
-2. queries control events using `kind = 31416` and `#o`
+1. queries origin events using `kind = 1415` and `#o`
+2. queries control events using `kind = 1416` and `#o`
 3. groups candidate control events by `e` references
 4. builds summary control chains
 5. derives a candidate lifecycle state
@@ -149,7 +166,7 @@ Examples include:
 - a discharge references an encumbrance that the verifier does not recognize
 - a termination appears while an encumbrance remains outstanding
 - multiple candidate chains compete for recognition
-- a prior event referenced by an `e` tag is missing because a relay no longer returns an older replaceable event
+- a prior event referenced by an `e` tag is missing because the event is unavailable from the queried relays or local store
 - an origin event appears to have been replaced after later control events already depended on its event id
 - a participant profile is missing or does not satisfy the verifier's actor policy
 - an event is structurally valid but lacks an attestation required by the selected policy
@@ -187,13 +204,13 @@ Recommended fields for future structured verifier output include:
 | `message` | Human-readable explanation |
 | `recognition_effect` | How the selected policy treated the event or transition |
 
-## Replaceable Events And Missing Prior Links
+## Missing Prior Links And Legacy Replaceable Events
 
 The generic verifier should treat broken `e` links as a first-class graph-continuity issue.
 
-This is especially important because OpenETR currently assumes events may be published as Nostr replaceable events within an author/kind/`d` slot.
+This is especially important because every OpenETR control transition links to a specific prior event id. New OpenETR graph events use regular event kinds `1415` and `1416`, but earlier prototype events used addressable / replaceable kinds `31415` and `31416` with a `d` slot.
 
-If an origin event is republished by the same author for the same object slot, the replacement event normally has a different event id. A relay may then stop returning the older origin event. Later control events that point to the older origin through `e` still point to that exact older event id, not to the newer replacement event.
+If a legacy origin event is republished by the same author for the same object slot, the replacement event normally has a different event id. A relay may then stop returning the older origin event. Later control events that point to the older origin through `e` still point to that exact older event id, not to the newer replacement event.
 
 The verifier should therefore distinguish:
 

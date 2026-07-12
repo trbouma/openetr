@@ -204,7 +204,7 @@ def build_digest(
                 file_hash.update(chunk)
         digest = file_hash.hexdigest()
     elif digest is None:
-        seed = f"monstr-replaceable-o-tag:{time.time_ns()}:{keys.public_key_hex()}"
+        seed = f"openetr-origin-o-tag:{time.time_ns()}:{keys.public_key_hex()}"
         digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
 
     digest = normalize_object_identifier(digest)
@@ -231,7 +231,7 @@ def build_comment(
         )
 
     return (
-        f"kind={DEFAULT_KIND} replaceable probe; "
+        f"kind={DEFAULT_KIND} origin probe; "
         f"object={format_object_identifier(digest)}; "
         f"generated_at={generated_at_iso}"
     )

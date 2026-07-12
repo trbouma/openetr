@@ -4,17 +4,17 @@ This note discusses a proposed change to the OpenETR control graph wire format:
 
 > Move OpenETR origin and control graph events from addressable / replaceable Nostr event kinds to regular Nostr event kinds.
 
-This is a design note for review before implementation.
+This is the design note for the migration now reflected in the reference implementation.
 
 ## Status
 
-Draft proposal.
+Implemented reference direction.
 
-No implementation change has been made as part of this note.
+The reference OpenETR component and CLI now publish new origin/control graph events as regular `kind 1415` and `kind 1416` events. The former `kind 31415` and `kind 31416` assignments are retained in the documentation as legacy prototype kinds.
 
-## Current Prototype Model
+## Legacy Prototype Model
 
-The current OpenETR prototype uses:
+The earlier OpenETR prototype used:
 
 - `kind 31415` for origin / issue events
 - `kind 31416` for later control events
@@ -71,11 +71,11 @@ This is a poor fit for the root of a cryptographic control graph.
 
 The same concern applies to any graph node that may later be referenced by `e`.
 
-## Proposed Direction
+## Adopted Direction
 
 OpenETR should move the core control graph to regular Nostr events.
 
-Proposed experimental regular kinds:
+Current experimental regular kinds:
 
 | Kind | Purpose | NIP-01 behavior |
 | --- | --- | --- |

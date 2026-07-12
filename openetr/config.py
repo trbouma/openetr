@@ -344,6 +344,10 @@ def get_profile_config(profile: str | None = None, config: dict | None = None) -
 
     resolved = packaged_defaults()
     resolved.update(profile_values)
+    if resolved.get("kind") == 31415:
+        # Older profile records stored the prototype addressable origin kind.
+        # New OpenETR graph events use the packaged regular-event default.
+        resolved["kind"] = packaged_defaults()["kind"]
     return resolved
 
 

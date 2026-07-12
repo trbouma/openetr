@@ -290,6 +290,8 @@ async def build_query_etr_result(
         return profile_cache[pubkey_hex]
 
     result: dict[str, Any] = {
+        "origin_kind": DEFAULT_KIND,
+        "control_event_kind": CONTROL_TRANSFER_KIND,
         "relay_filter": all_events_filter,
         "transfer_filter": transfer_filter,
         "count": len(events),

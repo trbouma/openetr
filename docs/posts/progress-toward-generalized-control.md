@@ -134,7 +134,7 @@ Those questions belong to the Recognition Layer.
 
 This separation is what lets the same protocol structure be useful across multiple legal frameworks instead of being locked to one statute, one registry, or one asset class.
 
-## Why this helps with legislation
+## Legislative Fit
 
 Different legal frameworks emphasize related but not identical concepts.
 
@@ -164,7 +164,7 @@ The legal framework then decides what effect, if any, follows.
 
 That keeps the protocol modest but useful. It avoids collapsing technical publication into legal effect, while still giving legal and institutional systems better evidence to work with.
 
-## Why the current event family matters
+## Current Event Family Significance
 
 The move from a narrow transfer event to a broader `31416` control-event family is a practical part of that generalization.
 

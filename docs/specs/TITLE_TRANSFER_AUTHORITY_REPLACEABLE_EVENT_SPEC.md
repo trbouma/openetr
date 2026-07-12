@@ -240,7 +240,7 @@ If `o` is also used, additional queries may be supported:
 
 For authoritative resolution, `#d` should be treated as canonical.
 
-## Why Replaceable Events
+## Replaceable Event Rationale
 
 This approach uses replaceable events because they naturally model current state.
 
@@ -280,7 +280,7 @@ In that design, the artifact itself remains an ordinary file, but the authoritat
 - a transfer process governed by the Title Transfer Authority
 - a way to determine the current holder of title from the latest valid attestation
 
-### Why This Maps to MLETR-Like Objectives
+### MLETR-Like Objective Alignment
 
 At a high level, systems inspired by MLETR need to support functional equivalents for concepts such as:
 

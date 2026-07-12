@@ -2,7 +2,7 @@
 
 This directory contains a demonstration FastAPI app that is intentionally kept separate from the installable `openetr` component.
 
-## Why It Is Separate
+## Separation Rationale
 
 The root Poetry package defines `openetr` as the installable component. Files and dependencies under `app/` do not become part of that component unless the root packaging configuration is explicitly changed.
 

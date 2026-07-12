@@ -33,7 +33,7 @@ This comparison does not imply that one model is better than the other.
 
 Rather, the models serve different purposes and operate at different levels of generality.
 
-## Why OpenETR Is More General
+## OpenETR Generality
 
 OpenETR is not limited to identity credentials or subject-attribute assertions.
 
