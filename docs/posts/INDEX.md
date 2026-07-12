@@ -8,5 +8,6 @@ OpenETR can keep long-form writing in the repository and render it as part of th
 
 ## Published posts
 
+- [A Clear Boundary Between Control And Recognition](./clear-boundary-control-and-recognition.md)
 - [Progress Toward Generalized Control](./progress-toward-generalized-control.md)
 - [Introducing OpenETR](./introducing-openetr.md)
