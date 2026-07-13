@@ -22,6 +22,7 @@ from openetr.config import (
     PROFILES_KEY,
     USER_CONFIG_DIR,
     USER_CONFIG_PATH,
+    add_known_entities,
     delete_alias,
     delete_profile,
     delete_profile_secret,
@@ -31,6 +32,7 @@ from openetr.config import (
     ensure_profile,
     get_active_profile_name,
     get_aliases,
+    get_known_entities,
     get_profile_config,
     get_profile_signer_nsec,
     hydrate_local_profiles_from_index,
@@ -43,10 +45,13 @@ from openetr.config import (
     render_user_config_template,
     runtime_bootstrap_enabled,
     set_active_profile,
+    set_known_entities,
     sync_aliases_index,
+    sync_known_entities_index,
     sync_profile_record,
     store_profile_secret,
     sync_profiles_index,
+    remove_known_entities,
     upsert_alias,
     upsert_profile_config,
     write_bootstrap_config,
@@ -54,6 +59,7 @@ from openetr.config import (
 )
 from openetr.helpers import (
     GENERATE_LEI_SENTINEL,
+    assert_hex_pubkey,
     format_object_identifier,
     format_pubkey,
     normalize_alias,
@@ -151,6 +157,44 @@ def _print_alias_entries(config: dict) -> None:
     click.echo("Aliases in relay-backed configuration:")
     for alias in sorted(aliases):
         click.echo(f"  {alias:<{width}}  {aliases[alias]}")
+
+
+def _resolve_known_entity_to_npub(value: str, config: dict) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        raise click.ClickException("known entity value must not be empty")
+
+    if cleaned in list_profiles(config):
+        signer_nsec = get_profile_signer_nsec(cleaned, config)
+        if not signer_nsec:
+            raise click.ClickException(f"profile '{cleaned}' does not have a signer key")
+        return resolve_keys(signer_nsec).public_key_bech32()
+
+    if len(cleaned) == 64 and all(char in "0123456789abcdefABCDEF" for char in cleaned):
+        return Keys.hex_to_bech32(assert_hex_pubkey(cleaned.lower()), prefix="npub")
+
+    author_hex = resolve_author(cleaned)
+    return Keys.hex_to_bech32(author_hex, prefix="npub")
+
+
+def _normalize_known_entity_values(values: tuple[str, ...] | list[str]) -> list[str]:
+    config = hydrate_local_profiles_from_index(load_user_config())
+    npubs: list[str] = []
+    for value in values:
+        npubs.append(_resolve_known_entity_to_npub(value, config))
+    return list(dict.fromkeys(npubs))
+
+
+def _print_known_entity_entries(config: dict) -> None:
+    npubs = get_known_entities(config)
+    if not npubs:
+        click.echo("No known entities found in relay-backed configuration.")
+        return
+
+    click.echo("Known entities in relay-backed configuration:")
+    width = len(str(len(npubs)))
+    for index, npub in enumerate(npubs, start=1):
+        click.echo(f"  {index:>{width}}  {npub}")
 
 
 def _sync_profile_alias(profile: str, config: dict) -> dict:
@@ -1003,6 +1047,7 @@ def migrate_config(prune: bool) -> None:
 
     write_user_config(config)
     _, alias_index = sync_aliases_index(config)
+    _, known_entities_index = sync_known_entities_index(config)
     _, profiles_index = sync_profiles_index(config)
 
     if prune:
@@ -1017,6 +1062,7 @@ def migrate_config(prune: bool) -> None:
     click.echo(f"  profile records synced: {migrated_profile_records}")
     click.echo(f"  profile signer secrets migrated: {migrated_secrets}")
     click.echo(f"  aliases indexed: {len(alias_index.aliases)}")
+    click.echo(f"  known entities indexed: {len(known_entities_index.npubs)}")
     click.echo(f"  profiles indexed: {len(profiles_index.profiles)}")
     if prune:
         click.echo("  local config pruned to bootstrap minimum")
@@ -1069,6 +1115,86 @@ def alias_delete(alias: str, force: bool) -> None:
         click.confirm(f"Delete alias '{normalized_alias}'?", abort=True)
     delete_alias(normalized_alias)
     click.echo(f"Deleted alias {normalized_alias}")
+
+
+@click.group("known-entities", invoke_without_command=True)
+@click.pass_context
+def known_entity_group(ctx: click.Context) -> None:
+    """Manage root-backed known entity npubs."""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(known_entity_list)
+
+
+@known_entity_group.command("list")
+def known_entity_list() -> None:
+    """List known entity npubs."""
+    _print_known_entity_entries(load_user_config())
+
+
+@known_entity_group.command("add")
+@click.argument("entities", nargs=-1, required=True)
+def known_entity_add(entities: tuple[str, ...]) -> None:
+    """Add known entities from profiles, aliases, NIP-05, npub, or hex keys."""
+    npubs = _normalize_known_entity_values(entities)
+    before = set(get_known_entities())
+    add_known_entities(npubs)
+    added = [npub for npub in npubs if npub not in before]
+    if added:
+        click.echo(f"Added {len(added)} known entit{'y' if len(added) == 1 else 'ies'}.")
+    else:
+        click.echo("No changes; all supplied entities were already known.")
+    _print_known_entity_entries(load_user_config())
+
+
+@known_entity_group.command("remove")
+@click.argument("entities", nargs=-1, required=True)
+@click.option("--force", is_flag=True, help="Remove entries without confirmation.")
+def known_entity_remove(entities: tuple[str, ...], force: bool) -> None:
+    """Remove known entities by profile, alias, NIP-05, npub, or hex key."""
+    npubs = _normalize_known_entity_values(entities)
+    existing = set(get_known_entities())
+    missing = [npub for npub in npubs if npub not in existing]
+    targets = [npub for npub in npubs if npub in existing]
+    if not targets:
+        raise click.ClickException("none of the supplied entities are currently known")
+    if not force:
+        click.confirm(f"Remove {len(targets)} known entit{'y' if len(targets) == 1 else 'ies'}?", abort=True)
+    remove_known_entities(targets)
+    click.echo(f"Removed {len(targets)} known entit{'y' if len(targets) == 1 else 'ies'}.")
+    if missing:
+        click.echo(f"Skipped {len(missing)} supplied entit{'y' if len(missing) == 1 else 'ies'} that were not known.")
+    _print_known_entity_entries(load_user_config())
+
+
+@known_entity_group.command("set")
+@click.argument("entities", nargs=-1, required=True)
+@click.option("--force", is_flag=True, help="Replace the list without confirmation.")
+def known_entity_set(entities: tuple[str, ...], force: bool) -> None:
+    """Replace the known entity list."""
+    npubs = _normalize_known_entity_values(entities)
+    existing_count = len(get_known_entities())
+    if existing_count and not force:
+        click.confirm(
+            f"Replace the current known entity list containing {existing_count} entr{'y' if existing_count == 1 else 'ies'}?",
+            abort=True,
+        )
+    set_known_entities(npubs)
+    click.echo(f"Set {len(npubs)} known entit{'y' if len(npubs) == 1 else 'ies'}.")
+    _print_known_entity_entries(load_user_config())
+
+
+@known_entity_group.command("clear")
+@click.option("--force", is_flag=True, help="Clear the list without confirmation.")
+def known_entity_clear(force: bool) -> None:
+    """Clear all known entities."""
+    existing_count = len(get_known_entities())
+    if not existing_count:
+        click.echo("No known entities to clear.")
+        return
+    if not force:
+        click.confirm(f"Clear {existing_count} known entit{'y' if existing_count == 1 else 'ies'}?", abort=True)
+    set_known_entities([])
+    click.echo("Cleared known entities.")
 
 
 @profile_group.command("list")

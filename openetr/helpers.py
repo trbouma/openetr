@@ -384,7 +384,10 @@ def resolve_author(author: str) -> str:
             author = alias_value
 
     if author.startswith("npub"):
-        author_hex = Keys.bech32_to_hex(author)
+        try:
+            author_hex = Keys.bech32_to_hex(author)
+        except Exception:
+            author_hex = None
         if author_hex is None:
             raise click.ClickException(f"invalid npub author key: {author}")
         return author_hex

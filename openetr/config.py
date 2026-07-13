@@ -22,6 +22,7 @@ CONFIG_AS_USER_KEY = "as_user"
 ACTIVE_PROFILE_KEY = "active_profile"
 PROFILES_KEY = "profiles"
 ALIASES_KEY = "aliases"
+KNOWN_ENTITIES_KEY = "known_entities"
 ROOT_NSEC_KEY = "root_nsec"
 HOME_RELAY_KEY = "home_relay"
 PROFILE_SECRET_KIND = 31500
@@ -401,6 +402,7 @@ def render_user_config_template() -> str:
             PROFILES_KEY: {
                 DEFAULT_PROFILE_NAME: packaged_defaults(),
             },
+            KNOWN_ENTITIES_KEY: [],
         },
         write=False,
     )
@@ -409,6 +411,7 @@ def render_user_config_template() -> str:
         HOME_RELAY_KEY: bootstrap[HOME_RELAY_KEY],
         ACTIVE_PROFILE_KEY: DEFAULT_PROFILE_NAME,
         ALIASES_KEY: {},
+        KNOWN_ENTITIES_KEY: [],
         PROFILES_KEY: {
             DEFAULT_PROFILE_NAME: packaged_defaults(),
         },
@@ -442,6 +445,41 @@ def delete_alias(alias: str, config: dict | None = None) -> dict:
     return config
 
 
+def get_known_entities(config: dict | None = None) -> list[str]:
+    config = config or load_user_config()
+    index = load_known_entities_index(config)
+    if index is not None:
+        return list(index.npubs)
+    return list(config.get(KNOWN_ENTITIES_KEY, []))
+
+
+def set_known_entities(npubs: list[str], config: dict | None = None) -> dict:
+    config = deepcopy(config or load_user_config())
+    deduped = list(dict.fromkeys(npubs))
+    config[KNOWN_ENTITIES_KEY] = deduped
+    write_user_config(config)
+    sync_known_entities_index(config)
+    return config
+
+
+def add_known_entities(npubs: list[str], config: dict | None = None) -> dict:
+    config = deepcopy(config or load_user_config())
+    existing = get_known_entities(config)
+    config[KNOWN_ENTITIES_KEY] = list(dict.fromkeys(existing + npubs))
+    write_user_config(config)
+    sync_known_entities_index(config)
+    return config
+
+
+def remove_known_entities(npubs: list[str], config: dict | None = None) -> dict:
+    config = deepcopy(config or load_user_config())
+    remove_set = set(npubs)
+    config[KNOWN_ENTITIES_KEY] = [npub for npub in get_known_entities(config) if npub not in remove_set]
+    write_user_config(config)
+    sync_known_entities_index(config)
+    return config
+
+
 DEFAULTS = packaged_defaults()
 DEFAULT_RELAYS = DEFAULTS["relays"]
 DEFAULT_KIND = DEFAULTS["kind"]
@@ -467,6 +505,11 @@ class ProfilesIndexRecord(BaseModel):
 class AliasIndexRecord(BaseModel):
     schema_version: int = 1
     aliases: dict[str, str] = {}
+
+
+class KnownEntitiesRecord(BaseModel):
+    schema_version: int = 1
+    npubs: list[str] = []
 
 
 class ProfileConfigRecord(BaseModel):
@@ -510,6 +553,10 @@ def _aliases_index_label() -> str:
     return "aliases"
 
 
+def _known_entities_index_label() -> str:
+    return "known_entities"
+
+
 def _profile_config_label(profile: str) -> str:
     return f"config:profile:{profile}"
 
@@ -543,6 +590,25 @@ async def _async_store_profiles_index(index: ProfilesIndexRecord, config: dict) 
 async def _async_store_aliases_index(index: AliasIndexRecord, config: dict) -> None:
     root_keys = _get_root_keys(config)
     d_value = _salted_record_digest(_aliases_index_label(), root_keys)
+    encrypted = NIP44Encrypt(root_keys).encrypt(
+        index.model_dump_json(),
+        to_pub_k=root_keys.public_key_hex(),
+    )
+    event = Event(
+        kind=PROFILE_SECRET_KIND,
+        content=encrypted,
+        pub_key=root_keys.public_key_hex(),
+        tags=[["d", d_value]],
+    )
+    event.sign(root_keys.private_key_hex())
+    async with ClientPool(resolve_home_relays(config)) as client:
+        client.publish(event)
+        await asyncio.sleep(0.2)
+
+
+async def _async_store_known_entities_index(index: KnownEntitiesRecord, config: dict) -> None:
+    root_keys = _get_root_keys(config)
+    d_value = _salted_record_digest(_known_entities_index_label(), root_keys)
     encrypted = NIP44Encrypt(root_keys).encrypt(
         index.model_dump_json(),
         to_pub_k=root_keys.public_key_hex(),
@@ -601,6 +667,27 @@ async def _async_load_aliases_index(config: dict) -> AliasIndexRecord | None:
         return None
 
 
+async def _async_load_known_entities_index(config: dict) -> KnownEntitiesRecord | None:
+    root_keys = _get_root_keys(config)
+    d_value = _salted_record_digest(_known_entities_index_label(), root_keys)
+    query_filter = {
+        "authors": [root_keys.public_key_hex()],
+        "kinds": [PROFILE_SECRET_KIND],
+        "#d": [d_value],
+        "limit": 1,
+    }
+    async with ClientPool(resolve_home_relays(config)) as client:
+        events = await client.query(query_filter)
+    Event.sort(events, inplace=True, reverse=True)
+    if not events:
+        return None
+    try:
+        decrypted = NIP44Encrypt(root_keys).decrypt(events[0].content, root_keys.public_key_hex())
+        return KnownEntitiesRecord.model_validate_json(decrypted)
+    except Exception:
+        return None
+
+
 def load_profiles_index(config: dict | None = None) -> ProfilesIndexRecord | None:
     resolved, _ = ensure_root_bootstrap(config)
     try:
@@ -630,6 +717,14 @@ def load_aliases_index(config: dict | None = None) -> AliasIndexRecord | None:
         return None
 
 
+def load_known_entities_index(config: dict | None = None) -> KnownEntitiesRecord | None:
+    resolved, _ = ensure_root_bootstrap(config)
+    try:
+        return asyncio.run(_async_load_known_entities_index(resolved))
+    except Exception:
+        return None
+
+
 def sync_profiles_index(config: dict | None = None) -> tuple[dict, ProfilesIndexRecord]:
     resolved, _ = ensure_root_bootstrap(config)
     active_profile = resolved.get(ACTIVE_PROFILE_KEY, DEFAULT_PROFILE_NAME)
@@ -654,6 +749,17 @@ def sync_aliases_index(config: dict | None = None) -> tuple[dict, AliasIndexReco
         asyncio.run(_async_store_aliases_index(index, resolved))
     except Exception as exc:
         raise click.ClickException(f"failed to store relay-backed aliases index: {exc}") from exc
+    return resolved, index
+
+
+def sync_known_entities_index(config: dict | None = None) -> tuple[dict, KnownEntitiesRecord]:
+    resolved, _ = ensure_root_bootstrap(config)
+    known_npubs = list(dict.fromkeys(resolved.get(KNOWN_ENTITIES_KEY, [])))
+    index = KnownEntitiesRecord(npubs=known_npubs)
+    try:
+        asyncio.run(_async_store_known_entities_index(index, resolved))
+    except Exception as exc:
+        raise click.ClickException(f"failed to store relay-backed known npubs record: {exc}") from exc
     return resolved, index
 
 

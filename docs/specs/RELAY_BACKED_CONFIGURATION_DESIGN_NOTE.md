@@ -58,10 +58,29 @@ As currently implemented, OpenETR uses relay-backed records for:
 - the profile index
 - the active profile
 - aliases
+- known entities
 - per-profile signer secrets
 - per-profile operational settings
 
 This means that a fresh machine can increasingly recover the CLI environment from relay-backed records once the bootstrap values are known.
+
+### Profiles, Aliases, And Known Entities
+
+The relay-backed configuration model stores several `npub`-related concepts. They should remain distinct:
+
+| Record area | Plain meaning | Policy meaning |
+| --- | --- | --- |
+| Profiles | who this root can act as | operational signer identities for OpenETR events |
+| Aliases | what this root calls an `npub` | nickname only; no trust or recognition effect by itself |
+| Known entities | which `npub`s this root treats as familiar | baseline verifier input similar to SSH known hosts |
+
+This distinction prevents accidental overloading.
+
+An alias is useful in commands, but it should not automatically suppress unknown-entity warnings.
+
+A known entity can suppress or alter an unknown-entity warning, but it does not make that entity legally authorized.
+
+A profile can sign events, but its legal or institutional effect still depends on verifier policy.
 
 ## Underlying Philosophy
 
@@ -146,6 +165,7 @@ Once the relay-backed records have been populated, this is sufficient to recover
 - the profile index
 - the active profile
 - aliases
+- known entities
 - per-profile settings
 - per-profile signer secrets
 
@@ -287,6 +307,8 @@ The current implementation uses or is converging on the following reserved relay
   stores the known profile names and the active profile
 - `aliases`
   stores nickname-to-`npub` mappings
+- `known_entities`
+  stores root-managed known entity `npub` values for recognition, filtering, or verifier-policy use; CLI inputs may be profile names, aliases, NIP-05 identifiers, bech32 `npub`s, or raw hex pubkeys
 - `config:profile:<name>`
   stores the non-secret operational settings for a named profile
 - `config:profile:<name>:as_user`
@@ -326,8 +348,25 @@ The following relay-backed configuration categories would be a reasonable first 
   one record per named operational profile
 - `config:aliases`
   nickname-to-`npub` mappings
+- `config:known_entities`
+  known entity `npub` values managed by the root identity
 - `config:defaults`
   CLI defaults such as relay preferences or timeouts
+
+### Known Entities And Baseline Verification
+
+The `known_entities` record is intended as a baseline verifier input.
+
+It is not a declaration that an entity has legal authority. It is a root-managed list of identities that are known to this OpenETR environment.
+
+The verifier can use it in the same spirit as SSH known hosts:
+
+- if a signer or participant is in `known_entities`, the verifier can mark the entity as familiar to this root;
+- if a signer or participant is absent, the verifier can emit an unknown-entity warning;
+- the event remains cryptographically valid if its signature and event id verify;
+- a stricter domain policy may decide that unknown entities require confirmation, TRQP authorization, WoT support, attestation, or recognition failure.
+
+This keeps known-entity status separate from structural verification while still giving users a practical warning when an unfamiliar key appears in a control graph.
 
 The exact names are illustrative.
 

@@ -39,6 +39,52 @@ A domain policy may add:
 
 A domain policy should not replace the baseline enumeration behavior. Even where a domain policy refuses recognition, the verifier should still show the signed evidence and explain the policy reason.
 
+## Known Entity Baseline Warning
+
+The baseline verifier policy should support a local known-entity check.
+
+This check compares relevant signer and participant `npub` values in the OpenETR graph against the root-managed `known_entities` relay-backed record.
+
+The intent is similar to an SSH client warning when connecting to an unknown host for the first time:
+
+> The cryptographic material may be structurally valid, but this verifier has not previously marked the signer or participant as known.
+
+The known-entity check should be treated as a warning by default, not as a hard verification failure.
+
+For example, if an origin event is signed by an `npub` that is not in the verifier's `known_entities` list, the verifier may emit:
+
+```text
+unknown_entity:
+  event_id: <event_id>
+  npub: <signer_npub>
+  role: issuer
+  message: signer is not in this root's known_entities record
+  recognition_effect: warning
+```
+
+This does not mean the event signature is invalid.
+
+It means the verifier should make the unfamiliar identity visible before the user or policy gives the event recognition effect.
+
+The baseline policy may check:
+
+- origin issuer;
+- control event signer;
+- transferee or counterparty `p` tags;
+- encumbrance beneficiary or releasing party;
+- attestors;
+- obligors or other action-specific participants.
+
+Domain policies can decide whether unknown entities are:
+
+- warning-only;
+- accepted after user confirmation;
+- accepted if another recognition input passes, such as TRQP;
+- accepted if a WoT score or trusted assertion meets a threshold;
+- blocked from recognition.
+
+The important generic rule is that unknown-entity status should be explicit and inspectable.
+
 ## Organizational Rule Books
 
 Because OpenETR is an open signed-event system, no single implementation needs to be the only source of recognition rules.
@@ -85,6 +131,7 @@ Recognition inputs can come from many places.
 
 Examples include:
 
+- root-managed `known_entities` records;
 - formal trust registries queried through TRQP;
 - Nostr Web of Trust graphs or NIP-85-style trusted assertions;
 - OpenETR attestation events;

@@ -98,6 +98,48 @@ In practical terms:
 - profiles act within OpenETR workflows
 - each profile remains an independent Nostr identity
 
+## Profiles, Aliases, And Known Entities
+
+OpenETR uses several root-managed lists of `npub` values, but they do different jobs.
+
+The practical distinction is:
+
+> Profiles are who this root can act as.  
+> Aliases are what this root calls other `npub`s.  
+> Known entities are which `npub`s this root is prepared to treat as familiar for baseline verifier warnings.
+
+| Concept | Purpose | Effect |
+| --- | --- | --- |
+| Profile | Operational signer identity organized by the root | Can sign OpenETR events when selected as the active profile |
+| Alias | Human-friendly nickname for an `npub` | Makes commands and displays easier; does not itself imply trust |
+| Known entity | Root-managed familiarity list for external or internal `npub`s | Suppresses or changes unknown-entity verifier warnings depending on policy |
+
+Profiles are delegated or organized operational identities.
+
+For example, `warehouse`, `carrier`, `exporter`, or `bank` may be profiles. When a profile is active, OpenETR commands sign operational events with that profile's signer key.
+
+Aliases are convenience labels.
+
+For example, `consignee` may be an alias for a counterparty `npub`. The alias helps the user avoid pasting long bech32 identifiers. It does not mean the counterparty is authorized, trusted, or recognized.
+
+Known entities are verifier-policy inputs.
+
+They work like an SSH known-hosts file. If a signer or participant appears in the signed OpenETR graph but is not in the root's `known_entities` record, a baseline verifier can warn that the entity is unfamiliar to this OpenETR environment. The event may still be cryptographically valid.
+
+The same `npub` may appear in more than one category.
+
+For example:
+
+- a profile signer may also have an alias;
+- a counterparty alias may also be added as a known entity;
+- a profile signer may be added to known entities so the verifier treats it as familiar in another context.
+
+The categories should not be collapsed. They answer different questions:
+
+- **Can I act as this identity?** Profile.
+- **What short name do I use for this identity?** Alias.
+- **Should this identity be treated as familiar during verification?** Known entity.
+
 ## Model Flexibility
 
 The root-and-profile model is powerful because the root organizes access to identities without pretending to create their cryptographic authority.
