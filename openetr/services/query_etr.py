@@ -210,7 +210,17 @@ def structured_event_tags(evt: Event) -> list[dict[str, Any]]:
 def event_to_view(evt: Event) -> dict[str, Any]:
     subject_hex = transfer_party_from_p_tag(evt)
     action = control_action(evt)
-    spec = action_spec(action)
+    if evt.kind == DEFAULT_KIND:
+        action_label = "origin issue" if action == "issue" else "origin event"
+        action_marker = "++"
+        participant_label = None
+        event_role = "origin"
+    else:
+        spec = action_spec(action)
+        action_label = spec.label
+        action_marker = spec.marker
+        participant_label = spec.participant_label
+        event_role = "control"
     return {
         "raw_event": evt,
         "id": evt.id,
@@ -224,9 +234,10 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "structured_tags": structured_event_tags(evt),
         "content": evt.content,
         "action": action,
-        "action_label": spec.label,
-        "action_marker": spec.marker,
-        "participant_label": spec.participant_label,
+        "action_label": action_label,
+        "action_marker": action_marker,
+        "event_role": event_role,
+        "participant_label": participant_label,
         "prior_event_id": first_tag_value(evt, "e"),
         "encumbrance_event_id": first_tag_value(evt, "enc"),
         "external_ref": first_tag_value(evt, "ref"),
@@ -295,8 +306,10 @@ async def build_query_etr_result(
         "relay_filter": all_events_filter,
         "transfer_filter": transfer_filter,
         "count": len(events),
+        "origin_event_count": len(all_events),
         "current_profile_author_npub": format_pubkey(author_pubkey_hex) if author_pubkey_hex else None,
         "warning_multiple_origin_events": len(all_events) > 1,
+        "warnings": [],
         "no_events": not events,
         "initial_event": None,
         "initial_profile": [],
@@ -312,6 +325,22 @@ async def build_query_etr_result(
     }
     if not events:
         return result
+
+    if len(all_events) > 1:
+        result["warnings"].append(
+            {
+                "code": "multiple_origin_events",
+                "severity": "warning",
+                "message": (
+                    "Multiple OpenETR origin events were found for this object digest. "
+                    "A verifier should distinguish these records by origin event id and issuer policy."
+                ),
+                "origin_event_count": len(all_events),
+                "event_ids": [evt.id for evt in all_events],
+                "selected_initial_event_id": all_events[0].id,
+                "selection_basis": "earliest origin event by created_at/id",
+            }
+        )
 
     initial_event = events[0]
     initial_profile = await cached_profile(initial_event.pub_key)

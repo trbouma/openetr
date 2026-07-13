@@ -8,6 +8,7 @@ from monstr.client.client import ClientPool
 from monstr.encrypt import Keys
 from monstr.event.event import Event
 
+from openetr.commands.output import emit_json, to_jsonable
 from openetr.config import (
     CONFIG_AS_USER_KEY,
     DEFAULT_KIND,
@@ -86,6 +87,8 @@ async def _run_publish_object(
     digest_file_size: int | None,
     display_hex_tags: bool = False,
     extra_tags: list[list[str]] | None = None,
+    json_output: bool = False,
+    command_name: str = "publish-object",
 ) -> None:
     ok_results = []
     assert_hex_object_identifier(digest)
@@ -99,7 +102,8 @@ async def _run_publish_object(
                 "message": message,
             }
         )
-        click.echo(f"OK from relay for {event_id}: success={success} message={message}")
+        if not json_output:
+            click.echo(f"OK from relay for {event_id}: success={success} message={message}")
 
     event = Event(
         kind=DEFAULT_KIND,
@@ -115,19 +119,20 @@ async def _run_publish_object(
     )
     event.sign(as_user.private_key_hex())
 
-    click.echo(f"Relays:  {relays}")
-    click.echo(f"Pubkey:  {format_pubkey(as_user.public_key_hex())}")
-    click.echo(f"Event ID:{event.id}")
-    click.echo(f"Object:  {format_object_identifier(digest)}")
-    click.echo(f"Kind:    {event.kind}")
-    click.echo(f"o tag:   {digest if display_hex_tags else format_object_identifier(digest)}")
-    if digest_file is not None:
-        click.echo(f"Source:  sha256({digest_file})")
-    click.echo(f"Content: {event.content}")
-    click.echo("Event tags:")
-    for tag in event.tags:
-        click.echo(f"  {tag}")
-    click.echo()
+    if not json_output:
+        click.echo(f"Relays:  {relays}")
+        click.echo(f"Pubkey:  {format_pubkey(as_user.public_key_hex())}")
+        click.echo(f"Event ID:{event.id}")
+        click.echo(f"Object:  {format_object_identifier(digest)}")
+        click.echo(f"Kind:    {event.kind}")
+        click.echo(f"o tag:   {digest if display_hex_tags else format_object_identifier(digest)}")
+        if digest_file is not None:
+            click.echo(f"Source:  sha256({digest_file})")
+        click.echo(f"Content: {event.content}")
+        click.echo("Event tags:")
+        for tag in event.tags:
+            click.echo(f"  {tag}")
+        click.echo()
 
     async with ClientPool(
         relays.split(","),
@@ -135,11 +140,13 @@ async def _run_publish_object(
         timeout=query_timeout,
         query_timeout=query_timeout,
     ) as client:
-        click.echo("Publishing event...")
+        if not json_output:
+            click.echo("Publishing event...")
         client.publish(event)
 
         if publish_wait > 0:
-            click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
+            if not json_output:
+                click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
             await asyncio.sleep(publish_wait)
 
         query_filter = {
@@ -149,7 +156,8 @@ async def _run_publish_object(
             "limit": limit,
         }
 
-        click.echo(f"Querying with filter: {query_filter}")
+        if not json_output:
+            click.echo(f"Querying with filter: {query_filter}")
         events = await client.query(
             query_filter,
             emulate_single=True,
@@ -157,32 +165,79 @@ async def _run_publish_object(
             timeout=query_timeout,
         )
 
-    click.echo()
-    click.echo(f"Query returned {len(events)} event(s)")
+    if not json_output:
+        click.echo()
+        click.echo(f"Query returned {len(events)} event(s)")
 
     matched = []
+    query_events = []
     for evt in events:
         d_values = evt.get_tags_value("d")
         o_values = evt.get_tags_value("o")
         has_tag_match = digest in o_values
         same_event = evt.id == event.id
-        click.echo(
-            f"- id={evt.id} created_at={evt.created_at} kind={evt.kind} "
-            f"author={format_pubkey(evt.pub_key)} "
-            f"o_values={[format_object_identifier(value) for value in o_values]}"
+        query_events.append(
+            {
+                "event": evt,
+                "id": evt.id,
+                "created_at": evt.created_at,
+                "kind": evt.kind,
+                "author_hex": evt.pub_key,
+                "author_npub": format_pubkey(evt.pub_key),
+                "d_values": d_values,
+                "o_values": o_values,
+                "content": evt.content,
+                "has_object_tag_match": has_tag_match,
+                "same_event": same_event,
+            }
         )
-        if d_values:
-            click.echo(f"  legacy_d_values={[format_object_identifier(value) for value in d_values]}")
-        click.echo(f"  content={evt.content}")
+        if not json_output:
+            click.echo(
+                f"- id={evt.id} created_at={evt.created_at} kind={evt.kind} "
+                f"author={format_pubkey(evt.pub_key)} "
+                f"o_values={[format_object_identifier(value) for value in o_values]}"
+            )
+            if d_values:
+                click.echo(f"  legacy_d_values={[format_object_identifier(value) for value in d_values]}")
+            click.echo(f"  content={evt.content}")
         if has_tag_match:
             matched.append(evt)
-        if same_event:
+        if same_event and not json_output:
             click.echo("  exact published event matched")
+
+    exact_match = any(evt.id == event.id for evt in matched)
+    if json_output:
+        emit_json(
+            {
+                "ok": bool(matched),
+                "command": command_name,
+                "relays": _split_relays(relays),
+                "pubkey": format_pubkey(as_user.public_key_hex()),
+                "pubkey_hex": as_user.public_key_hex(),
+                "event_id": event.id,
+                "object_id": format_object_identifier(digest),
+                "digest": digest,
+                "kind": event.kind,
+                "source": str(digest_file) if digest_file is not None else None,
+                "content": event.content,
+                "tags": event.tags,
+                "event": event,
+                "relay_ok": ok_results,
+                "query_filter": query_filter,
+                "query_count": len(events),
+                "query_events": query_events,
+                "verification": {
+                    "matched_object_filter": bool(matched),
+                    "exact_event_returned": exact_match,
+                },
+            }
+        )
+        return
 
     click.echo()
     if matched:
         click.echo("PASS: relay returned at least one event for the #o object filter.")
-        if any(evt.id == event.id for evt in matched):
+        if exact_match:
             click.echo("PASS: the exact event we published was returned by the #o object filter.")
         else:
             click.echo("PARTIAL: query matched the object tag, but not the exact event id we just published.")
@@ -687,6 +742,7 @@ async def _run_publish_transfer_event(
     publish_wait: float,
     query_timeout: int,
     verify: str,
+    json_output: bool = False,
 ) -> None:
     indexing_retry_attempts = 3
     indexing_retry_delay_seconds = 2.0
@@ -700,18 +756,20 @@ async def _run_publish_transfer_event(
                 "message": message,
             }
         )
-        click.echo(f"OK from relay for {event_id}: success={success} message={message}")
+        if not json_output:
+            click.echo(f"OK from relay for {event_id}: success={success} message={message}")
 
-    click.echo(f"Relays:  {relays}")
-    click.echo(f"Pubkey:  {format_pubkey(event.pub_key)}")
-    click.echo(f"Event ID:{event.id}")
-    click.echo(f"Kind:    {event.kind}")
-    click.echo("Tags:")
-    for tag in event.tags:
-        click.echo(f"  {tag}")
-    click.echo(f"Content: {event.content}")
-    click.echo(f"Verify:  {verify}")
-    click.echo()
+    if not json_output:
+        click.echo(f"Relays:  {relays}")
+        click.echo(f"Pubkey:  {format_pubkey(event.pub_key)}")
+        click.echo(f"Event ID:{event.id}")
+        click.echo(f"Kind:    {event.kind}")
+        click.echo("Tags:")
+        for tag in event.tags:
+            click.echo(f"  {tag}")
+        click.echo(f"Content: {event.content}")
+        click.echo(f"Verify:  {verify}")
+        click.echo()
 
     relay_list = _split_relays(relays)
     async with ClientPool(
@@ -720,11 +778,13 @@ async def _run_publish_transfer_event(
         timeout=query_timeout,
         query_timeout=query_timeout,
     ) as client:
-        click.echo("Publishing transfer event...")
+        if not json_output:
+            click.echo("Publishing transfer event...")
         client.publish(event)
 
         if publish_wait > 0:
-            click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
+            if not json_output:
+                click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
             await asyncio.sleep(publish_wait)
 
     normalized_verify = _normalize_verify_value(verify)
@@ -790,11 +850,12 @@ async def _run_publish_transfer_event(
             break
 
         if attempt < indexing_retry_attempts:
-            click.echo(
-                f"Relay indexing advisory: {exact_count} of {total_relays} verification target(s) "
-                f"currently show the exact transfer event; waiting {indexing_retry_delay_seconds:.1f}s "
-                f"before retry {attempt + 1} of {indexing_retry_attempts}..."
-            )
+            if not json_output:
+                click.echo(
+                    f"Relay indexing advisory: {exact_count} of {total_relays} verification target(s) "
+                    f"currently show the exact transfer event; waiting {indexing_retry_delay_seconds:.1f}s "
+                    f"before retry {attempt + 1} of {indexing_retry_attempts}..."
+                )
             await asyncio.sleep(indexing_retry_delay_seconds)
 
     exact_relays = [relay for relay, events in verification_results.items() if any(found.id == event.id for found in events)]
@@ -802,11 +863,6 @@ async def _run_publish_transfer_event(
     total_relays = len(verify_relays)
     majority_threshold = (total_relays // 2) + 1
 
-    click.echo()
-    click.echo(
-        f"Verification summary: exact={len(exact_relays)}/{total_relays} "
-        f"slot={len(slot_relays)}/{total_relays}"
-    )
     if normalized_verify == "any":
         pass_condition = len(exact_relays) >= 1
     elif normalized_verify == "majority":
@@ -816,6 +872,43 @@ async def _run_publish_transfer_event(
     else:
         pass_condition = len(exact_relays) == 1
 
+    if json_output:
+        emit_json(
+            {
+                "ok": pass_condition,
+                "command": "publish-control-event",
+                "relays": relay_list,
+                "pubkey": format_pubkey(event.pub_key),
+                "pubkey_hex": event.pub_key,
+                "event_id": event.id,
+                "kind": event.kind,
+                "content": event.content,
+                "tags": event.tags,
+                "event": event,
+                "relay_ok": ok_results,
+                "verify": {
+                    "requested": verify,
+                    "normalized": normalized_verify,
+                    "targets": verify_relays,
+                    "exact_relays": exact_relays,
+                    "slot_relays": slot_relays,
+                    "total_relays": total_relays,
+                    "majority_threshold": majority_threshold,
+                    "pass": pass_condition,
+                    "results": {
+                        relay: [to_jsonable(found) for found in events]
+                        for relay, events in verification_results.items()
+                    },
+                },
+            }
+        )
+        return
+
+    click.echo()
+    click.echo(
+        f"Verification summary: exact={len(exact_relays)}/{total_relays} "
+        f"slot={len(slot_relays)}/{total_relays}"
+    )
     if pass_condition:
         click.echo("PASS: transfer verification requirement was satisfied.")
     elif slot_relays:
@@ -1045,6 +1138,7 @@ def _profile_updates(
     default=None,
     help="Query result limit.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def publish_object(
     profile: str | None,
@@ -1057,6 +1151,7 @@ def publish_object(
     publish_wait: float | None,
     query_timeout: int | None,
     limit: int | None,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Publish and query a regular OpenETR origin event for an object."""
@@ -1096,6 +1191,8 @@ def publish_object(
             digest_generated_at=generated_at,
             digest_file_size=file_size,
             display_hex_tags=False,
+            json_output=json_output,
+            command_name="publish-object",
         )
     )
 
@@ -1138,6 +1235,7 @@ def publish_object(
     default=None,
     help="Query result limit.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def issue_etr(
     profile: str | None,
@@ -1150,6 +1248,7 @@ def issue_etr(
     publish_wait: float | None,
     query_timeout: int | None,
     limit: int | None,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Issue an ETR record using the canonical publish-object event structure."""
@@ -1189,15 +1288,39 @@ def issue_etr(
         )
     )
     if issue_guard["should_warn"]:
-        click.secho(issue_guard["warning_message"], fg="yellow", bold=True)
-        click.echo(f"Existing event:  {issue_guard['latest_event_id']}")
-        click.echo(f"Existing issuer: {issue_guard['latest_issuer_npub']}")
-        click.echo(f"Existing object: {issue_guard['object_id']}")
-        click.confirm(
-            click.style("Continue issuing this ETR record?", fg="yellow", bold=True),
-            default=False,
-            abort=True,
-        )
+        if json_output and not force:
+            emit_json(
+                {
+                    "ok": False,
+                    "command": "issue-etr",
+                    "reason": "duplicate_origin_event",
+                    "warning": issue_guard["warning_message"],
+                    "digest": resolved_digest,
+                    "object_id": issue_guard["object_id"],
+                    "digest_source": str(resolved_file) if resolved_file is not None else None,
+                    "relays": _split_relays(resolved_relays),
+                    "existing": {
+                        "count": issue_guard["existing_count"],
+                        "same_author": issue_guard["same_author"],
+                        "latest_event_id": issue_guard["latest_event_id"],
+                        "latest_issuer_hex": issue_guard["latest_issuer_hex"],
+                        "latest_issuer_npub": issue_guard["latest_issuer_npub"],
+                    },
+                    "hint": "Re-run with --force to publish another origin event for this object.",
+                }
+            )
+            raise SystemExit(1)
+        if not json_output:
+            click.secho(issue_guard["warning_message"], fg="yellow", bold=True)
+            click.echo(f"Existing event:  {issue_guard['latest_event_id']}")
+            click.echo(f"Existing issuer: {issue_guard['latest_issuer_npub']}")
+            click.echo(f"Existing object: {issue_guard['object_id']}")
+        if not force:
+            click.confirm(
+                click.style("Continue issuing this ETR record?", fg="yellow", bold=True),
+                default=False,
+                abort=True,
+            )
 
     asyncio.run(
         _run_publish_object(
@@ -1212,6 +1335,8 @@ def issue_etr(
             digest_generated_at=generated_at,
             digest_file_size=file_size,
             display_hex_tags=True,
+            json_output=json_output,
+            command_name="issue-etr",
         )
     )
 
@@ -1259,6 +1384,7 @@ def transfer_group() -> None:
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def transfer_initiate(
     digest_file: Path | None,
@@ -1274,6 +1400,7 @@ def transfer_initiate(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Initiate a control transfer from an origin or prior transfer event."""
@@ -1398,6 +1525,7 @@ def transfer_initiate(
             publish_wait=resolved_publish_wait,
             query_timeout=resolved_query_timeout,
             verify=verify,
+            json_output=json_output,
         )
 
     asyncio.run(_publish())
@@ -1431,6 +1559,7 @@ def transfer_initiate(
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def terminate_etr(
     digest_file: Path | None,
@@ -1444,6 +1573,7 @@ def terminate_etr(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Terminate the active ETR control chain for an object."""
@@ -1527,6 +1657,7 @@ def terminate_etr(
             publish_wait=resolved_publish_wait,
             query_timeout=resolved_query_timeout,
             verify=verify,
+            json_output=json_output,
         )
 
     asyncio.run(_publish())
@@ -1568,6 +1699,7 @@ def terminate_etr(
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def attest(
     digest_file: Path | None,
@@ -1585,6 +1717,7 @@ def attest(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Publish an attestation event for an ETR object."""
@@ -1694,6 +1827,7 @@ def attest(
             publish_wait=resolved_publish_wait,
             query_timeout=resolved_query_timeout,
             verify=verify,
+            json_output=json_output,
         )
 
     asyncio.run(_publish())
@@ -1714,6 +1848,7 @@ async def _publish_auxiliary_control_event(
     control_type: str | None = None,
     external_ref: str | None = None,
     encumbrance_event_id: str | None = None,
+    json_output: bool = False,
 ) -> None:
     author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
     if prior_event_id is not None:
@@ -1805,6 +1940,7 @@ async def _publish_auxiliary_control_event(
         publish_wait=publish_wait,
         query_timeout=query_timeout,
         verify=verify,
+        json_output=json_output,
     )
 
 
@@ -1871,6 +2007,7 @@ def _resolve_control_object_args(
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def encumber(
     digest_file: Path | None,
@@ -1888,6 +2025,7 @@ def encumber(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Publish an encumbrance event for an ETR object."""
@@ -1914,6 +2052,7 @@ def encumber(
             participant_pubkey_hex=parsed_beneficiary[0],
             control_type=control_type,
             external_ref=external_ref,
+            json_output=json_output,
         )
     )
 
@@ -1942,6 +2081,7 @@ def encumber(
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def discharge(
     digest_file: Path | None,
@@ -1959,6 +2099,7 @@ def discharge(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Publish a discharge event for a prior encumbrance."""
@@ -1988,6 +2129,7 @@ def discharge(
             participant_pubkey_hex=participant_pubkey_hex,
             external_ref=external_ref,
             encumbrance_event_id=normalize_event_reference(encumbrance_event),
+            json_output=json_output,
         )
     )
 
@@ -2015,6 +2157,7 @@ def discharge(
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def redeem(
     digest_file: Path | None,
@@ -2031,6 +2174,7 @@ def redeem(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Publish a redemption-presentation event for an ETR object."""
@@ -2056,6 +2200,7 @@ def redeem(
             verify=verify,
             participant_pubkey_hex=parsed_obligor[0],
             external_ref=external_ref,
+            json_output=json_output,
         )
     )
 
@@ -2089,6 +2234,7 @@ def redeem(
     default="any",
     help="Verification mode after publish: any, majority, all, or a specific relay URL.",
 )
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def transfer_accept(
     digest_file: Path | None,
@@ -2103,6 +2249,7 @@ def transfer_accept(
     query_timeout: int | None,
     limit: int | None,
     verify: str,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Accept a previously initiated control transfer."""
@@ -2224,6 +2371,7 @@ def transfer_accept(
             publish_wait=resolved_publish_wait,
             query_timeout=resolved_query_timeout,
             verify=verify,
+            json_output=json_output,
         )
 
     asyncio.run(_publish())

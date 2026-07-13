@@ -8,6 +8,7 @@ import click
 from monstr.client.client import ClientPool
 from monstr.event.event import Event
 
+from openetr.commands.output import emit_json
 from openetr.config import (
     CONFIG_AS_USER_KEY,
     DEFAULT_KIND,
@@ -247,6 +248,7 @@ async def _run_query_etr(
     output: str,
     ssl_disable_verify: bool,
     digest_file: Path | None,
+    json_output: bool = False,
 ) -> None:
     assert_hex_object_identifier(digest)
     if author_pubkey_hex is not None:
@@ -259,6 +261,21 @@ async def _run_query_etr(
         author_pubkey_hex=author_pubkey_hex,
         ssl_disable_verify=ssl_disable_verify,
     )
+
+    if json_output:
+        emit_json(
+            {
+                "ok": True,
+                "command": "query-etr",
+                "digest": digest,
+                "object_id": format_object_identifier(digest),
+                "digest_source": str(digest_file) if digest_file is not None else None,
+                "relays": relays.split(","),
+                "origin_only": origin_only,
+                "result": result,
+            }
+        )
+        return
 
     if verbose:
         click.echo(f"Relays: {relays}")
@@ -645,6 +662,7 @@ def query_object(
 @click.option("--origin", is_flag=True, help="Restrict output to origin records only.")
 @click.option("--all", "show_all", is_flag=True, help="Deprecated; query-etr is object-wide by default.")
 @click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
+@click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def query_etr(
     digest_file: Path | None,
@@ -658,6 +676,7 @@ def query_etr(
     origin: bool,
     show_all: bool,
     ssl_disable_verify: bool,
+    json_output: bool,
     debug: bool,
 ) -> None:
     """Query an ETR object and display its initial record and issuer profile."""
@@ -677,7 +696,7 @@ def query_etr(
     configured_key = profile_config.get(CONFIG_AS_USER_KEY)
     author_pubkey_hex = resolve_keys(configured_key).public_key_hex() if configured_key else None
 
-    if origin:
+    if origin and not json_output:
         click.echo("Mode: origin records only")
 
     asyncio.run(
@@ -692,6 +711,7 @@ def query_etr(
             output=resolved_output,
             ssl_disable_verify=ssl_disable_verify,
             digest_file=resolved_file,
+            json_output=json_output,
         )
     )
 
