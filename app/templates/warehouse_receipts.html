@@ -73,6 +73,19 @@
         letter-spacing: 0.16em;
         text-transform: uppercase;
       }
+      .hero-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .brand-mark {
+        width: clamp(4rem, 12vw, 6rem);
+        height: auto;
+        flex: 0 0 auto;
+        opacity: 0.95;
+        filter: drop-shadow(0 10px 18px rgba(71, 44, 17, 0.12));
+      }
       .notice {
         margin-bottom: 1rem;
         padding: 0.8rem 1rem;
@@ -95,6 +108,11 @@
       }
       .session-panel p {
         margin: 0.2rem 0;
+      }
+      .hero-session {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(109, 79, 36, 0.16);
       }
       .grid {
         display: grid;
@@ -238,13 +256,19 @@
           justify-content: flex-start;
           flex-wrap: wrap;
         }
+        .hero-heading {
+          align-items: center;
+        }
+        .brand-mark {
+          width: 4rem;
+        }
       }
     </style>
   </head>
   <body>
     <main id="mlwr-page">
       <nav class="top-nav">
-        <a href="/">MLWR Control Desk</a>
+        <a href="/">Control Desk</a>
         <a href="/openetr">OpenETR</a>
         <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">Docs</a>
@@ -252,15 +276,28 @@
       </nav>
 
       <header class="panel">
-        <p class="eyebrow">Warehouse Receipts</p>
-        <h1>MLWR Control Desk</h1>
+        <div class="hero-heading">
+          <div>
+            <p class="eyebrow">Warehouse Receipts</p>
+            <h1>Control Desk</h1>
+          </div>
+          <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
+        </div>
         <p>
           Work with warehouse receipts in domain terms while the app translates each action into the general OpenETR control layer.
-          The receipt file is hashed into an object id, then issued, queried, and evaluated through shared OpenETR services.
+          This workflow is being built in alignment with the Model Law on Warehouse Receipts (MLWR).
         </p>
+        <p>The receipt file is hashed into an object id, then issued, queried, and evaluated through shared OpenETR services.</p>
         {% if identity.logged_in %}
         <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
-        <p><strong>Acting profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        <div class="session-panel hero-session">
+          <div>
+            <p>You are operating this control desk with a root-managed browser session.</p>
+            <p><strong>Control Desk Key:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
+          </div>
+          <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
+        </div>
         {% else %}
         <p><strong>Read-only mode:</strong> query receipts without logging in. Log in to issue a receipt as a warehouse operator or issuer profile.</p>
         {% endif %}
@@ -270,21 +307,12 @@
       {% if success_message %}<div class="notice success">{{ success_message }}</div>{% endif %}
 
       {% if identity.logged_in %}
-      <section class="panel session-panel">
-        <div>
-          <h2>Signed In</h2>
-          <p>You are operating this control desk with a root-managed browser session.</p>
-          <p><strong>Root identity:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
-        </div>
-        <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
-      </section>
-
       <section class="panel">
         <h2>Acting Profile</h2>
         <p>
           Select the role that will sign warehouse receipt actions. The page uses domain language, but each profile is still an independent OpenETR/Nostr signer.
         </p>
-        <p><strong>Current:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
         {% if selected_profile_social %}
         <ul>
           {% for field, value in selected_profile_social %}
@@ -292,12 +320,19 @@
           {% endfor %}
         </ul>
         {% endif %}
+        {% if identity.profile %}
+        <div class="button-row">
+          <form action="/profiles/edit" method="get" style="margin-top:0;">
+            <button type="submit" class="ghost-button">Update Current Profile</button>
+          </form>
+        </div>
+        {% endif %}
         {% if available_profiles %}
         <form action="/profiles/use" method="post" hx-post="/profiles/use" hx-target="#mlwr-page" hx-select="#mlwr-page" hx-swap="outerHTML" hx-indicator="#profile-switch-indicator" hx-disabled-elt="find button">
           <input type="hidden" name="return_to" value="/">
           <div class="profile-select">
             <label>
-              Acting profile
+              Acting Profile
               <select name="profile" required>
                 {% for profile in available_profiles %}
                 <option value="{{ profile.name }}" {% if profile.is_selected %}selected{% endif %} {% if not profile.can_select %}disabled{% endif %}>

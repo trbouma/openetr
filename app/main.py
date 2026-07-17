@@ -2437,7 +2437,7 @@ async def use_profile(
     template_context["success_message"] = (
         f"Switched to profile '{profile}' using {profile_switch_signer_source_label(signer_source)}."
     )
-    if return_to == "/warehouse-receipts":
+    if return_to in {"/", "/warehouse-receipts"}:
         return await render_warehouse_receipts_page(
             request,
             template_context["identity"],
