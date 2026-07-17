@@ -10,6 +10,7 @@ This documentation has two equal tracks.
 
 The **MLWR Control Desk** track focuses on the first domain adapter:
 
+- how to use the live webapp;
 - how a warehouse receipt document is committed by SHA-256 digest;
 - how the webapp translates warehouse receipt actions into OpenETR events;
 - how the Control Desk Key, profiles, contacts, and references fit together;
@@ -51,7 +52,6 @@ The demo webapp now opens directly to the MLWR Control Desk:
 | --- | --- |
 | [`https://openetr.org/`](https://openetr.org/) | Live MLWR Control Desk landing page |
 | `/openetr` | General OpenETR console |
-| `/overview` | OpenETR overview and diagrams |
 | `/experimental` | Bitcoin/Taproot/Silent Payments experiments |
 | `/docs` | FastAPI-generated API docs |
 
@@ -59,7 +59,7 @@ The demo webapp now opens directly to the MLWR Control Desk:
 
 | Track | Audience | Starting Point |
 | --- | --- | --- |
-| MLWR Control Desk | Warehouse operators, MLWR reviewers, domain integrators | [Getting Started](getting-started.md) |
+| MLWR Control Desk | Warehouse operators, MLWR reviewers, domain integrators | [Using The App](getting-started.md) |
 | OpenETR | Implementers, protocol reviewers, system integrators | [OpenETR Overview](openetr/index.md) |
 
 ## Source Specifications

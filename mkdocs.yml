@@ -41,7 +41,7 @@ nav:
   - Home: index.md
   - MLWR Control Desk:
       - Live Control Desk: https://openetr.org
-      - Getting Started: getting-started.md
+      - Using The App: getting-started.md
       - Issuing Receipts: issuing-receipts.md
       - Control Actions: control-actions.md
       - Identity Model: identity-model.md
@@ -56,5 +56,6 @@ nav:
       - Integration Model: openetr/integration.md
       - Recognition Boundary: openetr/recognition.md
   - Source:
+      - Installation And Local Development: installation.md
       - GitHub Repository: https://github.com/trbouma/openetr
       - Specification Index: https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md
