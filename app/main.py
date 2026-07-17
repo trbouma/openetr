@@ -821,7 +821,15 @@ async def render_warehouse_control_result(
     )
 
 @app.get("/")
-async def index(
+async def landing_page(
+    request: Request,
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    return await render_warehouse_receipts_page(request, identity)
+
+
+@app.get("/openetr")
+async def openetr_general_page(
     request: Request,
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
@@ -864,6 +872,14 @@ async def warehouse_receipts_page(
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     return await render_warehouse_receipts_page(request, identity)
+
+
+@app.get("/experimental")
+async def experimental_page(
+    request: Request,
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    return render_bitcoin_balance_response(request, identity)
 
 
 @app.post("/warehouse-receipts/query")

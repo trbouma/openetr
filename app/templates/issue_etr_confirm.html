@@ -96,7 +96,9 @@
   <body>
     <main>
       <div class="top-nav">
-        <a href="/">Home</a>
+        <a href="/">MLWR Control Desk</a>
+        <a href="/openetr">General</a>
+        <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
         {% if identity.logged_in %}
         <a href="/logout">Logout</a>
@@ -147,7 +149,7 @@
           <input type="hidden" name="file_size" value="{{ size_bytes }}">
           <button type="submit">Continue issuing this ETR record</button>
         </form>
-        <p><a href="/">Cancel and return</a></p>
+        <p><a href="/openetr">Cancel and return</a></p>
       </section>
     </main>
     {% include "_global_scripts.html" %}

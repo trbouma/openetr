@@ -86,6 +86,16 @@
         background: #eef8ee;
         border: 1px solid #9cc39c;
       }
+      .session-panel {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .session-panel p {
+        margin: 0.2rem 0;
+      }
       .grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -140,14 +150,53 @@
         font-weight: 800;
         cursor: pointer;
       }
+      .ghost-button {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(109, 79, 36, 0.28);
+        box-shadow: none;
+      }
       code {
         background: rgba(109, 79, 36, 0.1);
         padding: 0.15rem 0.35rem;
         border-radius: 0.3rem;
+        overflow-wrap: anywhere;
       }
       .field-help, .muted {
         color: var(--muted);
         font-size: 0.94rem;
+      }
+      dialog {
+        width: min(36rem, calc(100vw - 2rem));
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 0;
+        background: var(--panel);
+        box-shadow: 0 24px 64px rgba(71, 44, 17, 0.2);
+      }
+      dialog::backdrop {
+        background: rgba(30, 26, 20, 0.42);
+      }
+      .dialog-body {
+        padding: 1.4rem;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+      .copy-status {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .button-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
       }
       .action-list {
         display: grid;
@@ -178,6 +227,13 @@
         button {
           width: 100%;
         }
+        .session-panel {
+          align-items: stretch;
+        }
+        .button-row,
+        .dialog-actions {
+          align-items: stretch;
+        }
         .top-nav {
           justify-content: flex-start;
           flex-wrap: wrap;
@@ -188,8 +244,10 @@
   <body>
     <main id="mlwr-page">
       <nav class="top-nav">
-        <a href="/">Home</a>
+        <a href="/">MLWR Control Desk</a>
+        <a href="/openetr">General</a>
         <a href="/overview">Overview</a>
+        <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
         {% if identity.logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Login</a>{% endif %}
       </nav>
@@ -202,6 +260,7 @@
           The receipt file is hashed into an object id, then issued, queried, and evaluated through shared OpenETR services.
         </p>
         {% if identity.logged_in %}
+        <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
         <p><strong>Acting profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
         {% else %}
         <p><strong>Read-only mode:</strong> query receipts without logging in. Log in to issue a receipt as a warehouse operator or issuer profile.</p>
@@ -212,6 +271,15 @@
       {% if success_message %}<div class="notice success">{{ success_message }}</div>{% endif %}
 
       {% if identity.logged_in %}
+      <section class="panel session-panel">
+        <div>
+          <h2>Signed In</h2>
+          <p>You are operating this control desk with a root-managed browser session.</p>
+          <p><strong>Root identity:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
+        </div>
+        <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
+      </section>
+
       <section class="panel">
         <h2>Acting Profile</h2>
         <p>
@@ -227,7 +295,7 @@
         {% endif %}
         {% if available_profiles %}
         <form action="/profiles/use" method="post" hx-post="/profiles/use" hx-target="#mlwr-page" hx-select="#mlwr-page" hx-swap="outerHTML" hx-indicator="#profile-switch-indicator" hx-disabled-elt="find button">
-          <input type="hidden" name="return_to" value="/warehouse-receipts">
+          <input type="hidden" name="return_to" value="/">
           <div class="profile-select">
             <label>
               Acting profile
@@ -326,7 +394,56 @@
         <p>{{ trivia_fact }}</p>
       </section>
       {% endif %}
+
+      {% if identity.logged_in %}
+      <dialog id="backup-key-dialog">
+        <div class="dialog-body">
+          <h2>Backup Key</h2>
+          <p>Store this recovery material in a safe place. If your browser session ends, you will need it to restore access to your relay-backed profiles and signer records.</p>
+          <p><strong>Bootstrap relays for recovery:</strong></p>
+          <p><code>{{ bootstrap_relays }}</code></p>
+          <p>Your root-managed profile data can be discovered again from these relay endpoints.</p>
+          <p><strong>Control Desk Key:</strong></p>
+          <p><code>{{ identity.root_nsec or identity.nsec }}</code></p>
+          <p>This key manages your relay-backed profiles and signer records. Keep it separate from operational profile keys and do not use it as a public-facing identity.</p>
+          <div class="dialog-actions">
+            <span class="copy-status" id="backup-copy-status" aria-live="polite"></span>
+            <div class="button-row">
+              <button
+                type="button"
+                class="ghost-button"
+                onclick='copyBackupMaterial({{ {"bootstrap_relays": bootstrap_relays, "control_desk_key": identity.root_nsec or identity.nsec} | tojson | safe }})'
+              >
+                Copy to Clipboard
+              </button>
+              <form method="dialog" style="margin-top:0;">
+                <button type="submit">Close</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </dialog>
+      {% endif %}
     </main>
     {% include "_global_scripts.html" %}
+    <script>
+      async function copyBackupMaterial(payload) {
+        const text = [
+          "OpenETR Recovery Material",
+          "",
+          `Bootstrap relays: ${payload.bootstrap_relays}`,
+          `Control Desk Key: ${payload.control_desk_key}`,
+          "",
+          "Store this material in a safe place.",
+        ].join("\n");
+        const status = document.getElementById("backup-copy-status");
+        try {
+          await navigator.clipboard.writeText(text);
+          if (status) status.textContent = "Copied recovery material.";
+        } catch (error) {
+          if (status) status.textContent = "Clipboard copy failed.";
+        }
+      }
+    </script>
   </body>
 </html>

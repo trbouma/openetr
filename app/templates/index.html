@@ -314,9 +314,10 @@
   <body>
     <main>
       <div class="top-nav">
+        <a href="/">MLWR Control Desk</a>
+        <a href="/openetr">General</a>
         <a href="/overview">Overview</a>
-        <a href="/warehouse-receipts">Warehouse Receipts</a>
-        <a href="/bitcoin/check-balance">Bitcoin Balance</a>
+        <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
         {% if identity.logged_in %}
         <a href="/logout">Logout</a>
@@ -361,7 +362,7 @@
         web app, CLI for human use, CLI for agent use, and API for agent use.
       </div>
       <div class="notice info">
-        Working with warehouse receipts? Use the dedicated <a href="/warehouse-receipts">Warehouse Receipts</a> page for MLWR-style domain language backed by the same OpenETR core.
+        Working with warehouse receipts? Use the <a href="/">MLWR Control Desk</a> for MLWR-style domain language backed by the same OpenETR core.
       </div>
       <section class="panel">
         {% if not identity.logged_in %}

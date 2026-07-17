@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ app_title }} Bitcoin Balance</title>
+    <title>{{ app_title }} Experimental</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -103,6 +103,10 @@
       .notice.success {
         background: #eef8ee;
         border: 1px solid #9cc39c;
+      }
+      .notice.warning {
+        background: #fff5e3;
+        border: 1px solid #d1a96f;
       }
       .kv {
         display: grid;
@@ -297,9 +301,10 @@
   <body>
     <main>
       <div class="top-nav">
-        <a href="/">Home</a>
+        <a href="/">MLWR Control Desk</a>
+        <a href="/openetr">General</a>
         <a href="/overview">Overview</a>
-        <a href="/bitcoin/check-balance">Bitcoin Balance</a>
+        <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
         {% if identity.logged_in %}
         <a href="/logout">Logout</a>
@@ -307,6 +312,13 @@
         <a href="/login">Login</a>
         {% endif %}
       </div>
+      <section class="panel">
+        <p class="eyebrow">Experimental</p>
+        <h1>Bitcoin Experiments</h1>
+        <div class="notice warning">
+          This page contains exploratory Bitcoin wallet, Taproot, and Silent Payments work. It is not part of the core MLWR control-desk workflow and should not be used for production custody, settlement, or regulated operations without independent review.
+        </div>
+      </section>
       {% include "bitcoin_balance_fragment.html" %}
     </main>
     {% include "_global_scripts.html" %}
