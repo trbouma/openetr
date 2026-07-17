@@ -1,6 +1,6 @@
 # MLWR Control Desk
 
-The **MLWR Control Desk** is the warehouse receipt operating surface for OpenETR.
+The **[MLWR Control Desk](https://openetr.org)** is the warehouse receipt operating surface for OpenETR.
 
 It gives warehouse operators and their counterparties a domain-specific way to issue, query, and manage warehouse receipt control records while keeping the underlying OpenETR protocol general.
 
@@ -49,7 +49,7 @@ The demo webapp now opens directly to the MLWR Control Desk:
 
 | Page | Purpose |
 | --- | --- |
-| `/` | MLWR Control Desk landing page |
+| [`https://openetr.org/`](https://openetr.org/) | Live MLWR Control Desk landing page |
 | `/openetr` | General OpenETR console |
 | `/overview` | OpenETR overview and diagrams |
 | `/experimental` | Bitcoin/Taproot/Silent Payments experiments |
