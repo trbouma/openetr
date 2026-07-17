@@ -39,13 +39,21 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - Issuing Receipts: issuing-receipts.md
-  - Control Actions: control-actions.md
-  - Identity Model: identity-model.md
-  - Verifier Policy: verifier-policy.md
-  - Article Mapping: article-mapping.md
-  - Architecture: architecture.md
+  - MLWR Control Desk:
+      - Getting Started: getting-started.md
+      - Issuing Receipts: issuing-receipts.md
+      - Control Actions: control-actions.md
+      - Identity Model: identity-model.md
+      - Verifier Policy: verifier-policy.md
+      - Article Mapping: article-mapping.md
+      - Domain Architecture: architecture.md
+  - OpenETR:
+      - Overview: openetr/index.md
+      - Control Layer: openetr/control-layer.md
+      - Nostr Wire Format: openetr/wire-format.md
+      - Component And CLI: openetr/component-and-cli.md
+      - Integration Model: openetr/integration.md
+      - Recognition Boundary: openetr/recognition.md
   - Source:
       - GitHub Repository: https://github.com/trbouma/openetr
       - Specification Index: https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md

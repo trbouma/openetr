@@ -6,7 +6,9 @@ It gives warehouse operators and their counterparties a domain-specific way to i
 
 ## What This Site Covers
 
-This documentation focuses on the MLWR domain adapter:
+This documentation has two equal tracks.
+
+The **MLWR Control Desk** track focuses on the first domain adapter:
 
 - how a warehouse receipt document is committed by SHA-256 digest;
 - how the webapp translates warehouse receipt actions into OpenETR events;
@@ -14,7 +16,16 @@ This documentation focuses on the MLWR domain adapter:
 - how verifier policy reads the signed control graph;
 - how this work maps to the Model Law on Warehouse Receipts.
 
-The protocol details remain in the OpenETR specs. This site is the domain guide that sits above them.
+The **OpenETR** track documents the general layer underneath:
+
+- the control layer;
+- the Nostr wire format;
+- the installable Python component;
+- the CLI and JSON surfaces;
+- integration options;
+- the recognition boundary.
+
+The source specs remain the detailed implementation and protocol reference. This site gives those specs a navigable documentation surface.
 
 ## Core Thesis
 
@@ -43,6 +54,13 @@ The demo webapp now opens directly to the MLWR Control Desk:
 | `/overview` | OpenETR overview and diagrams |
 | `/experimental` | Bitcoin/Taproot/Silent Payments experiments |
 | `/docs` | FastAPI-generated API docs |
+
+## Documentation Tracks
+
+| Track | Audience | Starting Point |
+| --- | --- | --- |
+| MLWR Control Desk | Warehouse operators, MLWR reviewers, domain integrators | [Getting Started](getting-started.md) |
+| OpenETR | Implementers, protocol reviewers, system integrators | [OpenETR Overview](openetr/index.md) |
 
 ## Source Specifications
 
