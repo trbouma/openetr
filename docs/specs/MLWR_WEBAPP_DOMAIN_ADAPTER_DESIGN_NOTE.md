@@ -28,6 +28,27 @@ The same pattern can later support other domain adapters, such as:
 - bearer-style presentation records
 - secured finance records
 
+## Control Desk Terminology
+
+The MLWR webapp uses the **control desk** metaphor for the warehouse receipt operating surface.
+
+In that metaphor:
+
+- **Control Desk** is the workspace for warehouse receipt operations.
+- **Control Desk Key** is the OpenETR root admin identity for that workspace.
+- **Profiles** are identities the desk can act as.
+- **Contacts** are external parties the desk can address or transact with.
+- **References** are external sources the desk or verifier may consult for recognition, assurance, registry, KYC, assessment, audit, attestation, or policy context.
+- **Receipt Control Records** are signed OpenETR origin or control events.
+
+Operational receipt events are signed by the selected profile signer, not by the control desk as an abstract workspace.
+
+This is product and domain terminology layered over the OpenETR root/profile model. It should not imply that profile keys are cryptographically derived from the Control Desk Key.
+
+The term `References` is used in the business/control-desk sense. Developers should distinguish it from protocol event references such as `e` tags, event ids, or `nevent` values.
+
+The technical identity model is described in [ROOT_AND_PROFILE_IDENTITY_MODEL.md](./ROOT_AND_PROFILE_IDENTITY_MODEL.md). The warehouse operator use-case framing is described in [MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md](./MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md).
+
 ## Architectural Boundary
 
 The design follows a three-part split.

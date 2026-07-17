@@ -23,6 +23,36 @@ OpenETR is intended to support multiple independent integration styles:
 
 The important point is that OpenETR does not require every participant to use the same application.
 
+## Application-Level Recognition Policies
+
+OpenETR deliberately separates protocol-level control evidence from application-level recognition policy.
+
+The base protocol can show that a particular `npub` signed a particular origin or control event for a particular object digest. It can also expose profile metadata, known-entity records, attestations, relay evidence, and control-graph traversal.
+
+It does not, by itself, decide whether that `npub` satisfies a particular system's KYC, AML, sanctions, customer onboarding, registry, licensing, contractual, or jurisdictional requirements.
+
+Those checks belong to the integrating system, verifier policy, or domain adapter.
+
+This is similar to TCP/IP: the network protocol supports many application protocols without enforcing each application's business rules. OpenETR should support KYC-sensitive and non-KYC-sensitive applications without making one application-level policy mandatory for every OpenETR event.
+
+An integrating system may still use OpenETR evidence to support KYC-aware workflows. For example, a system may:
+
+- require a recognized KYC attestation before accepting a profile as an issuer, controller, transferee, secured party, or obligor;
+- consult a trust registry, enterprise account system, regulator, platform database, or KYC provider;
+- publish or consume OpenETR `attest` events that associate an `npub` with a recognition claim;
+- treat missing KYC evidence as a warning, manual-review condition, or policy block;
+- expose KYC status in API or JSON responses without altering the underlying signed event graph.
+
+In this model:
+
+- OpenETR authenticates control events.
+- KYC systems recognize actors.
+- Verifier policy decides whether recognition is sufficient.
+
+This keeps OpenETR general and jurisdiction-neutral while allowing regulated systems to impose the actor-recognition rules they need.
+
+The same boundary applies to privacy-preserving proof systems such as ZK-SNARKs. OpenETR does not require ZK proofs for its base object identity or control graph because SHA-256 object commitments, signed events, and graph traversal already provide the core protocol evidence. A domain adapter or verifier policy may still require or accept ZK proofs as additional recognition evidence where a system needs to prove facts about hidden data. This design decision is discussed in [ZK_SNARKS_AND_HASH_COMMITMENTS_DESIGN_NOTE.md](./ZK_SNARKS_AND_HASH_COMMITMENTS_DESIGN_NOTE.md).
+
 ## No Runtime Dependency On Someone Else's Code
 
 The core philosophy is that an OpenETR user should not be required to rely on someone else's running code at the time of performance.

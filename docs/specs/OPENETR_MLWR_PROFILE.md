@@ -22,6 +22,10 @@ The MLWR profile should answer:
 - what evidence OpenETR can provide to a recognition framework
 - which questions remain outside OpenETR and must be answered by MLWR-style law, local enactment, contract, registry rules, or institutional policy
 
+The first product focus is the warehouse operator issuance workflow described in [MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md](./MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md).
+
+That use case deliberately treats the warehouse receipt as an opaque artifact. OpenETR commits to the receipt by digest and records the signed control graph. It does not need to parse or validate the receipt contents in order to provide issuance and control evidence.
+
 OpenETR does not replace the MLWR or any local warehouse receipt law.
 
 OpenETR provides a signed, inspectable, protocol-neutral evidence layer that an MLWR-style recognition framework can evaluate.

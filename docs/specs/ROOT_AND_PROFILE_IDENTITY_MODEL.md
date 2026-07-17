@@ -162,6 +162,38 @@ The important principle is:
 
 That makes the model suitable for integration with existing systems while preserving independent signer attribution at the event layer.
 
+## Domain Terminology: Control Desk Key
+
+Domain adapters may present the root admin identity using terminology that fits the user's operating context.
+
+For the MLWR / warehouse receipt application, the root admin identity may be called a **Control Desk Key**.
+
+This term is intended to make the root/profile model easier to understand in the warehouse receipt Control Desk:
+
+- the Control Desk is the warehouse receipt workspace or operating surface;
+- the Control Desk Key administers the desk;
+- profiles are operational signers the desk can act as;
+- contacts are external parties the desk can address or transact with;
+- references are external recognition, assurance, registry, KYC, assessment, audit, attestation, or policy sources;
+- receipt control records are signed by the selected operational profile.
+
+The term does not change the cryptographic model.
+
+A Control Desk Key is still an OpenETR root admin identity. It does not derive profile keys, make profile keys cryptographically subordinate, or automatically make a profile legally recognized.
+
+The useful operational distinction is:
+
+```text
+root admin identity / Control Desk Key = manages configuration and profiles
+profile signer identity / Profile = signs operational OpenETR events
+Contact = external party the desk can reference
+Reference = external source the desk or verifier may consult for recognition context
+```
+
+Contacts and references are application-facing terms. Implementations may still store these concepts using lower-level records such as aliases, known entities, profile metadata, attestations, or policy configuration. The important model distinction is that contacts are addressable parties, while references are sources of recognition or assurance context.
+
+The warehouse operator issuance use case documents this terminology in [MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md](./MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md).
+
 ## CLI Semantics
 
 The current CLI reflects this distinction through separate commands.

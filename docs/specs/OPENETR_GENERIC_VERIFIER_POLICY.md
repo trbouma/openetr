@@ -85,6 +85,74 @@ Domain policies can decide whether unknown entities are:
 
 The important generic rule is that unknown-entity status should be explicit and inspectable.
 
+## KYC As A Recognition Concern
+
+Know-your-customer (KYC), anti-money-laundering (AML), sanctions screening, regulated-entity status, and similar actor-recognition checks are outside the base OpenETR protocol.
+
+The protocol-level OpenETR question is:
+
+> Which key signed which event concerning which object, and how does that event fit into the signed control graph?
+
+KYC asks a different question:
+
+> Is this signer, profile, account, organization, or legal entity recognized by a particular relying system under a particular business, regulatory, contractual, or jurisdictional rule book?
+
+OpenETR should support KYC-sensitive applications without enforcing one application-level KYC policy in the base protocol.
+
+This is similar to the TCP/IP design boundary. TCP/IP supports applications such as email, web, banking, and video without embedding each application's business rules into the packet protocol. OpenETR should support warehouse receipt systems, trade finance platforms, registries, and compliance-sensitive workflows without making KYC a mandatory protocol condition for every signed event.
+
+In OpenETR terms:
+
+- OpenETR authenticates signed control evidence.
+- KYC systems recognize actors.
+- Verifier policy decides whether the recognition evidence is sufficient for a transaction, domain, organization, or jurisdiction.
+
+An `npub` may therefore be KYC-attested or KYC-recognized by an integrating system.
+
+Possible recognition inputs include:
+
+- an OpenETR `attest` event from a recognized KYC provider;
+- a TRQP response from a trust registry;
+- a root-managed `known_entities` record;
+- a domain registry or account-system lookup;
+- an enterprise customer or counterparty database;
+- a regulator, consortium, bank, warehouse operator, or platform authority;
+- a Web of Trust or reputation signal, where the selected policy permits it.
+
+The base protocol should not decide:
+
+- what KYC means;
+- which KYC provider is acceptable;
+- whether KYC is required for a particular action;
+- when KYC expires;
+- whether KYC must be refreshed for a transfer, encumbrance, discharge, or redemption;
+- whether a KYC failure blocks recognition, produces a warning, or routes to manual review.
+
+Those are verifier-policy and integration-layer questions.
+
+A verifier may still surface KYC status in a structured way. For example:
+
+```text
+kyc_recognition:
+  npub: <signer_npub>
+  role: issuer
+  source: <registry-or-attestor>
+  status: recognized
+  recognition_effect: accepted
+```
+
+Or, where the selected policy requires KYC and no recognized evidence is available:
+
+```text
+kyc_recognition:
+  npub: <signer_npub>
+  role: transferee
+  status: missing
+  recognition_effect: policy_warning
+```
+
+The signature remains cryptographically valid if the key actually signed the event. The KYC result affects whether a verifier or relying application recognizes that event as effective for its own context.
+
 ## Organizational Rule Books
 
 Because OpenETR is an open signed-event system, no single implementation needs to be the only source of recognition rules.
