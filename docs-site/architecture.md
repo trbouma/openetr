@@ -64,8 +64,8 @@ Everything important is represented as cryptographically signed events. Those ev
 
 ## Source Notes
 
-- [OpenETR Layered Architecture Note](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
-- [System Integration Considerations](https://github.com/trbouma/etrix/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
-- [OpenETR Nostr Wire Format](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
-- [MLWR Webapp Domain Adapter Design Note](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md)
+- [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
+- [System Integration Considerations](https://github.com/trbouma/openetr/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
+- [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [MLWR Webapp Domain Adapter Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md)
 

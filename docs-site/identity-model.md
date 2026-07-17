@@ -45,7 +45,7 @@ This model is useful for existing systems:
 
 ## Source Notes
 
-- [Root And Profile Identity Model](https://github.com/trbouma/etrix/blob/main/docs/specs/ROOT_AND_PROFILE_IDENTITY_MODEL.md)
-- [System Integration Considerations](https://github.com/trbouma/etrix/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
-- [Relay-Backed Configuration Design Note](https://github.com/trbouma/etrix/blob/main/docs/specs/RELAY_BACKED_CONFIGURATION_DESIGN_NOTE.md)
+- [Root And Profile Identity Model](https://github.com/trbouma/openetr/blob/main/docs/specs/ROOT_AND_PROFILE_IDENTITY_MODEL.md)
+- [System Integration Considerations](https://github.com/trbouma/openetr/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
+- [Relay-Backed Configuration Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/RELAY_BACKED_CONFIGURATION_DESIGN_NOTE.md)
 

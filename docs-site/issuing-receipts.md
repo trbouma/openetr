@@ -50,6 +50,6 @@ The event `content` field is reserved for a short human-readable narrative.
 
 ## Source Notes
 
-- [MLWR Warehouse Operator Issuance Use Case](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md)
-- [OpenETR Nostr Wire Format](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [MLWR Warehouse Operator Issuance Use Case](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md)
+- [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 

@@ -30,11 +30,11 @@ Some articles require deeper policy or domain design. Those are intentionally tr
 
 The working table is maintained in:
 
-- [MLWR Article Requirements Mapping](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)
+- [MLWR Article Requirements Mapping](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)
 
 Related profile notes:
 
-- [OpenETR MLWR Profile](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
-- [MLWR Change Of Medium Profile](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_CHANGE_OF_MEDIUM_PROFILE.md)
-- [MLWR Receipt Replacement And Loss Profile](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_RECEIPT_REPLACEMENT_AND_LOSS_PROFILE.md)
+- [OpenETR MLWR Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
+- [MLWR Change Of Medium Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_CHANGE_OF_MEDIUM_PROFILE.md)
+- [MLWR Receipt Replacement And Loss Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_RECEIPT_REPLACEMENT_AND_LOSS_PROFILE.md)
 

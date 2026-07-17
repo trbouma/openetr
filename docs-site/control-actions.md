@@ -39,7 +39,7 @@ Legal or business effect is determined by a verifier policy or recognition frame
 
 ## Source Notes
 
-- [OpenETR Generic Transfer Model](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
-- [OpenETR Generic Verifier Policy](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
-- [Control Event Minimum Shapes](https://github.com/trbouma/etrix/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
+- [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
+- [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 

@@ -62,6 +62,6 @@ openetr query-etr examples/mlwr-20260713.pdf --json
 
 See also:
 
-- [OpenETR CLI JSON Model](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_CLI_JSON_MODEL.md)
-- [OpenETR CLI Implementation Walkthrough](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md)
+- [OpenETR CLI JSON Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CLI_JSON_MODEL.md)
+- [OpenETR CLI Implementation Walkthrough](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md)
 

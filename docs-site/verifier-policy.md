@@ -51,7 +51,7 @@ This is similar to TCP/IP supporting applications without enforcing application-
 
 ## Source Notes
 
-- [OpenETR Generic Verifier Policy](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
-- [OpenETR TRQP Integration Note](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_TRQP_INTEGRATION_NOTE.md)
-- [OpenETR Nostr Web Of Trust Integration Note](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md)
+- [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
+- [OpenETR TRQP Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_TRQP_INTEGRATION_NOTE.md)
+- [OpenETR Nostr Web Of Trust Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md)
 

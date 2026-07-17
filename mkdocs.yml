@@ -46,3 +46,6 @@ nav:
   - Verifier Policy: verifier-policy.md
   - Article Mapping: article-mapping.md
   - Architecture: architecture.md
+  - Source:
+      - GitHub Repository: https://github.com/trbouma/openetr
+      - Specification Index: https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md

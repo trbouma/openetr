@@ -48,9 +48,10 @@ The demo webapp now opens directly to the MLWR Control Desk:
 
 Key source documents:
 
-- [MLWR Webapp Domain Adapter Design Note](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md)
-- [MLWR Warehouse Operator Issuance Use Case](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md)
-- [OpenETR MLWR Profile](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
-- [OpenETR Nostr Wire Format](https://github.com/trbouma/etrix/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
-- [MLWR Article Requirements Mapping](https://github.com/trbouma/etrix/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)
-
+- [GitHub repository](https://github.com/trbouma/openetr)
+- [Specification index](https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md)
+- [MLWR Webapp Domain Adapter Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md)
+- [MLWR Warehouse Operator Issuance Use Case](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md)
+- [OpenETR MLWR Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
+- [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [MLWR Article Requirements Mapping](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)
