@@ -322,6 +322,7 @@ Use these documents to follow the model from the warehouse operator use case int
 | CLI command mapping | [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md) |
 | Machine-readable CLI output | [OPENETR_CLI_JSON_MODEL.md](./OPENETR_CLI_JSON_MODEL.md) |
 | Generic verifier and recognition policy | [OPENETR_GENERIC_VERIFIER_POLICY.md](./OPENETR_GENERIC_VERIFIER_POLICY.md) |
+| KYC as an application-level recognition concern | [OPENETR_GENERIC_VERIFIER_POLICY.md#kyc-as-a-recognition-concern](./OPENETR_GENERIC_VERIFIER_POLICY.md#kyc-as-a-recognition-concern) |
 | System integration approach | [SYSTEM_INTEGRATION_CONSIDERATIONS.md](./SYSTEM_INTEGRATION_CONSIDERATIONS.md) |
 | Regular event kind migration | [REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md](./REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md) |
 | ZK-SNARK decision rationale | [ZK_SNARKS_AND_HASH_COMMITMENTS_DESIGN_NOTE.md](./ZK_SNARKS_AND_HASH_COMMITMENTS_DESIGN_NOTE.md) |
