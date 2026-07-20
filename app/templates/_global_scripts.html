@@ -1,1 +1,217 @@
 <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+<style>
+  .openetr-busy-message {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.65rem 0 0;
+    color: var(--muted, #675c4d);
+    font-size: 0.94rem;
+    font-weight: 700;
+  }
+  .openetr-page-busy {
+    position: fixed;
+    top: 0.85rem;
+    right: 0.85rem;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--accent, #8a5b2d) 28%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--panel, #fffaf4) 94%, white);
+    color: var(--muted, #675c4d);
+    box-shadow: 0 10px 28px rgba(71, 44, 17, 0.12);
+    font-size: 0.94rem;
+    font-weight: 800;
+  }
+  .openetr-page-busy[hidden] {
+    display: none;
+  }
+  .openetr-busy-message::before {
+    content: "";
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid color-mix(in srgb, var(--accent, #8a5b2d) 28%, transparent);
+    border-top-color: var(--accent, #8a5b2d);
+    border-radius: 999px;
+    animation: openetr-spin 700ms linear infinite;
+  }
+  .openetr-page-busy::before {
+    content: "";
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid color-mix(in srgb, var(--accent, #8a5b2d) 28%, transparent);
+    border-top-color: var(--accent, #8a5b2d);
+    border-radius: 999px;
+    animation: openetr-spin 700ms linear infinite;
+  }
+  form[data-openetr-busy="true"] button[type="submit"],
+  button[data-openetr-busy="true"] {
+    cursor: wait;
+    opacity: 0.72;
+    pointer-events: none;
+  }
+  @keyframes openetr-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+<script>
+  (() => {
+    const busyMessage = "Please wait. Your request is underway...";
+    let pendingRequests = 0;
+
+    function pageBusyIndicator() {
+      let indicator = document.getElementById("openetr-page-busy");
+      if (!indicator) {
+        indicator = document.createElement("div");
+        indicator.id = "openetr-page-busy";
+        indicator.className = "openetr-page-busy";
+        indicator.hidden = true;
+        indicator.setAttribute("role", "status");
+        indicator.setAttribute("aria-live", "polite");
+        indicator.textContent = busyMessage;
+        document.body.appendChild(indicator);
+      }
+      return indicator;
+    }
+
+    function showPageBusy() {
+      pageBusyIndicator().hidden = false;
+    }
+
+    function hidePageBusy() {
+      pageBusyIndicator().hidden = true;
+    }
+
+    function startPageBusy() {
+      pendingRequests += 1;
+      showPageBusy();
+    }
+
+    function stopPageBusy() {
+      pendingRequests = Math.max(0, pendingRequests - 1);
+      if (pendingRequests === 0) {
+        hidePageBusy();
+      }
+    }
+
+    function submitButtons(form) {
+      return Array.from(form.querySelectorAll('button[type="submit"], input[type="submit"]'));
+    }
+
+    function ensureBusyMessage(form) {
+      if (form.querySelector('[data-openetr-busy-message="true"]')) {
+        return;
+      }
+      const message = document.createElement("p");
+      message.className = "openetr-busy-message";
+      message.dataset.openetrBusyMessage = "true";
+      message.setAttribute("role", "status");
+      message.setAttribute("aria-live", "polite");
+      message.textContent = busyMessage;
+
+      const buttons = submitButtons(form);
+      const anchor = buttons[buttons.length - 1] || form.lastElementChild;
+      if (anchor && anchor.parentElement) {
+        anchor.parentElement.insertBefore(message, anchor.nextSibling);
+      } else {
+        form.appendChild(message);
+      }
+    }
+
+    function setBusy(form) {
+      if (!form || form.method === "dialog") {
+        return;
+      }
+      form.dataset.openetrBusy = "true";
+      showPageBusy();
+      ensureBusyMessage(form);
+      submitButtons(form).forEach((button) => {
+        button.dataset.openetrBusy = "true";
+        button.setAttribute("aria-disabled", "true");
+      });
+    }
+
+    function clearBusy(form) {
+      if (!form) {
+        return;
+      }
+      delete form.dataset.openetrBusy;
+      form.querySelectorAll('[data-openetr-busy-message="true"]').forEach((message) => message.remove());
+      submitButtons(form).forEach((button) => {
+        delete button.dataset.openetrBusy;
+        button.removeAttribute("aria-disabled");
+      });
+      if (pendingRequests === 0) {
+        hidePageBusy();
+      }
+    }
+
+    document.addEventListener("submit", (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || form.method === "dialog") {
+        return;
+      }
+      if (form.dataset.openetrBusy === "true") {
+        event.preventDefault();
+        return;
+      }
+      setBusy(form);
+    }, true);
+
+    document.addEventListener("click", (event) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+      const link = event.target.closest?.("a[href]");
+      if (!link || link.target === "_blank" || link.hasAttribute("download")) {
+        return;
+      }
+      const href = link.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+        return;
+      }
+      try {
+        const url = new URL(href, window.location.href);
+        if (url.origin === window.location.origin && url.href !== window.location.href) {
+          window.setTimeout(() => {
+            if (!event.defaultPrevented) {
+              showPageBusy();
+            }
+          }, 0);
+        }
+      } catch (error) {
+        return;
+      }
+    });
+
+    document.body.addEventListener("htmx:beforeRequest", (event) => {
+      const form = event.detail?.elt?.closest?.("form");
+      startPageBusy();
+      if (form) {
+        setBusy(form);
+      }
+    });
+
+    ["htmx:afterRequest", "htmx:responseError", "htmx:sendError", "htmx:timeout"].forEach((eventName) => {
+      document.body.addEventListener(eventName, (event) => {
+        const form = event.detail?.elt?.closest?.("form");
+        if (form) {
+          clearBusy(form);
+        }
+        stopPageBusy();
+      });
+    });
+  })();
+</script>

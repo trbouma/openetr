@@ -363,6 +363,7 @@
           <p>Upload a warehouse receipt document and inspect its origin, holder, lifecycle, and outstanding pledge or encumbrance state.</p>
           <form action="/warehouse-receipts/query" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <label>
               Relays
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
@@ -377,6 +378,7 @@
           <p>Publish a warehouse receipt origin event. Underneath, this calls the general OpenETR issue service for the uploaded receipt digest.</p>
           <form action="/warehouse-receipts/issue" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <label>
               Receipt reference
               <input type="text" name="receipt_reference" placeholder="MLWR001">

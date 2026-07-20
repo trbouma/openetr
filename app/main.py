@@ -1,14 +1,20 @@
 import asyncio
 from contextlib import contextmanager
 import hashlib
+import io
+import mimetypes
 import os
 from pathlib import Path
+import re
+import secrets
+import tempfile
+import time
 from typing import Any
 
 import bech32
 import click
-from fastapi import Depends, FastAPI, File, Form, Query, Request, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from monstr.encrypt import Keys
 from starlette.staticfiles import StaticFiles
@@ -36,6 +42,17 @@ SESSION_SIGNER_NSEC_KEY = "openetr_signer_nsec"
 SESSION_PROFILE_KEY = "openetr_profile"
 SESSION_BOOTSTRAP_RELAYS_KEY = "openetr_bootstrap_relays"
 SESSION_DEFAULT_RELAYS_KEY = "openetr_default_relays"
+DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
+MEDIA_PREVIEW_TTL_SECONDS = 60 * 60
+MEDIA_PREVIEW_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{16,64}$")
+MEDIA_PREVIEW_EXTENSIONS = {
+    "application/pdf": ".pdf",
+    "image/gif": ".gif",
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
 
 
 def read_runtime_value(name: str, default: str | None = None) -> str | None:
@@ -57,6 +74,9 @@ FRIGATE_HOST = read_runtime_value("OPENETR_FRIGATE_HOST", "frigate.2140.dev") or
 FRIGATE_SSL = (read_runtime_value("OPENETR_FRIGATE_SSL", "true") or "true").strip().lower() in {"1", "true", "yes", "on"}
 FRIGATE_PORT = int(read_runtime_value("OPENETR_FRIGATE_PORT", "50002" if FRIGATE_SSL else "50001") or ("50002" if FRIGATE_SSL else "50001"))
 FRIGATE_TIMEOUT = float(read_runtime_value("OPENETR_FRIGATE_TIMEOUT", "120") or "120")
+MAX_UPLOAD_BYTES = int(read_runtime_value("OPENETR_MAX_UPLOAD_BYTES", str(DEFAULT_MAX_UPLOAD_BYTES)) or str(DEFAULT_MAX_UPLOAD_BYTES))
+PUBLIC_BASE_URL = (read_runtime_value("OPENETR_PUBLIC_BASE_URL") or "").rstrip("/")
+MEDIA_PREVIEW_DIR = Path(tempfile.gettempdir()) / "openetr-media-previews"
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 APP_ASSETS_DIR = Path(__file__).parent / "assets"
@@ -79,9 +99,150 @@ def configured_home_relays() -> str:
 
 def bytes_to_nobj(data: bytes, prefix: str = NOBJ_PREFIX) -> str:
     digest = hashlib.sha256(data).hexdigest()
+    return digest_to_nobj(digest, prefix)
+
+
+def digest_to_nobj(digest: str, prefix: str = NOBJ_PREFIX) -> str:
     as_int = [int(digest[i:i + 2], 16) for i in range(0, len(digest), 2)]
     converted = bech32.convertbits(as_int, 8, 5)
     return bech32.bech32_encode(prefix, converted)
+
+
+def upload_limit_label(max_bytes: int = MAX_UPLOAD_BYTES) -> str:
+    mib = max_bytes / (1024 * 1024)
+    if mib.is_integer():
+        return f"{int(mib)} MiB"
+    return f"{mib:.1f} MiB"
+
+
+def request_base_url(request: Request) -> str:
+    return str(request.base_url).rstrip("/")
+
+
+def public_base_url(request: Request) -> str:
+    return PUBLIC_BASE_URL or request_base_url(request)
+
+
+def public_etr_url(request: Request, digest: str) -> str:
+    return f"{public_base_url(request)}/etr/{digest}"
+
+
+def qr_context_for_digest(request: Request, digest: str) -> dict[str, str]:
+    return {
+        "public_query_url": public_etr_url(request, digest),
+        "public_query_qr_url": f"/etr/qr/{digest}",
+    }
+
+
+def remove_stale_media_previews(now: float | None = None) -> None:
+    if not MEDIA_PREVIEW_DIR.exists():
+        return
+    current_time = now or time.time()
+    for path in MEDIA_PREVIEW_DIR.iterdir():
+        if not path.is_file():
+            continue
+        try:
+            if current_time - path.stat().st_mtime > MEDIA_PREVIEW_TTL_SECONDS:
+                path.unlink()
+        except OSError:
+            continue
+
+
+def media_preview_path(token: str, media_type: str) -> Path:
+    if not MEDIA_PREVIEW_TOKEN_PATTERN.fullmatch(token):
+        raise HTTPException(status_code=404, detail="Media preview not found.")
+    extension = MEDIA_PREVIEW_EXTENSIONS.get(media_type)
+    if extension is None:
+        raise HTTPException(status_code=404, detail="Media preview not found.")
+    return MEDIA_PREVIEW_DIR / f"{token}{extension}"
+
+
+def media_type_from_preview_path(path: Path) -> str | None:
+    for media_type, extension in MEDIA_PREVIEW_EXTENSIONS.items():
+        if path.suffix.lower() == extension:
+            return media_type
+    return None
+
+
+def preview_media_type(filename: str, declared_type: str | None, first_chunk: bytes | None) -> str | None:
+    normalized_declared_type = (declared_type or "").split(";")[0].strip().lower()
+    if normalized_declared_type in {"", "application/octet-stream", "binary/octet-stream"}:
+        normalized_declared_type = ""
+    guessed_type = normalized_declared_type or (mimetypes.guess_type(filename)[0] or "").lower()
+    first_bytes = first_chunk or b""
+
+    if guessed_type == "application/pdf" and first_bytes.startswith(b"%PDF-"):
+        return "application/pdf"
+    if guessed_type in {"image/jpeg", "image/jpg"} and first_bytes.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if guessed_type == "image/png" and first_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if guessed_type == "image/gif" and (first_bytes.startswith(b"GIF87a") or first_bytes.startswith(b"GIF89a")):
+        return "image/gif"
+    if guessed_type == "image/webp" and len(first_bytes) >= 12 and first_bytes[:4] == b"RIFF" and first_bytes[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+async def hash_uploaded_file(
+    file: UploadFile,
+    *,
+    default_filename: str = "upload",
+    max_bytes: int = MAX_UPLOAD_BYTES,
+) -> tuple[str, int, str, dict[str, str] | None]:
+    filename = file.filename or default_filename
+    size_bytes = 0
+    file_hash = hashlib.sha256()
+    first_chunk: bytes | None = None
+    preview_file = None
+    preview_path = None
+    media_preview = None
+
+    try:
+        while True:
+            chunk = await file.read(UPLOAD_READ_CHUNK_BYTES)
+            if not chunk:
+                break
+
+            if first_chunk is None:
+                first_chunk = chunk
+                media_type = preview_media_type(filename, file.content_type, first_chunk)
+                if media_type:
+                    remove_stale_media_previews()
+                    MEDIA_PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
+                    token = secrets.token_urlsafe(24)
+                    preview_path = media_preview_path(token, media_type)
+                    preview_file = preview_path.open("wb")
+                    media_preview = {
+                        "url": f"/api/upload-preview/{token}",
+                        "filename": filename,
+                        "media_type": media_type,
+                        "kind": "pdf" if media_type == "application/pdf" else "image",
+                    }
+
+            size_bytes += len(chunk)
+            if size_bytes > max_bytes:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"Uploaded file exceeds the {upload_limit_label(max_bytes)} limit.",
+                )
+            file_hash.update(chunk)
+            if preview_file is not None:
+                preview_file.write(chunk)
+    except Exception:
+        if preview_file is not None:
+            preview_file.close()
+        if preview_path is not None:
+            try:
+                preview_path.unlink()
+            except OSError:
+                pass
+        raise
+    finally:
+        if preview_file is not None:
+            preview_file.close()
+
+    return filename, size_bytes, file_hash.hexdigest(), media_preview
 
 
 def short_id(value: str | None, head: int = 12, tail: int = 8) -> str:
@@ -567,6 +728,7 @@ async def get_default_template_context(
         "identity": identity,
         "available_profiles": available_profiles,
         "selected_profile_social": selected_profile_social,
+        "upload_limit_label": upload_limit_label(),
         "error_message": None,
         "success_message": None,
         "generated_nsec": None,
@@ -760,6 +922,7 @@ async def render_warehouse_receipt_result(
     issue_result: dict[str, Any] | None = None,
     control_result: dict[str, Any] | None = None,
     success_message: str | None = None,
+    media_preview: dict[str, str] | None = None,
 ):
     return templates.TemplateResponse(
         request,
@@ -779,15 +942,14 @@ async def render_warehouse_receipt_result(
             "issue_result": issue_result,
             "control_result": control_result,
             "success_message": success_message,
+            "media_preview": media_preview,
+            **qr_context_for_digest(request, digest),
         },
     )
 
 
-async def read_uploaded_receipt(file: UploadFile) -> tuple[bytes, str, int, str]:
-    content = await file.read()
-    digest = hashlib.sha256(content).hexdigest()
-    filename = file.filename or "warehouse-receipt"
-    return content, filename, len(content), digest
+async def read_uploaded_receipt(file: UploadFile) -> tuple[str, int, str, dict[str, str] | None]:
+    return await hash_uploaded_file(file, default_filename="warehouse-receipt")
 
 
 def parse_optional_force(value: str | None) -> bool:
@@ -882,6 +1044,91 @@ async def experimental_page(
     return render_bitcoin_balance_response(request, identity)
 
 
+@app.get("/etr/qr/{digest}", responses={200: {"content": {"image/png": {}}}})
+async def public_etr_query_qr(request: Request, digest: str):
+    return render_etr_query_qr(request, digest)
+
+
+@app.get("/etr/{digest}")
+async def public_etr_lookup(
+    request: Request,
+    digest: str,
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    try:
+        object_digest = assert_hex_object_identifier(digest.strip())
+        validated_relays = await validate_relays(
+            identity.get("default_relays") or DEFAULT_RELAYS,
+            timeout=DEFAULT_QUERY_TIMEOUT,
+        )
+    except (click.ClickException, ControlEventError) as exc:
+        template_context = await get_default_template_context(identity)
+        template_context["error_message"] = str(exc)
+        return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
+
+    query_context = await build_query_etr_result(
+        digest=object_digest,
+        relays=validated_relays,
+        author_pubkey_hex=identity.get("pubkey_hex"),
+    )
+    return templates.TemplateResponse(
+        request,
+        "query_etr_result.html",
+        {
+            "app_title": APP_TITLE,
+            "site_url": SITE_URL,
+            "git_commit": GIT_COMMIT,
+            "identity": identity,
+            "available_profiles": await get_available_profiles(identity),
+            "filename": f"OpenETR object {format_object_identifier(object_digest)}",
+            "size_bytes": 0,
+            "sha256": object_digest,
+            "object_id": format_object_identifier(object_digest),
+            "relays": validated_relays,
+            "query": query_context,
+            "media_preview": None,
+            **qr_context_for_digest(request, object_digest),
+        },
+    )
+
+
+def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
+    try:
+        object_digest = assert_hex_object_identifier(digest.strip())
+    except click.ClickException as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    try:
+        import qrcode
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail="QR code support is not installed.") from exc
+    # The image path accepts only the digest; the QR payload is the full query URL.
+    qr_text = public_etr_url(request, object_digest)
+    image = qrcode.make(qr_text)
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    buffer.seek(0)
+    return StreamingResponse(
+        buffer,
+        media_type="image/png",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@app.get("/qr/{digest}", include_in_schema=False)
+async def legacy_short_etr_query_qr(request: Request, digest: str):
+    return render_etr_query_qr(request, digest)
+
+
+@app.get("/etr/{digest}/qr", include_in_schema=False)
+async def legacy_public_etr_query_qr(request: Request, digest: str):
+    return render_etr_query_qr(request, digest)
+
+
+@app.get("/api/etr-qr/{digest}", include_in_schema=False)
+async def etr_query_qr(request: Request, digest: str):
+    return render_etr_query_qr(request, digest)
+
+
 @app.post("/warehouse-receipts/query")
 async def warehouse_receipts_query(
     request: Request,
@@ -899,7 +1146,15 @@ async def warehouse_receipts_query(
             status_code=400,
         )
 
-    _, filename, size_bytes, digest = await read_uploaded_receipt(file)
+    try:
+        filename, size_bytes, digest, media_preview = await read_uploaded_receipt(file)
+    except HTTPException as exc:
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message=str(exc.detail),
+            status_code=exc.status_code,
+        )
     query_context = await build_query_etr_result(
         digest=digest,
         relays=validated_relays,
@@ -913,6 +1168,7 @@ async def warehouse_receipts_query(
         digest=digest,
         relays=validated_relays,
         query_context=query_context,
+        media_preview=media_preview,
     )
 
 
@@ -952,7 +1208,15 @@ async def warehouse_receipts_issue(
             status_code=400,
         )
 
-    _, filename, size_bytes, digest = await read_uploaded_receipt(file)
+    try:
+        filename, size_bytes, digest, media_preview = await read_uploaded_receipt(file)
+    except HTTPException as exc:
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message=str(exc.detail),
+            status_code=exc.status_code,
+        )
     guard = await evaluate_issue_etr_guard(
         relays=validated_relays,
         digest=digest,
@@ -1004,6 +1268,7 @@ async def warehouse_receipts_issue(
         query_context=query_context,
         issue_result=issue_result,
         success_message="Warehouse receipt origin event published through the general OpenETR issue service.",
+        media_preview=media_preview,
     )
 
 
@@ -2736,15 +3001,39 @@ async def bitcoin_send_broadcast(
 
 
 @app.post("/api/nobj-from-upload")
-async def nobj_from_upload(file: UploadFile = File(...)) -> dict[str, Any]:
-    content = await file.read()
-    digest = hashlib.sha256(content).hexdigest()
+async def nobj_from_upload(request: Request, file: UploadFile = File(...)) -> dict[str, Any]:
+    filename, size_bytes, digest, media_preview = await hash_uploaded_file(file)
+    query_share = qr_context_for_digest(request, digest)
     return {
-        "filename": file.filename,
-        "size_bytes": len(content),
+        "filename": filename,
+        "size_bytes": size_bytes,
         "sha256": digest,
-        "nobj": bytes_to_nobj(content),
+        "nobj": digest_to_nobj(digest),
+        "media_preview": media_preview,
+        **query_share,
     }
+
+
+@app.get("/api/upload-preview/{token}")
+async def uploaded_media_preview(token: str):
+    remove_stale_media_previews()
+    if not MEDIA_PREVIEW_TOKEN_PATTERN.fullmatch(token):
+        raise HTTPException(status_code=404, detail="Media preview not found.")
+    matches = [path for path in MEDIA_PREVIEW_DIR.glob(f"{token}.*") if path.is_file()]
+    if not matches:
+        raise HTTPException(status_code=404, detail="Media preview not found.")
+    path = matches[0]
+    media_type = media_type_from_preview_path(path)
+    if media_type is None:
+        raise HTTPException(status_code=404, detail="Media preview not found.")
+    return FileResponse(
+        path,
+        media_type=media_type,
+        headers={
+            "Cache-Control": "no-store",
+            "Content-Disposition": "inline",
+        },
+    )
 
 
 @app.post("/api/query-etr-from-upload")
@@ -2761,8 +3050,12 @@ async def query_etr_from_upload(
         template_context["error_message"] = str(exc)
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
-    content = await file.read()
-    digest = hashlib.sha256(content).hexdigest()
+    try:
+        filename, size_bytes, digest, media_preview = await hash_uploaded_file(file)
+    except HTTPException as exc:
+        template_context = await get_default_template_context(identity)
+        template_context["error_message"] = str(exc.detail)
+        return templates.TemplateResponse(request, "index.html", template_context, status_code=exc.status_code)
     query_context = await build_query_etr_result(
         digest=digest,
         relays=validated_relays,
@@ -2777,12 +3070,14 @@ async def query_etr_from_upload(
             "git_commit": GIT_COMMIT,
             "identity": identity,
             "available_profiles": await get_available_profiles(identity),
-            "filename": file.filename,
-            "size_bytes": len(content),
+            "filename": filename,
+            "size_bytes": size_bytes,
             "sha256": digest,
             "object_id": format_object_identifier(digest),
             "relays": validated_relays,
             "query": query_context,
+            "media_preview": media_preview,
+            **qr_context_for_digest(request, digest),
         },
     )
 
@@ -2817,10 +3112,12 @@ async def issue_etr_from_upload(
 
     confirmation = request.query_params.get("confirm") == "true"
     if file is not None:
-        content = await file.read()
-        digest = hashlib.sha256(content).hexdigest()
-        filename = file.filename or "upload"
-        size_bytes = len(content)
+        try:
+            filename, size_bytes, digest, media_preview = await hash_uploaded_file(file)
+        except HTTPException as exc:
+            template_context = await get_default_template_context(identity)
+            template_context["error_message"] = str(exc.detail)
+            return templates.TemplateResponse(request, "index.html", template_context, status_code=exc.status_code)
     else:
         if not confirmation or not file_digest or not file_name or file_size <= 0:
             template_context = await get_default_template_context(identity)
@@ -2829,6 +3126,7 @@ async def issue_etr_from_upload(
         digest = file_digest
         filename = file_name
         size_bytes = file_size
+        media_preview = None
 
     guard = await evaluate_issue_etr_guard(
         relays=validated_relays,
@@ -2897,5 +3195,7 @@ async def issue_etr_from_upload(
             "relays": validated_relays,
             "query": query_context,
             "issue_result": issue_result,
+            "media_preview": media_preview,
+            **qr_context_for_digest(request, issue_result["sha256"]),
         },
     )

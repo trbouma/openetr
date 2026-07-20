@@ -1,0 +1,222 @@
+{% if media_preview %}
+<style>
+  .media-preview-panel {
+    width: 100%;
+  }
+  .media-preview-status {
+    margin: 0 0 0.85rem;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .media-preview-image {
+    display: block;
+    width: min(100%, 58rem);
+    height: auto;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    background: white;
+  }
+  .media-preview-canvas {
+    width: 100%;
+    max-width: 58rem;
+    margin: 0 auto;
+  }
+  .media-preview-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0 0 0.85rem;
+  }
+  .media-preview-controls button {
+    width: 5.5rem;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.55rem 0.75rem;
+    background: var(--accent);
+    color: white;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .media-preview-controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .media-preview-page-label {
+    min-width: 4rem;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 800;
+  }
+  .media-preview-pdf-page {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    margin: 0 auto 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    background: white;
+  }
+  .media-preview-fallback {
+    margin: 0.85rem 0 0;
+    text-align: center;
+  }
+</style>
+
+<section class="panel">
+  <h2>Uploaded File</h2>
+  <div
+    class="media-preview-panel"
+    data-media-preview="true"
+    data-media-url="{{ media_preview.url }}"
+    data-media-type="{{ media_preview.media_type }}"
+    data-media-filename="{{ media_preview.filename }}"
+  >
+    <p class="media-preview-status" aria-live="polite">Loading preview...</p>
+    <img class="media-preview-image" alt="Preview of {{ media_preview.filename }}" hidden>
+    <div class="media-preview-canvas"></div>
+    <p class="media-preview-fallback">
+      <a href="{{ media_preview.url }}" target="_blank" rel="noopener noreferrer">Open original file</a>
+    </p>
+  </div>
+</section>
+
+<script type="module">
+  (() => {
+    const panel = document.querySelector("[data-media-preview='true']");
+    if (!panel) {
+      return;
+    }
+
+    const mediaUrl = panel.dataset.mediaUrl;
+    const mediaType = panel.dataset.mediaType || "";
+    const filename = panel.dataset.mediaFilename || "uploaded file";
+    const status = panel.querySelector(".media-preview-status");
+    const image = panel.querySelector(".media-preview-image");
+    const canvasHost = panel.querySelector(".media-preview-canvas");
+
+    function setStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
+    function showFallback(message) {
+      if (canvasHost) {
+        canvasHost.innerHTML = "";
+      }
+      if (image) {
+        image.hidden = true;
+        image.removeAttribute("src");
+      }
+      setStatus(message);
+    }
+
+    async function renderPdf(pdfjsLib) {
+      if (!canvasHost) {
+        return;
+      }
+      canvasHost.innerHTML = "";
+
+      const loadingTask = pdfjsLib.getDocument({
+        url: mediaUrl,
+        standardFontDataUrl: "/app-assets/js/standard_fonts/",
+      });
+      const pdf = await loadingTask.promise;
+      let currentPage = 1;
+      const totalPages = pdf.numPages;
+
+      const controls = document.createElement("div");
+      controls.className = "media-preview-controls";
+
+      const prevButton = document.createElement("button");
+      prevButton.type = "button";
+      prevButton.textContent = "Prev";
+
+      const pageLabel = document.createElement("span");
+      pageLabel.className = "media-preview-page-label";
+
+      const nextButton = document.createElement("button");
+      nextButton.type = "button";
+      nextButton.textContent = "Next";
+
+      controls.appendChild(prevButton);
+      controls.appendChild(pageLabel);
+      controls.appendChild(nextButton);
+      canvasHost.appendChild(controls);
+
+      const canvas = document.createElement("canvas");
+      canvas.className = "media-preview-pdf-page";
+      const context = canvas.getContext("2d");
+      canvasHost.appendChild(canvas);
+
+      async function renderPage(pageNumber) {
+        const page = await pdf.getPage(pageNumber);
+        const viewport = page.getViewport({ scale: 1 });
+        const hostWidth = Math.max(280, (canvasHost.clientWidth || viewport.width) - 4);
+        const scale = hostWidth / viewport.width;
+        const scaledViewport = page.getViewport({ scale });
+
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+        pageLabel.textContent = `${pageNumber}/${totalPages}`;
+        prevButton.disabled = pageNumber <= 1;
+        nextButton.disabled = pageNumber >= totalPages;
+
+        await page.render({
+          canvasContext: context,
+          viewport: scaledViewport,
+        }).promise;
+      }
+
+      prevButton.addEventListener("click", async () => {
+        if (currentPage <= 1) {
+          return;
+        }
+        currentPage -= 1;
+        await renderPage(currentPage);
+      });
+
+      nextButton.addEventListener("click", async () => {
+        if (currentPage >= totalPages) {
+          return;
+        }
+        currentPage += 1;
+        await renderPage(currentPage);
+      });
+
+      await renderPage(currentPage);
+      setStatus(`Previewing ${filename}`);
+    }
+
+    async function renderPreview() {
+      if (mediaType.startsWith("image/") && image) {
+        image.src = mediaUrl;
+        image.hidden = false;
+        setStatus(`Previewing ${filename}`);
+        return;
+      }
+
+      if (mediaType === "application/pdf") {
+        try {
+          const pdfjsLib = await import("/app-assets/js/pdf.mjs");
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "/app-assets/js/pdf.worker.mjs";
+          await renderPdf(pdfjsLib);
+        } catch (error) {
+          console.error("PDF preview error", error);
+          showFallback("PDF preview unavailable in this browser.");
+        }
+        return;
+      }
+
+      showFallback("No preview is available for this file type.");
+    }
+
+    renderPreview();
+  })();
+</script>
+{% endif %}

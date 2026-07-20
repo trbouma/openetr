@@ -15,6 +15,7 @@ pyyaml = "^6.0.2"
 mnemonic = "^0.21"
 pydantic = "^2.11.7"
 btclib = "^2023.7.12"
+qrcode = {extras = ["pil"], version = "^8.2"}
 
 [tool.poetry.scripts]
 openetr = "openetr.cli:main"

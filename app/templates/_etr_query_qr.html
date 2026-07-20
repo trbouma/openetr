@@ -1,0 +1,49 @@
+{% if public_query_url and public_query_qr_url %}
+<style>
+  .etr-query-share {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 11rem;
+    gap: 1rem;
+    align-items: center;
+  }
+  .etr-query-share img {
+    width: 11rem;
+    height: 11rem;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    background: white;
+    padding: 0.65rem;
+    box-sizing: border-box;
+  }
+  .etr-query-share p {
+    margin: 0.35rem 0;
+  }
+  .etr-query-share-url {
+    display: block;
+    margin-top: 0.65rem;
+  }
+  @media (max-width: 640px) {
+    .etr-query-share {
+      grid-template-columns: 1fr;
+    }
+    .etr-query-share img {
+      width: min(100%, 14rem);
+      height: auto;
+      justify-self: center;
+    }
+  }
+</style>
+
+<section class="panel">
+  <h2>Scan To Query</h2>
+  <div class="etr-query-share">
+    <div>
+      <p class="muted">Scan this code to query the OpenETR record from another device.</p>
+      <a class="mono etr-query-share-url" href="{{ public_query_url }}">{{ public_query_url }}</a>
+    </div>
+    <a href="{{ public_query_qr_url }}" aria-label="Open QR code image">
+      <img src="{{ public_query_qr_url }}" alt="QR code for {{ public_query_url }}">
+    </a>
+  </div>
+</section>
+{% endif %}

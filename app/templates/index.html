@@ -376,6 +376,7 @@
           </p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <label>
               Relay domains or URLs
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org, relay.damus.io">
@@ -491,6 +492,7 @@
           </p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <input type="text" name="relays" value="{{ default_relays }}">
             <button type="submit">Query ETR Records</button>
           </form>
@@ -503,6 +505,7 @@
           </p>
           <form action="/api/issue-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <label>
               Relay domains or URLs
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org, relay.damus.io">
