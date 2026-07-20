@@ -80,6 +80,7 @@ MEDIA_PREVIEW_DIR = Path(tempfile.gettempdir()) / "openetr-media-previews"
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 APP_ASSETS_DIR = Path(__file__).parent / "assets"
+QR_LOGO_PATH = ASSETS_DIR / "images" / "openetr.png"
 
 app = FastAPI(
     title=APP_TITLE,
@@ -157,6 +158,40 @@ def qr_context_for_digest(request: Request, digest: str) -> dict[str, str]:
         "public_query_url": public_etr_url(request, digest),
         "public_query_qr_url": f"/etr/qr/{digest}",
     }
+
+
+def branded_qr_image(qr_text: str, logo_path: Path = QR_LOGO_PATH):
+    import qrcode
+    from PIL import Image, ImageDraw
+
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=12,
+        border=4,
+    )
+    qr.add_data(qr_text)
+    qr.make(fit=True)
+    image = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
+
+    if not logo_path.exists():
+        return image
+
+    logo = Image.open(logo_path).convert("RGBA")
+    logo_size = max(1, int(image.size[0] * 0.18))
+    resampling = getattr(Image, "Resampling", Image).LANCZOS
+    logo.thumbnail((logo_size, logo_size), resampling)
+
+    padding = max(6, int(logo_size * 0.18))
+    badge_size = (logo.size[0] + padding * 2, logo.size[1] + padding * 2)
+    badge = Image.new("RGBA", badge_size, (255, 255, 255, 0))
+    draw = ImageDraw.Draw(badge)
+    radius = max(8, int(badge_size[0] * 0.18))
+    draw.rounded_rectangle((0, 0, badge_size[0] - 1, badge_size[1] - 1), radius=radius, fill="white")
+    badge.alpha_composite(logo, (padding, padding))
+
+    position = ((image.size[0] - badge.size[0]) // 2, (image.size[1] - badge.size[1]) // 2)
+    image.alpha_composite(badge, position)
+    return image.convert("RGB")
 
 
 def remove_stale_media_previews(now: float | None = None) -> None:
@@ -1123,12 +1158,13 @@ def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
     except click.ClickException as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     try:
-        import qrcode
+        import qrcode  # noqa: F401
+        import PIL  # noqa: F401
     except ImportError as exc:
         raise HTTPException(status_code=503, detail="QR code support is not installed.") from exc
     # The image path accepts only the digest; the QR payload is the full query URL.
     qr_text = public_etr_url(request, object_digest)
-    image = qrcode.make(qr_text)
+    image = branded_qr_image(qr_text)
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
     buffer.seek(0)
