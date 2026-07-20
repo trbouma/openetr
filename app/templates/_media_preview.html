@@ -68,7 +68,7 @@
 </style>
 
 <section class="panel">
-  <h2>Uploaded File</h2>
+  <h2>{% if media_preview.source == "blossom" %}Retrieved Document{% else %}Uploaded File{% endif %}</h2>
   <div
     class="media-preview-panel"
     data-media-preview="true"

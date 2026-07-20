@@ -1,0 +1,13 @@
+{% if blossom_storage %}
+<section class="panel">
+  <h2>Document Storage</h2>
+  <div class="kv">
+    <div class="muted">Status</div>
+    <div>{{ blossom_storage.message }}</div>
+    {% if blossom_storage.stored and blossom_storage.url %}
+    <div class="muted">Blob URL</div>
+    <div><a class="mono" href="{{ blossom_storage.url }}">{{ blossom_storage.url }}</a></div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

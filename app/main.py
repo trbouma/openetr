@@ -1,7 +1,10 @@
 import asyncio
+import base64
 from contextlib import contextmanager
+from dataclasses import dataclass
 import hashlib
 import io
+import json
 import mimetypes
 import os
 from pathlib import Path
@@ -10,6 +13,8 @@ import secrets
 import tempfile
 import time
 from typing import Any
+import urllib.error
+import urllib.request
 
 import bech32
 import click
@@ -17,6 +22,7 @@ from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request,
 from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from monstr.encrypt import Keys
+from monstr.event.event import Event
 from starlette.staticfiles import StaticFiles
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_wallet_material, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input, fetch_blockstream_wallet_balance_sats
@@ -53,6 +59,9 @@ MEDIA_PREVIEW_EXTENSIONS = {
     "image/png": ".png",
     "image/webp": ".webp",
 }
+BLOSSOM_DEFAULT_SERVER = "https://blossom.getsafebox.app"
+BLOSSOM_AUTH_KIND = 24242
+BLOSSOM_AUTH_TTL_SECONDS = 5 * 60
 
 
 def read_runtime_value(name: str, default: str | None = None) -> str | None:
@@ -76,6 +85,8 @@ FRIGATE_PORT = int(read_runtime_value("OPENETR_FRIGATE_PORT", "50002" if FRIGATE
 FRIGATE_TIMEOUT = float(read_runtime_value("OPENETR_FRIGATE_TIMEOUT", "120") or "120")
 MAX_UPLOAD_BYTES = int(read_runtime_value("OPENETR_MAX_UPLOAD_BYTES", str(DEFAULT_MAX_UPLOAD_BYTES)) or str(DEFAULT_MAX_UPLOAD_BYTES))
 PUBLIC_BASE_URL = (read_runtime_value("OPENETR_PUBLIC_BASE_URL") or "").rstrip("/")
+BLOSSOM_SERVER = (read_runtime_value("OPENETR_BLOSSOM_SERVER", BLOSSOM_DEFAULT_SERVER) or BLOSSOM_DEFAULT_SERVER).rstrip("/")
+BLOSSOM_TIMEOUT_SECONDS = float(read_runtime_value("OPENETR_BLOSSOM_TIMEOUT_SECONDS", "20") or "20")
 MEDIA_PREVIEW_DIR = Path(tempfile.gettempdir()) / "openetr-media-previews"
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
@@ -244,12 +255,198 @@ def preview_media_type(filename: str, declared_type: str | None, first_chunk: by
     return None
 
 
+@dataclass
+class UploadedFileInfo:
+    filename: str
+    size_bytes: int
+    digest: str
+    media_preview: dict[str, str] | None
+    content: bytes | None = None
+    media_type: str | None = None
+
+
+def parse_optional_checkbox(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def blossom_blob_url(digest: str, server: str = BLOSSOM_SERVER) -> str:
+    return f"{server.rstrip('/')}/{digest}"
+
+
+def blossom_upload_url(server: str = BLOSSOM_SERVER) -> str:
+    return f"{server.rstrip('/')}/upload"
+
+
+def blossom_upload_auth_header(*, signer_nsec: str, digest: str) -> str:
+    keys = resolve_keys(signer_nsec)
+    expires_at = int(time.time()) + BLOSSOM_AUTH_TTL_SECONDS
+    event = Event(
+        kind=BLOSSOM_AUTH_KIND,
+        content="Authorize OpenETR document upload",
+        pub_key=keys.public_key_hex(),
+        tags=[
+            ["t", "upload"],
+            ["x", digest],
+            ["expiration", str(expires_at)],
+        ],
+    )
+    event.sign(keys.private_key_hex())
+    token = base64.b64encode(
+        json.dumps(event.data(), separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ).decode("ascii")
+    return f"Nostr {token}"
+
+
+def blossom_head_exists(digest: str, server: str = BLOSSOM_SERVER) -> bool:
+    request = urllib.request.Request(blossom_blob_url(digest, server), method="HEAD")
+    try:
+        with urllib.request.urlopen(request, timeout=BLOSSOM_TIMEOUT_SECONDS) as response:
+            return 200 <= response.status < 300
+    except urllib.error.HTTPError as exc:
+        if exc.code in {404, 405}:
+            return False
+        raise
+
+
+def blossom_fetch_bytes(digest: str, server: str = BLOSSOM_SERVER) -> tuple[bytes, str | None]:
+    request = urllib.request.Request(blossom_blob_url(digest, server), method="GET")
+    with urllib.request.urlopen(request, timeout=BLOSSOM_TIMEOUT_SECONDS) as response:
+        if not 200 <= response.status < 300:
+            raise RuntimeError(f"Blossom fetch failed with HTTP {response.status}")
+        content = response.read(MAX_UPLOAD_BYTES + 1)
+        if len(content) > MAX_UPLOAD_BYTES:
+            raise RuntimeError(f"Blossom blob exceeds the {upload_limit_label()} preview limit")
+        media_type = response.headers.get_content_type()
+    if hashlib.sha256(content).hexdigest() != digest:
+        raise RuntimeError("Blossom blob digest did not match the requested object digest")
+    return content, media_type
+
+
+async def blossom_media_preview_for_digest(digest: str) -> dict[str, str] | None:
+    try:
+        content, declared_type = await asyncio.to_thread(blossom_fetch_bytes, digest)
+    except Exception:
+        return None
+    media_type = preview_media_type(f"OpenETR object {digest}", declared_type, content[:UPLOAD_READ_CHUNK_BYTES])
+    if not media_type:
+        return None
+    return {
+        "url": f"/etr/blob/{digest}",
+        "filename": f"OpenETR object {format_object_identifier(digest)}",
+        "media_type": media_type,
+        "kind": "pdf" if media_type == "application/pdf" else "image",
+        "source": "blossom",
+    }
+
+
+def blossom_upload_bytes(
+    *,
+    content: bytes,
+    digest: str,
+    media_type: str | None,
+    filename: str,
+    signer_nsec: str,
+    server: str = BLOSSOM_SERVER,
+) -> dict[str, Any]:
+    if hashlib.sha256(content).hexdigest() != digest:
+        raise ValueError("uploaded content digest does not match expected digest")
+
+    headers = {
+        "Authorization": blossom_upload_auth_header(signer_nsec=signer_nsec, digest=digest),
+        "Content-Type": media_type or "application/octet-stream",
+        "Content-Length": str(len(content)),
+        "X-SHA-256": digest,
+        "X-Content-SHA256": digest,
+    }
+    if filename:
+        headers["X-Filename"] = filename
+
+    if blossom_head_exists(digest, server):
+        return {
+            "stored": True,
+            "already_present": True,
+            "server": server,
+            "url": blossom_blob_url(digest, server),
+            "message": "Stored on Blossom.",
+        }
+
+    request = urllib.request.Request(
+        blossom_upload_url(server),
+        data=content,
+        headers=headers,
+        method="PUT",
+    )
+    with urllib.request.urlopen(request, timeout=BLOSSOM_TIMEOUT_SECONDS) as response:
+        response_body = response.read()
+        if not 200 <= response.status < 300:
+            raise RuntimeError(f"Blossom upload failed with HTTP {response.status}")
+
+    descriptor: dict[str, Any] = {}
+    if response_body:
+        try:
+            parsed = json.loads(response_body.decode("utf-8"))
+            if isinstance(parsed, dict):
+                descriptor = parsed
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            descriptor = {}
+
+    if not blossom_head_exists(digest, server):
+        raise RuntimeError("Blossom upload completed, but the blob was not retrievable by digest")
+
+    return {
+        "stored": True,
+        "already_present": False,
+        "server": server,
+        "url": blossom_blob_url(digest, server),
+        "descriptor": descriptor,
+        "message": "Stored on Blossom.",
+    }
+
+
+async def maybe_store_on_blossom(
+    upload: UploadedFileInfo,
+    should_store: bool,
+    *,
+    signer_nsec: str | None,
+) -> dict[str, Any] | None:
+    if not should_store:
+        return None
+    if not signer_nsec:
+        return {
+            "stored": False,
+            "server": BLOSSOM_SERVER,
+            "message": "Blossom storage requires an issuing signer.",
+        }
+    if upload.content is None:
+        return {
+            "stored": False,
+            "server": BLOSSOM_SERVER,
+            "message": "Blossom storage was requested, but the uploaded bytes were not retained.",
+        }
+    try:
+        return await asyncio.to_thread(
+            blossom_upload_bytes,
+            content=upload.content,
+            digest=upload.digest,
+            media_type=upload.media_type,
+            filename=upload.filename,
+            signer_nsec=signer_nsec,
+        )
+    except Exception as exc:
+        return {
+            "stored": False,
+            "server": BLOSSOM_SERVER,
+            "message": f"Blossom storage failed: {exc}",
+        }
+
+
 async def hash_uploaded_file(
     file: UploadFile,
     *,
     default_filename: str = "upload",
     max_bytes: int = MAX_UPLOAD_BYTES,
-) -> tuple[str, int, str, dict[str, str] | None]:
+    retain_content: bool = False,
+) -> UploadedFileInfo:
     filename = file.filename or default_filename
     size_bytes = 0
     file_hash = hashlib.sha256()
@@ -257,6 +454,8 @@ async def hash_uploaded_file(
     preview_file = None
     preview_path = None
     media_preview = None
+    media_type = preview_media_type(filename, file.content_type, None)
+    retained_chunks: list[bytes] = []
 
     try:
         while True:
@@ -287,6 +486,8 @@ async def hash_uploaded_file(
                     detail=f"Uploaded file exceeds the {upload_limit_label(max_bytes)} limit.",
                 )
             file_hash.update(chunk)
+            if retain_content:
+                retained_chunks.append(chunk)
             if preview_file is not None:
                 preview_file.write(chunk)
     except Exception:
@@ -302,7 +503,14 @@ async def hash_uploaded_file(
         if preview_file is not None:
             preview_file.close()
 
-    return filename, size_bytes, file_hash.hexdigest(), media_preview
+    return UploadedFileInfo(
+        filename=filename,
+        size_bytes=size_bytes,
+        digest=file_hash.hexdigest(),
+        media_preview=media_preview,
+        content=b"".join(retained_chunks) if retain_content else None,
+        media_type=media_type,
+    )
 
 
 def short_id(value: str | None, head: int = 12, tail: int = 8) -> str:
@@ -983,6 +1191,7 @@ async def render_warehouse_receipt_result(
     control_result: dict[str, Any] | None = None,
     success_message: str | None = None,
     media_preview: dict[str, str] | None = None,
+    blossom_storage: dict[str, Any] | None = None,
 ):
     return templates.TemplateResponse(
         request,
@@ -1003,13 +1212,14 @@ async def render_warehouse_receipt_result(
             "control_result": control_result,
             "success_message": success_message,
             "media_preview": media_preview,
+            "blossom_storage": blossom_storage,
             **qr_context_for_digest(request, digest),
         },
     )
 
 
-async def read_uploaded_receipt(file: UploadFile) -> tuple[str, int, str, dict[str, str] | None]:
-    return await hash_uploaded_file(file, default_filename="warehouse-receipt")
+async def read_uploaded_receipt(file: UploadFile, *, retain_content: bool = False) -> UploadedFileInfo:
+    return await hash_uploaded_file(file, default_filename="warehouse-receipt", retain_content=retain_content)
 
 
 def parse_optional_force(value: str | None) -> bool:
@@ -1109,6 +1319,26 @@ async def public_etr_query_qr(request: Request, digest: str):
     return render_etr_query_qr(request, digest)
 
 
+@app.get("/etr/blob/{digest}", include_in_schema=False)
+async def public_etr_blossom_blob(digest: str):
+    try:
+        object_digest = assert_hex_object_identifier(digest.strip())
+        content, declared_type = await asyncio.to_thread(blossom_fetch_bytes, object_digest)
+    except Exception as exc:
+        raise HTTPException(status_code=404, detail=f"Verified Blossom blob not found: {exc}") from exc
+    media_type = preview_media_type(f"OpenETR object {object_digest}", declared_type, content[:UPLOAD_READ_CHUNK_BYTES])
+    if not media_type:
+        raise HTTPException(status_code=415, detail="Blossom blob is not a supported preview media type.")
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=media_type,
+        headers={
+            "Cache-Control": "no-store",
+            "Content-Disposition": "inline",
+        },
+    )
+
+
 @app.get("/etr/{digest}")
 async def public_etr_lookup(
     request: Request,
@@ -1131,6 +1361,7 @@ async def public_etr_lookup(
         relays=validated_relays,
         author_pubkey_hex=identity.get("pubkey_hex"),
     )
+    media_preview = await blossom_media_preview_for_digest(object_digest)
     return templates.TemplateResponse(
         request,
         "query_etr_result.html",
@@ -1146,7 +1377,7 @@ async def public_etr_lookup(
             "object_id": format_object_identifier(object_digest),
             "relays": validated_relays,
             "query": query_context,
-            "media_preview": None,
+            "media_preview": media_preview,
             **qr_context_for_digest(request, object_digest),
         },
     )
@@ -1208,7 +1439,7 @@ async def warehouse_receipts_query(
         )
 
     try:
-        filename, size_bytes, digest, media_preview = await read_uploaded_receipt(file)
+        upload = await read_uploaded_receipt(file)
     except HTTPException as exc:
         return await render_warehouse_receipts_page(
             request,
@@ -1217,19 +1448,19 @@ async def warehouse_receipts_query(
             status_code=exc.status_code,
         )
     query_context = await build_query_etr_result(
-        digest=digest,
+        digest=upload.digest,
         relays=validated_relays,
         author_pubkey_hex=identity.get("pubkey_hex"),
     )
     return await render_warehouse_receipt_result(
         request,
         identity,
-        filename=filename,
-        size_bytes=size_bytes,
-        digest=digest,
+        filename=upload.filename,
+        size_bytes=upload.size_bytes,
+        digest=upload.digest,
         relays=validated_relays,
         query_context=query_context,
-        media_preview=media_preview,
+        media_preview=upload.media_preview,
     )
 
 
@@ -1241,8 +1472,10 @@ async def warehouse_receipts_issue(
     receipt_reference: str = Form(""),
     goods_description: str = Form(""),
     force: str | None = Form(None),
+    store_upload: str | None = Form(None),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
+    should_store_upload = parse_optional_checkbox(store_upload)
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
     except (click.ClickException, ControlEventError) as exc:
@@ -1270,7 +1503,7 @@ async def warehouse_receipts_issue(
         )
 
     try:
-        filename, size_bytes, digest, media_preview = await read_uploaded_receipt(file)
+        upload = await read_uploaded_receipt(file, retain_content=should_store_upload)
     except HTTPException as exc:
         return await render_warehouse_receipts_page(
             request,
@@ -1280,7 +1513,7 @@ async def warehouse_receipts_issue(
         )
     guard = await evaluate_issue_etr_guard(
         relays=validated_relays,
-        digest=digest,
+        digest=upload.digest,
         author_pubkey_hex=identity["pubkey_hex"],
         query_timeout=DEFAULT_QUERY_TIMEOUT,
         limit=DEFAULT_LIMIT,
@@ -1295,6 +1528,11 @@ async def warehouse_receipts_issue(
             ),
             status_code=400,
         )
+    blossom_storage = await maybe_store_on_blossom(
+        upload,
+        should_store_upload,
+        signer_nsec=identity["nsec"],
+    )
 
     extra_tags = [
         ["domain", "mlwr"],
@@ -1306,12 +1544,12 @@ async def warehouse_receipts_issue(
         extra_tags.append(["record_description", goods_description.strip()])
 
     issue_result = await publish_issue_etr(
-        filename=filename,
-        size_bytes=size_bytes,
-        digest=digest,
+        filename=upload.filename,
+        size_bytes=upload.size_bytes,
+        digest=upload.digest,
         relays=validated_relays,
         signer_nsec=identity["nsec"],
-        comment=f"Issued warehouse receipt {receipt_reference.strip() or filename}",
+        comment=f"Issued warehouse receipt {receipt_reference.strip() or upload.filename}",
         extra_tags=extra_tags,
     )
     query_context = await build_query_etr_result(
@@ -1329,7 +1567,8 @@ async def warehouse_receipts_issue(
         query_context=query_context,
         issue_result=issue_result,
         success_message="Warehouse receipt origin event published through the general OpenETR issue service.",
-        media_preview=media_preview,
+        media_preview=upload.media_preview,
+        blossom_storage=blossom_storage,
     )
 
 
@@ -3063,14 +3302,14 @@ async def bitcoin_send_broadcast(
 
 @app.post("/api/nobj-from-upload")
 async def nobj_from_upload(request: Request, file: UploadFile = File(...)) -> dict[str, Any]:
-    filename, size_bytes, digest, media_preview = await hash_uploaded_file(file)
-    query_share = qr_context_for_digest(request, digest)
+    upload = await hash_uploaded_file(file)
+    query_share = qr_context_for_digest(request, upload.digest)
     return {
-        "filename": filename,
-        "size_bytes": size_bytes,
-        "sha256": digest,
-        "nobj": digest_to_nobj(digest),
-        "media_preview": media_preview,
+        "filename": upload.filename,
+        "size_bytes": upload.size_bytes,
+        "sha256": upload.digest,
+        "nobj": digest_to_nobj(upload.digest),
+        "media_preview": upload.media_preview,
         **query_share,
     }
 
@@ -3112,13 +3351,13 @@ async def query_etr_from_upload(
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     try:
-        filename, size_bytes, digest, media_preview = await hash_uploaded_file(file)
+        upload = await hash_uploaded_file(file)
     except HTTPException as exc:
         template_context = await get_default_template_context(identity)
         template_context["error_message"] = str(exc.detail)
         return templates.TemplateResponse(request, "index.html", template_context, status_code=exc.status_code)
     query_context = await build_query_etr_result(
-        digest=digest,
+        digest=upload.digest,
         relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
@@ -3131,14 +3370,14 @@ async def query_etr_from_upload(
             "git_commit": GIT_COMMIT,
             "identity": identity,
             "available_profiles": await get_available_profiles(identity),
-            "filename": filename,
-            "size_bytes": size_bytes,
-            "sha256": digest,
-            "object_id": format_object_identifier(digest),
+            "filename": upload.filename,
+            "size_bytes": upload.size_bytes,
+            "sha256": upload.digest,
+            "object_id": format_object_identifier(upload.digest),
             "relays": validated_relays,
             "query": query_context,
-            "media_preview": media_preview,
-            **qr_context_for_digest(request, digest),
+            "media_preview": upload.media_preview,
+            **qr_context_for_digest(request, upload.digest),
         },
     )
 
@@ -3152,8 +3391,10 @@ async def issue_etr_from_upload(
     file_digest: str = Form(""),
     file_name: str = Form(""),
     file_size: int = Form(0),
+    store_upload: str | None = Form(None),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
+    should_store_upload = parse_optional_checkbox(store_upload)
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
     except (click.ClickException, ControlEventError) as exc:
@@ -3174,11 +3415,16 @@ async def issue_etr_from_upload(
     confirmation = request.query_params.get("confirm") == "true"
     if file is not None:
         try:
-            filename, size_bytes, digest, media_preview = await hash_uploaded_file(file)
+            upload = await hash_uploaded_file(file, retain_content=should_store_upload)
         except HTTPException as exc:
             template_context = await get_default_template_context(identity)
             template_context["error_message"] = str(exc.detail)
             return templates.TemplateResponse(request, "index.html", template_context, status_code=exc.status_code)
+        filename = upload.filename
+        size_bytes = upload.size_bytes
+        digest = upload.digest
+        media_preview = upload.media_preview
+        blossom_storage = None
     else:
         if not confirmation or not file_digest or not file_name or file_size <= 0:
             template_context = await get_default_template_context(identity)
@@ -3188,6 +3434,7 @@ async def issue_etr_from_upload(
         filename = file_name
         size_bytes = file_size
         media_preview = None
+        blossom_storage = None
 
     guard = await evaluate_issue_etr_guard(
         relays=validated_relays,
@@ -3226,6 +3473,12 @@ async def issue_etr_from_upload(
                 "existing_issuer_profile": existing_issuer_profile,
             },
         )
+    if file is not None:
+        blossom_storage = await maybe_store_on_blossom(
+            upload,
+            should_store_upload,
+            signer_nsec=identity["nsec"],
+        )
 
     issue_result = await publish_issue_etr(
         filename=filename,
@@ -3257,6 +3510,7 @@ async def issue_etr_from_upload(
             "query": query_context,
             "issue_result": issue_result,
             "media_preview": media_preview,
+            "blossom_storage": blossom_storage,
             **qr_context_for_digest(request, issue_result["sha256"]),
         },
     )

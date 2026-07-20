@@ -380,6 +380,10 @@
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <label>
+              <input type="checkbox" name="store_upload" value="true">
+              Store uploaded file for future QR lookups
+            </label>
+            <label>
               Receipt reference
               <input type="text" name="receipt_reference" placeholder="MLWR001">
             </label>
