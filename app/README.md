@@ -49,7 +49,7 @@ Uploads are limited to 10 MiB by default. Set `OPENETR_MAX_UPLOAD_BYTES` to over
 
 When the uploaded file is a PDF or supported image, the result page also shows an inline preview. Preview files are temporary, tokenized, served with `Cache-Control: no-store`, and cleaned up after one hour. PDFs render through the bundled PDF.js assets under `app/assets/js`.
 
-Result pages include a QR code for public digest lookup. The QR image is served from `/etr/qr/<digest>` as PNG data, and it encodes `<request-base-url>/etr/<digest>` only; the app uses its configured default relays when that URL is opened. Set `OPENETR_PUBLIC_BASE_URL` only when deployment should force a different public base URL than the incoming request host.
+Result pages include a QR code for public digest lookup. The QR image is served from `/etr/qr/<digest>` as PNG data, and it encodes `<request-base-url>/etr/<digest>` only; the app uses its configured default relays when that URL is opened. The request base URL honors `Forwarded`, `X-Forwarded-Proto`, and `X-Forwarded-Host` headers for TLS reverse proxy deployments. Set `OPENETR_PUBLIC_BASE_URL` only when deployment should force a different public base URL than the incoming request host.
 
 The result page includes the same categories of information shown by the CLI:
 

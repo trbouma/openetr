@@ -115,7 +115,32 @@ def upload_limit_label(max_bytes: int = MAX_UPLOAD_BYTES) -> str:
     return f"{mib:.1f} MiB"
 
 
+def forwarded_header_value(header_value: str, key: str) -> str | None:
+    first_forwarded = header_value.split(",", 1)[0]
+    for item in first_forwarded.split(";"):
+        name, separator, value = item.strip().partition("=")
+        if separator and name.lower() == key:
+            return value.strip().strip('"')
+    return None
+
+
 def request_base_url(request: Request) -> str:
+    forwarded = request.headers.get("forwarded", "")
+    forwarded_proto = forwarded_header_value(forwarded, "proto") if forwarded else None
+    forwarded_host = forwarded_header_value(forwarded, "host") if forwarded else None
+    scheme = (
+        forwarded_proto
+        or request.headers.get("x-forwarded-proto", "").split(",", 1)[0].strip()
+        or request.url.scheme
+    )
+    host = (
+        forwarded_host
+        or request.headers.get("x-forwarded-host", "").split(",", 1)[0].strip()
+        or request.headers.get("host", "").strip()
+        or request.url.netloc
+    )
+    if host:
+        return f"{scheme}://{host}".rstrip("/")
     return str(request.base_url).rstrip("/")
 
 
