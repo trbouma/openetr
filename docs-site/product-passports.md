@@ -15,6 +15,12 @@ In this domain:
 
 The Product Passport itself may be a PDF, image, JSON document, data bundle, credential, registry export, or another canonical artifact. OpenETR does not need to parse it before it can identify the artifact by digest and record control-relevant evidence.
 
+## Requirements Mapping
+
+A working Digital Product Passport requirements overview is available at [Product Passport Requirements Mapping](product-passport-requirements.md).
+
+The mapping is intentionally incomplete so each requirement can be reviewed before project evidence, gaps, and recognition-boundary notes are filled in.
+
 ## Current App Surface
 
 The live Product Passports workspace is:

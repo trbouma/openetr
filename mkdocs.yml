@@ -53,10 +53,11 @@ nav:
           - Control Actions: control-actions.md
           - Identity Model: identity-model.md
           - Verifier Policy: verifier-policy.md
-          - Article Mapping: article-mapping.md
+          - Article Mapping: mlwr-article-mapping.md
           - Domain Architecture: architecture.md
       - Product Passports:
           - Overview: product-passports.md
+          - Requirements Mapping: product-passport-requirements.md
       - Health Records:
           - Overview: health-records.md
       - Apostille Documents:

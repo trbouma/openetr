@@ -1,6 +1,10 @@
 # MLWR Article Mapping
 
-The MLWR article mapping tracks how OpenETR supports, complements, or leaves room for Model Law on Warehouse Receipts requirements.
+The MLWR article mapping tracks how OpenETR evidence could be recognized under, or given effect by, Model Law on Warehouse Receipts requirements.
+
+The mapping is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they are closely mapped to protocol evidence such as object digests, signed control records, current-controller derivation, attestations, and verifier policy output.
+
+OpenETR can show what was signed, linked, retrieved, transferred, pledged, discharged, presented, or terminated. MLWR-style law, registry rules, contracts, institutional policy, courts, and verifiers decide what legal or operational effect follows.
 
 ## How To Read The Mapping
 
@@ -8,8 +12,8 @@ The mapping distinguishes between:
 
 | Category | Meaning |
 | --- | --- |
-| Directly supported | OpenETR provides protocol or implementation behavior that supports the article. |
-| Supported by adapter | The Warehouse Receipts workspace uses domain language or workflow mapping that supports the article. |
+| Protocol evidence | OpenETR provides digest, signature, event, graph, or verification evidence relevant to the article. |
+| Supported by adapter | The Warehouse Receipts workspace uses domain language or workflow mapping that helps present that evidence. |
 | Recognition / effect | OpenETR can provide evidence, but legal effect depends on law, registry, policy, or verifier recognition. |
 | Gap / design note | More design work is needed. |
 
