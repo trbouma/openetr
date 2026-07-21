@@ -45,11 +45,13 @@ Then open:
 
 The current demo app renders an OpenETR `query-etr` style result page from an uploaded file digest.
 
+In app terminology, the uploaded receipt or document is the **Controlled Object**. Each signed OpenETR origin or control event is a **control record** for that object. The linked history reconstructed from those records is the object's **control graph**.
+
 Uploads are limited to 10 MiB by default. Set `OPENETR_MAX_UPLOAD_BYTES` to override the limit for a deployment.
 
 When the uploaded file is a PDF or supported image, the result page also shows an inline preview. Preview files are temporary, tokenized, served with `Cache-Control: no-store`, and cleaned up after one hour. PDFs render through the bundled PDF.js assets under `app/assets/js`.
 
-Issue upload forms can optionally store the raw uploaded file on the app-managed Blossom server so later QR lookups can retrieve the document by digest. Blossom uploads are authorized with a short-lived signed Nostr event from the issuing signer. The default Blossom server is `https://blossom.getsafebox.app`. Set `OPENETR_BLOSSOM_SERVER` to use a different server, and `OPENETR_BLOSSOM_TIMEOUT_SECONDS` to adjust storage request timeouts. Public digest lookup pages verify Blossom bytes against the requested SHA-256 digest before rendering supported PDFs or images.
+Create-control-record upload forms can optionally store the raw uploaded file on the app-managed Blossom server so later QR lookups can retrieve the document by digest. Blossom uploads are authorized with a short-lived signed Nostr event from the profile signer. The default Blossom server is `https://blossom.getsafebox.app`. Set `OPENETR_BLOSSOM_SERVER` to use a different server, and `OPENETR_BLOSSOM_TIMEOUT_SECONDS` to adjust storage request timeouts. Public digest lookup pages verify Blossom bytes against the requested SHA-256 digest before rendering supported PDFs or images.
 
 Result pages include a branded QR code for public digest lookup. The QR image is served from `/etr/qr/<digest>` as PNG data, and it encodes `<request-base-url>/etr/<digest>` only; the app uses its configured default relays when that URL is opened. The request base URL honors `Forwarded`, `X-Forwarded-Proto`, and `X-Forwarded-Host` headers for TLS reverse proxy deployments. Set `OPENETR_PUBLIC_BASE_URL` only when deployment should force a different public base URL than the incoming request host.
 

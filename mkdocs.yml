@@ -1,5 +1,5 @@
-site_name: MLWR Control Desk
-site_description: Domain documentation for the OpenETR MLWR warehouse receipt control desk.
+site_name: OpenETR
+site_description: Documentation for OpenETR and its domain workspaces for Warehouse Receipts and Product Passports.
 site_url: https://trbouma.github.io/openetr/
 repo_url: https://github.com/trbouma/openetr
 repo_name: trbouma/openetr
@@ -39,15 +39,6 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - MLWR Control Desk:
-      - Live Control Desk: https://openetr.org
-      - Using The App: getting-started.md
-      - Issuing Receipts: issuing-receipts.md
-      - Control Actions: control-actions.md
-      - Identity Model: identity-model.md
-      - Verifier Policy: verifier-policy.md
-      - Article Mapping: article-mapping.md
-      - Domain Architecture: architecture.md
   - OpenETR:
       - Overview: openetr/index.md
       - Control Layer: openetr/control-layer.md
@@ -55,7 +46,19 @@ nav:
       - Component And CLI: openetr/component-and-cli.md
       - Integration Model: openetr/integration.md
       - Recognition Boundary: openetr/recognition.md
+  - Domains:
+      - Warehouse Receipts:
+          - Overview: getting-started.md
+          - Creating Control Records: issuing-receipts.md
+          - Control Actions: control-actions.md
+          - Identity Model: identity-model.md
+          - Verifier Policy: verifier-policy.md
+          - Article Mapping: article-mapping.md
+          - Domain Architecture: architecture.md
+      - Product Passports:
+          - Overview: product-passports.md
   - Source:
       - Installation And Local Development: installation.md
+      - Live Control Desk: https://openetr.org
       - GitHub Repository: https://github.com/trbouma/openetr
       - Specification Index: https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md

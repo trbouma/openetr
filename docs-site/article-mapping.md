@@ -9,7 +9,7 @@ The mapping distinguishes between:
 | Category | Meaning |
 | --- | --- |
 | Directly supported | OpenETR provides protocol or implementation behavior that supports the article. |
-| Supported by adapter | The MLWR Control Desk uses domain language or workflow mapping that supports the article. |
+| Supported by adapter | The Warehouse Receipts workspace uses domain language or workflow mapping that supports the article. |
 | Recognition / effect | OpenETR can provide evidence, but legal effect depends on law, registry, policy, or verifier recognition. |
 | Gap / design note | More design work is needed. |
 
@@ -19,7 +19,7 @@ The current strongest coverage is around:
 
 - terminology mapping;
 - electronic receipt identity by digest;
-- issuance evidence;
+- initial control-record evidence;
 - control event evidence;
 - transfer and control graph reconstruction;
 - recognition boundary documentation.
@@ -37,4 +37,3 @@ Related profile notes:
 - [OpenETR MLWR Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
 - [MLWR Change Of Medium Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_CHANGE_OF_MEDIUM_PROFILE.md)
 - [MLWR Receipt Replacement And Loss Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_RECEIPT_REPLACEMENT_AND_LOSS_PROFILE.md)
-

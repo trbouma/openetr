@@ -2,13 +2,13 @@
 
 OpenETR is a general control layer for portable electronic records.
 
-It is not limited to warehouse receipts. The MLWR Control Desk is the first focused domain adapter, but the underlying OpenETR model is intended to support other controlled objects such as bills of lading, certificates, credentials, secured finance records, and other electronic transferable records.
+It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support other controlled objects such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
 ## Layered Model
 
 ```text
-Domain adapter        MLWR, bills of lading, receipts, credentials
-OpenETR control       objects, origin events, control events, profiles, state
+Domain adapter        Warehouse Receipts, Product Passports, bills of lading, credentials
+OpenETR control       controlled objects, control records, control graphs, profiles, state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -47,4 +47,3 @@ Those are recognition questions. OpenETR produces portable signed control eviden
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
-

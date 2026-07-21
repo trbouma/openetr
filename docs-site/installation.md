@@ -1,9 +1,21 @@
 # Installation And Local Development
 
-Most MLWR users should start with the live Control Desk:
+Most users should start with the live OpenETR app:
 
 ```text
 https://openetr.org/
+```
+
+Warehouse receipt users can go directly to:
+
+```text
+https://openetr.org/warehouse-receipts
+```
+
+Product Passport users can go directly to:
+
+```text
+https://openetr.org/digital-product-passports
 ```
 
 This page is for developers, operators, and integrators who want to run the app locally, build the documentation site, or deploy the Docker container.
@@ -105,4 +117,3 @@ poetry install
 poetry run openetr --help
 poetry build
 ```
-

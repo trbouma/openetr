@@ -1178,6 +1178,25 @@ async def render_warehouse_receipts_page(
     )
 
 
+async def render_digital_product_passports_page(
+    request: Request,
+    identity: dict[str, Any],
+    *,
+    error_message: str | None = None,
+    success_message: str | None = None,
+    status_code: int = 200,
+):
+    template_context = await get_default_template_context(identity)
+    template_context["error_message"] = error_message
+    template_context["success_message"] = success_message
+    return templates.TemplateResponse(
+        request,
+        "digital_product_passports.html",
+        template_context,
+        status_code=status_code,
+    )
+
+
 async def render_warehouse_receipt_result(
     request: Request,
     identity: dict[str, Any],
@@ -1222,6 +1241,10 @@ async def read_uploaded_receipt(file: UploadFile, *, retain_content: bool = Fals
     return await hash_uploaded_file(file, default_filename="warehouse-receipt", retain_content=retain_content)
 
 
+async def read_uploaded_product_passport(file: UploadFile, *, retain_content: bool = False) -> UploadedFileInfo:
+    return await hash_uploaded_file(file, default_filename="digital-product-passport", retain_content=retain_content)
+
+
 def parse_optional_force(value: str | None) -> bool:
     return (value or "").strip().lower() in {"1", "true", "yes", "on"}
 
@@ -1255,9 +1278,13 @@ async def render_warehouse_control_result(
 @app.get("/")
 async def landing_page(
     request: Request,
-    identity: dict[str, Any] = Depends(get_session_identity),
+    template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
-    return await render_warehouse_receipts_page(request, identity)
+    return templates.TemplateResponse(
+        request,
+        "control_desk.html",
+        template_context,
+    )
 
 
 @app.get("/openetr")
@@ -1304,6 +1331,14 @@ async def warehouse_receipts_page(
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     return await render_warehouse_receipts_page(request, identity)
+
+
+@app.get("/digital-product-passports")
+async def digital_product_passports_page(
+    request: Request,
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    return await render_digital_product_passports_page(request, identity)
 
 
 @app.get("/experimental")
@@ -1490,7 +1525,7 @@ async def warehouse_receipts_issue(
         return await render_warehouse_receipts_page(
             request,
             identity,
-            error_message="Log in with an nsec before issuing a warehouse receipt.",
+            error_message="Log in with an nsec before creating a warehouse receipt control record.",
             status_code=400,
         )
 
@@ -1498,7 +1533,7 @@ async def warehouse_receipts_issue(
         return await render_warehouse_receipts_page(
             request,
             identity,
-            error_message="Select a warehouse operator or issuer profile before issuing a warehouse receipt.",
+            error_message="Select a warehouse operator or issuer profile before creating a warehouse receipt control record.",
             status_code=400,
         )
 
@@ -1523,7 +1558,7 @@ async def warehouse_receipts_issue(
             request,
             identity,
             error_message=(
-                "This receipt file has already been issued by the current signer. "
+                "This receipt file already has a control record from the current signer. "
                 "Select the force checkbox if you intentionally want to publish a replacement origin event."
             ),
             status_code=400,
@@ -1549,7 +1584,7 @@ async def warehouse_receipts_issue(
         digest=upload.digest,
         relays=validated_relays,
         signer_nsec=identity["nsec"],
-        comment=f"Issued warehouse receipt {receipt_reference.strip() or upload.filename}",
+        comment=f"Created warehouse receipt control record {receipt_reference.strip() or upload.filename}",
         extra_tags=extra_tags,
     )
     query_context = await build_query_etr_result(
@@ -1566,9 +1601,190 @@ async def warehouse_receipts_issue(
         relays=validated_relays,
         query_context=query_context,
         issue_result=issue_result,
-        success_message="Warehouse receipt origin event published through the general OpenETR issue service.",
+        success_message="Warehouse receipt control record published through the general OpenETR issue service.",
         media_preview=upload.media_preview,
         blossom_storage=blossom_storage,
+    )
+
+
+@app.post("/digital-product-passports/query")
+async def digital_product_passports_query(
+    request: Request,
+    file: UploadFile = File(...),
+    relays: str = Depends(normalize_relays_form),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+        upload = await read_uploaded_product_passport(file)
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message=str(exc),
+            status_code=400,
+        )
+    except HTTPException as exc:
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message=str(exc.detail),
+            status_code=exc.status_code,
+        )
+
+    query_context = await build_query_etr_result(
+        digest=upload.digest,
+        relays=validated_relays,
+        author_pubkey_hex=identity.get("pubkey_hex"),
+    )
+    return templates.TemplateResponse(
+        request,
+        "query_etr_result.html",
+        {
+            "app_title": APP_TITLE,
+            "site_url": SITE_URL,
+            "git_commit": GIT_COMMIT,
+            "identity": identity,
+            "available_profiles": await get_available_profiles(identity),
+            "filename": upload.filename,
+            "size_bytes": upload.size_bytes,
+            "sha256": upload.digest,
+            "object_id": format_object_identifier(upload.digest),
+            "relays": validated_relays,
+            "query": query_context,
+            "media_preview": upload.media_preview,
+            **qr_context_for_digest(request, upload.digest),
+        },
+    )
+
+
+@app.post("/digital-product-passports/create")
+async def digital_product_passports_create(
+    request: Request,
+    file: UploadFile = File(...),
+    relays: str = Depends(normalize_relays_form),
+    product_name: str = Form(""),
+    product_id: str = Form(""),
+    manufacturer: str = Form(""),
+    batch_or_lot: str = Form(""),
+    description: str = Form(""),
+    store_upload: str | None = Form(None),
+    force: str = Form("false"),
+    identity: dict[str, Any] = Depends(get_session_identity),
+):
+    should_store_upload = parse_optional_checkbox(store_upload)
+    try:
+        validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
+    except (click.ClickException, ControlEventError) as exc:
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message=str(exc),
+            status_code=400,
+        )
+
+    if not identity.get("logged_in"):
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message="Log in with an nsec before creating a product passport control record.",
+            status_code=400,
+        )
+
+    if not identity.get("profile"):
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message="Select a manufacturer, importer, or issuer profile before creating a product passport control record.",
+            status_code=400,
+        )
+
+    try:
+        upload = await read_uploaded_product_passport(file, retain_content=should_store_upload)
+    except HTTPException as exc:
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message=str(exc.detail),
+            status_code=exc.status_code,
+        )
+
+    guard = await evaluate_issue_etr_guard(
+        relays=validated_relays,
+        digest=upload.digest,
+        author_pubkey_hex=identity["pubkey_hex"],
+        query_timeout=DEFAULT_QUERY_TIMEOUT,
+        limit=DEFAULT_LIMIT,
+    )
+    if guard["should_warn"] and force != "true":
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message=(
+                "This Product Passport file already has a control record from the current signer. "
+                "Select the force checkbox if you intentionally want to publish a replacement origin event."
+            ),
+            status_code=400,
+        )
+
+    blossom_storage = await maybe_store_on_blossom(
+        upload,
+        should_store_upload,
+        signer_nsec=identity["nsec"],
+    )
+
+    extra_tags = [
+        ["domain", "digital_product_passport"],
+        ["document_type", "product_passport"],
+    ]
+    if product_name.strip():
+        extra_tags.append(["product_name", product_name.strip()])
+    if product_id.strip():
+        extra_tags.append(["product_id", product_id.strip()])
+        extra_tags.append(["record_reference", product_id.strip()])
+    if manufacturer.strip():
+        extra_tags.append(["manufacturer", manufacturer.strip()])
+    if batch_or_lot.strip():
+        extra_tags.append(["batch_or_lot", batch_or_lot.strip()])
+    if description.strip():
+        extra_tags.append(["record_description", description.strip()])
+
+    reference = product_id.strip() or product_name.strip() or upload.filename
+    issue_result = await publish_issue_etr(
+        filename=upload.filename,
+        size_bytes=upload.size_bytes,
+        digest=upload.digest,
+        relays=validated_relays,
+        signer_nsec=identity["nsec"],
+        comment=f"Created digital product passport control record {reference}",
+        extra_tags=extra_tags,
+    )
+    query_context = await build_query_etr_result(
+        digest=issue_result["sha256"],
+        relays=validated_relays,
+        author_pubkey_hex=identity["pubkey_hex"],
+    )
+    return templates.TemplateResponse(
+        request,
+        "query_etr_result.html",
+        {
+            "app_title": APP_TITLE,
+            "site_url": SITE_URL,
+            "git_commit": GIT_COMMIT,
+            "identity": identity,
+            "available_profiles": await get_available_profiles(identity),
+            "filename": issue_result["filename"],
+            "size_bytes": issue_result["size_bytes"],
+            "sha256": issue_result["sha256"],
+            "object_id": issue_result["object_id"],
+            "relays": validated_relays,
+            "query": query_context,
+            "issue_result": issue_result,
+            "success_message": "Digital product passport control record published through the general OpenETR issue service.",
+            "media_preview": upload.media_preview,
+            "blossom_storage": blossom_storage,
+            **qr_context_for_digest(request, issue_result["sha256"]),
+        },
     )
 
 
@@ -3002,11 +3218,17 @@ async def use_profile(
     template_context["success_message"] = (
         f"Switched to profile '{profile}' using {profile_switch_signer_source_label(signer_source)}."
     )
-    if return_to in {"/", "/warehouse-receipts"}:
+    if return_to == "/warehouse-receipts":
         return await render_warehouse_receipts_page(
             request,
             template_context["identity"],
             success_message=template_context["success_message"],
+        )
+    if return_to == "/":
+        return templates.TemplateResponse(
+            request,
+            "control_desk.html",
+            template_context,
         )
     return templates.TemplateResponse(
         request,

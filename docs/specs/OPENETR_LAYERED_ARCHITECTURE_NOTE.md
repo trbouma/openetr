@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       objects, origin events, control events, profiles, state
+OpenETR control       controlled objects, control records, control graphs, profiles, state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -44,13 +44,15 @@ It does not decide whether a warehouse receipt is legally valid, whether a trans
 
 OpenETR is the control layer above the wire format.
 
-It interprets signed events as a control history for a Controlled Object.
+It interprets signed events as control records for a Controlled Object.
+
+A **Controlled Object** is the document, file, or record identified by a cryptographic digest. A **control record** is one signed OpenETR event about that object. The linked set of origin and control records for the object is its **control graph**.
 
 At this layer, OpenETR defines:
 
 - Controlled Objects identified by cryptographic digest
-- origin events that bring an object into the OpenETR scheme
-- control events for transfer, encumbrance, discharge, redemption, termination, and attestation
+- origin control records that bring an object into the OpenETR scheme
+- later control records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
 - current-controller derivation from origin and control-event chains
 - lifecycle state derived from the signed event history
@@ -72,8 +74,8 @@ The MLWR warehouse receipts webapp is the current example.
 
 It speaks in terms of:
 
-- issue receipt
-- query receipt
+- create receipt control record
+- query receipt control status
 - current holder / controller
 - transfer receipt
 - pledge, lien, or restriction
@@ -83,7 +85,7 @@ It speaks in terms of:
 
 Under the surface, those actions map to general OpenETR operations:
 
-- issue receipt -> origin event
+- create receipt control record -> origin control record
 - transfer receipt -> transfer initiate / accept control events
 - pledge or restriction -> encumber control event
 - release encumbrance -> discharge control event

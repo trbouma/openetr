@@ -168,6 +168,8 @@
     <main>
       <nav class="top-nav">
         <a href="/">Control Desk</a>
+        <a href="/warehouse-receipts">Warehouse Receipts</a>
+        <a href="/digital-product-passports">Product Passports</a>
         <a href="/openetr">OpenETR</a>
         <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">Docs</a>
@@ -179,7 +181,7 @@
         <p class="eyebrow">Warehouse Receipt State</p>
         <h1>{{ filename }}</h1>
         <p>
-          This page renders a warehouse receipt view from the general OpenETR query result.
+          This page renders the OpenETR control record associated with a warehouse receipt document.
           The underlying object id, origin event, control events, and encumbrance state are produced by shared OpenETR services.
         </p>
         <div class="kv">
@@ -201,13 +203,13 @@
 
       {% if issue_result %}
       <section class="panel">
-        <h2>Receipt Issuance</h2>
+        <h2>Control Record Created</h2>
         <div class="kv">
           <div class="muted">Origin event</div><div class="mono">{{ issue_result.event_id }}</div>
           <div class="muted">Issuing profile signer</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
-          <div class="muted">Issue statement</div><div class="mono">{{ issue_result.comment }}</div>
-          <div class="muted">Existing before issue</div><div>{{ issue_result.existing_count_before_publish }}</div>
-          <div class="muted">Returned after issue</div><div>{{ issue_result.query_count_after_publish }}</div>
+          <div class="muted">Record statement</div><div class="mono">{{ issue_result.comment }}</div>
+          <div class="muted">Existing before publish</div><div>{{ issue_result.existing_count_before_publish }}</div>
+          <div class="muted">Returned after publish</div><div>{{ issue_result.query_count_after_publish }}</div>
         </div>
       </section>
       {% endif %}

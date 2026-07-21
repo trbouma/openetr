@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_title }} Product Passports</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #eef3ef;
+        --panel: #fbfefb;
+        --text: #17201a;
+        --accent: #28705f;
+        --border: #b8d0c4;
+        --muted: #56645d;
+        --heading: #101812;
+      }
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, #d7efe2 0, transparent 28rem),
+          linear-gradient(180deg, #f7fbf7 0%, var(--bg) 100%);
+      }
+      main {
+        width: 100%;
+        max-width: 72rem;
+        margin: 2rem auto 4rem;
+        padding: 0 1.25rem;
+      }
+      .top-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      a {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .panel, .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        box-shadow: 0 10px 28px rgba(24, 70, 55, 0.08);
+        overflow-wrap: anywhere;
+      }
+      .panel {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .card {
+        padding: 1.15rem;
+      }
+      h1, h2, h3 {
+        margin-top: 0;
+        color: var(--heading);
+        letter-spacing: -0.03em;
+      }
+      h1 {
+        margin-bottom: 0.45rem;
+        font-size: clamp(2.2rem, 6vw, 4rem);
+        line-height: 1;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .eyebrow {
+        margin: 0 0 0.7rem;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .hero-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .brand-mark {
+        width: clamp(4rem, 12vw, 6rem);
+        height: auto;
+        flex: 0 0 auto;
+        opacity: 0.95;
+        filter: drop-shadow(0 10px 18px rgba(24, 70, 55, 0.12));
+      }
+      .notice {
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.75rem;
+      }
+      .notice.error {
+        background: #fff1ec;
+        border: 1px solid #e1a18d;
+      }
+      .notice.success {
+        background: #eef8ee;
+        border: 1px solid #9cc39c;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+      form {
+        display: grid;
+        gap: 0.85rem;
+        margin-top: 1rem;
+      }
+      label {
+        display: grid;
+        gap: 0.4rem;
+        font-weight: 800;
+        color: var(--heading);
+      }
+      input[type="file"], input[type="text"] {
+        width: 100%;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 0.7rem;
+        padding: 0.75rem;
+        font: inherit;
+      }
+      input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+      }
+      button {
+        width: fit-content;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.85rem 1.2rem;
+        background: var(--accent);
+        color: white;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      code {
+        background: rgba(40, 112, 95, 0.1);
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.3rem;
+        overflow-wrap: anywhere;
+      }
+      .field-help, .muted {
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+      .action-list {
+        display: grid;
+        gap: 0.65rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .action-list li {
+        padding: 0.75rem;
+        border: 1px solid rgba(40, 112, 95, 0.16);
+        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.52);
+      }
+      @media (max-width: 760px) {
+        main {
+          padding: 0 0.9rem;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        button {
+          width: 100%;
+        }
+        .top-nav {
+          justify-content: flex-start;
+        }
+        .hero-heading {
+          align-items: center;
+        }
+        .brand-mark {
+          width: 4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="dpp-page">
+      <nav class="top-nav">
+        <a href="/">Control Desk</a>
+        <a href="/warehouse-receipts">Warehouse Receipts</a>
+        <a href="/digital-product-passports">Product Passports</a>
+        <a href="/openetr">OpenETR</a>
+        <a href="/experimental">Experimental</a>
+        <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">Docs</a>
+        {% if identity.logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Login</a>{% endif %}
+      </nav>
+
+      <header class="panel">
+        <div class="hero-heading">
+          <div>
+            <p class="eyebrow">Product Passports</p>
+            <h1>Product Passport Control Graph</h1>
+          </div>
+          <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
+        </div>
+        <p>
+          Work with Product Passport files as controlled objects. The Product Passport file is hashed into an object id,
+          then OpenETR records the linked control graph for that Product Passport digest.
+        </p>
+        {% if identity.logged_in %}
+        <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
+        <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        {% else %}
+        <p><strong>Read-only mode:</strong> query Product Passport control status without logging in. Log in to create control records as a manufacturer, importer, registry, or issuer profile.</p>
+        {% endif %}
+      </header>
+
+      {% if error_message %}<div class="notice error">{{ error_message }}</div>{% endif %}
+      {% if success_message %}<div class="notice success">{{ success_message }}</div>{% endif %}
+
+      <section class="grid">
+        <div class="card">
+          <h2>Query Product Passport Control</h2>
+          <p>Upload a Product Passport file and inspect the OpenETR control graph associated with its digest.</p>
+          <form action="/digital-product-passports/query" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
+            <label>
+              Relays
+              <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
+              <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
+            </label>
+            <button type="submit">Query Control Graph</button>
+          </form>
+        </div>
+
+        {% if identity.logged_in %}
+        <div class="card">
+          <h2>Create Product Passport Control Record</h2>
+          <p>Publish the initial OpenETR control record for a Product Passport document.</p>
+          <form action="/digital-product-passports/create" method="post" enctype="multipart/form-data" data-dpp-form>
+            <input type="file" name="file" required data-dpp-file>
+            <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
+            <label>
+              <input type="checkbox" name="store_upload" value="true">
+              Store uploaded file for future QR lookups
+            </label>
+            <label>
+              Product name
+              <input type="text" name="product_name" placeholder="Battery module, garment, device..." data-dpp-product-name>
+            </label>
+            <label>
+              Product id
+              <input type="text" name="product_id" placeholder="SKU, GTIN, serial, model, or Product Passport id">
+            </label>
+            <label>
+              Manufacturer or issuer
+              <input type="text" name="manufacturer" placeholder="Organization or profile name">
+            </label>
+            <label>
+              Batch or lot
+              <input type="text" name="batch_or_lot" placeholder="Batch, lot, or production run">
+            </label>
+            <label>
+              Description
+              <input type="text" name="description" placeholder="Short product/passport description">
+            </label>
+            <label>
+              Relays
+              <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
+            </label>
+            <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
+              <input type="checkbox" name="force" value="true">
+              Publish even if this profile already created a control record for this Product Passport digest
+            </label>
+            <button type="submit">Create Control Record</button>
+          </form>
+        </div>
+        {% else %}
+        <div class="card">
+          <h2>Create Product Passport Control Record</h2>
+          <p>Log in with a profile signer to publish the initial OpenETR control record for a Product Passport document.</p>
+          <p><a href="/login">Login</a></p>
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Domain Starting Points</h2>
+        <ul class="action-list">
+          <li><strong>Product Passport file</strong>: a PDF, image, JSON document, or other canonical Product Passport artifact becomes the Controlled Object.</li>
+          <li><strong>Initial control record</strong>: identifies the Product Passport digest and can carry product metadata such as product id, manufacturer, and batch.</li>
+          <li><strong>Control graph</strong>: later events can model attestations, ownership/control changes, recalls, repairs, recycling, compliance checks, or registry recognition.</li>
+        </ul>
+      </section>
+    </main>
+    {% include "_global_scripts.html" %}
+    <script>
+      (() => {
+        const form = document.querySelector("[data-dpp-form]");
+        if (!form) {
+          return;
+        }
+        const fileInput = form.querySelector("[data-dpp-file]");
+        const productNameInput = form.querySelector("[data-dpp-product-name]");
+        if (!fileInput || !productNameInput) {
+          return;
+        }
+
+        let productNameEdited = productNameInput.value.trim().length > 0;
+        productNameInput.addEventListener("input", () => {
+          productNameEdited = productNameInput.value.trim().length > 0;
+        });
+        fileInput.addEventListener("change", () => {
+          const file = fileInput.files && fileInput.files[0];
+          if (!file || productNameEdited) {
+            return;
+          }
+          productNameInput.value = file.name;
+        });
+      })();
+    </script>
+  </body>
+</html>

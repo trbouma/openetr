@@ -1,12 +1,12 @@
-# Architecture
+# Warehouse Receipts Architecture
 
-The MLWR Control Desk is a domain adapter over the general OpenETR control layer.
+The Warehouse Receipts workspace is a domain adapter over the general OpenETR control layer.
 
 ## Layer Model
 
 ```mermaid
 flowchart TB
-  A["Warehouse receipt users"] --> B["MLWR Control Desk"]
+  A["Warehouse receipt users"] --> B["Warehouse Receipts workspace"]
   B --> C["OpenETR service layer"]
   C --> D["OpenETR Nostr wire format"]
   D --> E["Relay pool / local event store"]
@@ -17,9 +17,9 @@ flowchart TB
 
 ## Domain Adapter
 
-The webapp speaks warehouse receipt language:
+The workspace speaks warehouse receipt language:
 
-- issue receipt;
+- create receipt control record;
 - current holder/controller;
 - pledge or lien;
 - release;
@@ -42,7 +42,7 @@ It works with:
 - relay-backed publication and query;
 - verifier warnings.
 
-This lets other domains reuse the same control layer without inheriting MLWR-specific terminology.
+This lets other domains, including Product Passports, reuse the same control layer without inheriting MLWR-specific terminology.
 
 ## Wire Format
 
@@ -68,4 +68,3 @@ Everything important is represented as cryptographically signed events. Those ev
 - [System Integration Considerations](https://github.com/trbouma/openetr/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
 - [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [MLWR Webapp Domain Adapter Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md)
-

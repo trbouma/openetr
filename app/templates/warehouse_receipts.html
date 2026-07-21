@@ -269,6 +269,7 @@
     <main id="mlwr-page">
       <nav class="top-nav">
         <a href="/">Control Desk</a>
+        <a href="/digital-product-passports">Product Passports</a>
         <a href="/openetr">OpenETR</a>
         <a href="/experimental">Experimental</a>
         <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer">Docs</a>
@@ -287,7 +288,7 @@
           Work with warehouse receipts in domain terms while the app translates each action into the general OpenETR control layer.
           This workflow is being built in alignment with the Model Law on Warehouse Receipts (MLWR).
         </p>
-        <p>The receipt file is hashed into an object id, then issued, queried, and evaluated through shared OpenETR services.</p>
+        <p>The receipt file is hashed into an object id, then its OpenETR control graph is created, queried, and evaluated through shared services.</p>
         {% if identity.logged_in %}
         <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
         <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
@@ -299,7 +300,7 @@
           <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
         </div>
         {% else %}
-        <p><strong>Read-only mode:</strong> query receipts without logging in. Log in to issue a receipt as a warehouse operator or issuer profile.</p>
+        <p><strong>Read-only mode:</strong> query receipt control status without logging in. Log in to create control records as a warehouse operator or issuer profile.</p>
         {% endif %}
       </header>
 
@@ -359,8 +360,8 @@
 
       <section class="grid">
         <div class="card">
-          <h2>Query Receipt State</h2>
-          <p>Upload a warehouse receipt document and inspect its origin, holder, lifecycle, and outstanding pledge or encumbrance state.</p>
+          <h2>Query Control Record</h2>
+          <p>Upload a warehouse receipt document and inspect the OpenETR control record associated with its digest.</p>
           <form action="/warehouse-receipts/query" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -369,15 +370,15 @@
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
               <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
             </label>
-            <button type="submit">Query Warehouse Receipt</button>
+            <button type="submit">Query Control Record</button>
           </form>
         </div>
 
         <div class="card">
-          <h2>Issue Receipt</h2>
-          <p>Publish a warehouse receipt origin event. Underneath, this calls the general OpenETR issue service for the uploaded receipt digest.</p>
-          <form action="/warehouse-receipts/issue" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" required>
+          <h2>Create Control Record</h2>
+          <p>Publish the initial OpenETR control record for an already-issued warehouse receipt document.</p>
+          <form action="/warehouse-receipts/issue" method="post" enctype="multipart/form-data" data-issue-receipt-form>
+            <input type="file" name="file" required data-issue-receipt-file>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <label>
               <input type="checkbox" name="store_upload" value="true">
@@ -385,10 +386,10 @@
             </label>
             <label>
               Receipt reference
-              <input type="text" name="receipt_reference" placeholder="MLWR001">
+              <input type="text" name="receipt_reference" placeholder="MLWR001" data-issue-receipt-reference>
             </label>
             <label>
-              Goods description
+              Description
               <input type="text" name="goods_description" placeholder="Stored goods described in the receipt">
             </label>
             <label>
@@ -397,9 +398,9 @@
             </label>
             <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
               <input type="checkbox" name="force" value="true">
-              Publish even if this profile already issued this receipt digest
+              Publish even if this profile already created a control record for this receipt digest
             </label>
-            <button type="submit">Issue Warehouse Receipt</button>
+            <button type="submit">Create Control Record</button>
           </form>
         </div>
       </section>
@@ -407,7 +408,7 @@
       <section class="panel">
         <h2>Domain Actions</h2>
         <p>
-          These receipt actions are domain names for general OpenETR control events. Query or issue a receipt first, then use the receipt-state page
+          These receipt actions are domain names for general OpenETR control events. Query or create a control record first, then use the receipt-state page
           to transfer, pledge, release, present, or complete the receipt lifecycle.
         </p>
         <ul class="action-list">
@@ -484,6 +485,30 @@
           if (status) status.textContent = "Clipboard copy failed.";
         }
       }
+
+      (() => {
+        const form = document.querySelector("[data-issue-receipt-form]");
+        if (!form) {
+          return;
+        }
+        const fileInput = form.querySelector("[data-issue-receipt-file]");
+        const referenceInput = form.querySelector("[data-issue-receipt-reference]");
+        if (!fileInput || !referenceInput) {
+          return;
+        }
+
+        let referenceEdited = referenceInput.value.trim().length > 0;
+        referenceInput.addEventListener("input", () => {
+          referenceEdited = referenceInput.value.trim().length > 0;
+        });
+        fileInput.addEventListener("change", () => {
+          const file = fileInput.files && fileInput.files[0];
+          if (!file || referenceEdited) {
+            return;
+          }
+          referenceInput.value = file.name;
+        });
+      })();
     </script>
   </body>
 </html>

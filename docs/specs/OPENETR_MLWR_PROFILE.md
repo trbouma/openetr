@@ -18,13 +18,19 @@ The MLWR profile should answer:
 
 - how a warehouse receipt is represented as a Controlled Object
 - which warehouse receipt roles map to OpenETR participants and profiles
-- which OpenETR events correspond to issuance, transfer, encumbrance, discharge, redemption, and termination
+- which OpenETR control records correspond to receipt issuance evidence, transfer, encumbrance, discharge, redemption, and termination
 - what evidence OpenETR can provide to a recognition framework
 - which questions remain outside OpenETR and must be answered by MLWR-style law, local enactment, contract, registry rules, or institutional policy
 
 The first product focus is the warehouse operator issuance workflow described in [MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md](./MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md).
 
-That use case deliberately treats the warehouse receipt as an opaque artifact. OpenETR commits to the receipt by digest and records the signed control graph. It does not need to parse or validate the receipt contents in order to provide issuance and control evidence.
+That use case deliberately treats the warehouse receipt as an opaque artifact. OpenETR commits to the receipt by digest and records the signed control graph for that digest. It does not need to parse or validate the receipt contents in order to provide control evidence.
+
+Terminology matters here because the warehouse receipt may itself be a record. In this profile:
+
+- the **warehouse receipt document** is the Controlled Object;
+- an **OpenETR control record** is a signed origin or control event about that object;
+- the **OpenETR control graph** is the linked set of control records for that object.
 
 OpenETR does not replace the MLWR or any local warehouse receipt law.
 
@@ -65,7 +71,7 @@ In this profile, the Recognition Layer may include:
 
 This profile is intended to support electronic warehouse receipt workflows including:
 
-- issuance of a warehouse receipt
+- creation of an initial OpenETR control record for a warehouse receipt
 - identification of the warehouse operator and initial depositor or holder
 - transfer of control over the receipt
 - declaration of pledges, liens, restrictions, or other encumbrances
@@ -147,7 +153,7 @@ The MLWR profile maps warehouse receipt actions onto that event family as follow
 
 | Warehouse receipt action | OpenETR event | Current CLI surface | Control effect |
 | --- | --- | --- | --- |
-| Issue receipt | `kind 31415` origin | `openetr issue-etr <receipt-file>` | establishes origin and initial controller evidence |
+| Create initial control record for receipt | `kind 31415` origin | `openetr issue-etr <receipt-file>` | establishes origin and initial controller evidence for the receipt digest |
 | Initiate transfer | `31416`, `action=initiate` | `openetr transfer initiate <receipt-file> --transferee <profile>` | candidate transfer toward transferee |
 | Accept transfer | `31416`, `action=accept` | `openetr transfer accept <receipt-file>` | acceptance evidence; recognition depends on policy |
 | Attest fact or event | `31416`, `action=attest` | `openetr attest <receipt-file>` | no controller change |
@@ -156,9 +162,9 @@ The MLWR profile maps warehouse receipt actions onto that event family as follow
 | Present for delivery | `31416`, `action=redeem` | `openetr redeem <receipt-file> --obligor <profile>` | redemption-pending state |
 | End lifecycle | `31416`, `action=terminate` | `openetr terminate-etr <receipt-file>` | terminated lifecycle state |
 
-## Receipt Issuance
+## Initial Control Record
 
-Issuance begins with an origin event.
+The warehouse receipt may be issued by an external warehouse system, document system, or legal process. OpenETR begins when a profile publishes an origin control record for the receipt document digest.
 
 The receipt document is hashed, and the resulting digest is used as the OpenETR object identifier.
 
@@ -169,15 +175,15 @@ Minimum current wire shape:
 - `o = <object_hex>`
 - author = issuing profile signer
 
-In an MLWR profile, issuance policy should specify:
+In an MLWR profile, policy should specify:
 
-- whether the warehouse operator must be the issuer
+- whether the warehouse operator must be the signer of the initial control record
 - whether the initial controller is the warehouse operator, depositor, or another party
 - whether the receipt must include structured warehouse receipt fields
 - whether a warehouse operator profile must include a legal name, address, license, registry id, or other credentials
-- whether issuance requires an attestation by a registry, platform, or public authority
+- whether receipt issuance or control-record creation requires an attestation by a registry, platform, or public authority
 
-OpenETR can prove that a particular profile signed the origin event for a particular receipt digest. It cannot by itself prove that the signer was legally authorized to issue warehouse receipts.
+OpenETR can prove that a particular profile signed the origin control record for a particular receipt digest. It cannot by itself prove that the signer was legally authorized to issue warehouse receipts, or that the receipt itself was validly issued under applicable law.
 
 ## Transfer Of Control
 
@@ -378,7 +384,7 @@ One MLWR-style lifecycle may look like:
 
 1. Warehouse operator creates a profile.
 2. Warehouse operator publishes a profile with legal name, address, and optional registry identifiers.
-3. Warehouse operator issues a warehouse receipt:
+3. Warehouse operator creates the initial OpenETR control record for the already-issued receipt:
 
    ```bash
    openetr issue-etr examples/MLWR001.pdf
@@ -429,7 +435,7 @@ One MLWR-style lifecycle may look like:
    openetr query-etr examples/MLWR001.pdf
    ```
 
-The query result should show the origin event, control events, lifecycle state, current controller, profile metadata, and outstanding encumbrance state.
+The query result should show the origin control record, later control records, lifecycle state, current controller, profile metadata, and outstanding encumbrance state.
 
 ## Open Questions
 

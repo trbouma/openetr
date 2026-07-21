@@ -1,66 +1,61 @@
-# MLWR Control Desk
+# OpenETR
 
-The **[MLWR Control Desk](https://openetr.org)** is the warehouse receipt operating surface for OpenETR.
+**OpenETR** is a general control layer for portable electronic records.
 
-It gives warehouse operators and their counterparties a domain-specific way to issue, query, and manage warehouse receipt control records while keeping the underlying OpenETR protocol general.
+It treats a document, file, or product data artifact as a **Controlled Object** identified by digest. Signed OpenETR origin and control records for that digest form a **control graph** that can be queried, verified, and interpreted by domain-specific workflows.
 
-## What This Site Covers
+## Start Here
 
-This documentation has two equal tracks.
+| Area | Purpose |
+| --- | --- |
+| [OpenETR Overview](openetr/index.md) | Learn the general control model, wire format, implementation surfaces, and recognition boundary. |
+| [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over the OpenETR control layer. |
+| [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
 
-The **MLWR Control Desk** track focuses on the first domain adapter:
+## Live App
 
-- how to use the live webapp;
-- how a warehouse receipt document is committed by SHA-256 digest;
-- how the webapp translates warehouse receipt actions into OpenETR events;
-- how the Control Desk Key, profiles, contacts, and references fit together;
-- how verifier policy reads the signed control graph;
-- how this work maps to the Model Law on Warehouse Receipts.
+| Page | Purpose |
+| --- | --- |
+| [`https://openetr.org/`](https://openetr.org/) | OpenETR Control Desk app with query-only upload flow |
+| [`https://openetr.org/warehouse-receipts`](https://openetr.org/warehouse-receipts) | Warehouse Receipts workspace |
+| [`https://openetr.org/digital-product-passports`](https://openetr.org/digital-product-passports) | Product Passports workspace |
+| [`https://openetr.org/openetr`](https://openetr.org/openetr) | Advanced OpenETR console |
+| [`https://openetr.org/docs`](https://openetr.org/docs) | FastAPI-generated API docs |
 
-The **OpenETR** track documents the general layer underneath:
+## Core Vocabulary
 
-- the control layer;
-- the Nostr wire format;
-- the installable Python component;
-- the CLI and JSON surfaces;
-- integration options;
-- the recognition boundary.
-
-The source specs remain the detailed implementation and protocol reference. This site gives those specs a navigable documentation surface.
+| Term | Meaning |
+| --- | --- |
+| Controlled Object | The document, file, Product Passport artifact, warehouse receipt, or other record identified by digest. |
+| Control Record | A signed OpenETR origin or control event about a Controlled Object. |
+| Control Graph | The linked set of control records for one Controlled Object. |
+| Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR control graph underneath. |
+| Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide legal or operational effect. |
 
 ## Core Thesis
 
-OpenETR does not try to become the warehouse receipt system of record.
+OpenETR does not try to become each domain's system of record.
 
 Instead, it provides a thin signed control layer:
 
 ```text
-warehouse receipt document
+document or product data artifact
   -> SHA-256 digest
-  -> signed OpenETR origin event
-  -> signed control events
+  -> signed OpenETR origin control record
+  -> signed control records
+  -> control graph
   -> verifier policy / recognition layer
 ```
 
-The receipt content stays with the warehouse operator or integrated system. OpenETR records the cryptographic object identity and the control-relevant event graph.
-
-## Current Product Surface
-
-The demo webapp now opens directly to the MLWR Control Desk:
-
-| Page | Purpose |
-| --- | --- |
-| [`https://openetr.org/`](https://openetr.org/) | Live MLWR Control Desk landing page |
-| `/openetr` | General OpenETR console |
-| `/experimental` | Bitcoin/Taproot/Silent Payments experiments |
-| `/docs` | FastAPI-generated API docs |
+The object content can stay with the operator, manufacturer, registry, platform, or storage service. OpenETR records the cryptographic object identity and the control-relevant graph.
 
 ## Documentation Tracks
 
 | Track | Audience | Starting Point |
 | --- | --- | --- |
-| MLWR Control Desk | Warehouse operators, MLWR reviewers, domain integrators | [Using The App](getting-started.md) |
 | OpenETR | Implementers, protocol reviewers, system integrators | [OpenETR Overview](openetr/index.md) |
+| Warehouse Receipts | Warehouse operators, MLWR reviewers, domain integrators | [Warehouse Receipts Overview](getting-started.md) |
+| Product Passports | Product, compliance, lifecycle, and supply-chain integrators | [Product Passports Overview](product-passports.md) |
 
 ## Source Specifications
 
@@ -68,8 +63,7 @@ Key source documents:
 
 - [GitHub repository](https://github.com/trbouma/openetr)
 - [Specification index](https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md)
-- [MLWR Webapp Domain Adapter Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md)
-- [MLWR Warehouse Operator Issuance Use Case](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md)
-- [OpenETR MLWR Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
+- [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [OpenETR MLWR Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
 - [MLWR Article Requirements Mapping](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)

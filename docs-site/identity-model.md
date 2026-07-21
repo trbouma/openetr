@@ -1,12 +1,12 @@
 # Identity Model
 
-The MLWR Control Desk uses business terms over the OpenETR root/profile identity model.
+The Warehouse Receipts workspace uses business terms over the OpenETR root/profile identity model.
 
 ## Vocabulary
 
 | Control Desk Term | OpenETR Technical Term |
 | --- | --- |
-| Control Desk | MLWR operating surface / workspace |
+| Warehouse Receipts workspace | MLWR operating surface / domain workspace |
 | Control Desk Key | Root admin identity |
 | Profile | Operational signer identity the desk can act as |
 | Contact | External party the desk can address or transact with |
@@ -48,4 +48,3 @@ This model is useful for existing systems:
 - [Root And Profile Identity Model](https://github.com/trbouma/openetr/blob/main/docs/specs/ROOT_AND_PROFILE_IDENTITY_MODEL.md)
 - [System Integration Considerations](https://github.com/trbouma/openetr/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
 - [Relay-Backed Configuration Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/RELAY_BACKED_CONFIGURATION_DESIGN_NOTE.md)
-

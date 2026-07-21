@@ -35,9 +35,11 @@ OpenETR does not replace legal or institutional frameworks. It provides a techni
 
 OpenETR reduces the system to three primitives:
 
-* Objects (Records) — the thing that carries meaning and authority
+* Controlled Objects (Records) — the document, file, or record whose control is being tracked by digest
 * Controllers (Keys) — the entity exercising exclusive control
-* Events (Actions) — transfers, endorsements, and attestations
+* Control Records (Events) — signed actions such as origin, transfer, endorsement, encumbrance, and attestation
+
+These terms are intentionally separate. A warehouse receipt, bill of lading, certificate, or credential may itself be a record, but in OpenETR it is the Controlled Object. The signed OpenETR events about that object are control records. The linked set of those control records is the object's control graph.
 
 From these, OpenETR enables three fundamental operations:
 * Transfer — movement of control from one controller to another
@@ -106,11 +108,11 @@ A world where:
 
 OpenETR includes an initial implementation on Nostr to demonstrate durable control and portable records using existing open infrastructure.
 
-Nostr provides a simple model of signed events + relay distribution + independent verification. OpenETR is best understood as a scheme built on the Nostr protocol, defining how those events represent records, control, and transfer.
+Nostr provides a simple model of signed events + relay distribution + independent verification. OpenETR is best understood as a scheme built on the Nostr protocol, defining how those events become control records linked into an object-centric control graph.
 
 ## CLI Example
 
-The current CLI can issue, transfer, encumber, discharge, redeem, terminate, and query OpenETR records using the Nostr `31415` / `31416` event-family model.
+The current CLI can create an initial control record, transfer, encumber, discharge, redeem, terminate, and query OpenETR control graphs using the Nostr `31415` / `31416` event-family model.
 
 For a focused spec-to-implementation walkthrough, see [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
 

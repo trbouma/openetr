@@ -1,54 +1,54 @@
-# Using The App
+# Warehouse Receipts
 
-The fastest way to use the MLWR Control Desk is the live application:
+The fastest way to use the Warehouse Receipts workspace is the live application:
 
 ```text
-https://openetr.org/
+https://openetr.org/warehouse-receipts
 ```
 
-The app is designed for warehouse receipt workflows first. It lets you work in warehouse receipt language while the underlying OpenETR component publishes, queries, and verifies signed control records.
+The workspace lets you work in warehouse receipt language while the underlying OpenETR component publishes, queries, and verifies signed control records for the receipt document digest.
 
 ## What You Can Do
 
-The Control Desk supports two broad modes.
+The Warehouse Receipts workspace supports two broad modes.
 
 | Mode | What You Can Do |
 | --- | --- |
 | Read-only | Query a receipt document by uploading the file and recomputing its digest. |
-| Signed in | Select an acting profile, issue receipt origin events, and publish control records. |
+| Signed in | Select an acting profile, create initial receipt control records, and publish later control records. |
 
 Read-only users can inspect whether a receipt artifact has an OpenETR record.
 
-Signed-in users can operate a Control Desk with profiles and signer keys.
+Signed-in users can operate the workspace with profiles and signer keys.
 
 ## Control Desk Concepts
 
 | Term | Meaning In The App |
 | --- | --- |
-| Control Desk | The operating surface for warehouse receipt actions. |
+| Warehouse Receipts workspace | The operating surface for warehouse receipt actions. |
 | Control Desk Key | The root/admin key used for recovery and profile management. |
 | Acting Profile | The profile currently used to sign warehouse receipt actions. |
 | Receipt Control Record | A signed OpenETR origin or control event. |
 | Docs | Link back to this documentation site. |
 
-The **Acting Profile** is the profile that signs operational actions such as issuing, transferring, encumbering, discharging, redeeming, or terminating a receipt.
+The **Acting Profile** is the profile that signs operational actions such as creating the initial control record, transferring, encumbering, discharging, redeeming, or terminating receipt control.
 
 ## Query A Receipt
 
-Use **Query Receipt State** when you have a warehouse receipt file and want to inspect its OpenETR state.
+Use **Query Control Record** when you have a warehouse receipt file and want to inspect its OpenETR state.
 
-1. Open the Control Desk.
+1. Open the Warehouse Receipts workspace.
 2. Upload the warehouse receipt file.
 3. Confirm or adjust the relay field.
-4. Select **Query Warehouse Receipt**.
+4. Select **Query Control Record**.
 
 The app computes the file digest locally in the request flow, queries the configured relays, and shows the origin event, current controller, lifecycle state, control events, and outstanding encumbrances where available.
 
 ## Sign In And Select An Acting Profile
 
-To issue or control receipts, sign in with a Control Desk Key or session key.
+To create or control receipt control records, sign in with a Control Desk Key or session key.
 
-When signed in, the Control Desk shows:
+When signed in, the workspace shows:
 
 - the Control Desk Key;
 - the Acting Profile;
@@ -80,16 +80,16 @@ Profile metadata may include:
 
 The profile editor publishes an updated Nostr profile event for the acting signer.
 
-## Issue A Receipt
+## Create A Receipt Control Record
 
-Use **Issue Receipt** when the warehouse operator wants to publish the first OpenETR origin event for a warehouse receipt artifact.
+Use **Create Control Record** when the warehouse operator or issuer profile wants to publish the first OpenETR origin control record for an already-issued warehouse receipt artifact.
 
 The app:
 
 1. hashes the uploaded receipt file;
 2. creates the object id;
 3. signs an origin event with the Acting Profile;
-4. includes structured event tags such as receipt reference and goods description where provided;
+4. includes structured event tags such as receipt reference and description where provided;
 5. publishes the event to the configured relay set.
 
 The receipt file itself remains outside OpenETR. OpenETR records the digest and control evidence.
@@ -99,5 +99,6 @@ The receipt file itself remains outside OpenETR. OpenETR records the digest and 
 - [Issuing Receipts](issuing-receipts.md)
 - [Control Actions](control-actions.md)
 - [Identity Model](identity-model.md)
+- [Product Passports](product-passports.md)
 
 For local development or deployment, see [Installation And Local Development](installation.md).

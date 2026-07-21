@@ -17,9 +17,9 @@ flowchart TB
     end
 
     subgraph Control["OpenETR Control Layer"]
-        GRAPH["Control Graph<br/>object history, lifecycle, controller state"]
-        ORIGIN["Origin Events<br/>kind 31415"]
-        CONTROL_EVENTS["Control Events<br/>kind 31416"]
+        GRAPH["Control Graph<br/>linked control records for one object"]
+        ORIGIN["Origin Control Records<br/>kind 31415"]
+        CONTROL_EVENTS["Control Records<br/>kind 31416"]
         STATE["Derived State<br/>controller, lifecycle, encumbrances"]
     end
 
@@ -71,7 +71,9 @@ flowchart TB
 
 ## Reading The Diagram
 
-The control graph is the center of the model. It is the object-centric history formed by an origin event and later control events.
+The control graph is the center of the model. It is the object-centric history formed by an origin control record and later linked control records.
+
+The controlled object can itself be a record, such as a warehouse receipt, bill of lading, certificate, or credential. OpenETR keeps that object distinct from the signed control records that describe its control state. The linked control records form the control graph.
 
 Nostr provides the correctness layer below the graph:
 
@@ -85,7 +87,7 @@ Domain adapters sit above the graph. They make OpenETR usable in specific domain
 
 For example, the MLWR adapter can speak in terms of:
 
-- issue warehouse receipt
+- create receipt control record
 - transfer receipt
 - pledge or restrict receipt
 - release encumbrance

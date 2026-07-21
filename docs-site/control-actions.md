@@ -1,12 +1,12 @@
 # Control Actions
 
-The MLWR Control Desk uses warehouse receipt language, but each action maps to a general OpenETR control event.
+The Warehouse Receipts workspace uses warehouse receipt language, but each action maps to a general OpenETR control record.
 
 ## Action Map
 
 | Domain Action | OpenETR Action | Purpose |
 | --- | --- | --- |
-| Issue receipt | origin event | Create the first signed record for the receipt digest. |
+| Create receipt control record | origin control record | Create the first signed OpenETR control record for the receipt digest. |
 | Transfer receipt | `transfer_initiate` and `transfer_accept` | Move control from one holder/controller to another. |
 | Record pledge or lien | `encumber` | Record a control-relevant restriction, pledge, lien, or secured-party interest. |
 | Release pledge or lien | `discharge` | Discharge a specific encumbrance event. |
@@ -15,9 +15,9 @@ The MLWR Control Desk uses warehouse receipt language, but each action maps to a
 
 ## Control Graph
 
-Each control event refers to the same receipt object through the `o` tag.
+Each control record refers to the same receipt object through the `o` tag.
 
-Events can also link to prior events through the `e` tag. This makes the control chain inspectable and cryptographically verifiable.
+Control records can also link to prior records through the `e` tag. This makes the control chain inspectable and cryptographically verifiable.
 
 ```mermaid
 flowchart LR
@@ -42,4 +42,3 @@ Legal or business effect is determined by a verifier policy or recognition frame
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
-
