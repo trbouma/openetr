@@ -2,9 +2,8 @@
 <style>
   .etr-query-share {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 11rem;
     gap: 1rem;
-    align-items: center;
+    justify-items: start;
   }
   .etr-query-share > * {
     min-width: 0;
@@ -18,6 +17,9 @@
     padding: 0.65rem;
     box-sizing: border-box;
   }
+  .etr-query-qr-link {
+    display: inline-block;
+  }
   .etr-query-share p {
     margin: 0.35rem 0;
   }
@@ -27,9 +29,31 @@
     overflow-wrap: anywhere;
     word-break: break-word;
   }
+  .etr-query-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.85rem;
+  }
+  .etr-query-actions button {
+    width: fit-content;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.65rem 0.95rem;
+    background: var(--accent);
+    color: white;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .etr-query-copy-status {
+    margin: 0;
+    min-height: 1.4rem;
+  }
   @media (max-width: 640px) {
-    .etr-query-share {
-      grid-template-columns: 1fr;
+    .etr-query-actions,
+    .etr-query-actions button {
+      width: 100%;
     }
     .etr-query-share img {
       width: min(100%, 14rem);
@@ -40,15 +64,79 @@
 </style>
 
 <section class="panel">
-  <h2>Scan To Query</h2>
+  <h2>Durable Link And QR Code</h2>
   <div class="etr-query-share">
     <div>
-      <p class="muted">Scan this code to query the OpenETR record from another device.</p>
-      <a class="mono etr-query-share-url" href="{{ public_query_url }}">{{ public_query_url }}</a>
+      <p class="muted">This control graph has a clickable durable link and a scannable QR code that can be shared, printed, or captured for later verification.</p>
+      <a class="mono etr-query-share-url" href="{{ public_query_url }}" data-etr-query-url>{{ public_query_url }}</a>
+      <div class="etr-query-actions">
+        <button type="button" data-copy-etr-link>Copy Link</button>
+        <button type="button" data-copy-etr-qr>Copy QR Code</button>
+      </div>
+      <p class="muted etr-query-copy-status" aria-live="polite" data-etr-copy-status></p>
     </div>
-    <a href="{{ public_query_qr_url }}" aria-label="Open QR code image">
+    <a class="etr-query-qr-link" href="{{ public_query_qr_url }}" aria-label="Copy QR code image" data-copy-etr-qr-image>
       <img src="{{ public_query_qr_url }}" alt="QR code for {{ public_query_url }}">
     </a>
   </div>
 </section>
+<script>
+  (() => {
+    const link = document.querySelector("[data-etr-query-url]");
+    const copyLinkButton = document.querySelector("[data-copy-etr-link]");
+    const copyQrButton = document.querySelector("[data-copy-etr-qr]");
+    const qrImageLink = document.querySelector("[data-copy-etr-qr-image]");
+    const status = document.querySelector("[data-etr-copy-status]");
+    if (!link || !copyLinkButton || !copyQrButton || !qrImageLink) {
+      return;
+    }
+
+    const queryUrl = link.href;
+    const qrUrl = qrImageLink.href;
+
+    function setCopyStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
+    async function copyText(text, successMessage) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopyStatus(successMessage);
+      } catch (error) {
+        setCopyStatus("Clipboard copy failed.");
+      }
+    }
+
+    async function copyQrCode() {
+      try {
+        if (!window.ClipboardItem || !navigator.clipboard.write) {
+          await copyText(qrUrl, "Copied QR code image link.");
+          return;
+        }
+        const response = await fetch(qrUrl, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`QR image request failed with ${response.status}`);
+        }
+        const blob = await response.blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({ [blob.type || "image/png"]: blob }),
+        ]);
+        setCopyStatus("Copied QR code image.");
+      } catch (error) {
+        await copyText(qrUrl, "Copied QR code image link.");
+      }
+    }
+
+    copyLinkButton.addEventListener("click", () => {
+      copyText(queryUrl, "Copied durable link.");
+    });
+    copyQrButton.addEventListener("click", copyQrCode);
+    qrImageLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      copyQrCode();
+    });
+  })();
+</script>
 {% endif %}

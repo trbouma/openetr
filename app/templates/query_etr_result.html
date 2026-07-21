@@ -115,6 +115,11 @@
         margin-top: -0.25rem;
         color: var(--muted);
       }
+      .digest-summary {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(138, 91, 45, 0.14);
+      }
       .muted {
         color: var(--muted);
       }
@@ -216,15 +221,11 @@
       </section>
       {% endif %}
       <section class="panel">
-        <p class="eyebrow">OpenETR Control Record</p>
-        <h1>{{ filename }}</h1>
+        <p class="eyebrow">OpenETR Control Graph</p>
+        <h1>Control History</h1>
         <p class="section-intro">
-          This page shows the current control state, issuer, controller, and public history for the document identified by this digest.
+          This page shows the current control state, issuer, controller, and public history for {{ filename }}.
         </p>
-        <div class="kv">
-          <div class="muted">Document digest</div><div class="mono">{{ sha256 }}</div>
-          <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
-        </div>
         <div class="summary-grid">
           <div class="summary-card">
             <p class="summary-label">Lifecycle</p>
@@ -250,6 +251,10 @@
               {% endif %}
             </p>
           </div>
+        </div>
+        <div class="kv digest-summary">
+          <div class="muted">Document digest</div><div class="mono">{{ sha256 }}</div>
+          <div class="muted">OpenETR object reference</div><div class="mono">{{ object_id }}</div>
         </div>
       </section>
 
