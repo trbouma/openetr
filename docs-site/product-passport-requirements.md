@@ -24,6 +24,7 @@ The current strongest coverage is around:
 
 - product passport artifact identity by digest;
 - initial Product Passport control-record evidence;
+- linked evidence records for lifecycle documents;
 - durable link and QR-code access to the control graph;
 - optional retrieval of the original controlled object where storage is configured;
 - basic domain metadata for product name, product id, manufacturer, batch or lot, and description;
@@ -37,6 +38,14 @@ The working table is maintained in:
 
 - [Digital Product Passport Requirements Mapping](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_PRODUCT_PASSPORT_REQUIREMENTS_MAPPING.md)
 
+The detailed table uses stable review identifiers:
+
+| Prefix | Meaning |
+| --- | --- |
+| `DPP-SYS-*` | General Digital Product Passport system requirements. |
+| `DPP-REG-*` | Digital Product Passport registry requirements. |
+
 Related overview:
 
 - [Product Passports Overview](product-passports.md)
+- [Linked Evidence Record Kind Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
