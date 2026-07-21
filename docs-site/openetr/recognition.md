@@ -1,8 +1,21 @@
 # Recognition Boundary
 
-OpenETR is focused on control evidence.
+OpenETR is focused on control-layer evidence.
 
 Recognition frameworks decide what effect to give that evidence.
+
+The recurring pattern is:
+
+```text
+real-world object, product, document, or record
+  -> canonical file or data artifact
+  -> digest
+  -> signed origin record
+  -> signed control records or linked evidence records
+  -> verifier, registry, authority, or relying party decides effect
+```
+
+OpenETR does not decide effect. It provides the control layer and preserves the evidence that a recognition layer can evaluate.
 
 ## Control Questions
 
@@ -14,6 +27,7 @@ OpenETR can answer questions such as:
 - how do control events link through `e` references?
 - which profile key signed each event?
 - what candidate control state can be derived from the graph?
+- which linked evidence records point back to the object?
 
 ## Recognition Questions
 
@@ -55,4 +69,3 @@ A domain verifier can add stronger rules, safeguards, or exemptions.
 - [OpenETR TRQP Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_TRQP_INTEGRATION_NOTE.md)
 - [OpenETR Nostr Web Of Trust Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md)
 - [ZK-SNARKs And Hash Commitments Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/ZK_SNARKS_AND_HASH_COMMITMENTS_DESIGN_NOTE.md)
-

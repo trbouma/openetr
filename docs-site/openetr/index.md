@@ -1,19 +1,19 @@
 # OpenETR Overview
 
-OpenETR is a general control layer for portable electronic records.
+OpenETR is a control layer for portable electronic records.
 
 It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support other controlled objects such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
 ## Layered Model
 
 ```text
-Domain adapter        Warehouse Receipts, Product Passports, bills of lading, credentials
-OpenETR control       controlled objects, control records, control graphs, profiles, state
-Nostr wire format     signed events, kinds, tags, relays, event ids
-Recognition layer     law, contracts, registry rules, institutional policy
+Domain adapter         Warehouse Receipts, Product Passports, bills of lading, credentials
+OpenETR control layer  controlled objects, control records, linked evidence records, profiles, state
+Nostr wire format      signed events, kinds, tags, relays, event ids
+Recognition layer      law, contracts, registry rules, institutional policy
 ```
 
-OpenETR sits in the middle. It turns domain actions into signed control evidence without forcing every domain to share the same user interface, vocabulary, statute, or business process.
+OpenETR sits in the middle. It turns domain actions, document identities, control assertions, and evidence links into signed protocol evidence without forcing every domain to share the same user interface, vocabulary, statute, or business process.
 
 ## What OpenETR Provides
 
@@ -22,6 +22,7 @@ OpenETR defines:
 - digest-addressed controlled objects;
 - origin events that bring objects into the scheme;
 - control events for transfer, encumbrance, discharge, redemption, termination, and attestation;
+- linked evidence records for supporting documents and lifecycle evidence;
 - profile-backed signing;
 - object-centric relay queries;
 - control graph traversal;
@@ -40,7 +41,7 @@ OpenETR does not, by itself, decide:
 - statutory effect;
 - priority among competing claims.
 
-Those are recognition questions. OpenETR produces portable signed control evidence that a recognition layer can evaluate.
+Those are recognition questions. OpenETR provides the control layer and produces durable signed evidence that a recognition layer can evaluate.
 
 ## Source Specs
 

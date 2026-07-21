@@ -1,8 +1,8 @@
 # OpenETR
 
-**OpenETR** is a general control layer for portable electronic records.
+**OpenETR** is a control layer for portable electronic records.
 
-It treats a document, file, or product data artifact as a **Controlled Object** identified by digest. Signed OpenETR origin and control records for that digest form a **control graph** that can be queried, verified, and interpreted by domain-specific workflows.
+It treats a document, file, or product data artifact as a **Controlled Object** identified by digest. Signed OpenETR origin records, control records, and linked evidence records for that digest form a control and evidence graph that can be queried, verified, and interpreted by domain-specific workflows.
 
 ## Start Here
 
@@ -30,26 +30,31 @@ It treats a document, file, or product data artifact as a **Controlled Object** 
 | --- | --- |
 | Controlled Object | The document, file, Product Passport artifact, warehouse receipt, or other record identified by digest. |
 | Control Record | A signed OpenETR origin or control event about a Controlled Object. |
-| Control Graph | The linked set of control records for one Controlled Object. |
-| Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR control graph underneath. |
+| Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Controlled Object without necessarily transferring control. |
+| Control Graph | The linked set of origin records and control records for one Controlled Object. |
+| Evidence Graph | The broader linked set of origin records, control records, and linked evidence records for one Controlled Object. |
+| Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR control layer underneath. |
 | Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide legal or operational effect. |
 
 ## Core Thesis
 
-OpenETR does not try to become each domain's system of record.
+OpenETR does not try to become each domain's system of record, registry, legal authority, or compliance engine.
 
-Instead, it provides a thin signed control layer:
+Instead, it provides a thin signed control layer that produces durable evidence:
 
 ```text
-document or product data artifact
+real-world object, product, document, or record
+  -> canonical file or data artifact
   -> SHA-256 digest
   -> signed OpenETR origin control record
-  -> signed control records
-  -> control graph
-  -> verifier policy / recognition layer
+  -> signed control records and linked evidence records
+  -> durable query link and QR code
+  -> verifier / registry / authority / relying party decides effect
 ```
 
-The object content can stay with the operator, manufacturer, registry, platform, or storage service. OpenETR records the cryptographic object identity and the control-relevant graph.
+The object content can stay with the operator, manufacturer, registry, platform, or storage service. OpenETR records the cryptographic object identity and the signed evidence graph.
+
+OpenETR does not decide effect. It preserves durable signed evidence that a recognition layer can evaluate.
 
 ## Documentation Tracks
 

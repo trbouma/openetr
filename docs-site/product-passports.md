@@ -11,7 +11,9 @@ In this domain:
 - the Product Passport file or data artifact is the **Controlled Object**;
 - the Product Passport digest is the stable object identity;
 - each signed OpenETR origin or control event is a **control record** for that Product Passport;
-- the linked set of control records is the Product Passport **control graph**.
+- later lifecycle documents can be attached as **linked evidence records**;
+- the linked set of origin and control records is the Product Passport **control graph**;
+- the broader linked set of origin, control, and evidence records is the Product Passport **evidence graph**.
 
 The Product Passport itself may be a PDF, image, JSON document, data bundle, credential, registry export, or another canonical artifact. OpenETR does not need to parse it before it can identify the artifact by digest and record control-relevant evidence.
 
@@ -62,7 +64,7 @@ Product Passport workflows will likely need domain-specific profiles and verifie
 - recycling, recovery, or end-of-life events;
 - registry, auditor, or marketplace recognition.
 
-OpenETR can provide the signed graph and digest linkage. Domain policy decides which claims are trusted, which actors are recognized, and what legal or operational effect follows.
+OpenETR can provide the signed graph and digest linkage. Domain policy decides which claims are trusted, which actors are recognized, and what legal, regulatory, or operational effect follows.
 
 ## Relationship To Warehouse Receipts
 
@@ -72,7 +74,8 @@ Product Passports and Warehouse Receipts should use the same underlying OpenETR 
 | --- | --- | --- |
 | Controlled Object | Receipt document | Product Passport artifact |
 | Origin control record | Initial receipt control evidence | Initial Product Passport control evidence |
-| Control graph | Receipt control history | Product Passport control history |
+| Linked evidence record | Supporting receipt evidence or attestations | Repair reports, recall notices, lifecycle certificates, audit evidence |
+| Evidence graph | Receipt control and evidence history | Product Passport control and lifecycle evidence history |
 | Recognition layer | MLWR law, registry rules, warehouse policy | Product regulation, compliance policy, registry rules, marketplace policy |
 
 This is the domain-adapter pattern: each workspace speaks its own language, but the signed control layer stays general.
