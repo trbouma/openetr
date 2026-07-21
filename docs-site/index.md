@@ -1,6 +1,6 @@
 # OpenETR
 
-**OpenETR** is a control layer for portable electronic records.
+**OpenETR** is a general control layer for durable electronic records.
 
 It treats a document, file, or product data artifact as a **Controlled Object** identified by digest. Signed OpenETR origin records, control records, and linked evidence records for that digest form a control and evidence graph that can be queried, verified, and interpreted by domain-specific workflows.
 

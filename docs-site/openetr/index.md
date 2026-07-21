@@ -1,6 +1,6 @@
 # OpenETR Overview
 
-OpenETR is a control layer for portable electronic records.
+OpenETR is a general control layer for durable electronic records.
 
 It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support other controlled objects such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
