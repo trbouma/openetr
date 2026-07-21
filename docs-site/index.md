@@ -11,6 +11,8 @@ It treats a document, file, or product data artifact as a **Controlled Object** 
 | [OpenETR Overview](openetr/index.md) | Learn the general control model, wire format, implementation surfaces, and recognition boundary. |
 | [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over the OpenETR control layer. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
+| [Health Records](health-records.md) | Placeholder for future health-record control graph workflows, with privacy and consent concerns called out early. |
+| [Apostille Documents](apostille-documents.md) | Placeholder for future apostille and legalization document verification workflows. |
 
 ## Live App
 
@@ -56,6 +58,8 @@ The object content can stay with the operator, manufacturer, registry, platform,
 | OpenETR | Implementers, protocol reviewers, system integrators | [OpenETR Overview](openetr/index.md) |
 | Warehouse Receipts | Warehouse operators, MLWR reviewers, domain integrators | [Warehouse Receipts Overview](getting-started.md) |
 | Product Passports | Product, compliance, lifecycle, and supply-chain integrators | [Product Passports Overview](product-passports.md) |
+| Health Records | Health data, consent, privacy, and clinical workflow integrators | [Health Records Overview](health-records.md) |
+| Apostille Documents | Notarial, legalization, authority, and document verification integrators | [Apostille Documents Overview](apostille-documents.md) |
 
 ## Source Specifications
 

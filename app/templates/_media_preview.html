@@ -73,7 +73,10 @@
 </style>
 
 <section class="panel">
-  <h2>{% if media_preview.source == "blossom" %}Retrieved Document{% else %}Uploaded File{% endif %}</h2>
+  <h2>{% if media_preview.source == "blossom" %}Original Record{% else %}Uploaded File{% endif %}</h2>
+  {% if media_preview.source == "blossom" %}
+  <p class="muted">This is the controlled object retrieved by digest, when the original file is available from configured storage.</p>
+  {% endif %}
   <div
     class="media-preview-panel"
     data-media-preview="true"

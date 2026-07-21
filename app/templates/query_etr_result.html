@@ -258,40 +258,6 @@
         </div>
       </section>
 
-      {% include "_etr_query_qr.html" %}
-
-      {% include "_blossom_storage.html" %}
-
-      {% include "_media_preview.html" %}
-
-      {% if issue_result %}
-      <section class="panel">
-        <h2>Issue ETR Result</h2>
-        <div class="kv">
-          <div class="muted">Issued Event ID</div><div class="mono">{{ issue_result.event_id }}</div>
-          <div class="muted">Signer</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
-          <div class="muted">Comment</div><div class="mono">{{ issue_result.comment }}</div>
-          <div class="muted">Existing Before Publish</div><div>{{ issue_result.existing_count_before_publish }}</div>
-          <div class="muted">Returned After Publish</div><div>{{ issue_result.query_count_after_publish }}</div>
-          {% if issue_result.existing_latest_event_id %}
-          <div class="muted">Latest Existing Event</div><div class="mono">{{ issue_result.existing_latest_event_id }}</div>
-          {% endif %}
-        </div>
-        {% if issue_result.ok_results %}
-        <h3>Relay OK Results</h3>
-        <ul>
-          {% for item in issue_result.ok_results %}
-          <li>
-            <span class="mono">{{ item.event_id }}</span>
-            success={{ item.success }}
-            message={{ item.message }}
-          </li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-      </section>
-      {% endif %}
-
       {% if query.warning_multiple_origin_events %}
       <section class="panel warning">
         <strong>Warning:</strong> multiple ETR origin events (kind {{ query.origin_kind }}) were found for this object.
@@ -303,6 +269,9 @@
         <h2>0 events found</h2>
         <p class="muted">No matching ETR origin events were returned for this object digest.</p>
       </section>
+      {% include "_media_preview.html" %}
+      {% include "_etr_query_qr.html" %}
+      {% include "_blossom_storage.html" %}
       {% else %}
       <section class="panel">
         <h2>Issued By</h2>
@@ -344,6 +313,55 @@
       </section>
 
       <section class="panel">
+        <h2>Control Chain Summary</h2>
+        <p class="muted">Legend: ++ origin, -> transfer, -- terminate, => attest, +$ encumber, -$ discharge, ** redeem</p>
+        {% for chain in query.summary_control_chains %}
+        <div class="event">
+          <h3>{{ chain.label }}</h3>
+          {% for step in chain.steps %}
+          <div class="chain-step">{{ step.marker }} {{ step.label }}</div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="muted">No control chain summary is available.</p>
+        {% endfor %}
+      </section>
+
+      {% include "_media_preview.html" %}
+
+      {% include "_etr_query_qr.html" %}
+
+      {% include "_blossom_storage.html" %}
+
+      {% if issue_result %}
+      <section class="panel">
+        <h2>Issue ETR Result</h2>
+        <div class="kv">
+          <div class="muted">Issued Event ID</div><div class="mono">{{ issue_result.event_id }}</div>
+          <div class="muted">Signer</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
+          <div class="muted">Comment</div><div class="mono">{{ issue_result.comment }}</div>
+          <div class="muted">Existing Before Publish</div><div>{{ issue_result.existing_count_before_publish }}</div>
+          <div class="muted">Returned After Publish</div><div>{{ issue_result.query_count_after_publish }}</div>
+          {% if issue_result.existing_latest_event_id %}
+          <div class="muted">Latest Existing Event</div><div class="mono">{{ issue_result.existing_latest_event_id }}</div>
+          {% endif %}
+        </div>
+        {% if issue_result.ok_results %}
+        <h3>Relay OK Results</h3>
+        <ul>
+          {% for item in issue_result.ok_results %}
+          <li>
+            <span class="mono">{{ item.event_id }}</span>
+            success={{ item.success }}
+            message={{ item.message }}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      <section class="panel">
         <h2>Pledges, Liens, And Restrictions</h2>
         <div class="kv">
           <div class="muted">Total encumbrances</div><div>{{ query.encumbrance_summary.total }}</div>
@@ -375,21 +393,6 @@
         {% else %}
         <p class="muted">No outstanding pledge, lien, or restriction was found for this object.</p>
         {% endif %}
-      </section>
-
-      <section class="panel">
-        <h2>Control Chain Summary</h2>
-        <p class="muted">Legend: ++ origin, -> transfer, -- terminate, => attest, +$ encumber, -$ discharge, ** redeem</p>
-        {% for chain in query.summary_control_chains %}
-        <div class="event">
-          <h3>{{ chain.label }}</h3>
-          {% for step in chain.steps %}
-          <div class="chain-step">{{ step.marker }} {{ step.label }}</div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <p class="muted">No control chain summary is available.</p>
-        {% endfor %}
       </section>
 
       <section class="panel">

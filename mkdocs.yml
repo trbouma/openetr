@@ -57,6 +57,10 @@ nav:
           - Domain Architecture: architecture.md
       - Product Passports:
           - Overview: product-passports.md
+      - Health Records:
+          - Overview: health-records.md
+      - Apostille Documents:
+          - Overview: apostille-documents.md
   - Source:
       - Installation And Local Development: installation.md
       - Live Control Desk: https://openetr.org
