@@ -84,6 +84,8 @@ async def create_relay_backed_profile(
     )
 
     updated_profiles = sorted({*current_profiles, normalized_name})
+    if active_profile not in updated_profiles:
+        active_profile = normalized_name
     await _async_store_profiles_index(
         ProfilesIndexRecord(
             active_profile=active_profile,

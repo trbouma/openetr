@@ -1,0 +1,28 @@
+<div class="profile-create">
+  <h2>{{ profile_create_title | default("Create Acting Profile") }}</h2>
+  <p class="muted">
+    {{ profile_create_help | default("Create an acting profile for signing OpenETR control records. Leave the signer field blank to generate and store a new profile signer under this control key.") }}
+  </p>
+  <form action="/profiles/create" method="post">
+    <input type="hidden" name="return_to" value="{{ profile_create_return_to | default('/') }}">
+    <label>
+      Profile name
+      <input type="text" name="profile_name" placeholder="{{ profile_create_placeholder | default('issuer, operator, manufacturer...') }}" required>
+    </label>
+    <label>
+      Relays
+      <input type="text" name="relays" value="{{ default_relays }}">
+      <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
+    </label>
+    <label>
+      Existing signer nsec (optional)
+      <input type="text" name="signer_nsec" placeholder="Leave blank to generate a new nsec">
+      <span class="field-help">Provide an existing signer only when adding a profile that is already published on these relays.</span>
+    </label>
+    <label>
+      <input type="checkbox" name="allow_root_signer" value="true">
+      I understand that using the root admin nsec as a profile signer is discouraged.
+    </label>
+    <button type="submit">Create Acting Profile</button>
+  </form>
+</div>

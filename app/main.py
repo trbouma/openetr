@@ -1197,6 +1197,55 @@ async def render_digital_product_passports_page(
     )
 
 
+def normalize_profile_return_to(return_to: str | None) -> str:
+    allowed_return_paths = {"/", "/openetr", "/warehouse-receipts", "/digital-product-passports"}
+    normalized = (return_to or "/").strip() or "/"
+    if normalized not in allowed_return_paths:
+        return "/"
+    return normalized
+
+
+async def render_profile_return_page(
+    request: Request,
+    identity: dict[str, Any],
+    return_to: str | None,
+    *,
+    error_message: str | None = None,
+    success_message: str | None = None,
+    created_profile: dict[str, Any] | None = None,
+    status_code: int = 200,
+):
+    normalized_return_to = normalize_profile_return_to(return_to)
+    if normalized_return_to == "/warehouse-receipts":
+        return await render_warehouse_receipts_page(
+            request,
+            identity,
+            error_message=error_message,
+            success_message=success_message,
+            status_code=status_code,
+        )
+    if normalized_return_to == "/digital-product-passports":
+        return await render_digital_product_passports_page(
+            request,
+            identity,
+            error_message=error_message,
+            success_message=success_message,
+            status_code=status_code,
+        )
+
+    template_context = await get_default_template_context(identity)
+    template_context["error_message"] = error_message
+    template_context["success_message"] = success_message
+    template_context["created_profile"] = created_profile
+    template_name = "control_desk.html" if normalized_return_to == "/" else "index.html"
+    return templates.TemplateResponse(
+        request,
+        template_name,
+        template_context,
+        status_code=status_code,
+    )
+
+
 async def render_warehouse_receipt_result(
     request: Request,
     identity: dict[str, Any],
@@ -3082,15 +3131,16 @@ async def create_profile(
     relays: str = Form(DEFAULT_RELAYS),
     signer_nsec: str = Form(""),
     allow_root_signer: str | None = Form(None),
+    return_to: str = Form("/"),
     template_context: dict[str, Any] = Depends(get_default_template_context),
 ):
     identity = template_context["identity"]
     if not identity.get("logged_in"):
-        template_context["error_message"] = "You must log in with an nsec before creating a profile."
-        return templates.TemplateResponse(
+        return await render_profile_return_page(
             request,
-            "index.html",
-            template_context,
+            identity,
+            return_to,
+            error_message="You must log in with an nsec before creating a profile.",
             status_code=400,
         )
 
@@ -3100,24 +3150,24 @@ async def create_profile(
             provided_keys = resolve_keys(provided_signer)
             root_keys = resolve_keys(identity["root_nsec"])
         except (click.ClickException, ControlEventError) as exc:
-            template_context["error_message"] = str(exc)
-            return templates.TemplateResponse(
+            return await render_profile_return_page(
                 request,
-                "index.html",
-                template_context,
+                identity,
+                return_to,
+                error_message=str(exc),
                 status_code=400,
             )
 
         if provided_keys.public_key_hex() == root_keys.public_key_hex() and allow_root_signer != "true":
-            template_context["error_message"] = (
-                "Warning: the provided signer matches your root admin nsec. "
-                "The root key should normally remain separate from profile signer keys. "
-                "If you intentionally want to reuse it, confirm that choice in the profile form and submit again."
-            )
-            return templates.TemplateResponse(
+            return await render_profile_return_page(
                 request,
-                "index.html",
-                template_context,
+                identity,
+                return_to,
+                error_message=(
+                    "Warning: the provided signer matches your root admin nsec. "
+                    "The root key should normally remain separate from profile signer keys. "
+                    "If you intentionally want to reuse it, confirm that choice in the profile form and submit again."
+                ),
                 status_code=400,
             )
 
@@ -3133,38 +3183,34 @@ async def create_profile(
                 require_existing_profile=bool(provided_signer),
             )
     except ValueError as exc:
-        template_context["error_message"] = str(exc)
-        return templates.TemplateResponse(
+        return await render_profile_return_page(
             request,
-            "index.html",
-            template_context,
+            identity,
+            return_to,
+            error_message=str(exc),
             status_code=400,
         )
     except (click.ClickException, ControlEventError) as exc:
-        template_context["error_message"] = str(exc)
-        return templates.TemplateResponse(
+        return await render_profile_return_page(
             request,
-            "index.html",
-            template_context,
+            identity,
+            return_to,
+            error_message=str(exc),
             status_code=400,
         )
 
     request.session[SESSION_SIGNER_NSEC_KEY] = created_profile["signer_nsec"]
     request.session[SESSION_PROFILE_KEY] = created_profile["profile_name"]
-    template_context = await get_default_template_context(session_identity(request))
     if created_profile["generated_signer"]:
-        template_context["success_message"] = (
-            f"Created relay-backed profile '{created_profile['profile_name']}' and selected it for this session."
-        )
+        success_message = f"Created relay-backed profile '{created_profile['profile_name']}' and selected it for this session."
     else:
-        template_context["success_message"] = (
-            f"Added existing profile '{created_profile['profile_name']}' to this root and selected it for this session."
-        )
-    template_context["created_profile"] = created_profile
-    return templates.TemplateResponse(
+        success_message = f"Added existing profile '{created_profile['profile_name']}' to this root and selected it for this session."
+    return await render_profile_return_page(
         request,
-        "index.html",
-        template_context,
+        session_identity(request),
+        return_to,
+        success_message=success_message,
+        created_profile=created_profile,
     )
 
 
@@ -3179,37 +3225,23 @@ async def use_profile(
         config = load_user_config()
         signer_nsec, signer_source = await resolve_profile_signer_nsec(profile, config)
     if signer_nsec is None:
-        if return_to == "/warehouse-receipts":
-            return await render_warehouse_receipts_page(
-                request,
-                template_context["identity"],
-                error_message=f"No signer nsec is available for profile '{profile}'.",
-                status_code=200 if is_htmx_request(request) else 400,
-            )
-        template_context["error_message"] = f"No signer nsec is available for profile '{profile}'."
-        return templates.TemplateResponse(
+        return await render_profile_return_page(
             request,
-            "index.html",
-            template_context,
-            status_code=400,
+            template_context["identity"],
+            return_to,
+            error_message=f"No signer nsec is available for profile '{profile}'.",
+            status_code=200 if is_htmx_request(request) else 400,
         )
 
     try:
         keys = resolve_keys(signer_nsec)
     except (click.ClickException, ControlEventError) as exc:
-        if return_to == "/warehouse-receipts":
-            return await render_warehouse_receipts_page(
-                request,
-                template_context["identity"],
-                error_message=f"Profile '{profile}' signer is invalid: {exc}",
-                status_code=200 if is_htmx_request(request) else 400,
-            )
-        template_context["error_message"] = f"Profile '{profile}' signer is invalid: {exc}"
-        return templates.TemplateResponse(
+        return await render_profile_return_page(
             request,
-            "index.html",
-            template_context,
-            status_code=400,
+            template_context["identity"],
+            return_to,
+            error_message=f"Profile '{profile}' signer is invalid: {exc}",
+            status_code=200 if is_htmx_request(request) else 400,
         )
 
     request.session[SESSION_SIGNER_NSEC_KEY] = keys.private_key_bech32()
@@ -3218,22 +3250,11 @@ async def use_profile(
     template_context["success_message"] = (
         f"Switched to profile '{profile}' using {profile_switch_signer_source_label(signer_source)}."
     )
-    if return_to == "/warehouse-receipts":
-        return await render_warehouse_receipts_page(
-            request,
-            template_context["identity"],
-            success_message=template_context["success_message"],
-        )
-    if return_to == "/":
-        return templates.TemplateResponse(
-            request,
-            "control_desk.html",
-            template_context,
-        )
-    return templates.TemplateResponse(
+    return await render_profile_return_page(
         request,
-        "index.html",
-        template_context,
+        template_context["identity"],
+        return_to,
+        success_message=template_context["success_message"],
     )
 
 

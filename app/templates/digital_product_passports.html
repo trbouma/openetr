@@ -112,6 +112,20 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1rem;
       }
+      .profile-select {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.75rem;
+        align-items: end;
+      }
+      .htmx-indicator {
+        opacity: 0;
+        transition: opacity 160ms ease;
+      }
+      .htmx-request .htmx-indicator,
+      .htmx-request.htmx-indicator {
+        opacity: 1;
+      }
       form {
         display: grid;
         gap: 0.85rem;
@@ -123,7 +137,7 @@
         font-weight: 800;
         color: var(--heading);
       }
-      input[type="file"], input[type="text"] {
+      input[type="file"], input[type="text"], select {
         width: 100%;
         background: white;
         border: 1px solid var(--border);
@@ -145,6 +159,18 @@
         font: inherit;
         font-weight: 800;
         cursor: pointer;
+      }
+      .ghost-button {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(40, 112, 95, 0.28);
+        box-shadow: none;
+      }
+      .button-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
       }
       code {
         background: rgba(40, 112, 95, 0.1);
@@ -173,11 +199,14 @@
         main {
           padding: 0 0.9rem;
         }
-        .grid {
+        .grid, .profile-select {
           grid-template-columns: 1fr;
         }
         button {
           width: 100%;
+        }
+        .button-row {
+          align-items: stretch;
         }
         .top-nav {
           justify-content: flex-start;
@@ -225,6 +254,54 @@
 
       {% if error_message %}<div class="notice error">{{ error_message }}</div>{% endif %}
       {% if success_message %}<div class="notice success">{{ success_message }}</div>{% endif %}
+
+      {% if identity.logged_in %}
+      <section class="panel">
+        <h2>Acting Profile</h2>
+        <p>Select the organization profile that will sign Product Passport control records.</p>
+        <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
+        {% if selected_profile_social %}
+        <ul>
+          {% for field, value in selected_profile_social %}
+          <li><strong>{{ field }}</strong>: {{ value }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if identity.profile %}
+        <div class="button-row">
+          <form action="/profiles/edit" method="get" style="margin-top:0;">
+            <button type="submit" class="ghost-button">Update Current Profile</button>
+          </form>
+        </div>
+        {% endif %}
+        {% if available_profiles %}
+        <form action="/profiles/use" method="post" hx-post="/profiles/use" hx-target="#dpp-page" hx-select="#dpp-page" hx-swap="outerHTML" hx-indicator="#profile-switch-indicator" hx-disabled-elt="find button">
+          <input type="hidden" name="return_to" value="/digital-product-passports">
+          <div class="profile-select">
+            <label>
+              Acting Profile
+              <select name="profile" required>
+                {% for profile in available_profiles %}
+                <option value="{{ profile.name }}" {% if profile.is_selected %}selected{% endif %} {% if not profile.can_select %}disabled{% endif %}>
+                  {{ profile.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </label>
+            <button type="submit">Use Profile</button>
+          </div>
+          <p id="profile-switch-indicator" class="muted htmx-indicator" aria-live="polite">Please wait. Switching acting profile...</p>
+        </form>
+        {% else %}
+        <p class="muted">No relay-backed profiles are configured yet for this root identity.</p>
+        {% endif %}
+        {% set profile_create_return_to = "/digital-product-passports" %}
+        {% set profile_create_title = "Create Product Passport Acting Profile" %}
+        {% set profile_create_placeholder = "manufacturer, importer, registry..." %}
+        {% set profile_create_help = "Create an organization profile that can sign Product Passport control records. Leave the signer field blank to generate and store a new profile signer under this control key." %}
+        {% include "_profile_create_form.html" %}
+      </section>
+      {% endif %}
 
       <section class="grid">
         <div class="card">

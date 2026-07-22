@@ -449,6 +449,7 @@
                   </div>
                   {% if profile.can_select %}
                   <form action="/profiles/use" method="post">
+                    <input type="hidden" name="return_to" value="/openetr">
                     <input type="hidden" name="profile" value="{{ profile.name }}">
                     <button type="submit">Use this profile</button>
                   </form>
@@ -463,6 +464,7 @@
               <div class="subpanel" style="margin-top: 1rem;">
                 <h2>Create New Profile</h2>
                 <form action="/profiles/create" method="post">
+                  <input type="hidden" name="return_to" value="/openetr">
                   <input type="text" name="profile_name" placeholder="Profile name" required>
                   <input type="text" name="relays" value="{{ default_relays }}">
                   <label>

@@ -216,6 +216,19 @@
         align-items: center;
         flex-wrap: wrap;
       }
+      details {
+        margin-top: 1rem;
+        border-top: 1px solid rgba(109, 79, 36, 0.16);
+        padding-top: 1rem;
+      }
+      summary {
+        color: var(--accent);
+        cursor: pointer;
+        font-weight: 800;
+      }
+      details .profile-create {
+        margin-top: 1rem;
+      }
       .action-list {
         display: grid;
         gap: 0.65rem;
@@ -330,7 +343,7 @@
         {% endif %}
         {% if available_profiles %}
         <form action="/profiles/use" method="post" hx-post="/profiles/use" hx-target="#mlwr-page" hx-select="#mlwr-page" hx-swap="outerHTML" hx-indicator="#profile-switch-indicator" hx-disabled-elt="find button">
-          <input type="hidden" name="return_to" value="/">
+          <input type="hidden" name="return_to" value="/warehouse-receipts">
           <div class="profile-select">
             <label>
               Acting Profile
@@ -355,6 +368,14 @@
         {% else %}
         <p class="muted">No relay-backed profiles are configured yet for this root identity.</p>
         {% endif %}
+        <details>
+          <summary>Create Warehouse Receipt Acting Profile</summary>
+          {% set profile_create_return_to = "/warehouse-receipts" %}
+          {% set profile_create_title = "Create Warehouse Receipt Acting Profile" %}
+          {% set profile_create_placeholder = "warehouse-operator, issuer, lender..." %}
+          {% set profile_create_help = "Create a profile that can sign warehouse receipt control records. Leave the signer field blank to generate and store a new profile signer under this control key." %}
+          {% include "_profile_create_form.html" %}
+        </details>
       </section>
       {% endif %}
 
