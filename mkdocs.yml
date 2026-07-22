@@ -64,6 +64,9 @@ nav:
           - Overview: apostille-documents.md
   - Policy Briefs:
       - Why OpenETR: policy-briefs/why-openetr.md
+      - Why Control Is Not Recognition: policy-briefs/why-control-is-not-recognition.md
+      - EUDI Wallet And OpenETR: policy-briefs/eudi-wallet-and-openetr.md
+      - OpenETR, Trust Frameworks, And Registries: policy-briefs/openetr-trust-frameworks-and-registries.md
   - Source:
       - Installation And Local Development: installation.md
       - Live Control Desk: https://openetr.org
