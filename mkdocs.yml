@@ -62,6 +62,8 @@ nav:
           - Overview: health-records.md
       - Apostille Documents:
           - Overview: apostille-documents.md
+  - Policy Briefs:
+      - Why OpenETR: policy-briefs/why-openetr.md
   - Source:
       - Installation And Local Development: installation.md
       - Live Control Desk: https://openetr.org
