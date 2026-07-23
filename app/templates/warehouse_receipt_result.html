@@ -101,6 +101,24 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         margin: 0.15rem 0;
       }
+      .profile-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-top: 1rem;
+      }
+      .profile-heading h3 {
+        margin: 0;
+      }
+      .profile-picture {
+        width: 3rem;
+        height: 3rem;
+        border: 1px solid var(--border);
+        border-radius: 0.65rem;
+        background: white;
+        object-fit: cover;
+        flex: 0 0 auto;
+      }
       code {
         background: rgba(109, 79, 36, 0.1);
         padding: 0.15rem 0.35rem;
@@ -267,11 +285,27 @@
           <div class="muted">Controller npub</div><div class="mono">{{ query.current_controller.npub or "none" }}</div>
           <div class="muted">Basis</div><div>{{ query.current_controller.basis }}</div>
         </div>
+        {% if query.current_controller.is_current_profile %}
+        <p class="notice success">You may be the current controller for this object. The active profile matches the derived controller.</p>
+        {% endif %}
         {% if query.current_controller.profile %}
-        <h3>Controller Profile</h3>
+        {% set controller_picture = namespace(url=None) %}
+        {% for field, value in query.current_controller.profile %}
+          {% if field == "picture" and value %}
+            {% set controller_picture.url = value %}
+          {% endif %}
+        {% endfor %}
+        <div class="profile-heading">
+          {% if controller_picture.url %}
+          <img class="profile-picture" src="{{ controller_picture.url }}" alt="Controller profile picture" loading="lazy" referrerpolicy="no-referrer">
+          {% endif %}
+          <h3>Controller Profile</h3>
+        </div>
         <ul>
           {% for field, value in query.current_controller.profile %}
+          {% if field != "picture" %}
           <li><strong>{{ field }}</strong>: {{ value }}</li>
+          {% endif %}
           {% endfor %}
         </ul>
         {% endif %}
@@ -321,8 +355,9 @@
             <form action="/warehouse-receipts/transfer/initiate" method="post">
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
-              <label>Transferee profile or npub<input type="text" name="transferee" placeholder="exporter or npub..." required></label>
+              <label>Transferee<input type="text" name="transferee" placeholder="profile, alias, npub, hex, or NIP-05..." required></label>
               <label>Reference<input type="text" name="reference" placeholder="transfer reference"></label>
+              <label><input type="checkbox" name="force" value="true"> Publish even if this profile already initiated a transfer for this receipt digest</label>
               <button type="submit">Initiate Transfer</button>
             </form>
           </div>
@@ -332,6 +367,7 @@
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
               <label>Reference<input type="text" name="reference" placeholder="acceptance reference"></label>
+              <label><input type="checkbox" name="force" value="true"> Publish even if this profile already accepted a transfer for this receipt digest</label>
               <button type="submit">Accept Transfer</button>
             </form>
           </div>
@@ -340,7 +376,7 @@
             <form action="/warehouse-receipts/encumber" method="post">
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
-              <label>Secured party profile or npub<input type="text" name="beneficiary" placeholder="bank or npub..." required></label>
+              <label>Secured party<input type="text" name="beneficiary" placeholder="profile, alias, npub, hex, or NIP-05..." required></label>
               <label>Claim type<input type="text" name="claim_type" value="pledge"></label>
               <label>Reference<input type="text" name="reference" placeholder="loan or registry reference"></label>
               <button type="submit">Record Claim</button>
@@ -352,7 +388,7 @@
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
               <label>Encumbrance event id or nevent<input type="text" name="encumbrance_event" placeholder="event id or nevent..." required></label>
-              <label>Releasing party profile or npub<input type="text" name="releasing_party" placeholder="bank or npub..."></label>
+              <label>Releasing party<input type="text" name="releasing_party" placeholder="profile, alias, npub, hex, or NIP-05..."></label>
               <label>Reference<input type="text" name="reference" placeholder="release reference"></label>
               <button type="submit">Release Claim</button>
             </form>
@@ -362,7 +398,7 @@
             <form action="/warehouse-receipts/redeem" method="post">
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
-              <label>Warehouse operator / obligor<input type="text" name="obligor" placeholder="warehouse or npub..." required></label>
+              <label>Warehouse operator / obligor<input type="text" name="obligor" placeholder="profile, alias, npub, hex, or NIP-05..." required></label>
               <label>Reference<input type="text" name="reference" placeholder="delivery request"></label>
               <button type="submit">Present Receipt</button>
             </form>

@@ -426,6 +426,67 @@
         </div>
       </section>
 
+      {% if identity.logged_in %}
+      <section class="panel">
+        <h2>Transfer Receipt Control</h2>
+        {% if identity.profile %}
+        <p>Use the receipt digest to initiate a transfer to another profile, alias, public key, or NIP-05 identifier, or to accept a pending transfer addressed to the selected acting profile.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>Initiate Transfer</h3>
+            <form action="/warehouse-receipts/transfer/initiate" method="post">
+              <label>
+                Receipt digest
+                <input type="text" name="digest" placeholder="64-character SHA-256 digest or nobj..." required>
+              </label>
+              <label>
+                Transferee
+                <input type="text" name="transferee" placeholder="profile, alias, npub, hex, or NIP-05..." required>
+              </label>
+              <label>
+                Reference
+                <input type="text" name="reference" placeholder="transfer reference">
+              </label>
+              <label>
+                Relays
+                <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
+              </label>
+              <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
+                <input type="checkbox" name="force" value="true">
+                Publish even if this profile already initiated a transfer for this receipt digest
+              </label>
+              <button type="submit">Initiate Transfer</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Accept Transfer</h3>
+            <form action="/warehouse-receipts/transfer/accept" method="post">
+              <label>
+                Receipt digest
+                <input type="text" name="digest" placeholder="64-character SHA-256 digest or nobj..." required>
+              </label>
+              <label>
+                Reference
+                <input type="text" name="reference" placeholder="acceptance reference">
+              </label>
+              <label>
+                Relays
+                <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
+              </label>
+              <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
+                <input type="checkbox" name="force" value="true">
+                Publish even if this profile already accepted a transfer for this receipt digest
+              </label>
+              <button type="submit">Accept Transfer</button>
+            </form>
+          </div>
+        </div>
+        {% else %}
+        <p>Select or create an acting profile before initiating or accepting a transfer.</p>
+        {% endif %}
+      </section>
+      {% endif %}
+
       <section class="panel">
         <h2>Domain Actions</h2>
         <p>

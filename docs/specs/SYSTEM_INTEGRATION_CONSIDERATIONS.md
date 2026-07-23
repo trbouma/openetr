@@ -23,6 +23,38 @@ OpenETR is intended to support multiple independent integration styles:
 
 The important point is that OpenETR does not require every participant to use the same application.
 
+## Component And Service Boundary
+
+OpenETR should be understood as a reusable control-layer component with multiple adapters.
+
+The reference web app and CLI are important, but they are not separate sources of truth. Human pages, REST APIs, human CLI commands, and agent-oriented CLI commands should all route through the same OpenETR object/service layer wherever practical.
+
+The intended shape is:
+
+```text
+human web pages
+REST/API callers
+human CLI commands
+agent CLI commands with --json
+embedded host application runtime
+        ↓
+openetr component / service layer
+        ↓
+canonical object and participant identifiers
+baseline or custom guard policy
+signed event construction and publication
+query, traversal, verification, and structured results
+```
+
+This lets humans and agents use different interaction modes without changing the underlying OpenETR behavior.
+
+The web app's REST APIs and the CLI's `--json` mode are the two primary machine-facing surfaces in the reference implementation:
+
+- REST APIs are appropriate when another service wants to call a running OpenETR instance over HTTP.
+- CLI `--json` is appropriate when an agent, script, CI job, shell workflow, or command runner wants structured input/output without a browser.
+
+Both modes should return structured success, warning, confirmation-required, and error responses so automated callers do not need to parse human prose.
+
 ## Application-Level Recognition Policies
 
 OpenETR deliberately separates protocol-level control evidence from application-level recognition policy.
@@ -229,6 +261,17 @@ The `openetr` component handles OpenETR-specific behavior:
 
 This is the most direct integration path for systems that want OpenETR inside their own Python service boundary.
 
+This integration style can be summarized as:
+
+```text
+host application runtime
+  imports openetr
+  calls openetr.services
+  renders or stores the structured result in its own product context
+```
+
+It avoids an HTTP or subprocess boundary while still preserving the common OpenETR service behavior.
+
 ## CLI And Automation Integration
 
 OpenETR also provides a CLI designed for shell-oriented use.
@@ -269,11 +312,11 @@ The CLI integration model is useful when:
 Future CLI design should continue to improve machine use by offering:
 
 - stable exit codes;
-- output modes suitable for parsing;
+- JSON output modes suitable for parsing;
 - clear stdout/stderr separation;
 - file-path and stdin-friendly input patterns where appropriate;
 - explicit relay/profile overrides;
-- concise success records containing event ids, object ids, authors, kinds, and tags.
+- concise success, warning, confirmation-required, and error records containing event ids, object ids, authors, kinds, tags, and policy outcomes.
 
 ## Service/API Integration
 
@@ -307,6 +350,17 @@ An integration may:
 - use the service only for convenience while retaining protocol-level verification independently.
 
 Service/API integration is often the fastest path for existing systems because the host application can keep its current user model, database, permissioning, and UI while delegating OpenETR publication and query work to a service boundary.
+
+This integration style can be summarized as:
+
+```text
+host application or agent
+  calls running OpenETR REST API
+  receives structured JSON
+  applies local product workflow and recognition policy
+```
+
+The OpenETR service should still use the same component functions as the CLI and embedded integration path. The REST boundary changes the transport, not the control semantics.
 
 ## Protocol-Level Integration
 

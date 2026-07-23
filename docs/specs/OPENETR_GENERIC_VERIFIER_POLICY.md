@@ -12,6 +12,17 @@ OpenETR is an open signed-event system. Parties may publish events that are stru
 - events that can be verified as signed evidence but break a policy rule
 - events that are recognized as effective under the verifier's selected policy
 
+The baseline guard policy used by the OpenETR web app, CLI, and service layer is part of this model, but it is not a substitute for verifier recognition.
+
+A guard can decide whether one implementation should publish an event. It cannot cryptographically prevent every other implementation from publishing a different event, and it cannot decide legal, institutional, contractual, or operational effect for every downstream party.
+
+The verifier should therefore treat guard compliance as a reviewable policy input:
+
+- Was the event produced through the expected baseline guard path?
+- Would the selected verifier policy have allowed the same transition?
+- Does the verifier require stricter domain-specific guards?
+- Should a guard failure produce non-recognition, a warning, manual review, or limited-purpose recognition?
+
 ## Baseline Policy
 
 The generic verifier policy is the baseline policy for all OpenETR evaluations.
@@ -21,9 +32,10 @@ Every OpenETR domain should start from the same generic sequence:
 1. retrieve the object graph
 2. verify cryptographic and structural correctness
 3. enumerate candidate chains
-4. annotate policy issues
-5. derive candidate or recognized state according to the selected policy
-6. present the evidence and policy outcome separately
+4. apply or review baseline guard assumptions
+5. annotate policy issues
+6. derive candidate or recognized state according to the selected policy
+7. present the evidence and policy outcome separately
 
 Domain policies are overlays on this baseline.
 
@@ -275,6 +287,7 @@ Examples include:
 
 - more than one origin event exists for the same object digest
 - a control event is signed by someone other than the expected current controller
+- an event would not have passed the baseline publishing guard used by the reference component
 - a transfer initiation has no corresponding acceptance event
 - a transfer acceptance appears without a recognized initiation
 - an encumbrance exists before or during a transfer
@@ -416,6 +429,32 @@ It is a generic component policy for making the signed graph legible.
 
 Domain adapters and recognition profiles may apply stricter rules.
 
+## Publishing Guards Versus Verifier Recognition
+
+The OpenETR component now exposes baseline publishing guards through a shared guard policy.
+
+Those guards are useful because the CLI and web app can enforce the same ordinary publishing discipline. They help prevent accidental publication of events that the baseline OpenETR state model would treat as inconsistent, ambiguous, or unauthorized by the apparent current controller.
+
+However, a published event remains only signed evidence until a verifier gives it recognition effect.
+
+For example:
+
+- a transfer event may be cryptographically signed and structurally valid;
+- it may or may not have passed the reference component's publishing guard;
+- it may still fail recognition under a warehouse receipt registry, secured lending policy, authority rule book, or private counterparty agreement;
+- it may also be recognized under one context and rejected or warned under another.
+
+This separation is intentional.
+
+OpenETR should provide:
+
+- cryptographic evidence that an event was signed by a key;
+- graph evidence about where the event sits in relation to the controlled object;
+- guard evidence about whether a baseline or custom component policy would allow the transition;
+- verifier-policy evidence about what effect the relying party gives to the transition.
+
+The verifier should not collapse those into a single Boolean.
+
 ## Domain-Specific Policy Profiles
 
 A domain-specific policy profile applies on top of the generic verifier policy.
@@ -463,8 +502,8 @@ This supports the OpenETR principle:
 This note complements:
 
 - [OPENETR_NOSTR_WIRE_FORMAT_SPEC.md](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
-- [TRANSFER_VALIDATION_GUARDS_DESIGN_NOTE.md](./TRANSFER_VALIDATION_GUARDS_DESIGN_NOTE.md)
+- [CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md](./CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
 - [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [OPENETR_LAYERED_ARCHITECTURE_NOTE.md](./OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 
-The wire-format spec defines the event grammar. The validation-guards note explains hard and soft guards. This note defines how a generic verifier should enumerate and annotate the control graph under policy.
+The wire-format spec defines the event grammar. The control-event policy guards note explains hard and soft guards. This note defines how a generic verifier should enumerate and annotate the control graph under policy.

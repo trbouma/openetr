@@ -27,9 +27,9 @@ from starlette.staticfiles import StaticFiles
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_wallet_material, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input, fetch_blockstream_wallet_balance_sats
 from app.encrypted_session import EncryptedSessionMiddleware
-from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
+from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_aliases_index, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
 from openetr.guards import evaluate_issue_etr_guard
-from openetr.helpers import assert_hex_object_identifier, format_object_identifier, format_pubkey, normalize_relays, parse_authors, resolve_keys, validate_relays
+from openetr.helpers import assert_hex_object_identifier, assert_hex_pubkey, format_object_identifier, format_pubkey, normalize_alias, normalize_object_identifier, normalize_relays, resolve_author, resolve_keys, validate_relays
 from openetr.control import ACTION_DISCHARGE, ACTION_ENCUMBER, ACTION_REDEEM, ACTION_TERMINATE, CONTROL_EVENT_KIND
 from openetr.services.control_events import ControlEventError, publish_auxiliary_control_event, publish_transfer_accept_event, publish_transfer_initiate_event
 from openetr.services.issue_etr import publish_issue_etr
@@ -1093,6 +1093,54 @@ async def resolve_profile_signer_nsec(profile_name: str, config: dict | None = N
     return None, "none"
 
 
+async def relay_aliases(config: dict | None = None) -> dict[str, str]:
+    resolved_config = config or load_user_config()
+    try:
+        index = await _async_load_aliases_index(resolved_config)
+    except click.ClickException:
+        index = None
+    if index is not None:
+        return dict(index.aliases)
+    return dict(resolved_config.get("aliases", {}))
+
+
+async def resolve_control_party_pubkey_hex(value: str, identity: dict[str, Any]) -> str:
+    candidate = value.strip()
+    if not candidate:
+        raise click.ClickException("party must not be empty")
+
+    if candidate.startswith("npub"):
+        author_hex = Keys.bech32_to_hex(candidate)
+        if author_hex is None:
+            raise click.ClickException(f"invalid npub key: {candidate}")
+        return assert_hex_pubkey(author_hex.lower())
+
+    if len(candidate) == 64:
+        return assert_hex_pubkey(candidate.lower())
+
+    config = load_user_config()
+    with session_bootstrap(identity):
+        _, profile_names = await relay_profile_names()
+        if candidate in profile_names:
+            signer_nsec, _ = await resolve_profile_signer_nsec(candidate, config)
+            if not signer_nsec:
+                raise click.ClickException(f"profile '{candidate}' does not have a relay-backed signer key")
+            return resolve_keys(signer_nsec).public_key_hex()
+
+        if "@" not in candidate:
+            alias_value = (await relay_aliases(config)).get(normalize_alias(candidate))
+            if alias_value:
+                candidate = alias_value
+
+    if candidate.startswith("npub"):
+        author_hex = Keys.bech32_to_hex(candidate)
+        if author_hex is None:
+            raise click.ClickException(f"invalid npub key: {candidate}")
+        return assert_hex_pubkey(author_hex.lower())
+
+    return await asyncio.to_thread(resolve_author, candidate)
+
+
 def profile_switch_signer_source_label(signer_source: str) -> str:
     if signer_source == "relay":
         return "its root-managed signer"
@@ -1406,7 +1454,7 @@ async def public_etr_query_qr(request: Request, digest: str):
 @app.get("/etr/blob/{digest}", include_in_schema=False)
 async def public_etr_blossom_blob(digest: str):
     try:
-        object_digest = assert_hex_object_identifier(digest.strip())
+        object_digest = normalize_object_identifier(digest.strip())
         content, declared_type = await asyncio.to_thread(blossom_fetch_bytes, object_digest)
     except Exception as exc:
         raise HTTPException(status_code=404, detail=f"Verified Blossom blob not found: {exc}") from exc
@@ -1430,7 +1478,7 @@ async def public_etr_lookup(
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     try:
-        object_digest = assert_hex_object_identifier(digest.strip())
+        object_digest = normalize_object_identifier(digest.strip())
         validated_relays = await validate_relays(
             identity.get("default_relays") or DEFAULT_RELAYS,
             timeout=DEFAULT_QUERY_TIMEOUT,
@@ -1469,7 +1517,7 @@ async def public_etr_lookup(
 
 def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
     try:
-        object_digest = assert_hex_object_identifier(digest.strip())
+        object_digest = normalize_object_identifier(digest.strip())
     except click.ClickException as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     try:
@@ -1477,7 +1525,7 @@ def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
         import PIL  # noqa: F401
     except ImportError as exc:
         raise HTTPException(status_code=503, detail="QR code support is not installed.") from exc
-    # The image path accepts only the digest; the QR payload is the full query URL.
+    # The image path accepts a digest or nobj; the QR payload is the full query URL.
     qr_text = public_etr_url(request, object_digest)
     image = branded_qr_image(qr_text)
     buffer = io.BytesIO()
@@ -1845,7 +1893,7 @@ async def require_warehouse_action_context(
 ) -> tuple[str, str] | Any:
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
-        object_digest = assert_hex_object_identifier(digest.strip())
+        object_digest = normalize_object_identifier(digest.strip())
     except (click.ClickException, ControlEventError) as exc:
         return await render_warehouse_receipts_page(request, identity, error_message=str(exc), status_code=400)
 
@@ -1880,10 +1928,10 @@ async def warehouse_receipts_transfer_initiate(
     if not isinstance(context, tuple):
         return context
     validated_relays, object_digest = context
-    with session_bootstrap(identity):
-        parsed_transferee = parse_authors(transferee)
-    if not parsed_transferee:
-        return await render_warehouse_receipts_page(request, identity, error_message="Transferee must be a profile alias or npub.", status_code=400)
+    try:
+        transferee_pubkey_hex = await resolve_control_party_pubkey_hex(transferee, identity)
+    except click.ClickException as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=f"Transferee could not be resolved: {exc}", status_code=400)
     comment = "warehouse receipt transfer initiate"
     if reference.strip():
         comment += f"; ref={reference.strip()}"
@@ -1893,7 +1941,7 @@ async def warehouse_receipts_transfer_initiate(
             object_digest=object_digest,
             prior_event_id=None,
             signer_nsec=identity["nsec"],
-            transferee_pubkey_hex=parsed_transferee[0],
+            transferee_pubkey_hex=transferee_pubkey_hex,
             comment=comment,
             force=parse_optional_force(force),
         )
@@ -1960,10 +2008,10 @@ async def warehouse_receipts_encumber(
     if not isinstance(context, tuple):
         return context
     validated_relays, object_digest = context
-    with session_bootstrap(identity):
-        parsed_beneficiary = parse_authors(beneficiary)
-    if not parsed_beneficiary:
-        return await render_warehouse_receipts_page(request, identity, error_message="Secured party must be a profile alias or npub.", status_code=400)
+    try:
+        beneficiary_pubkey_hex = await resolve_control_party_pubkey_hex(beneficiary, identity)
+    except click.ClickException as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=f"Secured party could not be resolved: {exc}", status_code=400)
     try:
         control_result = await publish_auxiliary_control_event(
             relays=validated_relays,
@@ -1972,7 +2020,7 @@ async def warehouse_receipts_encumber(
             signer_nsec=identity["nsec"],
             action=ACTION_ENCUMBER,
             comment="warehouse receipt encumbrance",
-            participant_pubkey_hex=parsed_beneficiary[0],
+            participant_pubkey_hex=beneficiary_pubkey_hex,
             control_type=claim_type.strip() or "pledge",
             external_ref=reference.strip() or None,
             force=parse_optional_force(force),
@@ -2006,11 +2054,10 @@ async def warehouse_receipts_discharge(
     validated_relays, object_digest = context
     participant_pubkey_hex = None
     if releasing_party.strip():
-        with session_bootstrap(identity):
-            parsed_releasing_party = parse_authors(releasing_party)
-        if not parsed_releasing_party:
-            return await render_warehouse_receipts_page(request, identity, error_message="Releasing party must be a profile alias or npub.", status_code=400)
-        participant_pubkey_hex = parsed_releasing_party[0]
+        try:
+            participant_pubkey_hex = await resolve_control_party_pubkey_hex(releasing_party, identity)
+        except click.ClickException as exc:
+            return await render_warehouse_receipts_page(request, identity, error_message=f"Releasing party could not be resolved: {exc}", status_code=400)
     try:
         control_result = await publish_auxiliary_control_event(
             relays=validated_relays,
@@ -2050,10 +2097,10 @@ async def warehouse_receipts_redeem(
     if not isinstance(context, tuple):
         return context
     validated_relays, object_digest = context
-    with session_bootstrap(identity):
-        parsed_obligor = parse_authors(obligor)
-    if not parsed_obligor:
-        return await render_warehouse_receipts_page(request, identity, error_message="Warehouse operator / obligor must be a profile alias or npub.", status_code=400)
+    try:
+        obligor_pubkey_hex = await resolve_control_party_pubkey_hex(obligor, identity)
+    except click.ClickException as exc:
+        return await render_warehouse_receipts_page(request, identity, error_message=f"Warehouse operator / obligor could not be resolved: {exc}", status_code=400)
     try:
         control_result = await publish_auxiliary_control_event(
             relays=validated_relays,
@@ -2062,7 +2109,7 @@ async def warehouse_receipts_redeem(
             signer_nsec=identity["nsec"],
             action=ACTION_REDEEM,
             comment="warehouse receipt presentation for delivery",
-            participant_pubkey_hex=parsed_obligor[0],
+            participant_pubkey_hex=obligor_pubkey_hex,
             external_ref=reference.strip() or None,
             force=parse_optional_force(force),
         )
@@ -3673,7 +3720,12 @@ async def issue_etr_from_upload(
             template_context = await get_default_template_context(identity)
             template_context["error_message"] = "A file upload is required unless you are confirming a guarded issue flow."
             return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
-        digest = file_digest
+        try:
+            digest = normalize_object_identifier(file_digest.strip())
+        except click.ClickException as exc:
+            template_context = await get_default_template_context(identity)
+            template_context["error_message"] = str(exc)
+            return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
         filename = file_name
         size_bytes = file_size
         media_preview = None

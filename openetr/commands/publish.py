@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 import click
 from monstr.client.client import ClientPool
@@ -16,9 +17,13 @@ from openetr.config import (
     DEFAULT_PUBLISH_WAIT,
     DEFAULT_QUERY_TIMEOUT,
     DEFAULT_RELAYS,
+    get_aliases,
     get_profile_config,
     USER_CONFIG_PATH,
     get_active_profile_name,
+    get_profile_signer_nsec,
+    hydrate_local_profiles_from_index,
+    list_profiles,
     load_user_config,
     remove_local_profile_secret,
     store_profile_secret,
@@ -38,15 +43,23 @@ from openetr.helpers import (
     assert_hex_pubkey,
     build_comment,
     build_digest,
+    format_event_reference,
     format_object_identifier,
     format_pubkey,
+    normalize_alias,
     normalize_event_reference,
-    parse_authors,
+    resolve_author,
     resolve_query_digest,
     resolve_keys,
     resolve_lei,
 )
 from openetr.guards import evaluate_issue_etr_guard, find_existing_origin_records_for_object
+from openetr.services.control_events import (
+    ControlEventError,
+    publish_auxiliary_control_event,
+    publish_transfer_accept_event,
+    publish_transfer_initiate_event,
+)
 from openetr.services.issue_etr import build_issue_event_content, build_issue_event_tags
 
 CONTROL_TRANSFER_KIND = CONTROL_EVENT_KIND
@@ -72,6 +85,124 @@ def _normalize_verify_value(verify: str) -> str:
     if not lowered.startswith(("wss://", "ws://")):
         return f"wss://{value}"
     return value
+
+
+def _resolve_control_party_pubkey_hex(value: str) -> str:
+    candidate = value.strip()
+    if not candidate:
+        raise click.ClickException("party identifier must not be empty")
+
+    if candidate.startswith("npub"):
+        author_hex = Keys.bech32_to_hex(candidate)
+        if author_hex is None:
+            raise click.ClickException(f"invalid npub key: {candidate}")
+        return assert_hex_pubkey(author_hex.lower())
+
+    if len(candidate) == 64:
+        return assert_hex_pubkey(candidate.lower())
+
+    config = hydrate_local_profiles_from_index(load_user_config())
+    if candidate in list_profiles(config):
+        signer_nsec = get_profile_signer_nsec(candidate, config)
+        if not signer_nsec:
+            raise click.ClickException(f"profile '{candidate}' does not have a signer key")
+        return resolve_keys(signer_nsec).public_key_hex()
+
+    if "@" not in candidate:
+        alias_value = get_aliases(config).get(normalize_alias(candidate))
+        if alias_value:
+            candidate = alias_value
+
+    if candidate.startswith("npub"):
+        author_hex = Keys.bech32_to_hex(candidate)
+        if author_hex is None:
+            raise click.ClickException(f"invalid npub key: {candidate}")
+        return assert_hex_pubkey(author_hex.lower())
+
+    return resolve_author(candidate)
+
+
+def _service_verification_pass(result: dict) -> bool:
+    verification = result.get("verification", {})
+    mode = str(verification.get("mode") or "any").strip().lower()
+    exact = int(verification.get("exact") or 0)
+    total = int(verification.get("total") or 0)
+    if mode == "any":
+        return exact >= 1
+    if mode == "majority":
+        return exact >= (total // 2) + 1
+    if mode == "all":
+        return total > 0 and exact == total
+    return exact == 1
+
+
+def _emit_service_control_result(result: dict, *, verify: str, json_output: bool) -> None:
+    event = result["event"]
+    verification = result.get("verification", {})
+    exact = int(verification.get("exact") or 0)
+    slot = int(verification.get("slot") or 0)
+    total = int(verification.get("total") or 0)
+    pass_condition = _service_verification_pass(result)
+
+    if json_output:
+        emit_json(
+            {
+                "ok": pass_condition,
+                "command": "publish-control-event",
+                **{key: to_jsonable(value) for key, value in result.items()},
+            }
+        )
+        return
+
+    click.echo(f"Relays:  {result['relays']}")
+    click.echo(f"Pubkey:  {result['author_npub']}")
+    click.echo(f"Event ID:{result['event_id']}")
+    click.echo(f"Kind:    {result['kind']}")
+    click.echo("Tags:")
+    for tag in event.tags:
+        click.echo(f"  {tag}")
+    click.echo(f"Content: {result['content']}")
+    click.echo(f"Verify:  {verify}")
+    click.echo()
+    click.echo(f"Verification summary: exact={exact}/{total} slot={slot}/{total}")
+    if pass_condition:
+        click.echo("PASS: transfer verification requirement was satisfied.")
+    elif slot:
+        click.echo("PARTIAL: transfer verification found events for the object graph, but not enough exact event matches.")
+        click.echo(f"Published event id: {result['event_id']}")
+    else:
+        click.echo("FAIL: no transfer event was returned after publish.")
+
+    ok_results = result.get("ok_results") or []
+    if ok_results:
+        last_ok = ok_results[-1]
+        click.echo(
+            f"Last OK status: success={last_ok['success']} "
+            f"event_id={last_ok['event_id']} message={last_ok['message']}"
+        )
+    else:
+        click.echo("No relay OK message was observed before the command exited; the event may still have been accepted.")
+
+
+def _raise_or_emit_control_error(
+    exc: ControlEventError,
+    *,
+    json_output: bool,
+    command: str,
+    **details: Any,
+) -> None:
+    if json_output:
+        emit_json(
+            {
+                "ok": False,
+                "command": command,
+                "reason": "control_event_error",
+                "error": str(exc),
+                **{key: to_jsonable(value) for key, value in details.items()},
+            }
+        )
+        raise SystemExit(1)
+    raise click.ClickException(str(exc)) from exc
 
 
 async def _run_publish_object(
@@ -1363,7 +1494,7 @@ def transfer_group() -> None:
 @click.option(
     "--transferee",
     required=True,
-    help="Transferee npub to reference in the transfer initiate event.",
+    help="Transferee profile, alias, npub, hex pubkey, or NIP-05 identifier.",
 )
 @click.option(
     "--as-user",
@@ -1427,106 +1558,76 @@ def transfer_initiate(
     object_digest = None
     if prior_event is None:
         object_digest, _ = resolve_query_digest(digest, digest_file)
-    transferee_hex = parse_authors(transferee)
-    if not transferee_hex:
-        raise click.ClickException("transferee must resolve to a valid npub")
-    transferee_pubkey_hex = transferee_hex[0]
+    transferee_pubkey_hex = _resolve_control_party_pubkey_hex(transferee)
+
+    if not force:
+        confirmation_details = {
+            "ok": False,
+            "command": "transfer-initiate",
+            "reason": "confirmation_required",
+            "object_digest": object_digest,
+            "object_id": format_object_identifier(object_digest) if object_digest else None,
+            "digest_source": str(digest_file) if digest_file is not None else None,
+            "prior_event_id": prior_event_id,
+            "transferee": transferee,
+            "transferee_npub": format_pubkey(transferee_pubkey_hex),
+            "hint": "Re-run with --force to publish this transfer initiation without an interactive confirmation.",
+        }
+        if json_output:
+            emit_json(confirmation_details)
+            raise SystemExit(1)
+
+        click.secho(
+            "WARNING: this will publish a transfer initiation control event.",
+            fg="yellow",
+            bold=True,
+        )
+        click.echo(
+            "Under the baseline policy, the transferee may become the current controller. "
+            "This cannot be retracted; any correction must be another signed control event."
+        )
+        if object_digest is not None:
+            click.echo(f"Object:     {format_object_identifier(object_digest)}")
+        if digest_file is not None:
+            click.echo(f"Source:     sha256({digest_file})")
+        if prior_event_id is not None:
+            click.echo(f"Prior event:{format_event_reference(prior_event_id)}")
+        click.echo(f"Transferee: {transferee}")
+        click.echo(f"Resolved:   {format_pubkey(transferee_pubkey_hex)}")
+        click.confirm(
+            click.style("Continue publishing this transfer initiation?", fg="yellow", bold=True),
+            default=False,
+            abort=True,
+        )
 
     async def _publish() -> None:
-        author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
-        if prior_event_id is not None:
-            resolved_origin, referenced_event = await _resolve_origin_from_prior_event(
-                relays=resolved_relays,
-                prior_event_id_hex=prior_event_id,
-                query_timeout=resolved_query_timeout,
-            )
-            object_digest_for_event = _derive_origin_object_digest(resolved_origin)
-        else:
-            resolved_origin, referenced_event = await _resolve_active_chain_for_controller(
+        try:
+            result = await publish_transfer_initiate_event(
                 relays=resolved_relays,
                 object_digest=object_digest,
-                author_pubkey_hex=author_pubkey_hex,
+                prior_event_id=prior_event_id,
+                signer_nsec=keys.private_key_bech32(),
+                transferee_pubkey_hex=transferee_pubkey_hex,
+                comment=comment,
+                publish_wait=resolved_publish_wait,
                 query_timeout=resolved_query_timeout,
                 limit=resolved_limit,
+                verify=verify,
+                force=force,
             )
-            object_digest_for_event = object_digest
-
-        if referenced_event.kind == DEFAULT_KIND:
-            origin_author_pubkey_hex = assert_hex_pubkey(resolved_origin.pub_key)
-            if author_pubkey_hex != origin_author_pubkey_hex:
-                raise click.ClickException(
-                    "transfer initiate signer must match the issuer of the referenced origin event "
-                    f"({format_pubkey(origin_author_pubkey_hex)})"
-                )
-        elif referenced_event.kind == CONTROL_TRANSFER_KIND:
-            prior_transferee_pubkey_hex = _event_tag_value(referenced_event, "p")
-            if prior_transferee_pubkey_hex is None:
-                raise click.ClickException(
-                    "referenced prior transfer event does not contain a p tag for the prior transferee"
-                )
-            prior_transferee_pubkey_hex = assert_hex_pubkey(prior_transferee_pubkey_hex)
-            if author_pubkey_hex != prior_transferee_pubkey_hex:
-                raise click.ClickException(
-                    "transfer initiate signer must match the transferee named in the referenced prior transfer event "
-                    f"({format_pubkey(prior_transferee_pubkey_hex)})"
-                )
-        else:
-            raise click.ClickException(
-                f"prior event must be kind {DEFAULT_KIND} (origin) or {CONTROL_TRANSFER_KIND} (control transfer)"
+        except ControlEventError as exc:
+            _raise_or_emit_control_error(
+                exc,
+                json_output=json_output,
+                command="transfer-initiate",
+                object_digest=object_digest,
+                object_id=format_object_identifier(object_digest) if object_digest else None,
+                digest_source=str(digest_file) if digest_file is not None else None,
+                prior_event_id=prior_event_id,
+                transferee=transferee,
+                transferee_npub=format_pubkey(transferee_pubkey_hex),
             )
-        _warn_if_missing_prior_accept(referenced_event)
-        resolved_comment = comment or (
-            "transfer initiate; "
-            f"object={format_object_identifier(object_digest_for_event)}; "
-            f"prior_event={referenced_event.id}; "
-            f"origin_event={resolved_origin.id}; "
-            f"transferee={format_pubkey(transferee_pubkey_hex)}; "
-            f"initiator={format_pubkey(author_pubkey_hex)}"
-        )
-        existing_events = await _find_existing_transfer_records(
-            relays=resolved_relays,
-            object_digest=object_digest_for_event,
-            action="initiate",
-            pubkey_hex=author_pubkey_hex,
-            query_timeout=resolved_query_timeout,
-            limit=resolved_limit,
-        )
-        if existing_events:
-            latest = existing_events[0]
-            click.secho(
-                "WARNING: a transfer initiate event already exists for this author and object; "
-                "you may be publishing another transfer initiate record.",
-                fg="yellow",
-                bold=True,
-            )
-            click.echo(f"Existing event: {latest.id}")
-            click.echo(f"Object:         {format_object_identifier(object_digest_for_event)}")
-            click.confirm(
-                click.style("Continue publishing this transfer initiate event?", fg="yellow", bold=True),
-                default=False,
-                abort=True,
-            )
-        event = Event(
-            kind=CONTROL_TRANSFER_KIND,
-            content=resolved_comment,
-            pub_key=author_pubkey_hex,
-            tags=[
-                ["o", object_digest_for_event],
-                ["e", referenced_event.id],
-                ["origin", resolved_origin.id],
-                ["p", transferee_pubkey_hex],
-                ["action", "initiate"],
-            ],
-        )
-        event.sign(keys.private_key_hex())
-        await _run_publish_transfer_event(
-            relays=resolved_relays,
-            event=event,
-            publish_wait=resolved_publish_wait,
-            query_timeout=resolved_query_timeout,
-            verify=verify,
-            json_output=json_output,
-        )
+        _emit_service_control_result(result, verify=verify, json_output=json_output)
 
     asyncio.run(_publish())
 
@@ -1596,69 +1697,32 @@ def terminate_etr(
     object_digest, resolved_digest_file = resolve_query_digest(digest, digest_file)
 
     async def _publish() -> None:
-        author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
-        resolved_origin, referenced_event = await _resolve_active_chain_for_controller(
-            relays=resolved_relays,
-            object_digest=object_digest,
-            author_pubkey_hex=author_pubkey_hex,
-            query_timeout=resolved_query_timeout,
-            limit=resolved_limit,
-        )
-
-        _warn_if_missing_prior_accept(referenced_event)
-        resolved_comment = comment or (
-            "terminate etr; "
-            f"object={format_object_identifier(object_digest)}; "
-            f"prior_event={referenced_event.id}; "
-            f"origin_event={resolved_origin.id}; "
-            f"terminator={format_pubkey(author_pubkey_hex)}"
-        )
-        existing_events = await _find_existing_transfer_records(
-            relays=resolved_relays,
-            object_digest=object_digest,
-            action="terminate",
-            pubkey_hex=author_pubkey_hex,
-            query_timeout=resolved_query_timeout,
-            limit=resolved_limit,
-        )
-        if existing_events:
-            latest = existing_events[0]
-            click.secho(
-                "WARNING: a terminate event already exists for this author and object; "
-                "you may be publishing another termination record.",
-                fg="yellow",
-                bold=True,
+        try:
+            result = await publish_auxiliary_control_event(
+                relays=resolved_relays,
+                object_digest=object_digest,
+                prior_event_id=None,
+                signer_nsec=keys.private_key_bech32(),
+                action=ACTION_TERMINATE,
+                comment=comment,
+                publish_wait=resolved_publish_wait,
+                query_timeout=resolved_query_timeout,
+                limit=resolved_limit,
+                verify=verify,
+                force=force,
             )
-            click.echo(f"Existing event: {latest.id}")
-            click.echo(f"Object:         {format_object_identifier(object_digest)}")
-            if resolved_digest_file is not None:
-                click.echo(f"Source:         sha256({resolved_digest_file})")
-            click.confirm(
-                click.style("Continue publishing this termination event?", fg="yellow", bold=True),
-                default=False,
-                abort=True,
+        except ControlEventError as exc:
+            _raise_or_emit_control_error(
+                exc,
+                json_output=json_output,
+                command="terminate-etr",
+                object_digest=object_digest,
+                object_id=format_object_identifier(object_digest),
+                digest_source=str(resolved_digest_file) if resolved_digest_file is not None else None,
             )
-
-        event = Event(
-            kind=CONTROL_TRANSFER_KIND,
-            content=resolved_comment,
-            pub_key=author_pubkey_hex,
-            tags=[
-                ["o", object_digest],
-                ["e", referenced_event.id],
-                ["origin", resolved_origin.id],
-                ["action", "terminate"],
-            ],
-        )
-        event.sign(keys.private_key_hex())
-        await _run_publish_transfer_event(
-            relays=resolved_relays,
-            event=event,
-            publish_wait=resolved_publish_wait,
-            query_timeout=resolved_query_timeout,
-            verify=verify,
-            json_output=json_output,
-        )
+        if resolved_digest_file is not None and not json_output:
+            click.echo(f"Source:         sha256({resolved_digest_file})")
+        _emit_service_control_result(result, verify=verify, json_output=json_output)
 
     asyncio.run(_publish())
 
@@ -1684,7 +1748,7 @@ def terminate_etr(
 )
 @click.option("--force", is_flag=True, help="Suppress confirmation prompts.")
 @click.option("--type", "attestation_type", default=None, help="Optional attestation type tag.")
-@click.option("--subject", default=None, help="Optional subject npub to place in the p tag.")
+@click.option("--subject", default=None, help="Optional subject profile, alias, npub, hex pubkey, or NIP-05 identifier for the p tag.")
 @click.option("--ref", "external_ref", default=None, help="Optional external reference tag value.")
 @click.option(
     "--comment",
@@ -1746,89 +1810,36 @@ def attest(
         object_digest, _ = resolve_query_digest(digest, digest_file)
 
     async def _publish() -> None:
-        author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
-        if prior_event_id is not None:
-            resolved_origin, referenced_event = await _resolve_origin_from_prior_event(
-                relays=resolved_relays,
-                prior_event_id_hex=prior_event_id,
-                query_timeout=resolved_query_timeout,
-            )
-            object_digest_for_event = _derive_origin_object_digest(resolved_origin)
-        else:
-            resolved_origin, referenced_event = await _resolve_single_active_chain_for_object(
-                relays=resolved_relays,
-                object_digest=object_digest,
-                query_timeout=resolved_query_timeout,
-                limit=resolved_limit,
-            )
-            object_digest_for_event = object_digest
-
         subject_pubkey_hex = None
         if subject:
-            parsed_subjects = parse_authors(subject)
-            if not parsed_subjects:
-                raise click.ClickException("subject must resolve to a valid npub")
-            subject_pubkey_hex = parsed_subjects[0]
-
-        resolved_comment = comment or (
-            "attest; "
-            f"object={format_object_identifier(object_digest_for_event)}; "
-            f"prior_event={referenced_event.id}; "
-            f"origin_event={resolved_origin.id}; "
-            f"attestor={format_pubkey(author_pubkey_hex)}"
-        )
-        existing_events = await _find_existing_transfer_records(
-            relays=resolved_relays,
-            object_digest=object_digest_for_event,
-            action="attest",
-            pubkey_hex=author_pubkey_hex,
-            query_timeout=resolved_query_timeout,
-            limit=resolved_limit,
-        )
-        if existing_events:
-            latest = existing_events[0]
-            click.secho(
-                "WARNING: an attestation event already exists for this author and object; "
-                "you may be publishing another attestation record.",
-                fg="yellow",
-                bold=True,
+            subject_pubkey_hex = _resolve_control_party_pubkey_hex(subject)
+        try:
+            result = await publish_auxiliary_control_event(
+                relays=resolved_relays,
+                object_digest=object_digest,
+                prior_event_id=prior_event_id,
+                signer_nsec=keys.private_key_bech32(),
+                action="attest",
+                comment=comment,
+                publish_wait=resolved_publish_wait,
+                query_timeout=resolved_query_timeout,
+                limit=resolved_limit,
+                verify=verify,
+                participant_pubkey_hex=subject_pubkey_hex,
+                control_type=attestation_type,
+                external_ref=external_ref,
+                force=force,
             )
-            click.echo(f"Existing event: {latest.id}")
-            click.echo(f"Object:         {format_object_identifier(object_digest_for_event)}")
-            click.confirm(
-                click.style("Continue publishing this attestation event?", fg="yellow", bold=True),
-                default=False,
-                abort=True,
+        except ControlEventError as exc:
+            _raise_or_emit_control_error(
+                exc,
+                json_output=json_output,
+                command="attest",
+                object_digest=object_digest,
+                object_id=format_object_identifier(object_digest) if object_digest else None,
+                prior_event_id=prior_event_id,
             )
-
-        tags = [
-            ["o", object_digest_for_event],
-            ["e", referenced_event.id],
-            ["origin", resolved_origin.id],
-            ["action", "attest"],
-        ]
-        if attestation_type:
-            tags.append(["type", attestation_type])
-        if subject_pubkey_hex:
-            tags.append(["p", subject_pubkey_hex])
-        if external_ref:
-            tags.append(["ref", external_ref])
-
-        event = Event(
-            kind=CONTROL_TRANSFER_KIND,
-            content=resolved_comment,
-            pub_key=author_pubkey_hex,
-            tags=tags,
-        )
-        event.sign(keys.private_key_hex())
-        await _run_publish_transfer_event(
-            relays=resolved_relays,
-            event=event,
-            publish_wait=resolved_publish_wait,
-            query_timeout=resolved_query_timeout,
-            verify=verify,
-            json_output=json_output,
-        )
+        _emit_service_control_result(result, verify=verify, json_output=json_output)
 
     asyncio.run(_publish())
 
@@ -1848,100 +1859,38 @@ async def _publish_auxiliary_control_event(
     control_type: str | None = None,
     external_ref: str | None = None,
     encumbrance_event_id: str | None = None,
+    force: bool = False,
     json_output: bool = False,
 ) -> None:
-    author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
-    if prior_event_id is not None:
-        resolved_origin, referenced_event = await _resolve_origin_from_prior_event(
-            relays=relays,
-            prior_event_id_hex=prior_event_id,
-            query_timeout=query_timeout,
-        )
-        object_digest_for_event = _derive_origin_object_digest(resolved_origin)
-    else:
-        resolved_origin, referenced_event = await _resolve_single_active_chain_for_object(
+    try:
+        result = await publish_auxiliary_control_event(
             relays=relays,
             object_digest=object_digest,
+            prior_event_id=prior_event_id,
+            signer_nsec=keys.private_key_bech32(),
+            action=action,
+            comment=comment,
+            publish_wait=publish_wait,
             query_timeout=query_timeout,
             limit=limit,
+            verify=verify,
+            participant_pubkey_hex=participant_pubkey_hex,
+            control_type=control_type,
+            external_ref=external_ref,
+            encumbrance_event_id=encumbrance_event_id,
+            force=force,
         )
-        object_digest_for_event = object_digest
-
-    if encumbrance_event_id is not None:
-        encumbrance_event = await _fetch_event_by_id(
-            relays=relays,
-            event_id_hex=encumbrance_event_id,
-            query_timeout=query_timeout,
+    except ControlEventError as exc:
+        _raise_or_emit_control_error(
+            exc,
+            json_output=json_output,
+            command=action,
+            object_digest=object_digest,
+            object_id=format_object_identifier(object_digest) if object_digest else None,
+            prior_event_id=prior_event_id,
+            encumbrance_event_id=encumbrance_event_id,
         )
-        if encumbrance_event is None:
-            raise click.ClickException("encumbrance event could not be found on the configured relays")
-        if (
-            encumbrance_event.kind != CONTROL_TRANSFER_KIND
-            or _event_tag_value(encumbrance_event, "action") != ACTION_ENCUMBER
-        ):
-            raise click.ClickException(f"encumbrance event must be a kind {CONTROL_TRANSFER_KIND} action=encumber event")
-
-    resolved_comment = comment or (
-        f"{action}; "
-        f"object={format_object_identifier(object_digest_for_event)}; "
-        f"prior_event={referenced_event.id}; "
-        f"origin_event={resolved_origin.id}; "
-        f"signer={format_pubkey(author_pubkey_hex)}"
-    )
-    existing_events = await _find_existing_transfer_records(
-        relays=relays,
-        object_digest=object_digest_for_event,
-        action=action,
-        pubkey_hex=author_pubkey_hex,
-        query_timeout=query_timeout,
-        limit=limit,
-    )
-    if existing_events:
-        latest = existing_events[0]
-        click.secho(
-            f"WARNING: an {action} event already exists for this author and object; "
-            f"you may be publishing another {action} record.",
-            fg="yellow",
-            bold=True,
-        )
-        click.echo(f"Existing event: {latest.id}")
-        click.echo(f"Object:         {format_object_identifier(object_digest_for_event)}")
-        click.confirm(
-            click.style(f"Continue publishing this {action} event?", fg="yellow", bold=True),
-            default=False,
-            abort=True,
-        )
-
-    tags = [
-        ["o", object_digest_for_event],
-        ["e", referenced_event.id],
-        ["origin", resolved_origin.id],
-        ["action", action],
-    ]
-    if participant_pubkey_hex is not None:
-        tags.append(["p", participant_pubkey_hex])
-    if encumbrance_event_id is not None:
-        tags.append(["enc", encumbrance_event_id])
-    if control_type:
-        tags.append(["type", control_type])
-    if external_ref:
-        tags.append(["ref", external_ref])
-
-    event = Event(
-        kind=CONTROL_TRANSFER_KIND,
-        content=resolved_comment,
-        pub_key=author_pubkey_hex,
-        tags=tags,
-    )
-    event.sign(keys.private_key_hex())
-    await _run_publish_transfer_event(
-        relays=relays,
-        event=event,
-        publish_wait=publish_wait,
-        query_timeout=query_timeout,
-        verify=verify,
-        json_output=json_output,
-    )
+    _emit_service_control_result(result, verify=verify, json_output=json_output)
 
 
 def _resolve_control_publish_context(
@@ -1989,7 +1938,7 @@ def _resolve_control_object_args(
 @click.option("--relays", default=None, help="Comma separated relay URLs to use.")
 @click.option("--prior-event", default=None, help="Prior event id in hex or simple nevent form.")
 @click.option("--digest", default=None, help="nobj or 32-byte hex digest for the ETR object to encumber.")
-@click.option("--beneficiary", required=True, help="Beneficiary or secured-party npub for the p tag.")
+@click.option("--beneficiary", required=True, help="Beneficiary or secured-party profile, alias, npub, hex pubkey, or NIP-05 identifier for the p tag.")
 @click.option(
     "--as-user",
     default=None,
@@ -2034,9 +1983,7 @@ def encumber(
         _resolve_control_publish_context(profile, relays, as_user, force, publish_wait, query_timeout, limit)
     )
     prior_event_id, object_digest = _resolve_control_object_args(prior_event, digest, digest_file)
-    parsed_beneficiary = parse_authors(beneficiary)
-    if not parsed_beneficiary:
-        raise click.ClickException("beneficiary must resolve to a valid npub")
+    beneficiary_pubkey_hex = _resolve_control_party_pubkey_hex(beneficiary)
     asyncio.run(
         _publish_auxiliary_control_event(
             relays=resolved_relays,
@@ -2049,9 +1996,10 @@ def encumber(
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
             verify=verify,
-            participant_pubkey_hex=parsed_beneficiary[0],
+            participant_pubkey_hex=beneficiary_pubkey_hex,
             control_type=control_type,
             external_ref=external_ref,
+            force=force,
             json_output=json_output,
         )
     )
@@ -2064,7 +2012,7 @@ def encumber(
 @click.option("--prior-event", default=None, help="Prior event id in hex or simple nevent form.")
 @click.option("--digest", default=None, help="nobj or 32-byte hex digest for the ETR object to discharge.")
 @click.option("--encumbrance-event", required=True, help="Encumbrance event id in hex or simple nevent form.")
-@click.option("--releasing-party", default=None, help="Optional beneficiary or releasing-party npub for the p tag.")
+@click.option("--releasing-party", default=None, help="Optional beneficiary or releasing-party profile, alias, npub, hex pubkey, or NIP-05 identifier for the p tag.")
 @click.option(
     "--as-user",
     default=None,
@@ -2110,10 +2058,7 @@ def discharge(
     prior_event_id, object_digest = _resolve_control_object_args(prior_event, digest, digest_file)
     participant_pubkey_hex = None
     if releasing_party:
-        parsed_releasing_party = parse_authors(releasing_party)
-        if not parsed_releasing_party:
-            raise click.ClickException("releasing-party must resolve to a valid npub")
-        participant_pubkey_hex = parsed_releasing_party[0]
+        participant_pubkey_hex = _resolve_control_party_pubkey_hex(releasing_party)
     asyncio.run(
         _publish_auxiliary_control_event(
             relays=resolved_relays,
@@ -2129,6 +2074,7 @@ def discharge(
             participant_pubkey_hex=participant_pubkey_hex,
             external_ref=external_ref,
             encumbrance_event_id=normalize_event_reference(encumbrance_event),
+            force=force,
             json_output=json_output,
         )
     )
@@ -2140,7 +2086,7 @@ def discharge(
 @click.option("--relays", default=None, help="Comma separated relay URLs to use.")
 @click.option("--prior-event", default=None, help="Prior event id in hex or simple nevent form.")
 @click.option("--digest", default=None, help="nobj or 32-byte hex digest for the ETR object to redeem.")
-@click.option("--obligor", required=True, help="Obligor npub for the p tag.")
+@click.option("--obligor", required=True, help="Obligor profile, alias, npub, hex pubkey, or NIP-05 identifier for the p tag.")
 @click.option(
     "--as-user",
     default=None,
@@ -2183,9 +2129,7 @@ def redeem(
         _resolve_control_publish_context(profile, relays, as_user, force, publish_wait, query_timeout, limit)
     )
     prior_event_id, object_digest = _resolve_control_object_args(prior_event, digest, digest_file)
-    parsed_obligor = parse_authors(obligor)
-    if not parsed_obligor:
-        raise click.ClickException("obligor must resolve to a valid npub")
+    obligor_pubkey_hex = _resolve_control_party_pubkey_hex(obligor)
     asyncio.run(
         _publish_auxiliary_control_event(
             relays=resolved_relays,
@@ -2198,8 +2142,9 @@ def redeem(
             query_timeout=resolved_query_timeout,
             limit=resolved_limit,
             verify=verify,
-            participant_pubkey_hex=parsed_obligor[0],
+            participant_pubkey_hex=obligor_pubkey_hex,
             external_ref=external_ref,
+            force=force,
             json_output=json_output,
         )
     )
@@ -2278,101 +2223,31 @@ def transfer_accept(
         object_digest, _ = resolve_query_digest(digest, digest_file)
 
     async def _publish() -> None:
-        author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
-        current_initiate_event_id = initiate_event_id
-        if current_initiate_event_id is not None:
-            initiate = await _fetch_event_by_id(
-                relays=resolved_relays,
-                event_id_hex=current_initiate_event_id,
-                query_timeout=resolved_query_timeout,
-            )
-            if initiate is None:
-                raise click.ClickException("transfer initiate event could not be found on the configured relays")
-            if initiate.kind != CONTROL_TRANSFER_KIND:
-                raise click.ClickException(f"referenced initiate event must be kind {CONTROL_TRANSFER_KIND}")
-            initiate_action = _event_tag_value(initiate, "action")
-            if initiate_action != "initiate":
-                raise click.ClickException("referenced event must be a transfer initiate event")
-            object_digest_for_event = _event_tag_value(initiate, "o")
-            if object_digest_for_event is None:
-                raise click.ClickException("referenced initiate event does not contain an o tag")
-            object_digest_for_event = assert_hex_object_identifier(object_digest_for_event)
-        else:
-            _, initiate = await _resolve_pending_initiate_for_transferee(
+        if not force:
+            click.confirm("Confirm publishing this transfer accept event?", default=True, abort=True)
+        try:
+            result = await publish_transfer_accept_event(
                 relays=resolved_relays,
                 object_digest=object_digest,
-                author_pubkey_hex=author_pubkey_hex,
+                initiate_event_id=initiate_event_id,
+                signer_nsec=keys.private_key_bech32(),
+                comment=comment or None,
+                publish_wait=resolved_publish_wait,
                 query_timeout=resolved_query_timeout,
                 limit=resolved_limit,
+                verify=verify,
+                force=force,
             )
-            current_initiate_event_id = initiate.id
-            object_digest_for_event = object_digest
-
-        intended_transferee_pubkey_hex = _event_tag_value(initiate, "p")
-        if intended_transferee_pubkey_hex is None:
-            raise click.ClickException("referenced initiate event does not contain a p tag for the intended transferee")
-        intended_transferee_pubkey_hex = assert_hex_pubkey(intended_transferee_pubkey_hex)
-        if author_pubkey_hex != intended_transferee_pubkey_hex:
-            raise click.ClickException(
-                "transfer accept signer must match the intended transferee named in the referenced initiate event "
-                f"({format_pubkey(intended_transferee_pubkey_hex)})"
+        except ControlEventError as exc:
+            _raise_or_emit_control_error(
+                exc,
+                json_output=json_output,
+                command="transfer-accept",
+                object_digest=object_digest,
+                object_id=format_object_identifier(object_digest) if object_digest else None,
+                initiate_event_id=initiate_event_id,
             )
-
-        resolved_comment = comment or (
-            "transfer accept; "
-            f"object={format_object_identifier(object_digest_for_event)}; "
-            f"initiate_event={current_initiate_event_id}; "
-            f"acceptor={format_pubkey(author_pubkey_hex)}; "
-            f"initiator={format_pubkey(initiate.pub_key)}"
-        )
-        existing_events = await _find_existing_transfer_records(
-            relays=resolved_relays,
-            object_digest=object_digest_for_event,
-            action="accept",
-            pubkey_hex=author_pubkey_hex,
-            query_timeout=resolved_query_timeout,
-            limit=resolved_limit,
-        )
-        if existing_events:
-            latest = existing_events[0]
-            click.secho(
-                "WARNING: a transfer accept event already exists for this author and object; "
-                "you may be publishing another transfer accept record.",
-                fg="yellow",
-                bold=True,
-            )
-            click.echo(f"Existing event: {latest.id}")
-            click.echo(f"Object:         {format_object_identifier(object_digest_for_event)}")
-            click.confirm(
-                click.style("Continue publishing this transfer accept event?", fg="yellow", bold=True),
-                default=False,
-                abort=True,
-            )
-        click.confirm(
-            "Confirm publishing this transfer accept event?",
-            default=True,
-            abort=True,
-        )
-        event = Event(
-            kind=CONTROL_TRANSFER_KIND,
-            content=resolved_comment,
-            pub_key=author_pubkey_hex,
-            tags=[
-                ["o", object_digest_for_event],
-                ["e", current_initiate_event_id],
-                ["p", initiate.pub_key],
-                ["action", "accept"],
-            ],
-        )
-        event.sign(keys.private_key_hex())
-        await _run_publish_transfer_event(
-            relays=resolved_relays,
-            event=event,
-            publish_wait=resolved_publish_wait,
-            query_timeout=resolved_query_timeout,
-            verify=verify,
-            json_output=json_output,
-        )
+        _emit_service_control_result(result, verify=verify, json_output=json_output)
 
     asyncio.run(_publish())
 

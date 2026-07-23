@@ -171,6 +171,15 @@ def _print_separator(indent: str = "", width: int = 72, char: str = "-") -> None
     click.echo(f"{indent}{char * width}")
 
 
+def _print_current_controller_match(current_controller: dict[str, Any], indent: str = "  ") -> None:
+    if current_controller.get("is_current_profile"):
+        click.secho(
+            f"{indent}you may be the current controller for this object (active profile matches controller)",
+            fg="green",
+            bold=True,
+        )
+
+
 async def _run_query_object(
     relays: str,
     digest: str,
@@ -352,6 +361,7 @@ async def _run_query_etr(
         click.echo("current controller:")
         click.echo(f"  npub: {result['current_controller']['npub']}")
         click.echo(f"  basis: {result['current_controller']['basis']}")
+        _print_current_controller_match(result["current_controller"])
         if result["current_controller"]["profile"]:
             click.echo("  current controller profile:")
             for field, value in result["current_controller"]["profile"]:
@@ -370,6 +380,7 @@ async def _run_query_etr(
         click.echo("current controller:")
         click.echo(f"  npub: {result['current_controller']['npub']}")
         click.echo(f"  basis: {result['current_controller']['basis']}")
+        _print_current_controller_match(result["current_controller"])
         if result["current_controller"]["profile"]:
             click.echo("  current controller profile:")
             for field, value in result["current_controller"]["profile"]:
@@ -479,6 +490,7 @@ async def _run_query_etr(
         click.secho(f"  basis: {current_controller['basis']}", fg="yellow", bold=True)
     else:
         click.echo(f"  basis: {current_controller['basis']}")
+    _print_current_controller_match(current_controller)
     if current_controller["npub"] is not None and current_controller["profile"]:
             click.echo("  current controller profile:")
             for field, value in current_controller["profile"]:

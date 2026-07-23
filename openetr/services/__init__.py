@@ -1,5 +1,6 @@
 """Shared service-layer workflows for CLI and web adapters."""
 
+from openetr.services.control_guard_policy import ControlEventError, ControlGuardPolicy, DefaultControlGuardPolicy
 from openetr.services.issue_etr import publish_issue_etr
 from openetr.services.control_events import publish_auxiliary_control_event, publish_transfer_accept_event, publish_transfer_initiate_event
 from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
@@ -15,4 +16,7 @@ __all__ = [
     "publish_profile_updates",
     "create_relay_backed_profile",
     "initialize_relay_backed_root",
+    "ControlEventError",
+    "ControlGuardPolicy",
+    "DefaultControlGuardPolicy",
 ]

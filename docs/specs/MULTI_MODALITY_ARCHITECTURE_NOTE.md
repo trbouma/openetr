@@ -23,6 +23,13 @@ That means the business logic for querying, issuing, transferring, validating, a
 
 The goal is equivalence of behavior across modalities, with differences only where the interaction model requires them.
 
+The same OpenETR component should also be usable in two integration styles:
+
+- embedded directly into another application runtime, where the host application imports and calls `openetr` services;
+- exposed by a running OpenETR instance, where another system calls REST APIs over HTTP.
+
+Both styles should route through the same object/service layer.
+
 ## The Four Modalities
 
 ### 1. Web Application
@@ -50,6 +57,19 @@ OpenETR web flows should follow a HATEOAS-oriented philosophy:
 
 In this model, htmx is a progressive enhancement over server-rendered HTML, not a separate client application. A profile switch, issue action, query, transfer, or confirmation should still be understandable as a form submission or link traversal. The browser may update a page fragment in place, but the state transition remains owned by the server and the shared `openetr` services.
 
+### 1a. Web REST/API Mode
+
+The same running web application may also expose REST-style endpoints for agents, scripts, services, and external product systems.
+
+Its responsibilities are:
+
+- accept structured requests, including uploads, object identifiers, profile references, and control-action parameters
+- return structured JSON responses
+- surface guard warnings, confirmation requirements, and policy failures as machine-readable results
+- preserve the same OpenETR behavior used by the human web pages
+
+The REST/API mode should be understood as an adapter over the OpenETR component, not as a separate policy implementation.
+
 ### 2. CLI for Human Use
 
 The human CLI exists for operators, testers, and developers who want direct terminal workflows.
@@ -76,12 +96,14 @@ Its responsibilities are:
 
 This does not necessarily require a completely separate executable.
 
-The preferred approach is that the existing CLI can support an agent-oriented mode through flags such as:
+The preferred approach is that the existing CLI supports an agent-oriented mode through flags such as:
 
 - `--json`
 - `--no-input`
 - `--confirm`
 - `--quiet`
+
+In the current implementation, `--json` is the primary boundary for agent-friendly command output. Commands using `--json` should return structured success, warning, confirmation-required, and error responses rather than human-only terminal text.
 
 ### 4. API for Agent Use
 
@@ -95,6 +117,58 @@ Its responsibilities are:
 - provide stable request and response shapes suitable for automation
 
 The API should not diverge semantically from the CLI and web app.
+
+## Runtime And Service Integration
+
+OpenETR can be integrated in two complementary ways.
+
+### Embedded Component
+
+An application runtime can import the OpenETR component and call its service layer directly.
+
+This is useful when the host application wants OpenETR behavior inside its own process, account model, job queue, transaction logging, custody model, or workflow engine.
+
+In this mode, the host application supplies its own surrounding concerns:
+
+- user authentication
+- authorization
+- tenant or organization structure
+- UI and workflow
+- storage caches or indexes
+- domain-specific policy selection
+
+The OpenETR component supplies the control-layer behavior:
+
+- digest and object-id handling
+- identifier resolution
+- baseline or custom guard evaluation
+- event construction
+- signing
+- relay publication and query
+- verifier result construction
+
+### Running OpenETR Service
+
+An application may instead call a running OpenETR instance over REST APIs.
+
+This is useful when the host system is not Python-based, wants a process boundary, wants centralized relay/profile management, or wants a shared OpenETR service for several applications.
+
+In this mode, the OpenETR service acts as an HTTP adapter over the same component.
+
+The integration choice is therefore:
+
+```text
+host app imports openetr
+        or
+host app calls OpenETR REST API
+        ↓
+same OpenETR component/service layer
+        ↓
+canonical identifiers
+baseline or custom policy guards
+signed event publish/query
+structured verifier output
+```
 
 ## Core Architectural Principle
 
@@ -116,6 +190,23 @@ That core should own:
 - validation and policy semantics
 
 The adapters should own only the modality-specific concerns.
+
+In compact form:
+
+```text
+Human web UI
+Agent REST/API
+Human CLI
+Agent CLI with --json
+Embedded application runtime
+        ↓
+OpenETR component/service layer
+        ↓
+identifier resolution
+baseline or custom policy guards
+event construction / query
+verification / structured result
+```
 
 ## What Belongs in `openetr`
 
@@ -216,7 +307,7 @@ Examples include:
 - query results
 - publish results
 - guard results
-- transfer validation results
+- control-event validation results
 - profile publish results
 
 These may initially be dictionaries.

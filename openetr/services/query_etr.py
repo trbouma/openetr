@@ -377,6 +377,7 @@ async def build_query_etr_result(
             "npub": format_pubkey(initial_event.pub_key),
             "basis": "origin issuer",
             "profile": compact_profile(initial_profile),
+            "is_current_profile": author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex,
         }
         result["lifecycle_state"] = "active"
         result["lifecycle_basis"] = "origin event"
@@ -488,6 +489,7 @@ async def build_query_etr_result(
             "npub": format_pubkey(initial_event.pub_key),
             "basis": "origin issuer",
             "profile": compact_profile(initial_profile),
+            "is_current_profile": author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex,
         }
         result["lifecycle_state"] = "active"
         result["lifecycle_basis"] = "no lifecycle-changing control events"
@@ -514,6 +516,7 @@ async def build_query_etr_result(
         "npub": format_pubkey(current_controller_pubkey_hex) if current_controller_pubkey_hex else None,
         "basis": current_controller_basis,
         "profile": compact_profile(current_controller_profile),
+        "is_current_profile": author_pubkey_hex is not None and current_controller_pubkey_hex == author_pubkey_hex,
     }
 
     lifecycle_events = [evt for evt in transfer_events if is_lifecycle_state_event(evt)]

@@ -14,6 +14,11 @@ from openetr.control import (
     ACTION_TERMINATE,
     CONTROL_EVENT_KIND,
 )
+from openetr.services.control_guard_policy import (
+    DEFAULT_CONTROL_GUARD_POLICY,
+    ControlEventError,
+    ControlGuardPolicy,
+)
 from openetr.helpers import (
     assert_hex_event_id,
     assert_hex_object_identifier,
@@ -23,10 +28,6 @@ from openetr.helpers import (
     normalize_event_reference,
     resolve_keys,
 )
-
-
-class ControlEventError(Exception):
-    """Raised when a control event cannot be built, resolved, or published."""
 
 
 def event_tag_value(event: Event, tag_name: str) -> str | None:
@@ -235,38 +236,13 @@ async def resolve_active_chain_for_controller(
     query_timeout: int,
     limit: int,
 ) -> tuple[Event, Event]:
-    origin_events = await find_origin_events_for_object(relays, object_digest, query_timeout, limit)
-    if not origin_events:
-        raise ControlEventError("no origin event was found for this object on the configured relays")
-
-    control_events = await find_control_events_for_object(relays, object_digest, query_timeout, limit)
-    events_by_origin_id = group_control_events_by_origin(origin_events, control_events)
-
-    candidates: list[tuple[Event, Event]] = []
-    for origin_event in origin_events:
-        chain_events = events_by_origin_id.get(origin_event.id, [])
-        latest_event = latest_state_event(origin_event, chain_events)
-        latest_action = event_tag_value(latest_event, "action")
-        if control_action_terminates(latest_action):
-            continue
-        if latest_event.kind == DEFAULT_KIND:
-            current_controller_pubkey_hex = assert_hex_pubkey(origin_event.pub_key)
-        else:
-            current_controller_pubkey_hex = event_tag_value(latest_event, "p") or latest_event.pub_key
-            current_controller_pubkey_hex = assert_hex_pubkey(current_controller_pubkey_hex)
-
-        if current_controller_pubkey_hex == author_pubkey_hex:
-            candidates.append((origin_event, latest_event))
-
-    if not candidates:
-        raise ControlEventError(
-            "the current signer is not the current controller of any active control chain for this object"
-        )
-    if len(candidates) > 1:
-        raise ControlEventError(
-            "multiple active control chains for this object are currently controlled by this signer; the target chain is ambiguous"
-        )
-    return candidates[0]
+    return await DEFAULT_CONTROL_GUARD_POLICY.resolve_active_chain_for_controller(
+        relays,
+        object_digest,
+        author_pubkey_hex,
+        query_timeout,
+        limit,
+    )
 
 
 async def resolve_pending_initiate_for_transferee(
@@ -276,34 +252,13 @@ async def resolve_pending_initiate_for_transferee(
     query_timeout: int,
     limit: int,
 ) -> tuple[Event, Event]:
-    origin_events = await find_origin_events_for_object(relays, object_digest, query_timeout, limit)
-    if not origin_events:
-        raise ControlEventError("no origin event was found for this object on the configured relays")
-
-    control_events = await find_control_events_for_object(relays, object_digest, query_timeout, limit)
-    events_by_origin_id = group_control_events_by_origin(origin_events, control_events)
-
-    candidates: list[tuple[Event, Event]] = []
-    for origin_event in origin_events:
-        chain_events = events_by_origin_id.get(origin_event.id, [])
-        if not chain_events:
-            continue
-        latest_event = latest_state_event(origin_event, chain_events)
-        if event_tag_value(latest_event, "action") != ACTION_INITIATE:
-            continue
-        intended_transferee_pubkey_hex = event_tag_value(latest_event, "p")
-        if intended_transferee_pubkey_hex and assert_hex_pubkey(intended_transferee_pubkey_hex) == author_pubkey_hex:
-            candidates.append((origin_event, latest_event))
-
-    if not candidates:
-        raise ControlEventError(
-            "no pending transfer initiate event was found for this signer on an active control chain for this object"
-        )
-    if len(candidates) > 1:
-        raise ControlEventError(
-            "multiple pending transfer initiate events for this object are addressed to this signer; the target chain is ambiguous"
-        )
-    return candidates[0]
+    return await DEFAULT_CONTROL_GUARD_POLICY.resolve_pending_initiate_for_transferee(
+        relays,
+        object_digest,
+        author_pubkey_hex,
+        query_timeout,
+        limit,
+    )
 
 
 async def resolve_single_active_chain_for_object(
@@ -312,26 +267,12 @@ async def resolve_single_active_chain_for_object(
     query_timeout: int,
     limit: int,
 ) -> tuple[Event, Event]:
-    origin_events = await find_origin_events_for_object(relays, object_digest, query_timeout, limit)
-    if not origin_events:
-        raise ControlEventError("no origin event was found for this object on the configured relays")
-
-    control_events = await find_control_events_for_object(relays, object_digest, query_timeout, limit)
-    events_by_origin_id = group_control_events_by_origin(origin_events, control_events)
-
-    candidates: list[tuple[Event, Event]] = []
-    for origin_event in origin_events:
-        chain_events = events_by_origin_id.get(origin_event.id, [])
-        latest_state = latest_state_event(origin_event, chain_events)
-        if control_action_terminates(event_tag_value(latest_state, "action")):
-            continue
-        candidates.append((origin_event, latest_chain_event(origin_event, chain_events)))
-
-    if not candidates:
-        raise ControlEventError("no active control chain was found for this object on the configured relays")
-    if len(candidates) > 1:
-        raise ControlEventError("multiple active control chains exist for this object; the target chain is ambiguous")
-    return candidates[0]
+    return await DEFAULT_CONTROL_GUARD_POLICY.resolve_single_active_chain_for_object(
+        relays,
+        object_digest,
+        query_timeout,
+        limit,
+    )
 
 
 def derive_origin_object_digest(origin_event: Event) -> str:
@@ -348,29 +289,11 @@ async def resolve_origin_from_prior_event(
     prior_event_id_hex: str,
     query_timeout: int,
 ) -> tuple[Event, Event]:
-    starting_event = await fetch_event_by_id(relays, prior_event_id_hex, query_timeout)
-    if starting_event is None:
-        raise ControlEventError("prior event could not be found on the configured relays")
-    if starting_event.kind not in {DEFAULT_KIND, CONTROL_EVENT_KIND}:
-        raise ControlEventError(
-            f"prior event must be kind {DEFAULT_KIND} (origin) or {CONTROL_EVENT_KIND} (control event)"
-        )
-
-    current_event = starting_event
-    visited_ids: set[str] = set()
-    while True:
-        if current_event.id in visited_ids:
-            raise ControlEventError("prior event chain contains a cycle and could not be resolved to origin")
-        visited_ids.add(current_event.id)
-        if current_event.kind == DEFAULT_KIND:
-            return current_event, starting_event
-        previous_event_id = event_tag_value(current_event, "e")
-        if previous_event_id is None:
-            raise ControlEventError("prior control event does not reference an earlier event in its e tag")
-        previous_event = await fetch_event_by_id(relays, assert_hex_event_id(previous_event_id), query_timeout)
-        if previous_event is None:
-            raise ControlEventError("prior control event could not be traversed back to an origin event")
-        current_event = previous_event
+    return await DEFAULT_CONTROL_GUARD_POLICY.resolve_origin_from_prior_event(
+        relays,
+        prior_event_id_hex,
+        query_timeout,
+    )
 
 
 async def publish_event_and_verify(
@@ -486,20 +409,27 @@ async def publish_auxiliary_control_event(
     external_ref: str | None = None,
     encumbrance_event_id: str | None = None,
     force: bool = False,
+    guard_policy: ControlGuardPolicy | None = None,
 ) -> dict[str, Any]:
     keys = resolve_keys(signer_nsec)
     author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
+    guards = guard_policy or DEFAULT_CONTROL_GUARD_POLICY
     if prior_event_id is not None:
-        resolved_origin, referenced_event = await resolve_origin_from_prior_event(
+        resolved_origin, referenced_event = await guards.resolve_origin_from_prior_event(
             relays, assert_hex_event_id(normalize_event_reference(prior_event_id)), query_timeout
         )
         object_digest_for_event = derive_origin_object_digest(resolved_origin)
     else:
         if object_digest is None:
             raise ControlEventError("object_digest is required when prior_event_id is not supplied")
-        resolved_origin, referenced_event = await resolve_single_active_chain_for_object(
-            relays, object_digest, query_timeout, limit
-        )
+        if action == ACTION_TERMINATE:
+            resolved_origin, referenced_event = await guards.resolve_active_chain_for_controller(
+                relays, object_digest, author_pubkey_hex, query_timeout, limit
+            )
+        else:
+            resolved_origin, referenced_event = await guards.resolve_single_active_chain_for_object(
+                relays, object_digest, query_timeout, limit
+            )
         object_digest_for_event = assert_hex_object_identifier(object_digest)
 
     if encumbrance_event_id is not None:
@@ -567,18 +497,20 @@ async def publish_transfer_initiate_event(
     limit: int = DEFAULT_LIMIT,
     verify: str = "any",
     force: bool = False,
+    guard_policy: ControlGuardPolicy | None = None,
 ) -> dict[str, Any]:
     keys = resolve_keys(signer_nsec)
     author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
+    guards = guard_policy or DEFAULT_CONTROL_GUARD_POLICY
     if prior_event_id is not None:
-        resolved_origin, referenced_event = await resolve_origin_from_prior_event(
+        resolved_origin, referenced_event = await guards.resolve_origin_from_prior_event(
             relays, assert_hex_event_id(normalize_event_reference(prior_event_id)), query_timeout
         )
         object_digest_for_event = derive_origin_object_digest(resolved_origin)
     else:
         if object_digest is None:
             raise ControlEventError("object_digest is required when prior_event_id is not supplied")
-        resolved_origin, referenced_event = await resolve_active_chain_for_controller(
+        resolved_origin, referenced_event = await guards.resolve_active_chain_for_controller(
             relays, object_digest, author_pubkey_hex, query_timeout, limit
         )
         object_digest_for_event = assert_hex_object_identifier(object_digest)
@@ -641,7 +573,8 @@ async def publish_transfer_initiate_event(
 async def publish_transfer_accept_event(
     *,
     relays: str,
-    object_digest: str,
+    object_digest: str | None = None,
+    initiate_event_id: str | None = None,
     signer_nsec: str,
     comment: str | None = None,
     publish_wait: float = 2.0,
@@ -649,13 +582,44 @@ async def publish_transfer_accept_event(
     limit: int = DEFAULT_LIMIT,
     verify: str = "any",
     force: bool = False,
+    guard_policy: ControlGuardPolicy | None = None,
 ) -> dict[str, Any]:
     keys = resolve_keys(signer_nsec)
     author_pubkey_hex = assert_hex_pubkey(keys.public_key_hex())
-    object_digest = assert_hex_object_identifier(object_digest)
-    resolved_origin, initiate_event = await resolve_pending_initiate_for_transferee(
-        relays, object_digest, author_pubkey_hex, query_timeout, limit
-    )
+    guards = guard_policy or DEFAULT_CONTROL_GUARD_POLICY
+    if initiate_event_id is not None:
+        if object_digest is not None:
+            raise ControlEventError("supply either initiate_event_id or object_digest, not both")
+        resolved_origin, initiate_event = await guards.resolve_origin_from_prior_event(
+            relays,
+            assert_hex_event_id(normalize_event_reference(initiate_event_id)),
+            query_timeout,
+        )
+        if initiate_event.kind != CONTROL_EVENT_KIND:
+            raise ControlEventError(f"referenced initiate event must be kind {CONTROL_EVENT_KIND}")
+        if event_tag_value(initiate_event, "action") != ACTION_INITIATE:
+            raise ControlEventError("referenced event must be a transfer initiate event")
+        object_digest = event_tag_value(initiate_event, "o")
+        if object_digest is None:
+            raise ControlEventError("referenced initiate event does not contain an o tag")
+        object_digest = assert_hex_object_identifier(object_digest)
+    else:
+        if object_digest is None:
+            raise ControlEventError("object_digest is required when initiate_event_id is not supplied")
+        object_digest = assert_hex_object_identifier(object_digest)
+        resolved_origin, initiate_event = await guards.resolve_pending_initiate_for_transferee(
+            relays, object_digest, author_pubkey_hex, query_timeout, limit
+        )
+
+    intended_transferee_pubkey_hex = event_tag_value(initiate_event, "p")
+    if intended_transferee_pubkey_hex is None:
+        raise ControlEventError("referenced initiate event does not contain a p tag for the intended transferee")
+    if author_pubkey_hex != assert_hex_pubkey(intended_transferee_pubkey_hex):
+        raise ControlEventError(
+            "transfer accept signer must match the intended transferee named in the referenced initiate event "
+            f"({format_pubkey(intended_transferee_pubkey_hex)})"
+        )
+
     existing_events = await find_existing_control_records(
         relays, object_digest, ACTION_ACCEPT, author_pubkey_hex, query_timeout, limit
     )
