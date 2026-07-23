@@ -250,6 +250,7 @@ async def _run_query_etr(
     relays: str,
     digest: str,
     author_pubkey_hex: str | None,
+    command_name: str,
     origin_only: bool,
     verbose: bool,
     limit: int,
@@ -275,7 +276,7 @@ async def _run_query_etr(
         emit_json(
             {
                 "ok": True,
-                "command": "query-etr",
+                "command": command_name,
                 "digest": digest,
                 "object_id": format_object_identifier(digest),
                 "digest_source": str(digest_file) if digest_file is not None else None,
@@ -303,15 +304,15 @@ async def _run_query_etr(
 
     if result["warning_multiple_origin_events"]:
         click.secho(
-            f"WARNING: multiple ETR origin events (kind {DEFAULT_KIND}) were found for this object. "
-            "These records are distinguished by issuer and should not be assumed to represent the same ETR. "
+            f"WARNING: multiple origin control records (kind {DEFAULT_KIND}) were found for this object. "
+            "These records are distinguished by issuer and should not be assumed to represent the same controlled record. "
             "Use --all to see all of the origin records in question.",
             fg="yellow",
             bold=True,
         )
 
     initial_event = result["initial_event"]
-    click.echo(f"initial etr origin event (kind {DEFAULT_KIND}):")
+    click.echo(f"initial origin control record (kind {DEFAULT_KIND}):")
     _print_separator()
     click.echo(f"object id: {format_object_identifier(digest)}")
     click.echo(f"origin event id: {initial_event['event_ref']}")
@@ -672,11 +673,13 @@ def query_object(
 )
 @click.option("--verbose", is_flag=True, help="Show relay, filter, and query diagnostics.")
 @click.option("--origin", is_flag=True, help="Restrict output to origin records only.")
-@click.option("--all", "show_all", is_flag=True, help="Deprecated; query-etr is object-wide by default.")
+@click.option("--all", "show_all", is_flag=True, help="Deprecated; query is object-wide by default.")
 @click.option("--ssl-disable-verify", is_flag=True, help="Disable SSL certificate verification.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
+@click.pass_context
 def query_etr(
+    ctx: click.Context,
     digest_file: Path | None,
     profile: str | None,
     relays: str | None,
@@ -691,7 +694,7 @@ def query_etr(
     json_output: bool,
     debug: bool,
 ) -> None:
-    """Query an ETR object and display its initial record and issuer profile."""
+    """Query a controlled object and display its control graph."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
     if digest is not None and digest_file is not None:
@@ -716,6 +719,7 @@ def query_etr(
             relays=resolved_relays,
             digest=resolved_digest,
             author_pubkey_hex=author_pubkey_hex,
+            command_name=ctx.info_name or "query",
             origin_only=origin,
             verbose=verbose,
             limit=resolved_limit,

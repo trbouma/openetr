@@ -1368,7 +1368,9 @@ def publish_object(
 )
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
+@click.pass_context
 def issue_etr(
+    ctx: click.Context,
     profile: str | None,
     relays: str | None,
     digest: str | None,
@@ -1382,8 +1384,9 @@ def issue_etr(
     json_output: bool,
     debug: bool,
 ) -> None:
-    """Issue an ETR record using the canonical publish-object event structure."""
+    """Issue an origin control record for a controlled object."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
+    command_name = ctx.info_name or "issue"
 
     if digest is not None and digest_file is not None:
         raise click.ClickException("supply either DIGEST_FILE as an argument or --digest, not both")
@@ -1423,7 +1426,7 @@ def issue_etr(
             emit_json(
                 {
                     "ok": False,
-                    "command": "issue-etr",
+                    "command": command_name,
                     "reason": "duplicate_origin_event",
                     "warning": issue_guard["warning_message"],
                     "digest": resolved_digest,
@@ -1448,7 +1451,7 @@ def issue_etr(
             click.echo(f"Existing object: {issue_guard['object_id']}")
         if not force:
             click.confirm(
-                click.style("Continue issuing this ETR record?", fg="yellow", bold=True),
+                click.style("Continue issuing this origin control record?", fg="yellow", bold=True),
                 default=False,
                 abort=True,
             )
@@ -1467,7 +1470,7 @@ def issue_etr(
             digest_file_size=file_size,
             display_hex_tags=True,
             json_output=json_output,
-            command_name="issue-etr",
+            command_name=command_name,
         )
     )
 

@@ -17,8 +17,8 @@ The `openetr` CLI is the human and automation command surface.
 Common commands include:
 
 ```sh
-openetr issue-etr examples/mlwr-20260713.pdf
-openetr query-etr examples/mlwr-20260713.pdf
+openetr issue examples/mlwr-20260713.pdf
+openetr query examples/mlwr-20260713.pdf
 openetr transfer initiate examples/mlwr-20260713.pdf --transferee consignee
 openetr encumber examples/mlwr-20260713.pdf --beneficiary lender
 openetr discharge examples/mlwr-20260713.pdf --encumbrance-event <event-id>
@@ -31,8 +31,8 @@ The CLI is intended to work well from a shell, including workflows where inputs 
 Machine-readable callers can use `--json`:
 
 ```sh
-openetr issue-etr examples/mlwr-20260713.pdf --json
-openetr query-etr examples/mlwr-20260713.pdf --json
+openetr issue examples/mlwr-20260713.pdf --json
+openetr query examples/mlwr-20260713.pdf --json
 ```
 
 JSON mode is a component contract for automation. It does not replace the signed Nostr event. It packages command inputs, relay results, signed event data, derived graph state, warnings, and guard results into one JSON object.
@@ -54,4 +54,3 @@ An integrator may:
 - [OpenETR CLI JSON Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CLI_JSON_MODEL.md)
 - [OpenETR CLI Implementation Walkthrough](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md)
 - [Multi-Modality Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/MULTI_MODALITY_ARCHITECTURE_NOTE.md)
-

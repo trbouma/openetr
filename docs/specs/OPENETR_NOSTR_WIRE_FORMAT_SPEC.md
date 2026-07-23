@@ -364,7 +364,7 @@ Implementations should generally:
 
 In current practice, the object digest is commonly queried through the `o` tag across both event families.
 
-The reference `openetr query-etr` command currently derives and displays:
+The reference `openetr query` command currently derives and displays:
 
 - the initial origin event
 - matching `kind 1416` control events

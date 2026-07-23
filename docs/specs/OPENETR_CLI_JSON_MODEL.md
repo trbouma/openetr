@@ -70,8 +70,8 @@ openetr <command> --json
 Examples:
 
 ```bash
-openetr issue-etr examples/mlwr-20260713.pdf --json
-openetr query-etr examples/mlwr-20260713.pdf --json
+openetr issue examples/mlwr-20260713.pdf --json
+openetr query examples/mlwr-20260713.pdf --json
 openetr encumber examples/mlwr-20260713.pdf --beneficiary lender --json
 openetr transfer initiate examples/mlwr-20260713.pdf --transferee consignee --json
 ```
@@ -87,7 +87,7 @@ The common top-level fields are:
 | Field | Meaning |
 | --- | --- |
 | `ok` | Boolean command result. `true` means the command completed its requested operation. `false` means the command was blocked, rejected, or failed in a structured way. |
-| `command` | CLI command surface that produced the response, such as `issue-etr` or `query-etr`. |
+| `command` | CLI command surface that produced the response, such as `issue`, `query`, `issue-etr`, or `query-etr`. |
 | `reason` | Machine-readable reason code when `ok` is `false`. |
 | `warning` | Human-readable warning summary for a guard or policy warning. |
 | `warnings` | Array of structured warning objects when the command succeeds but has policy or graph annotations. |
@@ -110,7 +110,7 @@ Recommended behavior:
 
 Warnings mean the command completed but discovered information a verifier or policy should inspect.
 
-For example, `query-etr --json` may return `ok: true` while also reporting multiple origin events in `warnings`.
+For example, `query --json` may return `ok: true` while also reporting multiple origin events in `warnings`.
 
 ## Structured Guard Responses
 
@@ -125,7 +125,7 @@ Example duplicate origin guard:
 ```json
 {
   "ok": false,
-  "command": "issue-etr",
+  "command": "issue",
   "reason": "duplicate_origin_event",
   "digest": "2976895f610a8e928249f365827c2fd385d2c7d71da0e4d3bf47845f8dcbdd20",
   "object_id": "nobj199mgjhmpp28f9qjf7djcylp06wza937hrkswf5alg7z9lrwtm5sqyenss3",
@@ -161,7 +161,7 @@ Example shape:
 ```json
 {
   "ok": true,
-  "command": "issue-etr",
+  "command": "issue",
   "event_id": "c70f3d7b8b3d3283b423e68d88fba49750c8795bfd13bd084ec31370e7de8e46",
   "kind": 1415,
   "object_id": "nobj199mgjhmpp28f9qjf7djcylp06wza937hrkswf5alg7z9lrwtm5sqyenss3",
@@ -177,7 +177,7 @@ Relay acknowledgement data may be absent even when the event is successfully ret
 
 ## Query Responses
 
-`query-etr --json` returns an object-centric view of the OpenETR graph.
+`query --json` returns an object-centric view of the OpenETR graph. `query-etr --json` remains available as a compatibility alias.
 
 The top-level response identifies the command, object digest, object id, relays, and source. The `result` object contains the graph view.
 

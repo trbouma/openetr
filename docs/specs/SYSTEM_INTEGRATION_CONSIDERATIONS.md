@@ -292,8 +292,8 @@ Current CLI surfaces include:
 - `openetr profile ...`;
 - `openetr root`;
 - `openetr whoami`;
-- `openetr issue-etr <file>`;
-- `openetr query-etr <file>`;
+- `openetr issue <file>`;
+- `openetr query <file>`;
 - `openetr transfer initiate <file> --transferee <profile-or-npub>`;
 - `openetr transfer accept <file>`;
 - `openetr encumber <file> --beneficiary <profile-or-npub>`;

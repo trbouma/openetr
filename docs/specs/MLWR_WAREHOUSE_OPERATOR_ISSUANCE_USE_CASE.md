@@ -201,20 +201,20 @@ The minimal CLI workflow is:
 
 ```bash
 openetr profile use warehouse
-openetr issue-etr examples/mlwr-20260713.pdf
-openetr query-etr examples/mlwr-20260713.pdf
+openetr issue examples/mlwr-20260713.pdf
+openetr query examples/mlwr-20260713.pdf
 ```
 
 For automation, the JSON surface can be used:
 
 ```bash
-openetr issue-etr examples/mlwr-20260713.pdf --json
-openetr query-etr examples/mlwr-20260713.pdf --json
+openetr issue examples/mlwr-20260713.pdf --json
+openetr query examples/mlwr-20260713.pdf --json
 ```
 
 Expected behavior:
 
-- `issue-etr` hashes the receipt file;
+- `issue` hashes the receipt file;
 - the active warehouse profile signs an origin event;
 - the origin event carries the object digest in `o`;
 - the query command reconstructs the object view from origin and control events;

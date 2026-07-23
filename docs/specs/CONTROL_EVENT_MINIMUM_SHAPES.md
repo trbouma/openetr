@@ -47,7 +47,7 @@ The current CLI maps these action shapes as follows:
 | `openetr discharge` | `1416` | `discharge` | optional `p` = releasing party |
 | `openetr redeem` | `1416` | `redeem` | `p` = obligor |
 
-`openetr query-etr` consumes the same event family to derive lifecycle state, current controller, control chains, and encumbrance state.
+`openetr query` consumes the same event family to derive lifecycle state, current controller, control chains, and encumbrance state. `openetr query-etr` remains available as a compatibility alias.
 
 ## INITIATE
 

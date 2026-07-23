@@ -114,7 +114,7 @@
         </p>
       </section>
       <section class="panel warning">
-        <h1>Issue ETR Confirmation</h1>
+        <h1>Issue Control Record Confirmation</h1>
         <p><strong>{{ guard.warning_message }}</strong></p>
         <div class="kv">
           <div>Existing Event</div><div class="mono">{{ guard.latest_event_id }}</div>
@@ -147,7 +147,7 @@
           <input type="hidden" name="file_digest" value="{{ sha256 }}">
           <input type="hidden" name="file_name" value="{{ filename }}">
           <input type="hidden" name="file_size" value="{{ size_bytes }}">
-          <button type="submit">Continue issuing this ETR record</button>
+          <button type="submit">Continue issuing this control record</button>
         </form>
         <p><a href="/openetr">Cancel and return</a></p>
       </section>

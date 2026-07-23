@@ -14,7 +14,7 @@ The current CLI implements the Nostr wire model described in [OPENETR_NOSTR_WIRE
 
 At a high level:
 
-- `openetr issue-etr` publishes a `kind 31415` origin event
+- `openetr issue` publishes a `kind 31415` origin event
 - `openetr transfer initiate` publishes a `kind 31416` event with `action=initiate`
 - `openetr transfer accept` publishes a `kind 31416` event with `action=accept`
 - `openetr terminate-etr` publishes a `kind 31416` event with `action=terminate`
@@ -22,7 +22,9 @@ At a high level:
 - `openetr encumber` publishes a `kind 31416` event with `action=encumber`
 - `openetr discharge` publishes a `kind 31416` event with `action=discharge`
 - `openetr redeem` publishes a `kind 31416` event with `action=redeem`
-- `openetr query-etr` queries the origin and control-event families and derives the current object state
+- `openetr query` queries the origin and control-event families and derives the current object state
+
+The older `openetr issue-etr` and `openetr query-etr` command names remain available as compatibility aliases for ETR-focused workflows and existing scripts.
 
 The implementation constants for these actions live in `openetr/control.py`.
 
@@ -72,7 +74,7 @@ openetr root
 Issue a controlled object from a local file:
 
 ```bash
-openetr issue-etr examples/MLWR001.pdf
+openetr issue examples/MLWR001.pdf
 ```
 
 Implementation mapping:
@@ -86,7 +88,7 @@ Implementation mapping:
 The same command can be used with other files, such as:
 
 ```bash
-openetr issue-etr examples/ebl6.md
+openetr issue examples/ebl6.md
 ```
 
 ## Query Object State
@@ -94,7 +96,7 @@ openetr issue-etr examples/ebl6.md
 Query the current state and control history:
 
 ```bash
-openetr query-etr examples/MLWR001.pdf
+openetr query examples/MLWR001.pdf
 ```
 
 The query command resolves:

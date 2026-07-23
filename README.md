@@ -120,8 +120,8 @@ A minimal flow looks like:
 
 ```bash
 openetr profile use warehouse
-openetr issue-etr examples/MLWR001.pdf
-openetr query-etr examples/MLWR001.pdf
+openetr issue examples/MLWR001.pdf
+openetr query examples/MLWR001.pdf
 ```
 
 Transfer control to another profile:
@@ -130,7 +130,7 @@ Transfer control to another profile:
 openetr transfer initiate examples/MLWR001.pdf --transferee exporter
 openetr profile use exporter
 openetr transfer accept examples/MLWR001.pdf
-openetr query-etr examples/MLWR001.pdf
+openetr query examples/MLWR001.pdf
 ```
 
 Query output includes the origin event, matching control events, lifecycle state, current controller, profile information where available, and encumbrance summaries.
