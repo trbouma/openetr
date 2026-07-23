@@ -1,5 +1,5 @@
 site_name: OpenETR
-site_description: Documentation for OpenETR and its domain workspaces for Warehouse Receipts and Product Passports.
+site_description: Documentation for OpenETR, a control layer for electronic transferable records and other controllable records.
 site_url: https://trbouma.github.io/openetr/
 repo_url: https://github.com/trbouma/openetr
 repo_name: trbouma/openetr
