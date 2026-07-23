@@ -8,19 +8,25 @@ Draft.
 
 This note defines the broader family of **controllable records** and explains how electronic transferable records, non-transferable records, credentials, linked evidence, and registry-recognized records fit within that family.
 
+It also clarifies a terminology boundary that is important in OpenETR:
+
+- the **Controlled Object** is the artifact, document, file, credential, record bundle, or data object identified by digest;
+- the **Control Graph** is the signed OpenETR event history associated with that object;
+- the **Controllable Record** is the broader conceptual and policy category: the controlled object understood together with its control graph and the recognition context that gives the evidence practical meaning.
+
 The goal is to keep OpenETR's broader architecture visible while preserving the OpenETR brand and its connection to electronic transferable records.
 
 ## Core Claim
 
 **OpenETR** is a general control layer for durable, controllable electronic records.
 
-An **electronic transferable record** is an important subclass of controllable record, but it is not the entire category. Some records require transfer of control. Others require authority, lifecycle evidence, presentation, revocation, linked evidence, or recognition under a domain rulebook without becoming transferable in the negotiable-document sense.
+An **electronic transferable record** is an important subclass of controllable record, but it is not the entire category. Some controllable records require transfer of control. Others require authority, lifecycle evidence, presentation, revocation, linked evidence, or recognition under a domain rulebook without becoming transferable in the negotiable-document sense.
 
 ## Taxonomy
 
 ```mermaid
 flowchart TD
-    CR["Controllable Records<br/>durable electronic records with signed control or lifecycle evidence"]
+    CR["Controllable Records<br/>controlled objects plus control graphs evaluated under recognition context"]
 
     ETR["Electronic Transferable Records<br/>control transfer may have legal or commercial transfer effect"]
     NTR["Non-Transferable Controllable Records<br/>control, stewardship, status, or lifecycle evidence without negotiability"]
@@ -59,11 +65,26 @@ flowchart TD
 
 ### Controllable Record
 
-A **controllable record** is a durable electronic record or artifact that can be identified, associated with signed events, and evaluated for control, status, lifecycle, authority, evidence, or recognition.
+A **controllable record** is not merely the underlying file or artifact.
 
-In OpenETR terms, the record itself is the **Controlled Object**. The object is usually identified by cryptographic digest. Signed OpenETR events about that object are **control records**. The linked set of those events is the object's **control graph**.
+In OpenETR terms:
 
-A controllable record may be a PDF, image, JSON document, credential, registry export, document bundle, product data artifact, certificate, or other canonical electronic artifact.
+- the **Controlled Object** is the record artifact itself, such as a PDF, image, JSON document, credential, registry export, document bundle, product data artifact, certificate, or other canonical electronic artifact;
+- the object is identified by cryptographic digest;
+- signed OpenETR events about that object are **control records**;
+- the linked set of those events is the object's **control graph**;
+- recognition policy decides what practical, legal, regulatory, commercial, or operational effect to give the graph.
+
+A **controllable record** is therefore best understood as:
+
+```text
+Controllable Record
+  = Controlled Object
+  + Control Graph
+  + Recognition Context
+```
+
+The Controlled Object is the artifact at the center of the controllable record. The Control Graph is the signed evidence that makes its control state durable and inspectable. The recognition context is the rulebook, law, registry policy, institutional policy, verifier profile, or relying-party judgment that gives the evidence meaning.
 
 ### Electronic Transferable Record
 
@@ -209,6 +230,8 @@ The controllable-record taxonomy suggests several design rules:
 **Electronic transferable records** are a high-value subclass where control transfer can have legal or commercial effect.
 
 **Non-transferable controllable records**, **credentials**, **linked evidence records**, and **registry-recognized records** are also part of the broader family because they need durable signed evidence about record identity, lifecycle, authority, status, or recognition.
+
+The Controlled Object should not be treated as synonymous with the Controllable Record. The object is the digest-addressed artifact. The controllable record is the object plus the signed control graph and the recognition context used to evaluate it.
 
 OpenETR can keep its brand focus while making this broader architecture explicit:
 

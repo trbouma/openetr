@@ -292,7 +292,7 @@
       {% include "_blossom_storage.html" %}
       {% else %}
       <section class="panel">
-        <h2>Issued By</h2>
+        <h2>Controllable Record Issued By</h2>
         <div class="kv">
           <div class="muted">Issuer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
           <div class="muted">Issued at</div><div>{{ query.initial_event.created_at }}</div>

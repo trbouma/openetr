@@ -46,7 +46,9 @@ OpenETR is the control layer above the wire format.
 
 It interprets signed events as control records for a Controlled Object.
 
-A **Controlled Object** is the document, file, or record identified by a cryptographic digest. A **control record** is one signed OpenETR event about that object. The linked set of origin and control records for the object is its **control graph**.
+A **Controlled Object** is the document, file, or record artifact identified by a cryptographic digest. A **control record** is one signed OpenETR event about that object. The linked set of origin and control records for the object is its **control graph**.
+
+This is distinct from the broader policy category of a **controllable record**. In OpenETR, a controllable record is best understood as the Controlled Object plus its Control Graph plus the recognition context used to evaluate the evidence. The object is the artifact at the center of the model; the graph is the durable signed evidence about it; the recognition context determines what effect, if any, should follow.
 
 At this layer, OpenETR defines:
 

@@ -10,7 +10,7 @@ Those questions are related, but they should not be collapsed into one applicati
 
 OpenETR is designed as a thin, open control layer for durable electronic records. It identifies a record by cryptographic digest and records signed lifecycle events about that record. The result is an object-centric control graph that can be queried, verified, and interpreted by many different domain systems.
 
-The broader umbrella category is the **controllable record**: a durable electronic record that can be identified, associated with signed control or lifecycle evidence, and evaluated under a recognition framework. Electronic transferable records are one important subclass, but the same control-layer pattern can also support non-transferable records, credentials, linked evidence, Product Passports, health records, Apostille documents, and authority-recognized records. See the [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md).
+The broader umbrella category is the **controllable record**. In OpenETR, that should be understood as the controlled object plus its signed control graph plus the recognition context used to evaluate it. Electronic transferable records are one important subclass, but the same control-layer pattern can also support non-transferable records, credentials, linked evidence, Product Passports, health records, Apostille documents, and authority-recognized records. See the [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md).
 
 ## The Problem
 
@@ -76,11 +76,13 @@ It lets policymakers and implementers distinguish:
 - linked evidence records that support a controlled object's history;
 - registry or authority-recognized records whose effect depends on an external rulebook.
 
+This terminology keeps the layers clean. The **Controlled Object** is the digest-addressed artifact. The **Control Graph** is the signed event history about that object. The **Controllable Record** is the policy-level concept formed when that object and graph are evaluated in a recognition context.
+
 That umbrella framing keeps OpenETR from becoming too narrow. It can remain deeply relevant to electronic transferable records while also providing a general control layer for other durable electronic records.
 
 ## Why An Open Graph
 
-OpenETR treats each controlled record as the center of an open graph.
+OpenETR treats each controlled object as the center of an open graph.
 
 The graph may include:
 
