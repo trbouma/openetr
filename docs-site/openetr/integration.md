@@ -4,6 +4,8 @@ OpenETR is intended to integrate with multiple independent systems.
 
 The goal is not to require every participant to use one shared application. The goal is to make the signed control evidence portable.
 
+OpenETR is not intended to replace existing ETR platforms, warehouse receipt systems, registries, document services, or trade networks. It is intended to work behind the scenes as a connective control fabric: self-generated object identifiers, signed control events, and graph links can be stored anywhere the signed event data is preserved, while existing systems keep their own user interfaces, databases, workflows, and rulebooks.
+
 ## Integration Styles
 
 An implementation can use OpenETR by:

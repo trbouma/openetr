@@ -10,6 +10,8 @@ Those questions are related, but they should not be collapsed into one applicati
 
 OpenETR is designed as a thin, open control layer for durable electronic records. It identifies a record by cryptographic digest and records signed lifecycle events about that record. The result is an object-centric control graph that can be queried, verified, and interpreted by many different domain systems.
 
+The broader umbrella category is the **controllable record**: a durable electronic record that can be identified, associated with signed control or lifecycle evidence, and evaluated under a recognition framework. Electronic transferable records are one important subclass, but the same control-layer pattern can also support non-transferable records, credentials, linked evidence, Product Passports, health records, Apostille documents, and authority-recognized records. See the [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md).
+
 ## The Problem
 
 Digital records are easy to copy.
@@ -30,6 +32,8 @@ Examples include:
 Many existing systems solve this by making the platform itself the source of truth. A database, registry, wallet provider, document platform, or trade network decides what exists and who can act on it.
 
 That can work inside one closed environment. It becomes harder when records need to move across organizations, jurisdictions, industries, relays, archives, and recognition frameworks.
+
+OpenETR is not intended to compete with or replace existing electronic transferable record systems, warehouse receipt platforms, registries, document services, or trade networks. Its role is more modest and more infrastructural: it can work behind the scenes as a connective control fabric. Existing systems can keep their user interfaces, account models, databases, document formats, and rulebooks while using OpenETR events as cryptographically self-contained evidence that can move between them.
 
 ## The OpenETR Approach
 
@@ -55,6 +59,24 @@ At the recognition layer, another system asks:
 This separation is the central rationale of the project.
 
 OpenETR preserves durable signed evidence. Recognition frameworks decide what effect to give that evidence.
+
+## Why Controllable Records
+
+Not every important electronic record is transferable.
+
+Some records need exclusive control and transfer, such as warehouse receipts, bills of lading, or promissory notes. Other records need durable lifecycle evidence without negotiability, such as Product Passports, health records, certificates, Apostille documents, permits, or compliance artifacts. Credentials add another pattern: they may be claim-centric records in their own right, or they may help prove that an actor is authorized to sign an OpenETR event.
+
+The concept of a controllable record gives OpenETR a broader policy vocabulary.
+
+It lets policymakers and implementers distinguish:
+
+- records where transfer of control may have legal or commercial effect;
+- records where control means stewardship, authority, status, or lifecycle accountability;
+- credentials and attestations that support recognition of an actor or event;
+- linked evidence records that support a controlled object's history;
+- registry or authority-recognized records whose effect depends on an external rulebook.
+
+That umbrella framing keeps OpenETR from becoming too narrow. It can remain deeply relevant to electronic transferable records while also providing a general control layer for other durable electronic records.
 
 ## Why An Open Graph
 
@@ -113,6 +135,27 @@ The same OpenETR graph can be evaluated by:
 - a private trade network
 
 Each may apply a different rulebook. The signed evidence remains portable.
+
+## Why A Behind-The-Scenes Fabric
+
+OpenETR is designed to be embedded, wrapped, or hidden inside existing systems.
+
+A warehouse receipt platform should not have to replace its receipt workflow. A trade finance network should not have to abandon its portal. A registry should not have to give up its rulebook. A document management system should not have to store records in a new proprietary database.
+
+Instead, OpenETR can generate self-contained identifiers and signed events around the record:
+
+- the controlled object is identified by digest;
+- the object id can be generated from the record itself;
+- each event is signed by the acting profile key;
+- event ids are content-derived;
+- graph links are carried in signed tags;
+- events can be stored on relays, in databases, in archives, in files, or in any system that can preserve the signed event data.
+
+That makes OpenETR more like a fabric than a destination platform.
+
+It can connect existing ETR systems, warehouse receipt systems, registries, verifiers, archives, and domain applications without requiring them to share one runtime or surrender their existing source systems. The important thing is that the control evidence is portable, independently verifiable, and not locked inside one application database.
+
+This is why OpenETR can be useful even when a mature domain system already exists. It gives that system a way to publish and consume durable control evidence that can survive outside the system's own walls.
 
 ## Why Nostr
 
@@ -195,8 +238,8 @@ Domain workflows on top.
 
 ## Source Specifications
 
+- [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md)
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
-

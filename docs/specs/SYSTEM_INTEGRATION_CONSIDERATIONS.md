@@ -23,6 +23,19 @@ OpenETR is intended to support multiple independent integration styles:
 
 The important point is that OpenETR does not require every participant to use the same application.
 
+OpenETR is also not intended to compete with or replace existing electronic transferable record systems, warehouse receipt platforms, registries, document services, or trade networks.
+
+It is intended to work as an underlying control fabric. An integrating system can keep its own user interface, accounts, database, document repository, workflow engine, and recognition rulebook while using OpenETR to generate and exchange cryptographically self-contained control evidence.
+
+In this model:
+
+- identifiers can be generated from the record itself through object digests;
+- signed events carry their own authorship, event id, tags, content, and graph links;
+- the event set can be stored on Nostr relays, in a private database, in an archive, in files, or in another repository;
+- any implementation with the signed event data can verify signatures, reconstruct the graph, and apply its own recognition policy.
+
+This lets OpenETR connect independent systems without requiring a shared platform runtime or a single authoritative database.
+
 ## Component And Service Boundary
 
 OpenETR should be understood as a reusable control-layer component with multiple adapters.
