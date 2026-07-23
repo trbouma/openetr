@@ -35,7 +35,7 @@ from openetr.services.control_events import ControlEventError, publish_auxiliary
 from openetr.services.issue_etr import publish_issue_etr
 from openetr.services.profile_admin import create_relay_backed_profile, initialize_relay_backed_root
 from openetr.services.profile_publish import PROFILE_FIELDS, publish_profile_updates
-from openetr.services.query_etr import build_query_etr_result, compact_profile, fetch_profile
+from openetr.services.query_etr import build_query_etr_result, compact_profile, fetch_profile, profile_picture_url
 from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, fetch_blockstream_tip_height, frigate_scan_subscribe, resolve_silent_payment_wallet_mode_material, silent_payment_address_belongs_to_nostr_key
 from openetr.trivia import random_openetr_trivia_fact
 
@@ -1004,6 +1004,54 @@ async def get_default_template_context(
     }
 
 
+def merge_compact_profiles(
+    primary: list[tuple[str, Any]] | None,
+    fallback: list[tuple[str, Any]] | None,
+) -> list[tuple[str, Any]]:
+    merged = list(primary or [])
+    seen = {field for field, _value in merged}
+    for field, value in fallback or []:
+        if field not in seen:
+            merged.append((field, value))
+            seen.add(field)
+    return merged
+
+
+async def selected_profile_social(identity: dict[str, Any]) -> list[tuple[str, Any]]:
+    if not identity.get("logged_in") or not identity.get("profile") or not identity.get("pubkey_hex"):
+        return []
+    relays = str((await relay_profile_config(identity["profile"])).get("relays") or DEFAULT_RELAYS)
+    return compact_profile(
+        await fetch_profile(
+            relays=relays,
+            pubkey_hex=identity["pubkey_hex"],
+            timeout=DEFAULT_QUERY_TIMEOUT,
+            ssl_disable_verify=False,
+        )
+    )
+
+
+async def enrich_query_controller_profile_for_identity(
+    query_context: dict[str, Any],
+    identity: dict[str, Any],
+) -> None:
+    current_controller = query_context.get("current_controller") or {}
+    if not current_controller.get("is_current_profile"):
+        return
+
+    active_profile = await selected_profile_social(identity)
+    if not active_profile:
+        return
+
+    current_controller["profile"] = merge_compact_profiles(
+        current_controller.get("profile"),
+        active_profile,
+    )
+    current_controller["picture_url"] = current_controller.get("picture_url") or profile_picture_url(
+        current_controller["profile"]
+    )
+
+
 def normalize_relays_form(relays: str = Form(DEFAULT_RELAYS)) -> str:
     raw = relays or DEFAULT_RELAYS
     return normalize_relays(raw)
@@ -1360,6 +1408,7 @@ async def render_warehouse_control_result(
         relays=relays,
         author_pubkey_hex=identity.get("pubkey_hex"),
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return await render_warehouse_receipt_result(
         request,
         identity,
@@ -1493,6 +1542,7 @@ async def public_etr_lookup(
         relays=validated_relays,
         author_pubkey_hex=identity.get("pubkey_hex"),
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     media_preview = await blossom_media_preview_for_digest(object_digest)
     return templates.TemplateResponse(
         request,
@@ -1584,6 +1634,7 @@ async def warehouse_receipts_query(
         relays=validated_relays,
         author_pubkey_hex=identity.get("pubkey_hex"),
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return await render_warehouse_receipt_result(
         request,
         identity,
@@ -1689,6 +1740,7 @@ async def warehouse_receipts_issue(
         relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return await render_warehouse_receipt_result(
         request,
         identity,
@@ -1734,6 +1786,7 @@ async def digital_product_passports_query(
         relays=validated_relays,
         author_pubkey_hex=identity.get("pubkey_hex"),
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return templates.TemplateResponse(
         request,
         "query_etr_result.html",
@@ -1861,6 +1914,7 @@ async def digital_product_passports_create(
         relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return templates.TemplateResponse(
         request,
         "query_etr_result.html",
@@ -3651,6 +3705,7 @@ async def query_etr_from_upload(
         relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return templates.TemplateResponse(
         request,
         "query_etr_result.html",
@@ -3788,6 +3843,7 @@ async def issue_etr_from_upload(
         relays=validated_relays,
         author_pubkey_hex=identity["pubkey_hex"],
     )
+    await enrich_query_controller_profile_for_identity(query_context, identity)
     return templates.TemplateResponse(
         request,
         "query_etr_result.html",

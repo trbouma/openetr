@@ -85,6 +85,20 @@ def compact_profile(profile: dict | None) -> list[tuple[str, Any]]:
     return [(field, profile.get(field)) for field in PROFILE_FIELDS if profile.get(field)]
 
 
+def compact_profile_field(profile: list[tuple[str, Any]], field_name: str) -> Any:
+    for field, value in profile:
+        if field == field_name:
+            return value
+    return None
+
+
+def profile_picture_url(profile: list[tuple[str, Any]]) -> str | None:
+    value = compact_profile_field(profile, "picture")
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
 def transfer_party_from_p_tag(event: Event) -> str | None:
     return first_p_tag_pubkey(event)
 
@@ -361,6 +375,7 @@ async def build_query_etr_result(
         )
 
     if not transfer_events:
+        current_controller_profile = compact_profile(initial_profile)
         result["summary_control_chains"] = [
             {
                 "label": "control chain 1",
@@ -376,7 +391,8 @@ async def build_query_etr_result(
         result["current_controller"] = {
             "npub": format_pubkey(initial_event.pub_key),
             "basis": "origin issuer",
-            "profile": compact_profile(initial_profile),
+            "profile": current_controller_profile,
+            "picture_url": profile_picture_url(current_controller_profile),
             "is_current_profile": author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex,
         }
         result["lifecycle_state"] = "active"
@@ -485,10 +501,12 @@ async def build_query_etr_result(
 
     state_events = [evt for evt in transfer_events if is_controller_state_event(evt)]
     if not state_events:
+        current_controller_profile = compact_profile(initial_profile)
         result["current_controller"] = {
             "npub": format_pubkey(initial_event.pub_key),
             "basis": "origin issuer",
-            "profile": compact_profile(initial_profile),
+            "profile": current_controller_profile,
+            "picture_url": profile_picture_url(current_controller_profile),
             "is_current_profile": author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex,
         }
         result["lifecycle_state"] = "active"
@@ -512,10 +530,12 @@ async def build_query_etr_result(
             current_controller_basis = "latest control event signer (no p tag present)"
         current_controller_profile = await cached_profile(current_controller_pubkey_hex)
 
+    current_controller_compact_profile = compact_profile(current_controller_profile)
     result["current_controller"] = {
         "npub": format_pubkey(current_controller_pubkey_hex) if current_controller_pubkey_hex else None,
         "basis": current_controller_basis,
-        "profile": compact_profile(current_controller_profile),
+        "profile": current_controller_compact_profile,
+        "picture_url": profile_picture_url(current_controller_compact_profile),
         "is_current_profile": author_pubkey_hex is not None and current_controller_pubkey_hex == author_pubkey_hex,
     }
 

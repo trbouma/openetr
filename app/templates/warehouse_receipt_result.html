@@ -289,15 +289,9 @@
         <p class="notice success">You may be the current controller for this object. The active profile matches the derived controller.</p>
         {% endif %}
         {% if query.current_controller.profile %}
-        {% set controller_picture = namespace(url=None) %}
-        {% for field, value in query.current_controller.profile %}
-          {% if field == "picture" and value %}
-            {% set controller_picture.url = value %}
-          {% endif %}
-        {% endfor %}
         <div class="profile-heading">
-          {% if controller_picture.url %}
-          <img class="profile-picture" src="{{ controller_picture.url }}" alt="Controller profile picture" loading="lazy" referrerpolicy="no-referrer">
+          {% if query.current_controller.picture_url %}
+          <img class="profile-picture" src="{{ query.current_controller.picture_url }}" alt="Controller profile picture" loading="lazy" referrerpolicy="no-referrer">
           {% endif %}
           <h3>Controller Profile</h3>
         </div>

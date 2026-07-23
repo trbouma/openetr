@@ -4,6 +4,8 @@ OpenETR is a general control layer for durable electronic records.
 
 It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support other controlled objects such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
+The broader umbrella concept is **controllable records**: durable electronic records that can be identified, associated with signed control or lifecycle evidence, and evaluated under a recognition framework. Electronic transferable records are one important subclass of this family.
+
 ## Layered Model
 
 ```text
@@ -45,6 +47,7 @@ Those are recognition questions. OpenETR provides the control layer and produces
 
 ## Source Specs
 
+- [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md)
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
