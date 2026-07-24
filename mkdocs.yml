@@ -68,6 +68,7 @@ nav:
       - Policy Guards And Cryptographic Evidence: policy-briefs/policy-guards-and-cryptographic-evidence.md
       - EUDI Wallet And OpenETR: policy-briefs/eudi-wallet-and-openetr.md
       - OpenETR, Trust Frameworks, And Registries: policy-briefs/openetr-trust-frameworks-and-registries.md
+      - The Five Centres Of Concern And OpenETR: policy-briefs/five-centres-of-concern-and-openetr.md
   - Source:
       - Installation And Local Development: installation.md
       - Live Control Desk: https://openetr.org
