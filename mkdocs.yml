@@ -71,6 +71,7 @@ nav:
       - Policy Guards And Cryptographic Evidence: policy-briefs/policy-guards-and-cryptographic-evidence.md
       - EUDI Wallet And OpenETR: policy-briefs/eudi-wallet-and-openetr.md
       - OpenETR And C2PA: policy-briefs/openetr-and-c2pa.md
+      - OpenETR, LEI, And Verifiable Trade: policy-briefs/openetr-lei-and-verifiable-trade.md
       - OpenETR, Trust Frameworks, And Registries: policy-briefs/openetr-trust-frameworks-and-registries.md
       - The Five Centres Of Concern And OpenETR: policy-briefs/five-centres-of-concern-and-openetr.md
   - Source:
