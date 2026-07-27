@@ -616,7 +616,7 @@ It is part of the specification effort.
 Each new rule should ideally answer three questions:
 
 1. What condition is being checked?
-2. Why does that condition matter for valid recognition of the action?
+2. How does that condition affect valid recognition of the action?
 3. Should failure produce an error, a warning, or be treated as a recognition rule?
 
 That keeps implementation and policy aligned.

@@ -55,6 +55,8 @@ nav:
           - Verifier Policy: verifier-policy.md
           - Article Mapping: mlwr-article-mapping.md
           - Domain Architecture: architecture.md
+      - Bills of Lading:
+          - Overview: bills-of-lading.md
       - Product Passports:
           - Overview: product-passports.md
           - Requirements Mapping: product-passport-requirements.md
@@ -64,9 +66,11 @@ nav:
           - Overview: apostille-documents.md
   - Policy Briefs:
       - Why OpenETR: policy-briefs/why-openetr.md
+      - OpenETR As Fabric: policy-briefs/openetr-as-fabric.md
       - Why Control Is Not Recognition: policy-briefs/why-control-is-not-recognition.md
       - Policy Guards And Cryptographic Evidence: policy-briefs/policy-guards-and-cryptographic-evidence.md
       - EUDI Wallet And OpenETR: policy-briefs/eudi-wallet-and-openetr.md
+      - OpenETR And C2PA: policy-briefs/openetr-and-c2pa.md
       - OpenETR, Trust Frameworks, And Registries: policy-briefs/openetr-trust-frameworks-and-registries.md
       - The Five Centres Of Concern And OpenETR: policy-briefs/five-centres-of-concern-and-openetr.md
   - Source:

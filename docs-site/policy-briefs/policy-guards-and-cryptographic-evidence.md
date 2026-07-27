@@ -165,7 +165,7 @@ The protocol preserves the control evidence.
 
 The rule book determines effect.
 
-## Why The Reference Implementation Matters
+## Reference Implementation Role
 
 If guards are not universal enforcement, why build them into the reference implementation?
 

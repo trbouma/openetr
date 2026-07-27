@@ -48,7 +48,7 @@ The graph may include:
 
 OpenETR is therefore object-centric. The central unit is not the holder's wallet; it is the durable electronic record and the signed control/evidence graph around that record.
 
-## Why This Distinction Matters
+## Practical Distinction
 
 Many digital trust systems need both identity and object history.
 

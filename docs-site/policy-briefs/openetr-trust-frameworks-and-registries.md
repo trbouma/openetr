@@ -224,7 +224,7 @@ TRQP or another trust-registry interface can say whether that actor is authorize
 
 The verifier decides what effect follows.
 
-## Why This Matters For Policy
+## Policy Implications
 
 Policy discussions often treat trust as something created by rules and compliance alone.
 

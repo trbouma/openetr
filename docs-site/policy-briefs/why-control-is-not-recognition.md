@@ -45,7 +45,7 @@ These questions cannot be answered by signatures alone.
 
 They depend on law, contracts, institutional rules, trust registries, onboarding, authority records, verifier policy, and the facts of the particular domain.
 
-## Why The Difference Matters
+## Consequences Of Collapsing The Layers
 
 If control and recognition are collapsed, the system has to pretend that one platform, database, wallet, registry, or smart contract decides everything.
 

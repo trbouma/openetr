@@ -138,7 +138,7 @@ This mapping keeps OpenETR disciplined.
 
 It can be very strong at control and evidence without pretending to answer every identity, intent, or recognition question by itself.
 
-## Why This Matters For Controllable Records
+## Controllable Records Framing
 
 The five-centres model also clarifies the emerging OpenETR terminology around **controllable records**.
 
