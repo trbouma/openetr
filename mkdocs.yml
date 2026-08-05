@@ -12,7 +12,6 @@ theme:
   name: material
   features:
     - navigation.instant
-    - navigation.sections
     - navigation.top
     - search.highlight
     - content.code.copy
@@ -76,8 +75,9 @@ nav:
       - OpenETR, MLETR, And ETDA: policy-briefs/openetr-mletr-and-etda.md
       - OpenETR, Trust Frameworks, And Registries: policy-briefs/openetr-trust-frameworks-and-registries.md
       - The Five Centres Of Concern And OpenETR: policy-briefs/five-centres-of-concern-and-openetr.md
-  - Source:
-      - Installation And Local Development: installation.md
+  - Demo Apps:
       - Live Control Desk: https://openetr.org
+  - Repo Links:
+      - Installation And Local Development: installation.md
       - GitHub Repository: https://github.com/trbouma/openetr
       - Specification Index: https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md
