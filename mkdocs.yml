@@ -48,6 +48,7 @@ nav:
   - Domains:
       - Warehouse Receipts:
           - Overview: getting-started.md
+          - Pilot Boundary Notes: warehouse-receipt-pilot.md
           - Creating Control Records: issuing-receipts.md
           - Control Actions: control-actions.md
           - Identity Model: identity-model.md
