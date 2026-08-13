@@ -65,6 +65,78 @@ It decides:
 - whether an OpenETR event has legal, commercial, operational, or institutional effect
 - whether a mismatch, missing manifest, revoked certificate, or altered file blocks recognition
 
+## Provenance Versus Control
+
+The deeper distinction is not only that C2PA and OpenETR use different digest patterns.
+
+They solve different problems.
+
+```text
+C2PA:
+  Is this provenance authentic for this asset?
+
+OpenETR:
+  What is this record, and who controls it now?
+```
+
+C2PA binds signed provenance assertions to an asset. Its hard-binding mechanisms let a validator determine whether a manifest belongs with a particular asset and whether the protected content still matches the signed claim.
+
+That is the right model for photographs, videos, generated media, and other content where the relying party needs to know who created the asset, what transformations occurred, and which provenance assertions remain cryptographically bound to the presented content.
+
+OpenETR starts from a different object of concern.
+
+For an electronic transferable record, the key question is not only whether the bytes have provenance. The key question is whether a particular record has a signed control history and a current controller under a selected verifier policy.
+
+The distinction can be stated this way:
+
+```text
+C2PA binds assertions to an asset.
+OpenETR binds assertions and control transitions to an identified record.
+```
+
+Or more sharply:
+
+```text
+C2PA makes provenance portable with content.
+OpenETR makes evidence portable without making control copyable.
+```
+
+This matters because digital copying is not the security problem by itself. Everything digital can be copied. The necessary property for an electronic transferable record is that copying the bytes, assertions, signatures, or history cannot copy or alter control of the record.
+
+For example, a party may wrap an existing record and its evidence inside a new package:
+
+```text
+Record A
+  digest = abc123
+  control graph = issue -> transfer -> endorse -> transfer
+
+Record B
+  digest = def456
+  contains Record A and evidence about Record A
+  signed by another party
+```
+
+That may create a new provenance or evidence statement about `Record B`.
+
+It does not insert the new signer into the control graph for `Record A`.
+
+This is the digital analogue of photocopying a bill of lading. The photocopy may reproduce the words and even the visible endorsement history, but it does not give the copy-holder possession of the operative bill. In OpenETR terms, copies may reproduce evidence, but they do not create a new recognized current controller unless the control graph and recognition policy support that result.
+
+This distinction fits the OpenETR layered model:
+
+```text
+Protocol:
+  Can I verify these signatures, hashes, events, and references?
+
+Control:
+  Who controls this record now under the reconstructed graph?
+
+Recognition:
+  What legal, commercial, institutional, or operational effect follows?
+```
+
+C2PA operates primarily around cryptographically verifiable provenance. OpenETR deliberately adds a control primitive for records whose lifecycle, transfer, encumbrance, redemption, or termination must be evaluated over time.
+
 ## Final-Artifact Digest Pattern
 
 The recommended OpenETR pattern is to digest the final packaged file after C2PA processing is complete.
@@ -256,3 +328,6 @@ Further design work should decide:
 - how verifier policy should distinguish `c2pa_missing`, `c2pa_invalid`, `c2pa_untrusted`, and `c2pa_not_required`
 - whether domain profiles such as MLWR or Product Passports should require C2PA for particular classes of evidence
 
+## Related Documents
+
+- [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)

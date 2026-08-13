@@ -1,6 +1,6 @@
 # OpenETR And C2PA
 
-OpenETR-style whole-file digesting and C2PA content provenance are complementary approaches to digital trust.
+OpenETR and C2PA are complementary approaches to digital trust, but they solve different problems.
 
 They should not be treated as competing models.
 
@@ -8,22 +8,22 @@ They should not be treated as competing models.
 
 C2PA attaches a signed provenance record to content. The C2PA manifest is like a sidecar record added to the file, often embedded inside the PDF, image, video, or other asset. It can describe who created the asset, what actions were performed, what assertions are being made, and whether the protected content still matches the signed provenance record.
 
-OpenETR can provide an additional final-artifact integrity layer by taking a cryptographic digest of the completed file. This is similar to notarizing an already executed or signed document. The file may already contain signatures, credentials, C2PA provenance, or other trust material; OpenETR then records a digest of the final packaged artifact so the exact file can be checked later.
+OpenETR can provide an additional final-artifact integrity layer by taking a cryptographic digest of the completed file. But for electronic transferable records, OpenETR's more important contribution is control: the digest identifies the record, signed events establish assertions and state transitions, and the control graph shows who controls the record under a selected verifier policy.
 
-Used together, C2PA helps explain and verify the provenance of the content, while OpenETR helps prove that the completed artifact is byte-for-byte the same file that was recorded.
+Used together, C2PA helps explain and verify the provenance of content, while OpenETR helps identify the record and preserve its signed control history.
 
 The short version is:
 
 ```text
-C2PA is the signed provenance record attached to the content.
-OpenETR is the notarization of the final completed file.
+C2PA establishes provenance of an asset.
+OpenETR establishes control of a record.
 ```
 
 Or:
 
 ```text
-C2PA explains what the document is and where it came from.
-OpenETR proves this exact final file has not changed.
+C2PA makes provenance portable with content.
+OpenETR makes evidence portable without making control copyable.
 ```
 
 ## What C2PA Provides
@@ -70,10 +70,28 @@ C2PA and OpenETR answer different trust questions.
 | Has protected content changed relative to the manifest? | Strong fit | Indirectly, if the whole-file digest changes |
 | Is this exact final file unchanged? | Not always the simplest model | Strong fit |
 | Can the check be reproduced without understanding file internals? | Requires C2PA-aware verification | Strong fit |
+| Who controls this transferable record now? | Not its purpose | Strong fit |
+| Can copying the bytes copy control? | Not the problem it solves | No, control depends on the graph |
 
-C2PA is richer. OpenETR-style digesting is simpler.
+C2PA is richer for content provenance. OpenETR is stronger for control semantics.
 
 The policy opportunity is to use both where each is strongest.
+
+For content provenance, the main question is:
+
+```text
+Is this provenance authentic for this asset?
+```
+
+For a transferable record, the harder question is:
+
+```text
+What is this record, and who controls it now?
+```
+
+That second question is why signatures, manifests, credentials, and content provenance are not enough by themselves for electronic transferable records. The record also needs a control primitive.
+
+Copyability is not the security failure. Everything digital can be copied. The necessary property is that copying the record, its assertions, or its history cannot copy or alter control of the record.
 
 ## Recommended Combined Workflow
 
@@ -147,15 +165,16 @@ Useful implementation questions include:
 
 ## Policy Position
 
-OpenETR can complement C2PA by adding a final whole-file notarization layer to a document or asset that may already carry signed provenance evidence.
+OpenETR can complement C2PA by adding final-artifact identity and, where the artifact is a controllable record, an object-specific control graph.
 
 The recommended policy framing is:
 
 ```text
-C2PA provides embedded or attached provenance for the content.
-OpenETR provides external integrity evidence for the finalized artifact.
-Together, they support both provenance assurance and final-file integrity.
+C2PA provides embedded or attached provenance for content.
+OpenETR provides record identity, signed control events, and graph evidence.
+Recognition policy decides what effect to give both.
 ```
 
-This combined approach is especially useful where a relying party needs to know both what a digital document claims to be and whether the exact final document package has remained unchanged.
+This combined approach is especially useful where a relying party needs to know both what a digital document claims to be and whether the identified record has a valid control history.
 
+For the broader architectural distinction, see [Provenance Is Not Control](./provenance-is-not-control.md).
