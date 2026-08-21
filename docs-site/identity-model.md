@@ -36,6 +36,16 @@ Commitment Profile keys are ordinary independent Nostr keypairs.
 
 They are not cryptographically derived from the Control Desk Key. The Control Desk Key organizes access to Commitment Profiles and relay-backed configuration; operational events are signed by the selected Commitment Profile signer.
 
+## Human And Agent Actors
+
+OpenETR does not assign different protocol identities to humans and software agents.
+
+A valid event signature proves that a particular key signed the event. It does not reveal whether the key was operated by a person, an agent, a service, a managed signer, or a workflow in which an agent proposed an action and a human approved it.
+
+A Commitment Profile can therefore represent a person, organizational role, facility, service account, software agent, or controlled workflow. The host system remains responsible for authenticating users, constraining agent permissions, protecting signer keys, and retaining evidence of delegation or approval. Verifier policies and recognition systems decide whether those safeguards are sufficient for a particular domain or jurisdiction.
+
+OpenETR may carry or link claims about an agent, provider, deployer, permission scope, or human approval. These are attributable evidence, not facts inferred from the key itself.
+
 ## Integration Pattern
 
 This model is useful for existing systems:
@@ -49,5 +59,6 @@ This model is useful for existing systems:
 ## Source Notes
 
 - [Root And Profile Identity Model](https://github.com/trbouma/openetr/blob/main/docs/specs/ROOT_AND_PROFILE_IDENTITY_MODEL.md)
+- [Actor-Neutral Identity Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md)
 - [System Integration Considerations](https://github.com/trbouma/openetr/blob/main/docs/specs/SYSTEM_INTEGRATION_CONSIDERATIONS.md)
 - [Relay-Backed Configuration Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/RELAY_BACKED_CONFIGURATION_DESIGN_NOTE.md)

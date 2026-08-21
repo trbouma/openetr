@@ -27,6 +27,24 @@ OpenETR adds an application-level organization model on top of those independent
 
 The root-and-profile model is therefore role-based, not key-type-based.
 
+## Actor Neutrality
+
+OpenETR does not distinguish between human actors and agent actors in the root/profile model or in signed control events.
+
+A root or profile `npub` identifies a cryptographic signer. A valid signature proves control of the corresponding private key for that event. It does not prove whether the key was operated by:
+
+- a human;
+- an autonomous or semi-autonomous agent;
+- a software service or deterministic workflow;
+- a managed or hardware signing service;
+- a mixed workflow in which an agent proposes and a human approves.
+
+This is intentional. The nature of the operator, the accountable principal, the scope of delegated authority, and the legal or institutional effect of the event are external authorization and recognition concerns.
+
+A host system or verifier policy may require attestations or linked evidence about an agent, provider, deployer, human approval, permission scope, or incident-response process. Those claims do not alter the cryptographic validity of the signer or create a different class of OpenETR identity.
+
+The detailed rationale is documented in [OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md](./OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md).
+
 ## Roles
 
 A Nostr keypair may serve in one or more OpenETR roles.
@@ -48,7 +66,7 @@ The root identity is administrative. It is not automatically the signer of opera
 
 ### Profile Signer Identity
 
-A profile signer identity is the key used to act as a named OpenETR profile.
+A profile signer identity is the key used to act as a named OpenETR profile. The profile may be operated by a person, service, agent, or controlled workflow.
 
 Profile signers may publish operational events such as:
 
@@ -241,6 +259,8 @@ It does not automatically determine legal authority, title, mandate, or recognit
 
 Similarly, a profile signer can create signed operational events, but whether those events are recognized as effective depends on the relevant OpenETR policy, attestation model, institutional rules, or legal framework.
 
+The same boundary applies to actor type. OpenETR does not treat a human-operated signature as inherently more valid than an agent-operated signature. A domain or organizational policy may impose different authorization, supervision, disclosure, or recognition requirements on those actors while evaluating the same signed evidence.
+
 This note is therefore about OpenETR component organization, not about legal effect.
 
 ## Summary
@@ -248,6 +268,8 @@ This note is therefore about OpenETR component organization, not about legal eff
 OpenETR profiles are ordinary independent Nostr identities organized by the OpenETR component under a root administrative identity.
 
 The root may also be a profile, but root and profile are roles, not different cryptographic key classes.
+
+Both roles are actor-neutral: the protocol identifies the signing key, while integrating systems determine who or what operates it and whether that operation is authorized and recognized.
 
 The practical distinction is:
 
