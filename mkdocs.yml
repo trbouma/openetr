@@ -10,6 +10,7 @@ site_dir: site
 
 theme:
   name: material
+  custom_dir: docs-site/overrides
   features:
     - navigation.instant
     - navigation.top
