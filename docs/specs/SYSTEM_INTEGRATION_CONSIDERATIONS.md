@@ -282,10 +282,10 @@ Relay-backed configuration currently includes or is converging toward:
 
 OpenETR record evidence is also relay-backed:
 
-- `kind 31415` origin events;
-- `kind 31416` control events;
+- `kind 1415` origin events;
+- `kind 1416` control events;
 - object identity through `o` tags;
-- replaceable/action addressing through `d` tags;
+- action semantics through `action` tags;
 - chain linkage through `e` tags;
 - action-specific participants and references through tags such as `p`, `enc`, `type`, and `ref`.
 
@@ -599,8 +599,8 @@ This is possible because the OpenETR event families and tag conventions are spec
 A protocol-level integrator should implement:
 
 - object digest calculation;
-- `kind 31415` origin-event publication;
-- `kind 31416` control-event publication;
+- `kind 1415` origin-event publication;
+- `kind 1416` control-event publication;
 - `d`, `o`, `e`, `p`, `action`, `enc`, `type`, and `ref` tag conventions;
 - relay publication and query behavior;
 - object-centric traversal by `o` and `e` references;
@@ -767,8 +767,8 @@ flowchart TB
   subgraph OpenETR["OpenETR Control Layer"]
     Bootstrap["Root Key + Bootstrap Relays<br/>hidden behind account systems if desired"]
     Profiles["Operational Profiles<br/>warehouse, exporter, bank, carrier, attestor"]
-    Origin["Origin Events<br/>kind 31415"]
-    Control["Control Events<br/>kind 31416 actions"]
+    Origin["Origin Events<br/>kind 1415"]
+    Control["Control Events<br/>kind 1416 actions"]
     Query["Query + Traversal<br/>current controller, lifecycle, encumbrances"]
   end
 
