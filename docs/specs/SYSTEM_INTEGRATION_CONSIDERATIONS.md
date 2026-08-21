@@ -36,6 +36,138 @@ In this model:
 
 This lets OpenETR connect independent systems without requiring a shared platform runtime or a single authoritative database.
 
+## Suggested Integration Milestones
+
+OpenETR integration should be approached as a set of separable milestones rather than as one large platform replacement.
+
+### 1. Map Domain Terminology To OpenETR Terminology
+
+The first milestone is to map the domain's existing language to the generic OpenETR control model.
+
+For example, a warehouse receipt system may use terms such as:
+
+- warehouse operator;
+- depositor;
+- holder;
+- secured party;
+- receipt;
+- pledge;
+- release;
+- termination.
+
+OpenETR should not force those users to speak in protocol terms. Instead, the domain adapter or host system should map those terms to OpenETR concepts such as:
+
+- object digest and object id;
+- origin event;
+- control event;
+- control graph;
+- Commitment Profile;
+- Acting Profile;
+- contact;
+- reference;
+- verifier policy.
+
+This mapping is an explicit integration artifact. It helps users understand what the control layer is doing without confusing the domain document, legal terminology, account model, and protocol event model.
+
+### 2. Separate Control From Document Movement
+
+The next milestone is to understand how the control layer can be accessed independently of how documents actually move.
+
+OpenETR does not require the PDF, warehouse receipt, bill of lading, registry entry, document package, or system record to move through an OpenETR-hosted document service.
+
+The document may move through:
+
+- an existing document management system;
+- a registry;
+- email or secure file transfer;
+- an enterprise content repository;
+- a trade platform;
+- a private API;
+- a manual workflow.
+
+OpenETR only needs a stable object commitment, usually a SHA-256 digest of the relevant document or record artifact, and a signed event graph that records control claims and transitions for that object.
+
+This lets an integrator add OpenETR control evidence without replacing existing document custody, storage, presentation, or delivery workflows.
+
+### 3. Define The Host-System Boundary
+
+A major integration milestone is deciding where OpenETR sits inside an existing or new system architecture.
+
+The host system remains responsible for:
+
+- user accounts;
+- authentication;
+- session management;
+- authorization;
+- product workflow;
+- document storage;
+- domain validation;
+- audit presentation;
+- local database records;
+- user recovery;
+- administrative controls.
+
+OpenETR is responsible for:
+
+- object identity;
+- event construction;
+- event signing;
+- event publication;
+- event query;
+- control-graph traversal;
+- verifier inputs and warnings.
+
+The host system may hide root keys, bootstrap relay details, signing services, and relay mechanics behind an account-based or passkey-style product experience. Users should see domain-meaningful concepts such as a warehouse operator, facility, Commitment Profile, holder, secured party, or receipt state.
+
+### 4. Define Authentication, Recognition, And Policy
+
+The host system, domain adapter, trust framework, registry, KYC provider, verifier policy, or jurisdiction-specific rulebook is responsible for deciding whether a user or signer is recognized for a particular role.
+
+OpenETR can authenticate the signed control event: which key signed which event for which object and how that event relates to the graph.
+
+OpenETR does not, by itself, decide:
+
+- whether the signer is legally the warehouse operator;
+- whether a user has been securely authenticated by the host system;
+- whether a signer satisfies KYC, AML, licensing, registry, or trust-framework requirements;
+- whether a particular jurisdiction recognizes the event as having a legal effect;
+- whether a particular exception or domain-specific rule should override a baseline warning.
+
+Those are recognition and policy concerns. They complement OpenETR's control layer but do not belong inside the generic protocol requirement.
+
+### 5. Choose The Integration Surface
+
+The technical milestone is to decide which OpenETR surface fits the system architecture.
+
+An integrator may:
+
+- import the installable Python `openetr` component;
+- call REST APIs exposed by an OpenETR service;
+- execute CLI commands from a shell workflow;
+- use CLI `--json` output for agents, scripts, CI jobs, or orchestration tools;
+- integrate directly at the OpenETR wire-format level.
+
+The first four options are usually faster for systems that want to use the reference implementation. Direct wire-format integration is appropriate when an implementation wants to use its own language, runtime, relay client, event store, signing infrastructure, or policy engine.
+
+### 6. Choose A Wire Format Strategy
+
+Nostr has been chosen as the initial OpenETR wire format protocol because it provides simple signed events, public-key authorship, relay publication, event tags, and decentralized retrieval semantics.
+
+However, the OpenETR control model is not conceptually limited to Nostr.
+
+An integrator may choose another protocol, event log, message format, database representation, archive format, or transport if it preserves equivalent control evidence:
+
+- cryptographically attributable signer identity;
+- stable object commitment;
+- event identity;
+- event signature;
+- structured event data;
+- graph links;
+- replayable event history;
+- verifier-policy inputs.
+
+The practical interoperability point is this: systems using the OpenETR Nostr wire format can interoperate directly through compatible relays and event queries. Systems using another wire format must define a faithful mapping if they want to exchange evidence with Nostr-based OpenETR systems.
+
 ## Component And Service Boundary
 
 OpenETR should be understood as a reusable control-layer component with multiple adapters.
@@ -161,6 +293,31 @@ This means an integrated system does not need to own all OpenETR state in a priv
 
 Because the events are cryptographically unique and independently verifiable, a relay is best understood as a publication, retrieval, and replication mechanism rather than as the source of truth itself.
 
+## Stateless Host Application Pattern
+
+The relay-backed model makes OpenETR especially suitable for stateless or mostly stateless host applications.
+
+An integrating application does not need to make OpenETR state part of its own core database. It may keep its existing database for application-specific concerns while treating OpenETR evidence as portable signed data.
+
+The host application may store or manage only:
+
+- a root key / Control Desk Key, or a reference to a managed signing service;
+- bootstrap or home relays;
+- product-specific account, tenant, authorization, and workflow records;
+- optional cache or index data for faster display.
+
+OpenETR-specific state can remain reconstructable from signed events and relay-backed configuration:
+
+- Commitment Profile index and selected Commitment Profiles;
+- profile metadata;
+- encrypted or managed signer records where supported;
+- aliases, contacts, references, and known-entity records;
+- origin events;
+- control events;
+- graph traversal links and verifier annotations.
+
+This separation is important. OpenETR should not require the host application's runtime database to be the source of truth for control evidence. The host application can make the experience usable, enforce local permissions, and cache data for performance, while the OpenETR graph remains independently verifiable from signed events.
+
 ## Bootstrap Behind Existing Accounts
 
 An existing account-based system may integrate OpenETR without exposing root keys and bootstrap relays directly to end users.
@@ -185,9 +342,65 @@ In that pattern, the platform account is the user's familiar login surface, whil
 The platform should still preserve the OpenETR separation between:
 
 - root key: administrative recovery and relay-backed configuration;
-- profile keys: operational signers for issuing and controlling records.
+- Commitment Profile keys: operational signers for issuing and controlling records.
 
 That separation lets an account-based product give users a conventional experience without collapsing account identity, configuration authority, and operational authorship into one key.
+
+## Passkey-Style Custody Analogy
+
+A useful product analogy is passkey architecture.
+
+With passkeys, a device, browser, operating system, or password manager keeps a private key on behalf of a user. The user usually does not see the private key. The user experiences meaningful application concepts such as accounts, devices, approvals, biometrics, or sign-in prompts.
+
+OpenETR can follow a similar custody pattern.
+
+For example, a warehouse receipt system may hide the OpenETR root key / Control Desk Key behind the warehouse system's ordinary account and tenant model. The user signs in to the warehouse application. The application, device, service, HSM, KMS, wallet, or custody layer holds or references the root key.
+
+The user-facing application exposes meaningful warehouse receipt concepts:
+
+- warehouse operator;
+- facility;
+- issuing Commitment Profile;
+- Acting Profile;
+- holder;
+- depositor;
+- secured party;
+- receipt state;
+- transfer, encumbrance, discharge, redemption, or termination actions.
+
+It does not need to expose:
+
+- raw root `nsec` material;
+- low-level bootstrap relay records;
+- encrypted signer-storage mechanics;
+- raw Nostr event construction;
+- relay filter details.
+
+This analogy should not be read as a requirement that OpenETR keys must be held on a physical device or WebAuthn authenticator. The point is the product boundary: an application can safely hide key custody and relay mechanics while presenting profiles and receipt actions to users.
+
+The cryptographic model remains unchanged:
+
+- the root / Control Desk Key organizes configuration and Commitment Profile recovery;
+- Commitment Profile keys sign operational OpenETR events;
+- signed events remain independently verifiable;
+- recognition policy decides the effect of those events.
+
+The passkey-style model is especially useful for systems that already have their own account, permissions, audit, and recovery flows. OpenETR can sit underneath that product surface as a signed control layer.
+
+## Boundary Between Host Application And OpenETR
+
+The integration boundary should be explicit.
+
+| Host application owns | OpenETR owns |
+| --- | --- |
+| User login, account recovery, and product permissions | Signed origin and control event construction |
+| Tenant, organization, facility, and workflow data | Object ids, event ids, signatures, and graph links |
+| Document storage and document-content validation | Digest-addressed object identity |
+| User-facing role names and domain workflow | Commitment Profile-backed operational attribution |
+| KYC, registry, contractual, statutory, or platform recognition rules | Portable wire-format evidence and verifier inputs |
+| Local indexes, dashboards, alerts, and caches | Relay publication, retrieval, and signed event replay conventions |
+
+This keeps OpenETR useful to existing systems without forcing those systems to give up their user model, database, policy model, or domain-specific workflow.
 
 ## Root-And-Profile As An Integration Pattern
 
@@ -196,7 +409,7 @@ The root-and-profile identity model is one of the main ways OpenETR can fit into
 It is similar to a master-key and delegated-key pattern:
 
 - the root key anchors recovery, configuration, profile discovery, and encrypted signer management;
-- profile keys are delegated operational identities that sign day-to-day OpenETR actions;
+- Commitment Profile keys are delegated operational identities that sign day-to-day OpenETR actions;
 - the host system can decide how profiles map to users, roles, departments, tenants, legal entities, counterparties, or workflow actors.
 
 This analogy is useful for integration planning, but it should not be read as a cryptographic hierarchy at the Nostr layer.
@@ -215,6 +428,8 @@ In a conventional enterprise or SaaS integration, the host application may hide 
 
 Those profiles can then sign OpenETR events independently, while the root provides administration and recovery for the profile set.
 
+In user-facing documentation these operational profiles may be called **Commitment Profiles**: profiles that can make signed OpenETR commitments. A Commitment Profile can represent a warehouse operator, facility, department, service account, or other operational role. The Acting Profile is the selected Commitment Profile for a particular operation.
+
 This is also useful when a participant already has an operational identity before it joins a new OpenETR environment. If the participant supplies an existing profile `nsec`, the receiving root can add that signer to its own root-managed profile set after verifying that the signer has a published profile on the selected relays.
 
 The previous root does not need to participate in that import. The signer key is independent. The new root is not creating the identity; it is organizing access to an identity that already exists.
@@ -222,8 +437,8 @@ The previous root does not need to participate in that import. The signer key is
 This preserves a useful separation:
 
 - the existing account system controls login, permissions, user experience, and business workflow;
-- the OpenETR root manages portable configuration and profile recovery;
-- OpenETR profiles create signed, attributable, operational evidence;
+- the OpenETR root manages portable configuration and Commitment Profile recovery;
+- Commitment Profiles create signed, attributable, operational evidence;
 - relying parties can verify signed events without trusting the host application's runtime database as the source of truth.
 
 The root may also be used as a profile in simple or demonstration deployments. For production-like integrations, however, separate profile signers are usually preferable because they preserve the distinction between administrative recovery and operational authorship.

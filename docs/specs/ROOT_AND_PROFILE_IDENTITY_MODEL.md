@@ -172,7 +172,8 @@ This term is intended to make the root/profile model easier to understand in the
 
 - the Control Desk is the warehouse receipt workspace or operating surface;
 - the Control Desk Key administers the desk;
-- profiles are operational signers the desk can act as;
+- Commitment Profiles are operational signers the desk can act as;
+- the Acting Profile is the selected Commitment Profile for the current action;
 - contacts are external parties the desk can address or transact with;
 - references are external recognition, assurance, registry, KYC, assessment, audit, attestation, or policy sources;
 - receipt control records are signed by the selected operational profile.
@@ -184,8 +185,9 @@ A Control Desk Key is still an OpenETR root admin identity. It does not derive p
 The useful operational distinction is:
 
 ```text
-root admin identity / Control Desk Key = manages configuration and profiles
-profile signer identity / Profile = signs operational OpenETR events
+root admin identity / Control Desk Key = manages configuration and Commitment Profiles
+profile signer identity / Commitment Profile = signs operational OpenETR events
+Acting Profile = selected Commitment Profile for the current operation
 Contact = external party the desk can reference
 Reference = external source the desk or verifier may consult for recognition context
 ```

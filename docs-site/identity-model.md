@@ -8,7 +8,7 @@ The Warehouse Receipts workspace uses business terms over the OpenETR root/profi
 | --- | --- |
 | Warehouse Receipts workspace | MLWR operating surface / domain workspace |
 | Control Desk Key | Root admin identity |
-| Profile | Operational signer identity the desk can act as |
+| Commitment Profile | Operational signer identity the desk can act as |
 | Contact | External party the desk can address or transact with |
 | Reference | External recognition, assurance, registry, KYC, assessment, audit, attestation, or policy source |
 | Receipt control record | Signed OpenETR origin or control event |
@@ -17,11 +17,14 @@ The Warehouse Receipts workspace uses business terms over the OpenETR root/profi
 
 | Category | Question Answered |
 | --- | --- |
-| Profile | Can this control desk act as this identity? |
+| Commitment Profile | Can this control desk act as this identity? |
+| Acting Profile | Which Commitment Profile is currently selected to sign? |
 | Contact | Can this control desk refer to this external party by a convenient name? |
 | Reference | Can this desk or verifier consult this source for recognition context? |
 
-Profiles are controlled by the Control Desk Key.
+Commitment Profiles are organized by the Control Desk Key.
+
+The term **Commitment Profile** is the user-facing name for an operational OpenETR profile that can make signed commitments. The selected Commitment Profile is shown in the app as the **Acting Profile**.
 
 Contacts are addressable but not controllable.
 
@@ -29,9 +32,9 @@ References are sources of recognition or assurance evidence. They are not automa
 
 ## Important Cryptographic Boundary
 
-Profile keys are ordinary independent Nostr keypairs.
+Commitment Profile keys are ordinary independent Nostr keypairs.
 
-They are not cryptographically derived from the Control Desk Key. The Control Desk Key organizes access to profiles and relay-backed configuration; operational events are signed by the selected profile signer.
+They are not cryptographically derived from the Control Desk Key. The Control Desk Key organizes access to Commitment Profiles and relay-backed configuration; operational events are signed by the selected Commitment Profile signer.
 
 ## Integration Pattern
 
@@ -39,7 +42,7 @@ This model is useful for existing systems:
 
 - the host system can keep its normal account login;
 - the Control Desk Key can be hidden behind that account context;
-- profiles can represent operational roles or facilities;
+- Commitment Profiles can represent operational roles or facilities;
 - contacts and references can be managed as business configuration;
 - OpenETR events remain cryptographically signed and independently verifiable.
 

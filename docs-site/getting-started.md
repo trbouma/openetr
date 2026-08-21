@@ -27,11 +27,12 @@ Signed-in users can operate the workspace with profiles and signer keys.
 | --- | --- |
 | Warehouse Receipts workspace | The operating surface for warehouse receipt actions. |
 | Control Desk Key | The root/admin key used for recovery and profile management. |
-| Acting Profile | The profile currently used to sign warehouse receipt actions. |
+| Commitment Profile | A profile organized by the Control Desk Key that can sign commitments. |
+| Acting Profile | The selected Commitment Profile currently used to sign warehouse receipt actions. |
 | Receipt Control Record | A signed OpenETR origin or control event. |
 | Docs | Link back to this documentation site. |
 
-The **Acting Profile** is the profile that signs operational actions such as creating the initial control record, transferring, encumbering, discharging, redeeming, or terminating receipt control.
+The **Acting Profile** is the selected Commitment Profile that signs operational actions such as creating the initial control record, transferring, encumbering, discharging, redeeming, or terminating receipt control.
 
 ## Query A Receipt
 
@@ -52,11 +53,11 @@ When signed in, the workspace shows:
 
 - the Control Desk Key;
 - the Acting Profile;
-- a profile selector;
+- a Commitment Profile selector;
 - an **Update Current Profile** button;
 - a **Backup Key** action for recovery material.
 
-Use the profile selector to choose which profile should sign operational actions.
+Use the profile selector to choose which Commitment Profile should sign operational actions.
 
 ## Back Up The Control Desk Key
 

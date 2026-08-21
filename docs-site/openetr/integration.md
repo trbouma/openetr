@@ -17,6 +17,21 @@ An implementation can use OpenETR by:
 - publishing and querying Nostr events directly;
 - storing and replaying signed events locally.
 
+## Suggested Integration Milestones
+
+Integrators do not need to adopt every OpenETR surface at once. A practical integration can move through a few clear milestones.
+
+| Milestone | Integration Question | OpenETR Concern |
+| --- | --- | --- |
+| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as object, origin event, control event, Commitment Profile, Acting Profile, contact, reference, and verifier policy. |
+| Separate control from document movement | How do documents move today, and where should control evidence live? | Use OpenETR as the signed control layer while allowing PDFs, files, records, registry entries, or business documents to move through existing channels. |
+| Define the host-system boundary | Which existing or new system owns users, accounts, workflow, documents, and policy? | Treat OpenETR as portable signed evidence underneath the host system rather than as the host system's application database. |
+| Define authentication and recognition | How are users authenticated and recognized in the relevant domain or jurisdiction? | Let the host system, domain adapter, registry, KYC provider, trust framework, or verifier policy decide whether an actor is recognized for a particular role. |
+| Choose an integration surface | Should the system embed OpenETR, call a service, execute the CLI, or implement the protocol directly? | Use the Python component, REST APIs, CLI `--json`, or direct wire-format integration according to the system architecture. |
+| Choose a wire format strategy | Is the Nostr event format sufficient, or does the integrator need another transport or storage format? | Nostr is the initial OpenETR wire format, but the control model is portable. An integrator may choose another event, message, storage, or transport protocol if it preserves equivalent signed control evidence. |
+
+The first milestone is often conceptual rather than technical. OpenETR becomes easier to integrate once the domain-specific language is mapped to the generic control model. For example, a warehouse receipt system may use warehouse operator, depositor, holder, secured party, and receipt state, while OpenETR represents those concerns through profiles, contacts, references, object ids, signed events, and verifier output.
+
 ## One Component, Multiple Modes
 
 The reference implementation is intended to support both humans and agents.
@@ -65,6 +80,61 @@ The minimal bootstrap can be as small as:
 
 Profiles, profile settings, aliases, contacts, references, and signer material can then be discovered or recovered through relay-backed records, depending on the integration profile.
 
+## Stateless App Boundary
+
+The strongest integration pattern is a stateless or mostly stateless host application.
+
+In this pattern, the host application keeps its own product database, account model, document store, workflow state, and recognition policy. OpenETR provides the portable control evidence.
+
+The host application may store very little OpenETR-specific local state:
+
+- a Control Desk Key, root key, or reference to a managed key;
+- bootstrap or home relays;
+- optional cache/index data for performance.
+
+Everything important for OpenETR control can be reconstructed from signed events:
+
+- Commitment Profiles and profile configuration;
+- object origin events;
+- control events;
+- graph links;
+- signer attribution;
+- verifier warnings.
+
+This means OpenETR can be added behind an existing application boundary without making OpenETR the application database.
+
+## Passkey-Style Key Custody
+
+OpenETR can be integrated in a way that feels similar to passkeys.
+
+With passkeys, a device or platform keeps a private key on behalf of a user. The user normally does not see or handle the private key directly. The user sees meaningful application concepts such as accounts, devices, approvals, and sign-in prompts.
+
+OpenETR can use the same product pattern.
+
+For example, a warehouse receipt system may hide the Control Desk Key from the end user. The user signs in to the warehouse system as usual. The system then uses the Control Desk Key behind the scenes to discover and manage the OpenETR environment.
+
+The user sees domain concepts:
+
+- warehouse operator;
+- facility;
+- issuing Commitment Profile;
+- Acting Profile;
+- depositor;
+- holder;
+- secured party;
+- receipt state.
+
+The user does not need to see:
+
+- root `nsec` material;
+- relay bootstrap records;
+- encrypted signer storage;
+- low-level Nostr event construction.
+
+The host application may expose Commitment Profiles, contacts, references, and receipt actions while hiding key custody and relay mechanics.
+
+This does not change the cryptographic model. Commitment Profile keys still sign operational events, and relying parties still verify signed event data. The host app improves the user experience by managing key custody and presenting only meaningful domain controls.
+
 ## No Runtime Dependency On Someone Else's Code
 
 OpenETR's trust anchor is signed event data, not a particular hosted service.
@@ -87,9 +157,22 @@ An existing account-based system can hide root keys and bootstrap relays behind 
 In that deployment:
 
 - the host application controls the user experience;
-- the Control Desk Key / root manages OpenETR profile configuration;
-- profile keys sign operational events;
+- the Control Desk Key / root manages OpenETR Commitment Profile configuration;
+- Commitment Profile keys sign operational events;
 - verifier policy maps signed evidence to the system's business rules.
+
+The OpenETR boundary should be clear:
+
+| Existing application owns | OpenETR owns |
+| --- | --- |
+| User login and account recovery | Signed event construction |
+| Product UI and workflow | Object ids and graph links |
+| Document storage | Origin and control event publication |
+| User permissions and roles | Commitment Profile-backed event attribution |
+| Business policy and recognition | Verifier inputs and warnings |
+| Caches and local indexes | Portable wire-format evidence |
+
+This lets OpenETR behave as a control layer underneath the application rather than as a competing product surface.
 
 ## Source Specs
 
