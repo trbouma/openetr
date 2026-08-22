@@ -1,0 +1,97 @@
+:root {
+  --md-primary-fg-color: #1f4fcb;
+  --md-primary-fg-color--light: #5e83e6;
+  --md-primary-fg-color--dark: #14306d;
+  --md-accent-fg-color: #e4a53a;
+  --openetr-blue: #2f66d8;
+  --openetr-navy: #16346f;
+  --openetr-ink: #0b1730;
+  --openetr-sky: #edf3ff;
+  --openetr-amber: #e4a53a;
+  --openetr-line: #b8c9f8;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #789cf2;
+  --md-primary-fg-color--light: #9db8ff;
+  --md-primary-fg-color--dark: #486fc8;
+  --md-accent-fg-color: #efb85a;
+  --openetr-navy: #eef3ff;
+  --openetr-ink: #edf3ff;
+  --openetr-sky: #17223b;
+  --openetr-line: #425a91;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+}
+
+.md-header__title {
+  font-weight: 700;
+}
+
+.md-header__option .md-header__button:not([hidden]) {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  gap: 0.35rem;
+  padding-inline: 0.45rem;
+}
+
+.md-header__option .md-header__button:not([hidden])::after {
+  content: attr(title);
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.md-typeset h1,
+.md-typeset h2 {
+  color: var(--openetr-navy);
+  letter-spacing: 0;
+}
+
+.md-typeset a {
+  font-weight: 600;
+}
+
+.md-typeset blockquote {
+  border-left-color: var(--openetr-amber);
+}
+
+.md-typeset table:not([class]) th {
+  background: color-mix(in srgb, var(--openetr-sky) 82%, var(--md-default-bg-color));
+  color: var(--openetr-ink);
+}
+
+.md-typeset table:not([class]) {
+  border: 1px solid color-mix(in srgb, var(--openetr-line) 65%, transparent);
+}
+
+.md-typeset code {
+  border-radius: 4px;
+}
+
+.md-nav__title,
+.md-nav__item .md-nav__link--active {
+  font-weight: 700;
+}
+
+.md-footer {
+  border-top: 1px solid color-mix(in srgb, var(--openetr-line) 45%, transparent);
+}
+
+@media screen and (max-width: 52rem) {
+  .md-header__option .md-header__button:not([hidden]) {
+    width: 2.4rem;
+    padding-inline: 0.6rem;
+  }
+
+  .md-header__option .md-header__button:not([hidden])::after {
+    content: none;
+  }
+}

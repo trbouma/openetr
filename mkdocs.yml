@@ -11,15 +11,30 @@ site_dir: site
 theme:
   name: material
   custom_dir: docs-site/overrides
+  language: en
+  logo: assets/openetr-logo.png
+  favicon: assets/openetr-logo.png
   features:
     - navigation.instant
     - navigation.top
+    - search.suggest
     - search.highlight
     - content.code.copy
   palette:
-    - scheme: default
-      primary: brown
-      accent: amber
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Use dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Use light mode
 
 markdown_extensions:
   - admonition
@@ -36,6 +51,11 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+
+extra_css:
+  - stylesheets/extra.css
+
+copyright: OpenETR is open-source software released under the MIT License.
 
 nav:
   - Home: index.md
