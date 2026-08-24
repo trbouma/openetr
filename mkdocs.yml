@@ -66,6 +66,11 @@ nav:
       - Component And CLI: openetr/component-and-cli.md
       - Integration Model: openetr/integration.md
       - Recognition Boundary: openetr/recognition.md
+  - System Integrators:
+      - Overview: system-integrators/index.md
+      - How OpenETR Fits: system-integrators/fit.md
+      - Integration Patterns: system-integrators/patterns.md
+      - Boundaries And Responsibilities: system-integrators/boundaries.md
   - Domains:
       - Warehouse Receipts:
           - Overview: getting-started.md
