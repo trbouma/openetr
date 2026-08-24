@@ -1,8 +1,47 @@
 # OpenETR
 
+Many important records are becoming digital, but the institutions around them still need something that paper used to provide almost by accident: a way to distinguish the operative record from a copy, a way to know who can act on it, and a way to preserve evidence of what happened to it over time.
+
+That problem appears in many domains:
+
+- a warehouse receipt may support financing against stored goods
+- a bill of lading may control rights to goods in transit
+- a promissory note or bill of exchange may be transferred or discharged
+- a product passport may depend on lifecycle and compliance evidence
+- an apostille or certificate may need durable authority evidence
+- a health record may need continuity, consent, and trustworthy provenance
+
+Digital records are easy to copy. That is useful for sharing information, but it creates a problem when a record's value depends on control, presentation, transfer, pledge, release, redemption, or recognition by another party.
+
+Many systems solve this by making one platform, registry, wallet, or database the source of truth. That can work inside one environment. It becomes harder when records need to move across organizations, legal frameworks, industries, financing arrangements, archives, and software systems.
+
 **OpenETR** is a general control layer for durable electronic records.
 
-It treats a document, file, or product data artifact as a **Controlled Object** identified by digest. Signed OpenETR origin records, control records, and linked evidence records for that digest form a control and evidence graph that can be queried, verified, and interpreted by domain-specific workflows.
+<figure class="openetr-home-figure">
+  <img src="assets/images/global-relay-race-zach-lucero-unsplash.jpg" alt="Runner carrying a relay baton on a track field">
+  <figcaption>
+    OpenETR is intended to be part of a global relay race: each system can carry the record forward while preserving signed evidence of the handoff.
+    Photo by <a href="https://unsplash.com/@zlucerophoto?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Zach Lucero</a> on <a href="https://unsplash.com/photos/woman-running-on-field-x_x3RPpDbII?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>.
+  </figcaption>
+</figure>
+
+It treats a document, file, or data artifact as a **Controlled Object** identified by cryptographic digest. Signed OpenETR origin records, control records, and linked evidence records for that digest form a control and evidence graph that can be queried, verified, and interpreted by domain-specific workflows.
+
+OpenETR does not try to become every domain's registry, legal authority, KYC system, wallet, storage service, or compliance engine. It preserves portable signed evidence that those systems can evaluate.
+
+The basic idea is:
+
+```text
+record or artifact
+  -> digest-identified Controlled Object
+  -> signed origin event
+  -> signed control and evidence events
+  -> object-centric graph
+  -> domain adapter interprets the graph
+  -> recognition layer decides effect
+```
+
+This is why OpenETR is described as a control layer. It records durable evidence about the lifecycle of an object without pretending that cryptography alone decides legal or commercial effect.
 
 ## Start Here
 
