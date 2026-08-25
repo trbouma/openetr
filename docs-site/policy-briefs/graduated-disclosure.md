@@ -22,6 +22,29 @@ OpenETR supports a more practical model: **graduated disclosure**.
 Graduated disclosure increases access and verification depth in proportion to
 the consequence of the decision.
 
+In plain language, the interaction can be described as:
+
+```text
+Check   -> verify signed evidence without taking the record
+Present -> inspect the exact record temporarily for a decision
+Share   -> receive and retain the record when deeper review is justified
+```
+
+These words are intentionally ordinary. They describe what a user or verifier
+is trying to do, without forcing them to learn protocol vocabulary first.
+
+| Plain-language level | Record exposure | Technical pattern |
+| --- | --- | --- |
+| **Check** | The artifact remains private; the verifier checks digest-bound signed evidence, status, and recognized signer information | Evidence-only verification |
+| **Present** | The exact artifact is made available temporarily so the verifier can inspect it and compare its digest with the signed evidence | Presentation verification |
+| **Share** | The verifier receives the exact artifact and may retain it under an appropriate authority, agreement, or policy | Deep verification |
+
+Some records may also be intentionally public. In that case, anyone can inspect
+the artifact and compare it with the signed evidence. Public records still fit
+the model, but they start from a higher-disclosure posture.
+
+The more technical disclosure ladder is:
+
 ```text
 signed evidence only
     -> public or temporary representation
@@ -42,6 +65,14 @@ Different records and decisions can stop at different stages.
 
 This is an escalation model. Most routine decisions should not require the
 highest-disclosure stage.
+
+The product-language version of the same escalation model is:
+
+```text
+Check first.
+Present when the decision requires the record.
+Share only when retention or deep analysis is justified.
+```
 
 ## Graduated Disclosure Is Not Selective Disclosure
 
@@ -124,6 +155,10 @@ follow a durable link to its signed OpenETR evidence. The verifier checks:
 The verifier need not routinely import or retain the record. This reduces data
 accumulation while still allowing meaningful independent verification.
 
+In the plain-language model, this is **Present**. The holder lets the verifier
+see and test the exact record for the immediate decision, but the default is
+not permanent transfer or routine retention.
+
 Visual inspection alone is not cryptographic verification. A screenshot,
 photograph, rescan, crop, or recompressed file normally has different bytes and
 therefore a different digest. The presentation workflow must make the exact
@@ -151,6 +186,10 @@ Receiving a copy for verification does **not** transfer control, ownership, or
 legal title. OpenETR control changes require the appropriate separately
 authorized and signed control events. A digital copy can reproduce evidence;
 it cannot copy control merely by existing.
+
+In the plain-language model, this is **Share**. The holder or responsible
+system gives the verifier the record because the decision requires retention,
+forensic review, dispute handling, audit, or another higher-consequence use.
 
 ## Practical Examples
 
