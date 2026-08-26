@@ -1556,6 +1556,7 @@ async def public_etr_lookup(
             "filename": f"OpenETR object {format_object_identifier(object_digest)}",
             "size_bytes": 0,
             "sha256": object_digest,
+            "fingerprint": object_digest[:8].upper(),
             "object_id": format_object_identifier(object_digest),
             "relays": validated_relays,
             "query": query_context,

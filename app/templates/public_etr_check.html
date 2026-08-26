@@ -196,6 +196,43 @@
       font-weight: 750;
       overflow-wrap: anywhere;
     }
+    .profile-summary {
+      display: grid;
+      gap: .2rem;
+      margin-top: .4rem;
+      color: var(--text);
+      font-size: .95rem;
+      font-weight: 400;
+    }
+    .profile-summary strong {
+      font-weight: 750;
+    }
+    .profile-summary p {
+      margin: 0;
+    }
+    .profile-summary .profile-about {
+      color: var(--muted);
+    }
+    .profile-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem .7rem;
+      margin-top: .1rem;
+      font-size: .9rem;
+    }
+    .record-fingerprint {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      margin: 0;
+      font-weight: 750;
+    }
+    .inline-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      flex: 0 0 auto;
+      color: var(--link);
+    }
     .blob-preview {
       margin: 1rem 0;
     }
@@ -284,6 +321,44 @@
 </head>
 <body>
   <main>
+    {% macro profile_summary(profile) %}
+      {% if profile %}
+        {% set profile_name = namespace(value="") %}
+        {% set profile_about = namespace(value="") %}
+        {% set profile_nip05 = namespace(value="") %}
+        {% set profile_website = namespace(value="") %}
+        {% set profile_lei = namespace(value="") %}
+        {% for field, value in profile %}
+          {% if field == "display_name" and not profile_name.value %}
+            {% set profile_name.value = value %}
+          {% elif field == "name" and not profile_name.value %}
+            {% set profile_name.value = value %}
+          {% elif field == "about" %}
+            {% set profile_about.value = value %}
+          {% elif field == "nip05" %}
+            {% set profile_nip05.value = value %}
+          {% elif field == "website" %}
+            {% set profile_website.value = value %}
+          {% elif field == "lei" %}
+            {% set profile_lei.value = value %}
+          {% endif %}
+        {% endfor %}
+        {% if profile_name.value or profile_about.value or profile_nip05.value or profile_website.value or profile_lei.value %}
+        <div class="profile-summary">
+          {% if profile_name.value %}<p><strong>{{ profile_name.value }}</strong></p>{% endif %}
+          {% if profile_about.value %}<p class="profile-about">{{ profile_about.value }}</p>{% endif %}
+          {% if profile_nip05.value or profile_website.value or profile_lei.value %}
+          <p class="profile-links">
+            {% if profile_nip05.value %}<span>NIP-05: <code>{{ profile_nip05.value }}</code></span>{% endif %}
+            {% if profile_lei.value %}<span>LEI: <code>{{ profile_lei.value }}</code></span>{% endif %}
+            {% if profile_website.value %}<a href="{{ profile_website.value }}" rel="noreferrer noopener" target="_blank">Website</a>{% endif %}
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+      {% endif %}
+    {% endmacro %}
+
     <h1>Check Record</h1>
 
     <p class="advisory"><strong>OpenETR evidence.</strong> This page checks the public control history for a digest-identified record.</p>
@@ -299,6 +374,20 @@
       <h2 id="record-status-heading">Record Status</h2>
       <div class="status-grid">
         <div class="status-item">
+          <p class="record-fingerprint">
+            <svg class="inline-icon" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 11a2 2 0 0 1 2 2c0 3-.7 5.7-2 8"></path>
+              <path d="M8.2 20c1.2-2.2 1.8-4.5 1.8-7a2 2 0 0 1 4 0c0 2.6-.4 5-1.2 7.2"></path>
+              <path d="M5.5 18.5A15 15 0 0 0 7 12.8a5 5 0 0 1 10 0c0 2.2-.2 4.4-.8 6.5"></path>
+              <path d="M4 14v-1.2a8 8 0 0 1 16 0c0 1.2 0 2.4-.2 3.6"></path>
+              <path d="M7 6.2A8 8 0 0 1 18.5 8"></path>
+            </svg>
+            <span>Fingerprint:</span> <code title="{{ sha256 }}">{{ fingerprint }}</code>
+          </p>
+        </div>
+        <div class="status-item">
           <span class="status-label">Lifecycle</span>
           <span class="status-value">{{ query.lifecycle_state }}</span>
         </div>
@@ -307,6 +396,7 @@
           <span class="status-value">
             <code title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</code>
           </span>
+          {{ profile_summary(query.initial_profile) }}
         </div>
         <div class="status-item">
           <span class="status-label">Current controller</span>
@@ -317,6 +407,9 @@
             None
             {% endif %}
           </span>
+          {% if query.current_controller %}
+          {{ profile_summary(query.current_controller.profile) }}
+          {% endif %}
         </div>
         {% if query.encumbrance_summary.outstanding %}
         <div class="status-item">
