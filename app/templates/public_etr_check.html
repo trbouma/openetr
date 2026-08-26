@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151915">
+  <title>Check Record · OpenETR</title>
+  <meta name="description" content="Check durable OpenETR control evidence for a record identified by digest.">
+  <meta property="og:title" content="Check OpenETR Record">
+  <meta property="og:description" content="Human-readable verification evidence for an OpenETR controlled record.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Check OpenETR Record">
+  <meta name="twitter:description" content="Human-readable verification evidence for an OpenETR controlled record.">
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #171914;
+      --text: #eef0e8;
+      --muted: #b7baae;
+      --surface: #22251e;
+      --surface-soft: #262b20;
+      --control: #20231d;
+      --border: #4a4f42;
+      --link: #bfd78c;
+      --error: #ffaaa6;
+      --progress: #c5d99d;
+      --pre: #20231d;
+      --advisory: #aebce5;
+      --note-border: #45493e;
+      --accent: #bfd78c;
+      --warn: #e9a270;
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --page: #ffffff;
+      --text: #20211d;
+      --muted: #625f57;
+      --surface: #faf9f5;
+      --surface-soft: #f4f7ed;
+      --control: #ffffff;
+      --border: #d8d5cc;
+      --link: #40582b;
+      --error: #9b1c1c;
+      --progress: #465533;
+      --pre: #f4f3ef;
+      --advisory: #68769a;
+      --note-border: #e2dfd6;
+      --accent: #40582b;
+      --warn: #7d431b;
+    }
+    html {
+      min-height: 100%;
+      -webkit-text-size-adjust: 100%;
+      background: var(--page);
+    }
+    body {
+      max-width: 42rem;
+      margin: 4rem auto;
+      padding: 0 1rem;
+      background: var(--page);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+      overflow-wrap: break-word;
+    }
+    h1,
+    h2,
+    h3 {
+      line-height: 1.2;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    img,
+    svg {
+      max-width: 100%;
+    }
+    a {
+      color: var(--link);
+      overflow-wrap: anywhere;
+    }
+    code {
+      padding: .1rem .25rem;
+      border-radius: .25rem;
+      background: var(--pre);
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    pre {
+      padding: 1rem;
+      overflow-x: auto;
+      background: var(--pre);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    button,
+    .nav-button {
+      display: inline-flex;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 2.75rem;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1rem;
+      padding: .6rem;
+      border: 1px solid var(--border);
+      border-radius: .35rem;
+      background: var(--control);
+      color: var(--text);
+      font: inherit;
+      font-weight: 650;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    button:hover,
+    button:focus-visible,
+    .nav-button:hover,
+    .nav-button:focus-visible {
+      border-color: var(--link);
+      color: var(--link);
+    }
+    .advisory {
+      color: var(--advisory);
+    }
+    .error {
+      color: var(--error);
+    }
+    .muted,
+    .openetr-evidence-note,
+    .openetr-source {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .panel,
+    .openetr-event,
+    .openetr-durable-link,
+    .openetr-protocol-details {
+      margin: 1.25rem 0;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: .7rem;
+      background: var(--surface);
+    }
+    .openetr-event {
+      background: var(--surface-soft);
+    }
+    .openetr-warning {
+      color: var(--warn);
+    }
+    .openetr-event-fields {
+      display: grid;
+      grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+      gap: .45rem .8rem;
+      margin-bottom: 0;
+    }
+    .openetr-event-fields dt {
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .openetr-event-fields dd {
+      min-width: 0;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+    .status-grid {
+      display: grid;
+      gap: .75rem;
+      margin: 1rem 0;
+    }
+    .status-item {
+      padding-bottom: .65rem;
+      border-bottom: 1px solid var(--note-border);
+    }
+    .status-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+    .status-label {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .status-value {
+      display: block;
+      margin-top: .15rem;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+    }
+    .blob-preview {
+      margin: 1rem 0;
+    }
+    .blob-preview img,
+    .media-preview-image,
+    .media-preview-pdf-page,
+    .pdf-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: .7rem;
+      background: #fff;
+    }
+    .media-preview-controls,
+    .pdf-controls {
+      display: flex;
+      gap: .65rem;
+      align-items: center;
+      justify-content: center;
+      margin: 0 0 .85rem;
+    }
+    .media-preview-controls button,
+    .pdf-controls button {
+      width: auto;
+      margin-top: 0;
+      padding: .5rem .8rem;
+    }
+    .openetr-durable-link {
+      text-align: center;
+    }
+    .openetr-durable-link h2 {
+      margin-top: 0;
+    }
+    .openetr-durable-qr-button {
+      display: block;
+      width: min(100%, 24rem);
+      min-height: 0;
+      margin: 0 auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .openetr-durable-qr-button:hover,
+    .openetr-durable-qr-button:focus-visible {
+      background: transparent;
+      color: var(--link);
+    }
+    .invoice-qr {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .invoice-qr img {
+      width: min(100%, 22rem);
+      height: auto;
+      border-radius: 1rem;
+      background: #fff;
+    }
+    .openetr-protocol-details {
+      padding: 0;
+    }
+    .openetr-protocol-details > summary {
+      padding: 1rem;
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+      list-style-position: inside;
+    }
+    .openetr-protocol-details[open] > summary {
+      border-bottom: 1px solid var(--note-border);
+    }
+    .openetr-protocol-details-content {
+      padding: 0 1rem 1rem;
+    }
+    @media (max-width: 640px) {
+      body {
+        margin: 2rem auto;
+      }
+      .openetr-event-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Check Record</h1>
+
+    <p class="advisory"><strong>OpenETR evidence.</strong> This page checks the public control history for a digest-identified record.</p>
+
+    {% if query.no_events %}
+    <section class="panel" aria-labelledby="record-status-heading">
+      <h2 id="record-status-heading">No origin event found</h2>
+      <p>No OpenETR origin event was returned for this record digest.</p>
+      <p class="openetr-source">Digest: <code>{{ sha256 }}</code></p>
+    </section>
+    {% else %}
+    <section class="panel" aria-labelledby="record-status-heading">
+      <h2 id="record-status-heading">Record Status</h2>
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-label">Lifecycle</span>
+          <span class="status-value">{{ query.lifecycle_state }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Issuer</span>
+          <span class="status-value">
+            <code title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</code>
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Current controller</span>
+          <span class="status-value">
+            {% if query.current_controller and query.current_controller.npub %}
+            <code title="{{ query.current_controller.npub }}">{{ query.current_controller.npub | short_id }}</code>
+            {% else %}
+            None
+            {% endif %}
+          </span>
+        </div>
+        {% if query.encumbrance_summary.outstanding %}
+        <div class="status-item">
+          <span class="status-label">Outstanding claims</span>
+          <span class="status-value">{{ query.encumbrance_summary.outstanding }}</span>
+        </div>
+        {% endif %}
+      </div>
+      <p class="openetr-source">Digest: <code>{{ sha256 }}</code></p>
+    </section>
+
+    {% if query.warnings %}
+    <section class="panel" aria-labelledby="warnings-heading">
+      <h2 id="warnings-heading">Warnings</h2>
+      {% for warning in query.warnings %}
+      <p class="openetr-warning">{{ warning.message }}</p>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="openetr-event openetr-origin-issuer" aria-labelledby="openetr-origin-issuer-heading">
+      <h2 id="openetr-origin-issuer-heading">Origin and Issuer</h2>
+      {% if query.initial_profile %}
+      <dl class="openetr-event-fields openetr-human-fields">
+        {% for field, value in query.initial_profile %}
+        {% if field in ["display_name", "name", "about", "nip05", "website", "lei"] %}
+        <dt>{{ field | replace("_", " ") | title }}</dt>
+        <dd>
+          {% if field == "website" %}
+          <a href="{{ value }}" rel="noreferrer noopener" target="_blank">{{ value }}</a>
+          {% else %}
+          {{ value }}
+          {% endif %}
+        </dd>
+        {% endif %}
+        {% endfor %}
+      </dl>
+      {% else %}
+      <p class="openetr-source">No issuer profile was returned by the configured relays.</p>
+      {% endif %}
+      <dl class="openetr-event-fields openetr-human-fields">
+        <dt>Issued</dt><dd>{{ query.initial_event.created_at }}</dd>
+        {% if query.initial_event.content %}<dt>Statement</dt><dd>{{ query.initial_event.content }}</dd>{% endif %}
+      </dl>
+      <p class="openetr-evidence-note">Issuer information may help recognition, but it does not independently establish authority.</p>
+    </section>
+
+    <section aria-labelledby="control-history-heading">
+      <h2 id="control-history-heading">Control Events</h2>
+      {% set event_count = namespace(value=0) %}
+      {% for group in query.transfer_groups %}
+        {% macro render_public_node(node) %}
+        {% set event_count.value = event_count.value + 1 %}
+        <article class="openetr-event">
+          <h3>{{ node.event.action_label }}</h3>
+          <dl class="openetr-event-fields openetr-human-fields">
+            <dt>Created</dt><dd>{{ node.event.created_at }}</dd>
+            {% if node.event.subject_npub %}<dt>{{ node.event.participant_label or "Participant" }}</dt><dd><code>{{ node.event.subject_npub | short_id }}</code></dd>{% endif %}
+            {% if node.event.type %}<dt>Type</dt><dd>{{ node.event.type }}</dd>{% endif %}
+            {% if node.event.external_ref %}<dt>Reference</dt><dd><code>{{ node.event.external_ref }}</code></dd>{% endif %}
+            {% if node.event.content %}<dt>Statement</dt><dd>{{ node.event.content }}</dd>{% endif %}
+          </dl>
+          {% for child in node.children %}
+            {{ render_public_node(child) }}
+          {% endfor %}
+        </article>
+        {% endmacro %}
+        {{ render_public_node(group.root) }}
+      {% endfor %}
+      {% if event_count.value == 0 %}
+      <p>No related control events were found.</p>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% include "_media_preview.html" %}
+
+    <section class="openetr-durable-link" aria-labelledby="openetr-verification-link-heading">
+      <h2 id="openetr-verification-link-heading">Verification QR Code</h2>
+      <p class="openetr-evidence-note">Scan to open this durable verification page.</p>
+      <button type="button" class="openetr-durable-qr-button"
+              data-copy-value="{{ public_query_url }}"
+              data-copy-status="openetr-durable-copy-status"
+              aria-label="Copy durable verification link">
+        <span class="invoice-qr" aria-label="OpenETR durable link QR code">
+          <img src="{{ public_query_qr_url }}" alt="OpenETR verification QR code">
+        </span>
+      </button>
+      <p><a href="{{ public_query_url }}">{{ public_query_url }}</a></p>
+      <p id="openetr-durable-copy-status" class="openetr-source" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    {% if not query.no_events %}
+    <details class="openetr-protocol-details">
+      <summary>Protocol Details</summary>
+      <div class="openetr-protocol-details-content">
+        <h3>Origin Event</h3>
+        <dl class="openetr-event-fields openetr-protocol-fields">
+          <dt>Object Digest</dt><dd><code>{{ sha256 }}</code></dd>
+          <dt>Object Reference</dt><dd><code>{{ object_id }}</code></dd>
+          <dt>Origin Event ID</dt><dd><code>{{ query.initial_event.id }}</code></dd>
+          <dt>Origin Event Kind</dt><dd>{{ query.initial_event.kind }}</dd>
+          <dt>Issuer Public Key</dt><dd><code>{{ query.initial_event.author_hex }}</code></dd>
+        </dl>
+
+        {% for group in query.transfer_groups %}
+          {% macro render_protocol_node(node) %}
+          <h3>{{ node.event.action_label }}</h3>
+          <dl class="openetr-event-fields openetr-protocol-fields">
+            <dt>Event ID</dt><dd><code>{{ node.event.id }}</code></dd>
+            <dt>Kind</dt><dd>{{ node.event.kind }}</dd>
+            <dt>Signer Public Key</dt><dd><code>{{ node.event.author_hex }}</code></dd>
+            {% if node.event.prior_event_id %}<dt>Prior Event ID</dt><dd><code>{{ node.event.prior_event_id }}</code></dd>{% endif %}
+            {% if node.event.o_values %}<dt>Object Tag</dt><dd><code>{{ node.event.o_values }}</code></dd>{% endif %}
+          </dl>
+          {% for child in node.children %}
+            {{ render_protocol_node(child) }}
+          {% endfor %}
+          {% endmacro %}
+          {{ render_protocol_node(group.root) }}
+        {% endfor %}
+
+        <h3>Relay Query</h3>
+        <p class="openetr-source"><code>{{ relays }}</code></p>
+      </div>
+    </details>
+    {% endif %}
+  </main>
+  <script>
+    (() => {
+      const buttons = document.querySelectorAll("[data-copy-value]");
+      for (const button of buttons) {
+        button.addEventListener("click", async () => {
+          const value = button.getAttribute("data-copy-value") || "";
+          const statusId = button.getAttribute("data-copy-status");
+          const status = statusId ? document.getElementById(statusId) : null;
+          try {
+            await navigator.clipboard.writeText(value);
+            if (status) {
+              status.hidden = false;
+              status.textContent = "Copied.";
+            }
+          } catch {
+            if (status) {
+              status.hidden = false;
+              status.textContent = "Copy unavailable in this browser.";
+            }
+          }
+        });
+      }
+    })();
+  </script>
+  {% include "_global_scripts.html" %}
+</body>
+</html>

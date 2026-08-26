@@ -1546,7 +1546,7 @@ async def public_etr_lookup(
     media_preview = await blossom_media_preview_for_digest(object_digest)
     return templates.TemplateResponse(
         request,
-        "query_etr_result.html",
+        "public_etr_check.html",
         {
             "app_title": APP_TITLE,
             "site_url": SITE_URL,
