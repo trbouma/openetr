@@ -144,6 +144,29 @@
         font-weight: 800;
         color: var(--heading);
       }
+      .option-checkbox {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.65rem;
+        align-items: start;
+        margin-top: 0.15rem;
+        padding: 0.85rem 0.9rem;
+        border: 1px solid rgba(109, 79, 36, 0.18);
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.48);
+        font-weight: 800;
+      }
+      .option-checkbox input[type="checkbox"] {
+        margin: 0.15rem 0 0;
+      }
+      .option-checkbox span {
+        min-width: 0;
+      }
+      .option-checkbox .field-help {
+        display: block;
+        margin-top: 0.25rem;
+        font-weight: 500;
+      }
       input[type="file"], input[type="text"], select {
         width: 100%;
         box-sizing: border-box;
@@ -401,9 +424,12 @@
           <form action="/warehouse-receipts/issue" method="post" enctype="multipart/form-data" data-issue-receipt-form>
             <input type="file" name="file" required data-issue-receipt-file>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
-            <label>
+            <label class="option-checkbox">
               <input type="checkbox" name="store_upload" value="true">
-              Store uploaded file for future QR lookups
+              <span>
+                Store uploaded file for future QR lookups
+                <span class="field-help">This lets the public QR link show the original receipt preview later.</span>
+              </span>
             </label>
             <label>
               Receipt reference
