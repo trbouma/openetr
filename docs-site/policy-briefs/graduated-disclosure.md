@@ -15,7 +15,8 @@ OpenETR supports a more practical model: **graduated disclosure**.
 
 > Publish the evidence necessary for verification, disclose the record only
 > when the decision requires it, and retain it only when deeper verification
-> is justified.
+> is justified. Surrender control only when the domain and legal context call
+> for an actual transfer, discharge, cancellation, or custodial handoff.
 
 ## What Graduated Disclosure Means
 
@@ -25,9 +26,10 @@ the consequence of the decision.
 In plain language, the interaction can be described as:
 
 ```text
-Check   -> verify signed evidence without taking the record
-Present -> inspect the exact record temporarily for a decision
-Share   -> receive and retain the record when deeper review is justified
+Check     -> verify signed evidence without taking the record
+Present   -> inspect the exact record temporarily for a decision
+Share     -> receive and retain the record when deeper review is justified
+Surrender -> transfer, discharge, cancel, or give up control of the record
 ```
 
 These words are intentionally ordinary. They describe what a user or verifier
@@ -38,6 +40,7 @@ is trying to do, without forcing them to learn protocol vocabulary first.
 | **Check** | The artifact remains private; the verifier checks digest-bound signed evidence, status, and recognized signer information | Evidence-only verification |
 | **Present** | The exact artifact is made available temporarily so the verifier can inspect it and compare its digest with the signed evidence | Presentation verification |
 | **Share** | The verifier receives the exact artifact and may retain it under an appropriate authority, agreement, or policy | Deep verification |
+| **Surrender** | Control is transferred, discharged, redeemed, cancelled, revoked, or given into another authority's custody | Control event, termination event, redemption event, revocation event, or domain-specific recognition act |
 
 Some records may also be intentionally public. In that case, anyone can inspect
 the artifact and compare it with the signed evidence. Public records still fit
@@ -50,6 +53,7 @@ signed evidence only
     -> public or temporary representation
     -> temporary exact-artifact presentation
     -> retained artifact for deep verification
+    -> surrender, redemption, transfer, cancellation, or revocation of control
 ```
 
 The stages are not security levels automatically assigned by the protocol.
@@ -62,9 +66,10 @@ Different records and decisions can stop at different stages.
 | **Public artifact** | The artifact or an authorized representation is openly retrievable | Anyone can calculate the digest and compare it with signed evidence |
 | **Presentation verification** | The exact artifact is made temporarily available for inspection without routine retention | Visual inspection, exact digest comparison, Control History, and recognition policy |
 | **Deep verification** | The verifier receives and may retain the exact artifact under an appropriate authority or agreement | Native-format validation, metadata or forensic analysis, signed evidence, recognition inputs, and verifier-specific policy |
+| **Surrender of control** | The holder gives up control or the record's operative status changes under the domain rulebook | Transfer, redemption, discharge, cancellation, revocation, seizure, or custodial control event |
 
 This is an escalation model. Most routine decisions should not require the
-highest-disclosure stage.
+most consequential stage.
 
 The product-language version of the same escalation model is:
 
@@ -72,7 +77,12 @@ The product-language version of the same escalation model is:
 Check first.
 Present when the decision requires the record.
 Share only when retention or deep analysis is justified.
+Surrender only when control itself is meant to change.
 ```
+
+Surrender is different from sharing. Sharing gives another party a copy or
+access to the exact artifact. Surrender changes who controls the operative
+record, or changes whether the record remains operative at all.
 
 ## Graduated Disclosure Is Not Selective Disclosure
 
@@ -191,6 +201,66 @@ In the plain-language model, this is **Share**. The holder or responsible
 system gives the verifier the record because the decision requires retention,
 forensic review, dispute handling, audit, or another higher-consequence use.
 
+## Surrender Of Control
+
+Surrender is the final and most consequential stage.
+
+In the positive case, surrender is exactly what many electronic transferable
+record systems are designed to support. A party may surrender control of a
+record after payment, performance, presentation, delivery, redemption, or
+discharge of an obligation.
+
+Examples include:
+
+- a bill of lading is surrendered so goods can be released;
+- a warehouse receipt is redeemed so stored goods can be delivered;
+- a pledge over a receipt is discharged after the secured obligation is paid;
+- a promissory note is discharged after payment;
+- a transferable record is transferred to a new controller as part of a
+  commercial transaction.
+
+OpenETR fits this model well because surrender can be represented as a signed
+control event, redemption event, discharge event, termination event, or
+domain-specific event interpreted by a domain adapter and recognition policy.
+
+The concerning case is different. Some situations may require a person to
+surrender a record that is closely tied to personal status or mobility, such
+as a passport at a border, in a detention context, or during an administrative
+process. In that setting, surrender may not be a routine commercial handoff.
+It may become a coercive or rights-affecting act, especially if the document
+can be retained, suspended, cancelled, or revoked.
+
+That distinction should be explicit:
+
+```text
+commercial surrender:
+  control changes because the transaction calls for delivery,
+  payment, discharge, redemption, or completion
+
+coercive surrender:
+  control is demanded by an authority or gatekeeper,
+  possibly affecting movement, status, rights, or access
+```
+
+OpenETR can record signed evidence that surrender occurred, who requested it,
+who accepted it, what authority was asserted, and what later events affected
+the record. It should not treat every surrender as benign merely because it is
+cryptographically well formed.
+
+A verifier or domain policy should distinguish:
+
+- voluntary surrender from compelled surrender;
+- temporary custody from permanent transfer;
+- presentation from retention;
+- retention from revocation;
+- commercial discharge from state or platform cancellation;
+- ordinary workflow completion from a rights-affecting restriction.
+
+This is another reason to keep control, disclosure, and recognition separate.
+A valid event can prove that a key signed a surrender statement. It does not
+by itself prove that the surrender was lawful, voluntary, proportionate, or
+recognized for every purpose.
+
 ## Practical Examples
 
 ### Passports And Birth Certificates
@@ -209,6 +279,13 @@ A recognized origin proves that a key made a signed statement about an exact
 artifact. It does not by itself prove that the presenter is the rightful
 holder. Holder binding may require a photograph comparison, a component-key
 challenge, a control event, or another domain-appropriate method.
+
+Surrender changes the risk profile. A border or administrative process may
+require a person to give up custody or control of a passport. That may be
+lawful and temporary in some contexts, but it may also become a revocation,
+seizure, or mobility restriction. A graduated disclosure model should make
+that escalation visible instead of treating surrender as just a deeper form of
+inspection.
 
 ### Vendor Permits
 
@@ -255,6 +332,12 @@ counterparties can inspect a presentation and Control History. Banks, courts,
 regulators, insurers, or auditors can request the exact artifact when their
 decision warrants deeper verification.
 
+For transferable records, surrender may also be the intended end of a
+transaction. A holder may surrender a bill of lading to obtain delivery of
+goods, surrender a warehouse receipt to redeem stored goods, or discharge an
+encumbrance after payment. In these cases, surrender is not merely disclosure.
+It is a control-state transition.
+
 ## Integrity, Origin, Recognition, And Meaning
 
 Graduated disclosure works only if the verifier keeps distinct questions
@@ -268,6 +351,7 @@ separate.
 | Is that key authorized or recognized? | Registry, organizational, community, contractual, or legal policy |
 | Is the record current? | Control and lifecycle evidence |
 | Is the presenter the rightful holder? | Holder-binding or control evidence appropriate to the domain |
+| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Control graph and domain-specific lifecycle events |
 | Should the verifier rely on it? | Verifier policy and surrounding facts |
 
 A hash proves integrity relative to exact bytes. A signature proves that a key
@@ -294,7 +378,8 @@ Implementations and policy profiles should therefore:
 - consider salted commitments or privacy-preserving higher-layer proofs where
   dictionary attacks or correlation are realistic;
 - define who receives temporary or retained artifacts; and
-- define deletion, retention, audit, and dispute procedures outside the base
+- define when presentation, sharing, or surrender is permitted; and
+- define deletion, retention, audit, surrender, revocation, and dispute procedures outside the base
   protocol.
 
 OpenETR's base digest remains useful because it lets any recipient of the exact
@@ -343,16 +428,47 @@ It can:
 The objective is not disclosure avoidance at all costs. It is disciplined,
 proportionate access to evidence.
 
+## Policy Position
+
+Institutions should avoid treating verification as a single yes-or-no demand
+for the underlying record.
+
+The better policy model is:
+
+| Level | Plain-language question | Policy posture |
+| --- | --- | --- |
+| **Check** | Can the relying party verify status and evidence without taking the record? | Prefer this for routine, low-risk, or privacy-sensitive checks. |
+| **Present** | Does the relying party need to inspect the exact record for the immediate decision? | Permit temporary access where the decision requires the artifact itself. |
+| **Share** | Does the relying party need to retain the record for review, audit, dispute, or compliance? | Require a clear authority, purpose, retention rule, and accountability path. |
+| **Surrender** | Is control itself meant to change, end, or move into another party's custody? | Treat this as a control and rights event, not merely as disclosure. |
+
+This is especially important because surrender has two faces.
+
+In commercial transferable-record systems, surrender can be normal and
+constructive. It may complete performance, release goods, discharge a debt, or
+end an encumbrance after payment.
+
+In personal, mobility, identity, or status systems, surrender can be coercive
+or rights-affecting. A demand to surrender a passport, credential, permit, or
+identity document should be governed with much greater care than a request to
+check or present evidence.
+
+OpenETR's contribution is to make the transition explicit. A verifier should
+be able to see whether a record was merely checked, temporarily presented,
+shared for retention, or surrendered as a control-state change.
+
 ## Core Principle
 
 ```text
 Evidence can be public while content remains private.
 Presentation can be temporary while verification remains durable.
 Deep verification can be available without becoming the default.
+Surrender can be explicit when control is meant to change.
 ```
 
 That is the promise of graduated disclosure: enough evidence for the decision
-at hand, with a clear path to go deeper when justified.
+at hand, with a clear path to go deeper when justified and a clear warning
+when the interaction crosses from disclosure into surrender of control.
 
 ## Related Material
 
