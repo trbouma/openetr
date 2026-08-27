@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Digital Object to Digital Original</title>
+  <desc id="desc">A canonical OpenETR diagram showing a digital object becoming a possible digital original through parallel control and effect layers.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="object" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#edf1f7"/>
+      <stop offset="1" stop-color="#f7f9fc"/>
+    </linearGradient>
+    <linearGradient id="effect" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8f8e8"/>
+      <stop offset="1" stop-color="#f3fbf2"/>
+    </linearGradient>
+    <linearGradient id="effectChip" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#caebc9"/>
+      <stop offset="1" stop-color="#e3f5e1"/>
+    </linearGradient>
+    <linearGradient id="control" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e5f4ff"/>
+      <stop offset="1" stop-color="#f0f9ff"/>
+    </linearGradient>
+    <linearGradient id="controlChip" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b9dcfb"/>
+      <stop offset="1" stop-color="#d8edff"/>
+    </linearGradient>
+    <linearGradient id="original" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0bd"/>
+      <stop offset="1" stop-color="#fff8df"/>
+    </linearGradient>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#243a5a" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .ink { fill: #071124; }
+      .muted { fill: #546173; }
+      .fine { fill: #263244; }
+      .title { font: 800 52px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .subtitle { font: 500 28px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .panel-title { font: 800 29px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .panel-subtitle { font: 500 21px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .chip { font: 800 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .card-title { font: 800 25px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .card-subtitle { font: 700 20px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .body { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .body-strong { font: 800 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .small { font: 500 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .rule { stroke: #95a3b8; stroke-width: 1.4; }
+      .arrow { stroke: #071124; stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .dash { stroke: #071124; stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 8 8; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+
+  <text x="800" y="58" text-anchor="middle" class="title ink">Digital Object -&gt; Digital Original</text>
+  <text x="800" y="104" text-anchor="middle" class="subtitle muted">Control describes state. Recognition gives standing. Rules give effect.</text>
+
+  <rect x="40" y="178" width="250" height="290" rx="10" fill="url(#object)" filter="url(#shadow)"/>
+  <text x="90" y="262" class="panel-title ink">Digital</text>
+  <text x="90" y="302" class="panel-title ink">Object</text>
+  <text x="90" y="356" class="panel-subtitle ink">A sequence of</text>
+  <text x="90" y="384" class="panel-subtitle ink">digital data.</text>
+
+  <path class="arrow" d="M290 323h64"/>
+  <path class="arrow" d="M336 300l24 23-24 23"/>
+
+  <rect x="360" y="136" width="880" height="176" rx="14" fill="url(#effect)" filter="url(#shadow)"/>
+  <text x="800" y="175" text-anchor="middle" class="panel-title ink">Effect Primitives</text>
+  <text x="800" y="204" text-anchor="middle" class="panel-subtitle ink">Give meaning, standing, and consequence.</text>
+  <rect x="386" y="224" width="250" height="64" rx="8" fill="url(#effectChip)"/>
+  <rect x="675" y="224" width="250" height="64" rx="8" fill="url(#effectChip)"/>
+  <rect x="964" y="224" width="250" height="64" rx="8" fill="url(#effectChip)"/>
+  <text x="511" y="263" text-anchor="middle" class="chip ink">Recognition</text>
+  <text x="800" y="263" text-anchor="middle" class="chip ink">Standing</text>
+  <text x="1089" y="263" text-anchor="middle" class="chip ink">Relinquishment</text>
+
+  <rect x="360" y="370" width="880" height="168" rx="14" fill="url(#control)" filter="url(#shadow)"/>
+  <text x="800" y="408" text-anchor="middle" class="panel-title ink">Control Primitives</text>
+  <text x="800" y="436" text-anchor="middle" class="panel-subtitle ink">Describe and govern control state.</text>
+  <rect x="380" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
+  <rect x="554" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
+  <rect x="728" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
+  <rect x="902" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
+  <rect x="1076" y="456" width="144" height="62" rx="8" fill="url(#controlChip)"/>
+  <text x="460" y="494" text-anchor="middle" class="chip ink">Anchor</text>
+  <text x="634" y="494" text-anchor="middle" class="chip ink">Transfer</text>
+  <text x="808" y="494" text-anchor="middle" class="chip ink">Encumber</text>
+  <text x="982" y="494" text-anchor="middle" class="chip ink">Discharge</text>
+  <text x="1148" y="494" text-anchor="middle" class="chip ink">Terminate</text>
+
+  <path class="dash" d="M511 318v43"/>
+  <path class="arrow" d="M501 334l10-14 10 14"/>
+  <path class="arrow" d="M501 348l10 14 10-14"/>
+  <path class="dash" d="M800 318v43"/>
+  <path class="arrow" d="M790 334l10-14 10 14"/>
+  <path class="arrow" d="M790 348l10 14 10-14"/>
+  <path class="dash" d="M1089 318v43"/>
+  <path class="arrow" d="M1079 334l10-14 10 14"/>
+  <path class="arrow" d="M1079 348l10 14 10-14"/>
+
+  <path class="arrow" d="M1240 323h64"/>
+  <path class="arrow" d="M1286 300l24 23-24 23"/>
+
+  <rect x="1310" y="178" width="250" height="290" rx="10" fill="url(#original)" filter="url(#shadow)"/>
+  <text x="1385" y="252" class="panel-title ink">Digital</text>
+  <text x="1385" y="292" class="panel-title ink">Original</text>
+  <text x="1340" y="350" class="panel-subtitle ink">A controlled object</text>
+  <text x="1340" y="378" class="panel-subtitle ink">with recognized</text>
+  <text x="1340" y="406" class="panel-subtitle ink">standing as an</text>
+  <text x="1340" y="434" class="panel-subtitle ink">original.</text>
+
+  <rect x="40" y="568" width="310" height="300" rx="8" fill="url(#object)" filter="url(#shadow)"/>
+  <text x="62" y="602" class="card-title ink">Digital Object</text>
+  <text x="62" y="628" class="card-subtitle ink">Definition</text>
+  <text x="62" y="670" class="body fine">A digital object is a sequence</text>
+  <text x="62" y="694" class="body fine">of digital data. It may be hashed,</text>
+  <text x="62" y="718" class="body fine">signed, stored, copied, or</text>
+  <text x="62" y="742" class="body fine">referenced, but none of these,</text>
+  <text x="62" y="766" class="body fine">by themselves, give it standing</text>
+  <text x="62" y="790" class="body fine">as an original.</text>
+
+  <rect x="370" y="568" width="430" height="300" rx="8" fill="url(#control)" filter="url(#shadow)"/>
+  <text x="392" y="602" class="card-title ink">Control Primitives</text>
+  <text x="392" y="628" class="card-subtitle ink">Definitions: state transitions</text>
+  <text x="392" y="662" class="body-strong ink">Anchor</text>
+  <text x="505" y="662" class="body fine">Establishes the initial anchored</text>
+  <text x="505" y="686" class="body fine">control state.</text>
+  <text x="392" y="718" class="body-strong ink">Transfer</text>
+  <text x="505" y="718" class="body fine">Changes the controller.</text>
+  <text x="392" y="750" class="body-strong ink">Encumber</text>
+  <text x="505" y="750" class="body fine">Establishes a guard on subsequent</text>
+  <text x="505" y="774" class="body fine">control-state transitions.</text>
+  <text x="392" y="806" class="body-strong ink">Discharge</text>
+  <text x="505" y="806" class="body fine">Removes an established guard.</text>
+  <text x="392" y="838" class="body-strong ink">Terminate</text>
+  <text x="505" y="838" class="body fine">Ends the active control state.</text>
+  <line x1="486" y1="648" x2="486" y2="844" class="rule"/>
+
+  <rect x="820" y="568" width="500" height="300" rx="8" fill="url(#effect)" filter="url(#shadow)"/>
+  <text x="842" y="602" class="card-title ink">Effect Primitives</text>
+  <text x="842" y="628" class="card-subtitle ink">Definitions: meaning and consequence</text>
+  <text x="842" y="662" class="body-strong ink">Recognition</text>
+  <text x="994" y="662" class="body fine">An actor, assertion, object, or</text>
+  <text x="994" y="686" class="body fine">control state is accepted for a</text>
+  <text x="994" y="710" class="body fine">particular purpose.</text>
+  <text x="842" y="750" class="body-strong ink">Standing</text>
+  <text x="994" y="750" class="body fine">A controlled object is accorded</text>
+  <text x="994" y="774" class="body fine">consequential status within a</text>
+  <text x="994" y="798" class="body fine">recognition context.</text>
+  <text x="842" y="838" class="body-strong ink">Relinquishment</text>
+  <text x="994" y="838" class="body fine">A party gives up a recognized</text>
+  <text x="994" y="862" class="body fine">claim, right, position, or status.</text>
+  <line x1="974" y1="648" x2="974" y2="872" class="rule"/>
+
+  <rect x="1340" y="568" width="220" height="300" rx="8" fill="url(#original)" filter="url(#shadow)"/>
+  <text x="1362" y="602" class="card-title ink">Digital Original</text>
+  <text x="1362" y="628" class="card-subtitle ink">Definition</text>
+  <text x="1362" y="670" class="body fine">A digital original is a</text>
+  <text x="1362" y="694" class="body fine">controlled digital object</text>
+  <text x="1362" y="718" class="body fine">with recognized standing</text>
+  <text x="1362" y="742" class="body fine">as an original.</text>
+
+  <rect x="40" y="888" width="500" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
+  <text x="62" y="920" class="card-title ink">Transition Guards</text>
+  <text x="62" y="950" class="body fine">Guards are conditions arising from current control state</text>
+  <text x="62" y="972" class="body fine">that determine whether a proposed transition is valid.</text>
+
+  <rect x="560" y="888" width="560" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
+  <text x="582" y="920" class="card-title ink">Specification Language</text>
+  <text x="582" y="950" class="body fine">The Control Layer is an expressive grammar for describing</text>
+  <text x="582" y="972" class="body fine">control state, valid transitions, and transition guards.</text>
+
+  <rect x="1140" y="888" width="420" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
+  <text x="1162" y="920" class="card-title ink">Key Takeaway</text>
+  <text x="1162" y="948" class="body-strong ink">Control makes objects governable.</text>
+  <text x="1162" y="970" class="body fine">Recognition gives standing. Rules give effect.</text>
+</svg>

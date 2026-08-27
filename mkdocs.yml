@@ -92,6 +92,7 @@ nav:
           - Overview: apostille-documents.md
   - Policy Briefs:
       - Why OpenETR: policy-briefs/why-openetr.md
+      - Digital Originality: policy-briefs/digital-originality.md
       - Graduated Disclosure: policy-briefs/graduated-disclosure.md
       - OpenETR As Fabric: policy-briefs/openetr-as-fabric.md
       - Why Control Is Not Recognition: policy-briefs/why-control-is-not-recognition.md
