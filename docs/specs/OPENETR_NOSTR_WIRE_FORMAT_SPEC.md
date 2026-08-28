@@ -39,19 +39,23 @@ Those remain outside the wire format and are determined by the applicable OpenET
 
 The current OpenETR wire format uses two event families:
 
-- `kind 1415` for the origin event
+- `kind 1415` for the Anchor Event
 - `kind 1416` for later control events
 - legacy prototype `kind 31415` / `kind 31416` events may exist, but new OpenETR graph events use regular kinds `1415` / `1416`
 
-### `1415` Origin Event
+### `1415` Anchor Event
 
-The origin event is the event by which a Controlled Object first enters the OpenETR scheme.
+The Anchor Event is the event by which a Controlled Object first enters an OpenETR control graph.
 
 Its current wire-level role is to:
 
 - bind the object digest into the OpenETR event graph
-- express initial issuance or origin
+- establish the initial anchored control state
 - provide the starting point for later control traversal
+
+An Anchor Event does not, by itself, make the object a Digital Original. It creates a signed control-graph starting point. Recognition, standing, and legal or operational effect remain outside the wire layer.
+
+A single object digest may have more than one Anchor Event. Different issuers, systems, communities, or recognition contexts may anchor the same object. Verifiers should therefore treat each `1415` event as a candidate anchor and apply the relevant recognition profile to decide which anchor, if any, is authoritative for the purpose at hand.
 
 ### `1416` Control Event Family
 
@@ -105,7 +109,7 @@ The recommended convention is:
 
 Earlier prototype events used `d` as the addressable / replaceable slot:
 
-- origin event: `d = <object_hex>`
+- anchor event: `d = <object_hex>`
 - control event: `d = <object_hex>:<action>`
 
 Readers may display `d` when inspecting legacy events, but new graph reconstruction should not rely on it.
@@ -118,7 +122,9 @@ In the current model:
 
 - `o = <object_hex>`
 
-The `o` tag is the primary object-centric query anchor for both origin and later control events.
+The `o` tag is the primary object-centric query anchor for both Anchor Events and later control events.
+
+The `o` tag is a relay-query anchor. It should not be confused with the `1415` Anchor Event, which is a signed event in the control graph.
 
 ### `e`
 
@@ -126,7 +132,7 @@ The `o` tag is the primary object-centric query anchor for both origin and later
 
 In the current model, `e` should reference:
 
-- the origin event id for the first later control event
+- the Anchor Event id for the first later control event
 - the immediately prior control-relevant event for later actions in the chain
 
 This is the primary chain-traversal link.
@@ -183,7 +189,7 @@ These tags are part of the working wire convention. Their legal or operational e
 
 Named metadata tags may be used when an implementation wants to carry signed structured data without requiring relay-level filtering on that data.
 
-Examples for an origin event may include:
+Examples for an Anchor Event may include:
 
 - `["name", "MLWR001.pdf"]`
 - `["digest_generated_at", "2026-07-10T12:00:00+00:00"]`
@@ -213,7 +219,7 @@ The `content` field should not be the primary machine interface for such data. I
 
 The wire-level event structures below define the current minimum working format.
 
-### Origin / Issue Event
+### Anchor Event
 
 - `kind = 1415`
 - required tags:
@@ -231,14 +237,26 @@ The wire-level event structures below define the current minimum working format.
 
 Recommended `content` convention:
 
-- a short human-readable summary of the issue event
+- a short human-readable summary of the anchor or issue event
 - no required machine parsing
 - structured values are carried in tags
 
 Control meaning:
 
 - introduces the Controlled Object into the OpenETR scheme
+- establishes the initial anchored control state
 - establishes the starting point for later control traversal
+
+Compatibility note:
+
+- the current Nostr binding still uses `["action", "issue"]` on `kind 1415`
+- this tag should be read as the current wire action label for anchoring or issuance, not as a claim that the event itself creates original standing
+
+Recognition boundary:
+
+- does not, by itself, make the object a Digital Original
+- does not, by itself, determine legal authority, ownership, title, mandate, priority, or effect
+- may be one of several candidate Anchor Events for the same object digest
 
 ### Transfer Initiate Event
 
@@ -274,7 +292,7 @@ Control meaning:
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "terminate"]`
 
 Control meaning:
@@ -297,7 +315,7 @@ Control meaning:
 Control meaning:
 
 - records an authenticated assertion relating to the object or a control-relevant event
-- targets the specific origin or control event identified by the `e` tag
+- targets the specific Anchor Event or control event identified by the `e` tag
 - does not by itself change the Current Controller
 
 ### Encumber Event
@@ -305,7 +323,7 @@ Control meaning:
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "encumber"]`
   - `["p", "<beneficiary_or_secured_party_pubkey_hex>"]`
 - optional tags:
@@ -322,7 +340,7 @@ Control meaning:
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "discharge"]`
   - `["enc", "<encumbrance_event_id_hex>"]`
 - optional tags:
@@ -339,7 +357,7 @@ Control meaning:
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "redeem"]`
   - `["p", "<obligor_pubkey_hex>"]`
 - optional tags:
@@ -357,7 +375,7 @@ OpenETR wire-level evaluation is object-centric first.
 Implementations should generally:
 
 1. determine the object digest
-2. query origin events using `kind = 1415` and `#o`
+2. query Anchor Events using `kind = 1415` and `#o`
 3. query control events using `kind = 1416` and `#o`
 4. group candidate chains by `e` references
 5. evaluate those chains under local validity and recognition rules
@@ -366,7 +384,7 @@ In current practice, the object digest is commonly queried through the `o` tag a
 
 The reference `openetr query` command currently derives and displays:
 
-- the initial origin event
+- the candidate Anchor Event or events
 - matching `kind 1416` control events
 - summary control chains from linked `e` references
 - lifecycle state
@@ -382,7 +400,7 @@ The OpenETR control chain is not database state maintained by a single applicati
 
 For a candidate object history, an implementation should verify:
 
-1. the origin event uses `kind = 1415` and carries the expected object identifier in `o`
+1. the Anchor Event uses `kind = 1415` and carries the expected object identifier in `o`
 2. each later control event uses `kind = 1416`
 3. each event signature is valid for the event author
 4. each event id matches the serialized event data under the Nostr event id rules
@@ -394,7 +412,7 @@ For a candidate object history, an implementation should verify:
 
 The `e` tag follows the Nostr convention for event references. In OpenETR, it is the primary cryptographic link between control-relevant events:
 
-- for the first later control event, `e` should point to the origin event
+- for the first later control event, `e` should point to the Anchor Event
 - for later control-transition events, `e` should point to the immediately prior control-relevant event being extended
 - for attestations, `e` should point to the specific event being attested
 - for discharges, `enc` identifies the encumbrance being discharged, while `e` links the discharge into the current control chain
@@ -417,7 +435,7 @@ Instead, implementations derive candidate controller state by traversing the lin
 
 In the current working model:
 
-- the origin event identifies the initial issuer or controller position
+- the Anchor Event identifies the initial issuer or controller position claimed by that event
 - a recognized transfer initiate and transfer accept pair may move control
 - a recognized termination event ends the active control lifecycle
 - attestation, encumbrance, discharge, and redeem events do not by themselves change the Current Controller
@@ -474,7 +492,7 @@ OpenETR control chains use event ids as graph links.
 
 This creates a tension with Nostr replaceable-event behavior.
 
-If an origin event is merely rebroadcast unchanged, it has the same event id and the control graph remains linked.
+If a legacy origin event is merely rebroadcast unchanged, it has the same event id and the control graph remains linked.
 
 If the same author republishes the origin as a new replaceable event for the same `kind` and `d` coordinate, the new event normally has a different event id because the Nostr event id commits to the serialized event data, including fields such as `created_at`, tags, and content.
 
@@ -488,7 +506,7 @@ new created_at or changed tags/content
 => different event id
 ```
 
-Under ordinary replaceable-event relay behavior, the relay may stop returning the older origin event for that author/kind/`d` coordinate and return only the newer replacement.
+Under ordinary replaceable-event relay behavior, the relay may stop returning the older legacy origin event for that author/kind/`d` coordinate and return only the newer replacement.
 
 That can break later control-chain traversal:
 
@@ -508,10 +526,10 @@ A verifier should not silently relink old control events to the newer origin. Th
 Recommended policy treatment:
 
 - rebroadcasting the exact same event is safe because the event id is unchanged
-- republishing an origin after dependent control events exist should produce a strong warning or policy failure
+- republishing an Anchor Event after dependent control events exist should produce a strong warning or policy failure
 - missing prior events referenced by `e` should be reported as broken graph continuity
 - archives, attestations, or local event stores may be needed to verify older graph links when relays have replaced earlier events
-- domain policies may require origin immutability once the first control event is recognized
+- domain policies may require Anchor Event immutability once the first control event is recognized
 
 ## Relationship to Other Specifications
 
@@ -531,7 +549,7 @@ Related documents include:
 
 The current OpenETR Nostr wire format is defined by:
 
-- `1415` for origin
+- `1415` for Anchor Events
 - `1416` for later control events
 - `o` as the object-history anchor
 - `e` as the control-chain link
@@ -539,4 +557,4 @@ The current OpenETR Nostr wire format is defined by:
 - named non-indexed tags as the convention for signed structured metadata
 - `content` as human-readable or unstructured event data
 
-This provides a coherent current working format for publishing, querying, and traversing OpenETR control history over Nostr while leaving recognition, mandate, attestation policy, and legal effect to higher layers.
+This provides a coherent current working format for publishing, querying, and traversing OpenETR control history over Nostr while leaving recognition, standing, mandate, attestation policy, and legal effect to higher layers.

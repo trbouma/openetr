@@ -4,8 +4,10 @@ This note defines minimum event shapes for additional OpenETR control events wit
 
 It is intended to extend the current OpenETR working model in which:
 
-- `kind 1415` represents the origin or issue event
+- `kind 1415` represents the Anchor Event
 - `kind 1416` represents the control-event family
+
+The Anchor Event establishes the initial anchored control state for a candidate control graph. It does not, by itself, make the object a Digital Original or determine legal, institutional, contractual, or community standing.
 
 The goal is to define a minimal, internally consistent event shape for the current working `1416` action family:
 
@@ -62,7 +64,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "initiate"]`
   - `["p", "<transferee_pubkey_hex>"]`
 
@@ -105,7 +107,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "terminate"]`
 
 ### Control Effect
@@ -121,7 +123,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 The attestation should reference the specific prior event being attested.
 
-That means the `e` tag should point to the concrete origin or control event whose declaration, occurrence, or effect is being attested, rather than merely to the latest event in the chain in general.
+That means the `e` tag should point to the concrete Anchor Event or control event whose declaration, occurrence, or effect is being attested, rather than merely to the latest event in the chain in general.
 
 Examples may include:
 
@@ -171,7 +173,7 @@ OpenETR records the declaration but does not determine legal validity, perfectio
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "encumber"]`
   - `["p", "<beneficiary_or_secured_party_pubkey_hex>"]`
 
@@ -197,7 +199,7 @@ This event should identify the encumbrance event being discharged.
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "discharge"]`
   - `["enc", "<encumbrance_event_id_hex>"]`
 
@@ -223,7 +225,7 @@ This event should identify the encumbrance event being discharged.
 - `kind = 1416`
 - required tags:
   - `["o", "<object_hex>"]`
-  - `["e", "<prior_control_event_id_or_origin_event_id>"]`
+  - `["e", "<prior_control_event_id_or_anchor_event_id>"]`
   - `["action", "redeem"]`
   - `["p", "<obligor_pubkey_hex>"]`
 
@@ -242,7 +244,7 @@ This event should identify the encumbrance event being discharged.
 The minimum convention in this note is:
 
 - `o` finds all candidate graph events for the Controlled Object
-- `e` links each non-origin graph event to the exact prior event id
+- `e` links each non-anchor graph event to the exact prior event id
 - `action` identifies how the event should be interpreted
 - action-specific tags such as `p`, `enc`, `type`, and `ref` provide signed structured event data
 
