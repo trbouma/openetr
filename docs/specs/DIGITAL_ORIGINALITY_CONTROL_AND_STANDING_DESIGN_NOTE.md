@@ -55,17 +55,19 @@ referenced, transmitted, or rendered without those operations changing its
 identity or consequential state. Byte-for-byte copies with the same digest
 represent the same Digital Artifact.
 
-### Controlled Digital Artifact
+### Controlled Object
 
-A Controlled Digital Artifact is a Digital Artifact whose control state can be
-described and updated through valid end-verifiable events under a control layer.
+A Controlled Object is the protocol role occupied by a Digital Artifact when
+it is identified as the subject of an OpenETR event graph. The term describes
+what the candidate events concern. It does not, by itself, establish valid
+consequential state, a current controller, recognition, or effect.
 
-Control makes the object governable. It does not, by itself, make the object
-legally, institutionally, or socially recognized.
+Controlled Object is the preferred protocol term. Specifications and domain
+adapters should not introduce a second synonym for this intermediate role.
 
 ### Digital Original
 
-A Digital Original is a Digital Artifact for which consequential state can be
+A Digital Original is a Controlled Object for which consequential state can be
 derived from a relevant set of valid end-verifiable events under the applicable
 OpenETR protocol rules.
 
@@ -301,7 +303,9 @@ effect path:
 
 ```text
 Digital Artifact
-  -> End-verifiable events
+  -> identified as the subject of candidate OpenETR events
+  -> Controlled Object
+  -> valid end-verifiable events and OpenETR rules
   -> Consequential state
   -> Digital Original
   -> Recognition
@@ -336,7 +340,7 @@ Physical licence
   -> Scan
   -> Digital Artifact
   -> Anchor
-  -> Controlled Digital Artifact
+  -> Controlled Object
   -> Digital Original
   -> Recognition by competent authority
   -> Recognized standing and effect
@@ -425,13 +429,18 @@ The following language can be reused in future specs:
 identity established by a cryptographic digest. Byte-for-byte copies with the
 same digest represent the same Digital Artifact.
 
+**Controlled Object:** The protocol role occupied by a Digital Artifact when it
+is identified as the subject of an OpenETR event graph. The term does not, by
+itself, assert valid consequential state, a current controller, recognition, or
+effect.
+
 **Control Layer:** An expressive grammar for describing control state, governing valid state transitions, and establishing or removing guards upon those transitions, independent of any particular technical binding.
 
 **Technical Binding:** A concrete representation of Control Layer statements in a signed, verifiable, publishable, and machine-processable form.
 
 **Transition Guard:** A condition arising from the current control state that determines whether a proposed control-state transition is valid.
 
-**Digital Original:** A Digital Artifact for which consequential state can be
+**Digital Original:** A Controlled Object for which consequential state can be
 derived from a relevant set of valid end-verifiable events under applicable
 OpenETR protocol rules.
 

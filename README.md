@@ -35,11 +35,16 @@ OpenETR does not replace legal or institutional frameworks. It provides a techni
 
 OpenETR reduces the system to three primitives:
 
-* Controlled Objects (Records) — the document, file, or record whose control is being tracked by digest
-* Controllers (Keys) — the entity exercising exclusive control
+* Controlled Objects (Protocol Subjects) — Digital Artifacts identified by digest as the subject of candidate OpenETR event graphs
+* Controllers (Keys) — actors whose control may be derived from a valid, complete, and unambiguous graph
 * Control Records (Events) — signed actions such as anchor, transfer, endorsement, encumbrance, and attestation
 
-These terms are intentionally separate. A warehouse receipt, bill of lading, certificate, or credential may itself be a record, but in OpenETR it is the Controlled Object. The signed OpenETR events about that object are control records. The linked set of those control records is the object's control graph.
+These terms are intentionally separate. A warehouse receipt, bill of lading,
+certificate, or credential is a Digital Artifact. It occupies the Controlled
+Object role when candidate OpenETR events identify it as their subject. The
+signed events are control records, and their linked set is a candidate control
+graph. The term Controlled Object does not itself assert that the graph is
+valid, that a controller has been derived, or that the artifact is recognized.
 
 From these, OpenETR enables three fundamental operations:
 * Transfer — movement of control from one controller to another
@@ -57,8 +62,10 @@ OpenETR follows a simple governing principle:
 > asserted solely by applications.
 
 A Digital Artifact has uniquely identifiable persistent content, normally
-bound to a cryptographic digest. A Digital Original is a Digital Artifact with
-consequential state derived by applying OpenETR rules to valid signed events.
+bound to a cryptographic digest. It occupies the Controlled Object role when
+it becomes the subject of an OpenETR event graph. It becomes a Digital Original
+when consequential state can be derived by applying OpenETR rules to valid
+signed events.
 Applications may cache and display projections of that state, but they are not
 its sole authority.
 

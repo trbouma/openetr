@@ -25,7 +25,12 @@ Many systems solve this by making one platform, registry, wallet, or database th
   </figcaption>
 </figure>
 
-It treats a document, file, or data artifact as a **Controlled Object** identified by cryptographic digest. Signed OpenETR origin records, control records, and linked evidence records for that digest form a control and evidence graph that can be queried, verified, and interpreted by domain-specific workflows.
+It identifies a document, file, or data artifact by cryptographic digest. The
+Digital Artifact occupies the **Controlled Object** role when it becomes the
+subject of an OpenETR event graph. Signed Anchor, Control, and linked-evidence
+events form candidate graphs that can be queried, verified, and interpreted by
+domain-specific workflows. The role does not itself assert valid state or a
+current controller.
 
 OpenETR does not try to become every domain's registry, legal authority, KYC system, wallet, storage service, or compliance engine. It preserves portable signed evidence that those systems can evaluate.
 
@@ -33,10 +38,10 @@ The basic idea is:
 
 ```text
 record or artifact
-  -> digest-identified Controlled Object
-  -> signed origin event
-  -> signed control and evidence events
-  -> object-centric graph
+  -> digest-identified Digital Artifact
+  -> Controlled Object named by candidate events
+  -> valid event graph and protocol rules
+  -> consequential state and Digital Original
   -> domain adapter interprets the graph
   -> recognition layer decides effect
 ```

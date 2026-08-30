@@ -151,9 +151,15 @@ Controllable Record
   + Recognition Context
 ```
 
-The **Controlled Object** is the artifact: a document, file, Product Passport, warehouse receipt, credential, certificate, registry export, data bundle, or other digest-addressed record.
+The **Digital Artifact** is the persistent content: a document, file, Product
+Passport, warehouse receipt, credential, certificate, registry export, data
+bundle, or other digest-addressed record. **Controlled Object** is the protocol
+role it occupies when it becomes the subject of an OpenETR event graph. This
+does not, by itself, assert valid consequential state or a current controller.
 
-The **Control Graph** is the signed event history around that object.
+The **Control Graph** is the signed event history around that object. Valid
+events and OpenETR rules derive consequential state; that is what makes the
+Controlled Object a Digital Original.
 
 The **Recognition Context** is the legal, institutional, contractual, registry, or verifier-policy setting that decides effect.
 

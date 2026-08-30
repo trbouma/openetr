@@ -8,13 +8,13 @@ It is intended to describe control over a transferable electronic record in a wa
 - any specific legal recognition regime
 - any specific protocol implementation
 
-OpenETR is not a Recognition Layer system. It does not itself provide ownership, title, contractual rights, priority, mandate, or legal effect. It records authenticated control facts and control transitions for a Controlled Object.
+OpenETR is not a Recognition Layer system. It does not itself provide ownership, title, contractual rights, priority, mandate, or legal effect. It preserves signed control evidence concerning a Controlled Object and derives consequential state under protocol rules.
 
 ## Purpose
 
 OpenETR is a Control Layer for electronic transferable records.
 
-Its purpose is to maintain an authenticated, verifiable chain of control over a Controlled Object.
+Its purpose is to make the event history and consequential state of a Controlled Object independently verifiable.
 
 It does not determine:
 
@@ -30,17 +30,26 @@ Those matters belong to the Recognition Layer.
 
 ### Controlled Object
 
-A Controlled Object is a durable electronic record whose control is managed by OpenETR.
+A **Controlled Object** is the protocol role occupied by a Digital Artifact when
+it is identified as the subject of an OpenETR event graph. The term identifies
+what the events concern; it does not, by itself, establish valid consequential
+state, a current controller, recognition, or effect.
 
 The Controlled Object:
 
-- is uniquely identified by the SHA-256 digest of its canonical representation
-- is the anchor for all authenticated assertions and Control Events
-- is the subject of legal recognition by applicable legal frameworks
+- is uniquely identified by the SHA-256 digest of its canonical representation;
+- is the common subject referenced by candidate assertions and Control Events;
+- may have incomplete, invalid, competing, ambiguous, or terminated event
+  history; and
+- becomes a Digital Original when valid end-verifiable events and OpenETR rules
+  establish consequential state for it.
 
 ### Current Controller
 
-At any point in time, exactly one Participant is the Current Controller.
+For a valid, complete, unambiguous, and active candidate graph, OpenETR rules
+may derive exactly one Participant as the Current Controller. A Controlled
+Object does not necessarily have a derivable Current Controller: the relevant
+event set may be absent, incomplete, invalid, conflicting, or terminated.
 
 The Current Controller has the exclusive ability to:
 
@@ -52,14 +61,17 @@ This is a Control Layer statement only. It does not by itself determine who owns
 
 ### Control Graph
 
-The Control Graph is an immutable graph describing the lifecycle of the Controlled Object.
+The Control Graph is the portable signed event graph concerning the lifecycle
+of the Controlled Object.
 
 - nodes represent Participants
 - directed edges represent authenticated Control Events
 - every event references the Controlled Object
 - every event is cryptographically signed by the Participant performing the event
 
-The graph provides the complete provenance of control.
+The graph provides evidence from which control state can be derived. A
+particular retrieved graph may be incomplete or may compete with another
+candidate graph.
 
 ### Participants
 
@@ -92,7 +104,8 @@ exist outside the model.
 
 ### ISSUE
 
-Creates the Controlled Object.
+Introduces a Digital Artifact as a Controlled Object and, when valid under the
+applicable OpenETR rules, establishes initial consequential state.
 
 An ISSUE event:
 

@@ -33,7 +33,10 @@ In practical terms:
 
 ## Controlled Object Resolution
 
-A Controlled Object is identified by the digest of the original record or artifact.
+A Controlled Object is the protocol role occupied by a Digital Artifact when
+it is identified as the subject of an OpenETR event graph. Its identifier is
+the digest of the artifact's canonical content. Resolving that identifier does
+not itself establish valid consequential state or a current controller.
 
 At a human input boundary, an implementation SHOULD accept:
 

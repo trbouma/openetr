@@ -5,7 +5,13 @@ to derive consequential state for a controlled object.
 
 ## Controlled Object
 
-A controlled object is identified by a cryptographic digest, normally SHA-256.
+A **Controlled Object** is the protocol role occupied by a Digital Artifact
+when it is identified as the subject of an OpenETR event graph. The artifact is
+identified by a cryptographic digest, normally SHA-256.
+
+The term identifies what candidate events concern. It does not, by itself,
+establish that those events are valid, that consequential state or a current
+controller can be derived, or that the object is recognized.
 
 The object may be:
 
@@ -16,6 +22,10 @@ The object may be:
 - another canonical electronic record.
 
 OpenETR does not need to parse the object to track its control history. It needs the digest.
+
+When valid end-verifiable events and OpenETR rules establish consequential
+state for the Controlled Object, it becomes a **Digital Original** in the
+technical OpenETR sense.
 
 ## Anchor Event
 

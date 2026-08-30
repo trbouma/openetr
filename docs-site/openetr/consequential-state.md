@@ -12,7 +12,12 @@ identity established by a cryptographic digest. It may exist in many locations
 or byte-for-byte copies; copies with the same digest represent the same Digital
 Artifact.
 
-A **Digital Original** is a Digital Artifact with consequential state
+A **Controlled Object** is the protocol role occupied by a Digital Artifact
+when it is identified as the subject of an OpenETR event graph. It is an
+intermediate role, not a claim that the graph is valid or that a controller has
+been derived.
+
+A **Digital Original** is a Controlled Object with consequential state
 established through valid OpenETR end-verifiable events and derived under the
 applicable protocol rules.
 
@@ -20,6 +25,14 @@ applicable protocol rules.
 > original.
 
 Copying content does not copy consequential state.
+
+```text
+Digital Artifact
+  -> Controlled Object
+  -> valid events + OpenETR rules
+  -> consequential state
+  -> Digital Original
+```
 
 ## Why This Matters
 

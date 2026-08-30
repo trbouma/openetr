@@ -20,11 +20,17 @@ A **Digital Artifact** is persistent digital content with a unique content
 identity established by a cryptographic digest. Byte-for-byte copies with the
 same digest represent the same Digital Artifact.
 
-A **Digital Original** is a Digital Artifact for which consequential state can be
-derived from valid, end-verifiable events under OpenETR protocol rules.
+A **Controlled Object** is the protocol role occupied by a Digital Artifact
+when it is identified as the subject of an OpenETR event graph. That role says
+what the events concern; it does not yet claim that valid state or a current
+controller has been established.
+
+A **Digital Original** is a Controlled Object for which consequential state can
+be derived from valid, end-verifiable events under OpenETR protocol rules.
 
 ```text
-Digital Artifact + end-verifiable events + protocol rules = Digital Original
+Digital Artifact -> identified as graph subject -> Controlled Object
+Controlled Object + valid events + protocol rules = Digital Original
 ```
 
 Consequential state may describe the current controller, lifecycle status,
@@ -39,6 +45,7 @@ OpenETR separates five questions that are often blended together:
 | Layer | Question |
 | --- | --- |
 | Artifact | What persistent content is identified? |
+| Controlled Object | Which artifact is the subject of the candidate graph? |
 | Events | What signed actions occurred? |
 | Consequential state | What state follows under the protocol rules? |
 | Recognition | Who accepts that state, and for what purpose? |
@@ -50,8 +57,9 @@ The relationship is:
 event -> protocol rules -> consequential state -> recognition -> effect
 ```
 
-A valid Anchor can establish candidate consequential state and bring a Digital
-Object into the OpenETR Digital Original model. It does not prove that the
+A candidate Anchor identifies a Digital Artifact as a Controlled Object. A
+valid Anchor processed under OpenETR rules can establish initial consequential
+state and make it a Digital Original. It does not prove that the
 signer was uniquely authorized, resolve every competing event, compel a relying
 party to recognize the result, or create legal effect on its own.
 
@@ -108,6 +116,7 @@ the corresponding institutional or legal effect.
 Physical licence
   -> scan and stable digest
   -> Digital Artifact
+  -> Controlled Object identified by candidate events
   -> valid events and protocol rules
   -> Digital Original with consequential state
   -> recognition by a competent verifier

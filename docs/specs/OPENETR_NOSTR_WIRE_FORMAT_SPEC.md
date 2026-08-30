@@ -47,6 +47,11 @@ The current OpenETR wire format uses two event families:
 
 The Anchor Event is the event by which a Controlled Object first enters an OpenETR control graph.
 
+**Controlled Object** is a protocol-role term: it is the Digital Artifact
+identified by the `o` digest as the subject of the candidate graph. The term
+does not, by itself, assert that the event is valid, that consequential state
+has been derived, or that a current controller, recognition, or effect exists.
+
 Its current wire-level role is to:
 
 - bind the object digest into the OpenETR event graph

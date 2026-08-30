@@ -29,7 +29,11 @@ identity established by a cryptographic digest. It may exist in any number of
 locations or byte-for-byte copies. Copies with the same protocol-defined digest
 represent the same Digital Artifact.
 
-A **Digital Original** is a Digital Artifact for which OpenETR can derive
+A **Controlled Object** is the protocol role occupied by a Digital Artifact
+when it is identified as the subject of an OpenETR event graph. This role does
+not itself assert valid state, a current controller, recognition, or effect.
+
+A **Digital Original** is a Controlled Object for which OpenETR can derive
 consequential state from a relevant set of valid, end-verifiable events under
 the applicable protocol rules.
 
@@ -238,7 +242,11 @@ UNIQUE CONTENT
       v
 DIGITAL ARTIFACT
       |
-      | end-verifiable events
+      | identified as event-graph subject
+      v
+CONTROLLED OBJECT
+      |
+      | valid end-verifiable events + protocol rules
       v
 CONSEQUENTIAL STATE
       |

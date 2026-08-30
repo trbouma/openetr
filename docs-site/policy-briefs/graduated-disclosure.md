@@ -113,14 +113,17 @@ adapters can add selective disclosure where appropriate.
 
 ## The OpenETR Role
 
-OpenETR identifies a Controlled Object by the digest of its exact bytes and
-binds signed origin, control, attestation, and linked-evidence events to that
-object.
+OpenETR gives a digest-identified Digital Artifact the **Controlled Object**
+role when it becomes the subject of a candidate event graph. It binds signed
+Anchor, Control, Attestation, and linked-evidence events to that object. The
+role does not itself assert valid consequential state; that state must be
+derived from valid events under OpenETR rules.
 
 The compact model is:
 
 ```text
-exact artifact -> digest -> signed event graph -> recognition policy
+exact artifact -> digest -> Controlled Object -> valid event graph
+               -> consequential state -> recognition policy
 ```
 
 This makes it possible to separate the artifact from evidence about the
