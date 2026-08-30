@@ -152,14 +152,14 @@ derived over time.
 
 Under OpenETR Consequential State Architecture:
 
-> A Digital Object has stably identifiable content. A Digital Original has
-> consequential state.
+> A Digital Artifact has uniquely identifiable content. A Digital Original is
+> a Digital Artifact with consequential state.
 
 A C2PA Content Credential can provide strong end-verifiable provenance
 evidence, but C2PA validity alone does not establish OpenETR consequential
 state. A C2PA-enabled asset becomes a Digital Original in the OpenETR technical
 sense when valid OpenETR events establish consequential state for the
-identified object.
+identified Digital Artifact.
 
 Recognition remains separate. A relying party may require a trusted C2PA
 signer, particular capture assertions, a valid OpenETR control graph, and a

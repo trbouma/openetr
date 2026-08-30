@@ -14,15 +14,17 @@ The key distinction is:
 
 > Digital originality is about consequential state, not copy prevention.
 
-## Digital Object And Digital Original
+## Digital Artifact And Digital Original
 
-A **Digital Object** has uniquely and stably identifiable content.
+A **Digital Artifact** is persistent digital content with a unique content
+identity established by a cryptographic digest. Byte-for-byte copies with the
+same digest represent the same Digital Artifact.
 
-A **Digital Original** is a Digital Object for which consequential state can be
+A **Digital Original** is a Digital Artifact for which consequential state can be
 derived from valid, end-verifiable events under OpenETR protocol rules.
 
 ```text
-Digital Object + end-verifiable events + protocol rules = Digital Original
+Digital Artifact + end-verifiable events + protocol rules = Digital Original
 ```
 
 Consequential state may describe the current controller, lifecycle status,
@@ -36,7 +38,7 @@ OpenETR separates five questions that are often blended together:
 
 | Layer | Question |
 | --- | --- |
-| Object | What content is identified? |
+| Artifact | What persistent content is identified? |
 | Events | What signed actions occurred? |
 | Consequential state | What state follows under the protocol rules? |
 | Recognition | Who accepts that state, and for what purpose? |
@@ -55,7 +57,7 @@ party to recognize the result, or create legal effect on its own.
 
 ## What OpenETR Contributes
 
-OpenETR provides a consequential state layer for digital objects. Signed events
+OpenETR provides a consequential state layer for Digital Artifacts. Signed events
 can describe anchoring, transfer, encumbrance, discharge, redemption, and
 termination. Protocol rules determine whether those events are valid in light
 of prior state and what state follows.
@@ -105,7 +107,7 @@ the corresponding institutional or legal effect.
 ```text
 Physical licence
   -> scan and stable digest
-  -> Digital Object
+  -> Digital Artifact
   -> valid events and protocol rules
   -> Digital Original with consequential state
   -> recognition by a competent verifier
@@ -117,7 +119,7 @@ passports, permits, certificates, community records, and archives.
 
 ## Multiple Anchors And Conflicts
 
-A Digital Object may have multiple anchors or competing event branches.
+A Digital Artifact may have multiple anchors or competing event branches.
 OpenETR should preserve that evidence rather than silently selecting an
 authority. Deterministic protocol rules can reject invalid transitions and
 derive candidate states; recognition policy decides which candidate, actor, or

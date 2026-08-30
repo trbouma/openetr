@@ -7,7 +7,7 @@ Draft design note.
 ## Purpose
 
 This note captures a core design decision for OpenETR and related applications:
-a digital object becomes a Digital Original, in the OpenETR technical sense,
+a Digital Artifact becomes a Digital Original, in the OpenETR technical sense,
 when valid end-verifiable events establish consequential state for it under the
 protocol rules. Recognition and external effect remain separate.
 
@@ -24,19 +24,19 @@ derived state and what effect to give it.
 
 In a digital environment, perfect copies are normal. Originality therefore
 cannot be treated as a natural property of one physical instance of the bytes.
-The content identifies the object; end-verifiable events establish its
+The content identifies the artifact; end-verifiable events establish its
 consequential state.
 
 The working thesis is:
 
-> A Digital Object has stably identifiable content. A Digital Original has
-> consequential state.
+> A Digital Artifact has uniquely identifiable content. A Digital Original is
+> a Digital Artifact with consequential state.
 
 This gives five separate layers:
 
 | Layer | Question | Example |
 | --- | --- | --- |
-| Object | What exact content exists? | A PDF, scan, JSON document, image, or structured record identified by digest. |
+| Artifact | What exact persistent content is identified? | A PDF, scan, JSON document, image, or structured record identified by digest. |
 | Events | What signed transition evidence exists? | Anchor, transfer, encumber, discharge, terminate. |
 | Consequential state | What state follows when protocol rules are applied to the valid event set? | Current controller, active guards, lifecycle state, candidate branches. |
 | Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
@@ -47,16 +47,17 @@ recognition or effect.
 
 ## Definitions
 
-### Digital Object
+### Digital Artifact
 
-A Digital Object is a sequence of digital data with stably identifiable
-content, normally bound to an object identifier through a cryptographic digest.
-It may be stored, copied, referenced, transmitted, or rendered without those
-operations changing its consequential state.
+A Digital Artifact is persistent digital content having a unique content
+identity established by a cryptographic digest. It may be stored, copied,
+referenced, transmitted, or rendered without those operations changing its
+identity or consequential state. Byte-for-byte copies with the same digest
+represent the same Digital Artifact.
 
-### Controlled Digital Object
+### Controlled Digital Artifact
 
-A Controlled Digital Object is a Digital Object whose control state can be
+A Controlled Digital Artifact is a Digital Artifact whose control state can be
 described and updated through valid end-verifiable events under a control layer.
 
 Control makes the object governable. It does not, by itself, make the object
@@ -64,7 +65,7 @@ legally, institutionally, or socially recognized.
 
 ### Digital Original
 
-A Digital Original is a Digital Object for which consequential state can be
+A Digital Original is a Digital Artifact for which consequential state can be
 derived from a relevant set of valid end-verifiable events under the applicable
 OpenETR protocol rules.
 
@@ -121,7 +122,7 @@ The following actions do not independently create OpenETR consequential state:
 
 Each may help establish integrity, authenticity, provenance, or persistence.
 A valid OpenETR Anchor Event, applied under the protocol rules, can establish
-initial consequential state. That makes the identified Digital Object a
+initial consequential state. That makes the identified Digital Artifact a
 Digital Original in the technical OpenETR sense, while recognition and effect
 remain unresolved.
 
@@ -198,11 +199,11 @@ The minimal control primitive set is:
 
 ### Anchor
 
-Anchor establishes the initial anchored control state for a digital object. It creates a technical reference point and a starting point for the control graph.
+Anchor establishes the initial anchored control state for a Digital Artifact. It creates a technical reference point and a starting point for the control graph.
 
 When a valid Anchor Event is applied under OpenETR protocol rules, it
 establishes the initial consequential state for a candidate control graph. It
-therefore brings the identified Digital Object into the Digital Original model.
+therefore brings the identified Digital Artifact into the Digital Original model.
 It does not establish that its candidate graph is uniquely authoritative,
 recognized, or legally effective. Earlier terminology such as Original Event
 should still be avoided because the event is an anchor, not a declaration of
@@ -212,7 +213,7 @@ A single object or digest may have multiple Anchor Events. Different recognition
 
 ### Transfer
 
-Transfer changes the controller of a controlled digital object, subject to the current state and any applicable transition guards.
+Transfer changes the controller of a controlled Digital Artifact, subject to the current state and any applicable transition guards.
 
 Transfer describes a control-state change. It does not, by itself, describe the legal or institutional meaning of the transfer.
 
@@ -275,7 +276,7 @@ Standing is status asserted or derived for the controlled object. A relying
 party's recognition context determines whether it accepts that standing and
 the applicable rules determine its effect.
 
-For example, a controlled digital object may be recognized as the original warehouse receipt, an authoritative electronic copy, an official municipal record, or a non-authoritative copy.
+For example, a controlled Digital Artifact may be recognized as the original warehouse receipt, an authoritative electronic copy, an official municipal record, or a non-authoritative copy.
 
 ### Relinquishment
 
@@ -299,7 +300,7 @@ The model is best understood as a derivation pipeline with a separate external
 effect path:
 
 ```text
-Digital Object
+Digital Artifact
   -> End-verifiable events
   -> Consequential state
   -> Digital Original
@@ -315,7 +316,10 @@ state.
 
 ## Example: Driver's Licence
 
-A physical driver's licence can be scanned into a file. That scan is a digital object or digital copy. It can be hashed, signed, timestamped, stored, and anchored. Those actions may prove that a particular scan existed at a particular time and has not changed.
+A physical driver's licence can be scanned into a file. That scan becomes a
+Digital Artifact when its canonical bytes are bound to a protocol-defined
+digest. It can be signed, timestamped, stored, copied, and anchored without a
+particular file instance becoming uniquely original.
 
 They do not, by themselves, establish OpenETR consequential state for the scan.
 
@@ -330,9 +334,9 @@ The sequence is:
 ```text
 Physical licence
   -> Scan
-  -> Digital object
+  -> Digital Artifact
   -> Anchor
-  -> Controlled digital object
+  -> Controlled Digital Artifact
   -> Digital Original
   -> Recognition by competent authority
   -> Recognized standing and effect
@@ -340,7 +344,7 @@ Physical licence
 
 This also allows physical and digital originals to coexist. OpenETR's technical
 definition does not pretend that a physical original disappeared or require a
-jurisdiction to accept the digital object. It requires clarity about derived
+jurisdiction to accept the Digital Artifact. It requires clarity about derived
 state, recognition context, standing, and purpose.
 
 ## Community And Institutional Records
@@ -417,7 +421,9 @@ Use caution with VouchSafe etymology. The historical meaning of vouchsafe is clo
 
 The following language can be reused in future specs:
 
-**Digital Object:** A sequence of digital data that may be hashed, signed, stored, copied, referenced, transmitted, or rendered, but that has no original standing merely by existing in digital form.
+**Digital Artifact:** Persistent digital content having a unique content
+identity established by a cryptographic digest. Byte-for-byte copies with the
+same digest represent the same Digital Artifact.
 
 **Control Layer:** An expressive grammar for describing control state, governing valid state transitions, and establishing or removing guards upon those transitions, independent of any particular technical binding.
 
@@ -425,7 +431,7 @@ The following language can be reused in future specs:
 
 **Transition Guard:** A condition arising from the current control state that determines whether a proposed control-state transition is valid.
 
-**Digital Original:** A Digital Object for which consequential state can be
+**Digital Original:** A Digital Artifact for which consequential state can be
 derived from a relevant set of valid end-verifiable events under applicable
 OpenETR protocol rules.
 

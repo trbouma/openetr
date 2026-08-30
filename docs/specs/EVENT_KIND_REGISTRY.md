@@ -45,7 +45,7 @@ Current intended role:
 
 An Anchor Event is the wire-level starting point for a candidate control graph.
 When valid under the applicable OpenETR rules, it establishes initial
-consequential state and brings the identified Digital Object into the Digital
+consequential state and brings the identified Digital Artifact into the Digital
 Original model. The registry does not decide which candidate graph is
 authoritative, whether it is recognized, or what external effect follows.
 

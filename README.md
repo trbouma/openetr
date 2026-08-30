@@ -56,7 +56,8 @@ OpenETR follows a simple governing principle:
 > Consequential state should be derived from end-verifiable events, not
 > asserted solely by applications.
 
-A Digital Object has stably identifiable content. A Digital Original has
+A Digital Artifact has uniquely identifiable persistent content, normally
+bound to a cryptographic digest. A Digital Original is a Digital Artifact with
 consequential state derived by applying OpenETR rules to valid signed events.
 Applications may cache and display projections of that state, but they are not
 its sole authority.

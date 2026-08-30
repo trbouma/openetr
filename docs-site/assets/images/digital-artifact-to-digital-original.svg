@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
-  <title id="title">Digital Object to Digital Original</title>
-  <desc id="desc">An OpenETR diagram showing a digital object becoming a digital original through end-verifiable events and derived consequential state, followed by recognition and effect.</desc>
+  <title id="title">Digital Artifact to Digital Original</title>
+  <desc id="desc">An OpenETR diagram showing a Digital Artifact becoming a Digital Original through end-verifiable events and derived consequential state, followed by recognition and effect.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fbff"/>
@@ -55,14 +55,14 @@
 
   <rect width="1600" height="1000" fill="url(#bg)"/>
 
-  <text x="800" y="58" text-anchor="middle" class="title ink">Digital Object -&gt; Digital Original</text>
+  <text x="800" y="58" text-anchor="middle" class="title ink">Digital Artifact -&gt; Digital Original</text>
   <text x="800" y="104" text-anchor="middle" class="subtitle muted">Events provide evidence. Rules derive state. Recognition gives effect.</text>
 
   <rect x="40" y="178" width="250" height="290" rx="10" fill="url(#object)" filter="url(#shadow)"/>
   <text x="90" y="262" class="panel-title ink">Digital</text>
-  <text x="90" y="302" class="panel-title ink">Object</text>
-  <text x="90" y="356" class="panel-subtitle ink">A sequence of</text>
-  <text x="90" y="384" class="panel-subtitle ink">digital data.</text>
+  <text x="90" y="302" class="panel-title ink">Artifact</text>
+  <text x="90" y="356" class="panel-subtitle ink">Persistent content</text>
+  <text x="90" y="384" class="panel-subtitle ink">identified by digest.</text>
 
   <path class="arrow" d="M290 323h64"/>
   <path class="arrow" d="M336 300l24 23-24 23"/>
@@ -107,20 +107,20 @@
   <rect x="1310" y="178" width="250" height="290" rx="10" fill="url(#original)" filter="url(#shadow)"/>
   <text x="1385" y="252" class="panel-title ink">Digital</text>
   <text x="1385" y="292" class="panel-title ink">Original</text>
-  <text x="1340" y="350" class="panel-subtitle ink">An identified object</text>
+  <text x="1340" y="350" class="panel-subtitle ink">A Digital Artifact</text>
   <text x="1340" y="378" class="panel-subtitle ink">with consequential</text>
   <text x="1340" y="406" class="panel-subtitle ink">state derived from</text>
   <text x="1340" y="434" class="panel-subtitle ink">valid events.</text>
 
   <rect x="40" y="568" width="310" height="300" rx="8" fill="url(#object)" filter="url(#shadow)"/>
-  <text x="62" y="602" class="card-title ink">Digital Object</text>
+  <text x="62" y="602" class="card-title ink">Digital Artifact</text>
   <text x="62" y="628" class="card-subtitle ink">Definition</text>
-  <text x="62" y="670" class="body fine">A digital object is a sequence</text>
-  <text x="62" y="694" class="body fine">of digital data. It may be hashed,</text>
-  <text x="62" y="718" class="body fine">signed, stored, copied, or</text>
-  <text x="62" y="742" class="body fine">referenced, but none of these,</text>
-  <text x="62" y="766" class="body fine">by themselves, derive its</text>
-  <text x="62" y="790" class="body fine">consequential state.</text>
+  <text x="62" y="670" class="body fine">Persistent digital content is</text>
+  <text x="62" y="694" class="body fine">identified by a cryptographic</text>
+  <text x="62" y="718" class="body fine">digest. Copies with the same</text>
+  <text x="62" y="742" class="body fine">digest represent the same</text>
+  <text x="62" y="766" class="body fine">Digital Artifact but do not</text>
+  <text x="62" y="790" class="body fine">copy consequential state.</text>
 
   <rect x="370" y="568" width="430" height="300" rx="8" fill="url(#control)" filter="url(#shadow)"/>
   <text x="392" y="602" class="card-title ink">Control Primitives</text>
@@ -158,7 +158,7 @@
   <rect x="1340" y="568" width="220" height="300" rx="8" fill="url(#original)" filter="url(#shadow)"/>
   <text x="1362" y="602" class="card-title ink">Digital Original</text>
   <text x="1362" y="628" class="card-subtitle ink">Definition</text>
-  <text x="1362" y="670" class="body fine">A digital object with</text>
+  <text x="1362" y="670" class="body fine">A Digital Artifact with</text>
   <text x="1362" y="694" class="body fine">consequential state</text>
   <text x="1362" y="718" class="body fine">derived from valid,</text>
   <text x="1362" y="742" class="body fine">verifiable events.</text>

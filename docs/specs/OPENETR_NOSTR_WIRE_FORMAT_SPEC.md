@@ -54,7 +54,7 @@ Its current wire-level role is to:
 - provide the starting point for later control traversal
 
 A valid Anchor Event establishes the initial consequential state for a
-candidate control graph and therefore brings the identified Digital Object
+candidate control graph and therefore brings the identified Digital Artifact
 into the OpenETR Digital Original model. It does not establish that the
 candidate is uniquely authoritative or compel recognition, standing, or legal
 or operational effect outside the protocol.

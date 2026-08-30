@@ -65,7 +65,7 @@ the current controller, lifecycle status, active guards, and other results that
 constrain what may validly happen next.
 
 ```text
-Digital Object + end-verifiable events + protocol rules = Digital Original
+Digital Artifact + end-verifiable events + protocol rules = Digital Original
 ```
 
 This is the technical OpenETR boundary. Recognition is separate: a relying

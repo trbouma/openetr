@@ -8,7 +8,7 @@ It is intended to extend the current OpenETR working model in which:
 - `kind 1416` represents the control-event family
 
 The Anchor Event establishes initial consequential state for a candidate
-control graph and brings the identified Digital Object into the OpenETR
+control graph and brings the identified Digital Artifact into the OpenETR
 Digital Original model. It does not determine that the candidate is uniquely
 authoritative, recognized, or entitled to legal, institutional, contractual,
 or community effect.

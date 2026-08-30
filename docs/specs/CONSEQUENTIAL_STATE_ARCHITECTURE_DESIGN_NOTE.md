@@ -22,12 +22,14 @@ its sole authority:
 
 > Applications interpret consequential state; they do not own it.
 
-## Digital Objects And Digital Originals
+## Digital Artifacts And Digital Originals
 
-A **Digital Object** has stably identifiable content. Its exact content is
-normally bound to an object identifier through a cryptographic digest.
+A **Digital Artifact** is persistent digital content having a unique content
+identity established by a cryptographic digest. It may exist in any number of
+locations or byte-for-byte copies. Copies with the same protocol-defined digest
+represent the same Digital Artifact.
 
-A **Digital Original** is a Digital Object for which OpenETR can derive
+A **Digital Original** is a Digital Artifact for which OpenETR can derive
 consequential state from a relevant set of valid, end-verifiable events under
 the applicable protocol rules.
 
@@ -37,7 +39,8 @@ object or give its state legal or operational effect.
 
 The central proposition is:
 
-> Content identifies the object. Events establish its consequential state.
+> Content makes an artifact identifiable. Consequential state makes it an
+> original.
 
 Consequential state may concern:
 
@@ -51,9 +54,9 @@ Consequential state may concern:
 - another protocol-defined condition affecting what may be done with the
   object.
 
-Copying the content does not copy or alter its consequential state. A byte-copy
-may identify the same Digital Object, but possession of the copy does not
-create a new controller or valid state transition.
+Copying content does not copy or alter consequential state. A byte-for-byte
+copy with the same digest represents the same Digital Artifact, but possession
+of the copy does not create a new controller or valid state transition.
 
 ## End-Verifiable Events
 
@@ -65,7 +68,7 @@ An end-verifiable event must provide sufficient cryptographic and referential
 evidence to determine:
 
 1. which key signed the event;
-2. which object and, where applicable, prior event it concerns;
+2. which Digital Artifact and, where applicable, prior event it concerns;
 3. which transition or assertion is being made;
 4. whether the event is authentic and unaltered;
 5. which prior state, signatures, guards, or events constrain it; and
@@ -221,8 +224,8 @@ OpenETR should distinguish:
 
 | Layer | Responsibility |
 | --- | --- |
-| Object Layer | Stably identify exact digital content. |
-| Event Layer | Carry signed evidence concerning the object and transitions affecting it. |
+| Artifact Layer | Establish the unique content identity of persistent digital content. |
+| Event Layer | Carry signed evidence concerning the artifact and transitions affecting it. |
 | State Layer | Derive consequential state according to versioned OpenETR rules. |
 | Recognition Layer | Determine which actors, graphs, objects, or states are accepted for a purpose. |
 | Effect Layer | Apply legal, institutional, contractual, community, or operational consequences. |
@@ -233,7 +236,7 @@ The architecture can be summarized as:
 UNIQUE CONTENT
       |
       v
-DIGITAL OBJECT
+DIGITAL ARTIFACT
       |
       | end-verifiable events
       v
@@ -280,7 +283,7 @@ C2PA and OpenETR are complementary.
 
 C2PA binds signed provenance assertions to content and describes creation,
 transformation, ingredients, and publication history. OpenETR identifies the
-object and derives consequential state from a portable control-event graph.
+Digital Artifact and derives consequential state from a portable control-event graph.
 Recognition determines what effect a relying party gives both forms of
 evidence.
 
@@ -304,8 +307,8 @@ that C2PA provenance assertions are true or trusted.
 
 For OpenETR:
 
-> A Digital Object has stably identifiable content. A Digital Original has
-> consequential state.
+> A Digital Artifact has uniquely identifiable content. A Digital Original is
+> a Digital Artifact with consequential state.
 
 The governing principle is:
 
