@@ -37,7 +37,7 @@ OpenETR reduces the system to three primitives:
 
 * Controlled Objects (Records) — the document, file, or record whose control is being tracked by digest
 * Controllers (Keys) — the entity exercising exclusive control
-* Control Records (Events) — signed actions such as origin, transfer, endorsement, encumbrance, and attestation
+* Control Records (Events) — signed actions such as anchor, transfer, endorsement, encumbrance, and attestation
 
 These terms are intentionally separate. A warehouse receipt, bill of lading, certificate, or credential may itself be a record, but in OpenETR it is the Controlled Object. The signed OpenETR events about that object are control records. The linked set of those control records is the object's control graph.
 
@@ -48,6 +48,25 @@ From these, OpenETR enables three fundamental operations:
 
 Together, these form a minimal fabric where:
 control persists, records travel, and meaning accumulates
+
+## Consequential State Architecture
+
+OpenETR follows a simple governing principle:
+
+> Consequential state should be derived from end-verifiable events, not
+> asserted solely by applications.
+
+A Digital Object has stably identifiable content. A Digital Original has
+consequential state derived by applying OpenETR rules to valid signed events.
+Applications may cache and display projections of that state, but they are not
+its sole authority.
+
+Recognition and effect remain separate. OpenETR can establish portable,
+independently reconstructable protocol state without claiming that every
+institution, community, contract, or jurisdiction must recognize it.
+
+See the
+[Consequential State Architecture Design Note](docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md).
 
 ## Design Principles
 

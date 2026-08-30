@@ -1,6 +1,7 @@
 # Control Layer
 
-The OpenETR control layer interprets signed Nostr events as a control history for a controlled object.
+The OpenETR control layer interprets signed Nostr events under protocol rules
+to derive consequential state for a controlled object.
 
 ## Controlled Object
 
@@ -16,9 +17,10 @@ The object may be:
 
 OpenETR does not need to parse the object to track its control history. It needs the digest.
 
-## Origin Event
+## Anchor Event
 
-An origin event brings the object into the OpenETR scheme.
+An Anchor event brings the object into the OpenETR scheme and establishes
+candidate consequential state.
 
 It binds:
 
@@ -55,11 +57,20 @@ The control graph is reconstructed from signed events:
 - `action` identifies the control-event subtype;
 - action-specific tags such as `enc`, `type`, and `ref` add structured context.
 
-The graph is evidence. Verifier policy decides what effect to give the evidence.
+The graph is portable evidence. OpenETR rules derive protocol state from that
+evidence. Recognition policy separately decides whether to accept that state
+for a purpose and what effect to give it.
+
+```text
+signed events -> OpenETR rules -> consequential state -> recognition -> effect
+```
+
+Applications may cache and display a projection of the state, but they are not
+its sole authority. See [Consequential State](./consequential-state.md).
 
 ## Source Specs
 
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [State Transition Note](https://github.com/trbouma/openetr/blob/main/docs/specs/STATE-TRANSITION.md)
-
+- [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)

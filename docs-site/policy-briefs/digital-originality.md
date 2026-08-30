@@ -2,125 +2,155 @@
 
 ## The Problem
 
-Digital systems make copying effortless. A scanned licence, a PDF certificate, a warehouse receipt file, or a digital form can be duplicated perfectly. That creates a difficult question for law, trade, archives, public administration, and community records:
+Digital systems make copying effortless. A scanned licence, a PDF certificate,
+a warehouse receipt, or a digital form can be duplicated perfectly. The bytes
+therefore cannot tell us which copy has continuing operational significance.
 
-> What does it mean for something to be an original when copies are indistinguishable?
-
-The answer cannot be that the bytes are unique. They are not. Nor can the answer be only that a file was hashed, signed, timestamped, or stored. Those techniques are useful, but they do not by themselves make a record the operative original.
+Hashing, signing, timestamping, or storing a file can identify it and provide
+valuable evidence. None of those acts, by itself, explains what may validly
+happen next.
 
 The key distinction is:
 
-> Digital originality is about standing, not copying.
+> Digital originality is about consequential state, not copy prevention.
 
-## The Core Insight
+## Digital Object And Digital Original
 
-A Digital Original can be understood as:
+A **Digital Object** has uniquely and stably identifiable content.
 
-> A controlled digital object with recognized standing as an original.
+A **Digital Original** is a Digital Object for which consequential state can be
+derived from valid, end-verifiable events under OpenETR protocol rules.
 
-![Digital Object to Digital Original](../assets/images/digital-object-to-digital-original.svg)
+```text
+Digital Object + end-verifiable events + protocol rules = Digital Original
+```
 
-That definition separates three things that are often blended together:
+Consequential state may describe the current controller, lifecycle status,
+active guards, prior transitions, or another result that matters to what may
+validly happen next. An application may display or cache that state, but it is
+not the sole authority for it.
 
-| Question | Concept |
+## The Consequential State Pipeline
+
+OpenETR separates five questions that are often blended together:
+
+| Layer | Question |
 | --- | --- |
-| What data exists? | Digital object |
-| Who can act on it, and under what rules? | Control |
-| Is it recognized as the original for this purpose? | Standing |
+| Object | What content is identified? |
+| Events | What signed actions occurred? |
+| Consequential state | What state follows under the protocol rules? |
+| Recognition | Who accepts that state, and for what purpose? |
+| Effect | What external consequence follows? |
 
-This is the point that becomes obvious once stated, but is easy to miss when digital-original discussions begin with files, wallets, ledgers, signatures, or timestamps.
+The relationship is:
+
+```text
+event -> protocol rules -> consequential state -> recognition -> effect
+```
+
+A valid Anchor can establish candidate consequential state and bring a Digital
+Object into the OpenETR Digital Original model. It does not prove that the
+signer was uniquely authorized, resolve every competing event, compel a relying
+party to recognize the result, or create legal effect on its own.
 
 ## What OpenETR Contributes
 
-OpenETR provides a control layer for digital objects. It can describe and verify control events such as anchoring, transfer, encumbrance, discharge, and termination.
+OpenETR provides a consequential state layer for digital objects. Signed events
+can describe anchoring, transfer, encumbrance, discharge, redemption, and
+termination. Protocol rules determine whether those events are valid in light
+of prior state and what state follows.
 
-That control layer is important because it makes a digital object governable. It can answer questions such as:
+This lets an independent verifier ask:
 
-- Which object is being controlled?
-- Who currently controls it?
-- How did control move?
-- Are there guards on further transfer?
-- Has the object been discharged or terminated?
+- Which object is involved?
+- Which events are authentic and structurally valid?
+- Which prior state constrains the next transition?
+- Who controls the object under the applicable rules?
+- Are there unresolved conflicts or active guards?
+- Has the lifecycle ended?
 
-But OpenETR does not by itself decide whether the object has legal or institutional standing as an original. That depends on recognition by the relevant authority, institution, contract, community, verifier policy, or legal regime.
+The answer can be reconstructed from portable evidence even if the application
+that first displayed the record is unavailable.
 
-In short:
+> System failure need not become state failure.
 
-> Control makes actions possible. Standing makes them consequential.
+## Recognition And Effect Remain Contextual
 
-## What OpenETR Does Not Do
+Protocol-valid state is not the same as universally accepted authority.
+Recognition may come from a law, contract, institution, community, registry,
+or verifier policy. Effect is the consequence that the recognition context
+gives the derived state.
 
-OpenETR should not be treated as a magic originality machine.
+The term **recognized Digital Original** can be used when a Digital Original
+and its consequential state have been accepted for a stated purpose.
 
-It does not perform KYC. It does not decide who is a legally competent issuer. It does not determine whether a warehouse operator, public agency, archive, community body, or company has authority for a particular purpose. It does not replace a reliable system where law or policy requires one.
+```text
+Digital Original + recognition + applicable rules = recognized effect
+```
 
-Instead, OpenETR gives those systems a common way to express signed control events and control graphs across institutional boundaries.
+This distinction keeps the protocol useful without asking it to decide who is
+a competent issuer, whether a signer is legally authorized, or what every
+jurisdiction must accept.
 
 ## A Simple Example
 
-A physical driver's licence can be scanned. The scan can be hashed, signed, timestamped, and anchored. Those steps can help prove that a particular scan existed and has not changed.
+A driver's licence can be scanned, hashed, and signed. The scan becomes an
+OpenETR Digital Original when valid events about that identified object produce
+derivable consequential state under OpenETR rules.
 
-But the scan is still only a digital object unless it is placed under control and recognized by the relevant licensing authority or recognition regime.
-
-The path looks like this:
+A verifier may then recognize the licensing authority's key and accept that
+state for a particular purpose. Only at that point does the verification have
+the corresponding institutional or legal effect.
 
 ```text
 Physical licence
-  -> Scan
-  -> Digital object
-  -> Controlled digital object
-  -> Recognition
-  -> Digital Original standing
+  -> scan and stable digest
+  -> Digital Object
+  -> valid events and protocol rules
+  -> Digital Original with consequential state
+  -> recognition by a competent verifier
+  -> accepted effect
 ```
 
-The same pattern can apply to warehouse receipts, bills of lading, apostille documents, product passports, permits, certificates, corporate records, community records, and archives.
+The same pattern can apply to warehouse receipts, bills of lading, product
+passports, permits, certificates, community records, and archives.
 
-## Recognition Is Contextual
+## Multiple Anchors And Conflicts
 
-Recognition is not a universal yes-or-no property. It is contextual.
+A Digital Object may have multiple anchors or competing event branches.
+OpenETR should preserve that evidence rather than silently selecting an
+authority. Deterministic protocol rules can reject invalid transitions and
+derive candidate states; recognition policy decides which candidate, actor, or
+rule set is accepted in a particular context.
 
-A verifier may recognize one issuer for warehouse receipts, another for driver licences, another for apostille documents, and another for community records. A single file or digest may even have multiple anchors, with different relying parties recognizing different authorities for different purposes.
+Conflict visibility is therefore a feature, not a defect.
 
-This is why OpenETR separates protocol validity from recognized standing.
-
-A control graph may be cryptographically valid. That does not automatically mean the controlled object is legally effective, institutionally authoritative, or accepted by a relying party.
-
-## Why This Matters For Policy
-
-Policy discussions about digital records often focus on technology: wallets, signatures, chains, registries, identifiers, credentials, or timestamps. Those tools matter, but they answer only part of the problem.
+## Policy Consequences
 
 Good policy should ask:
 
-- What object is being controlled?
-- Who is recognized as authoritative for this purpose?
-- What standing is the object given?
-- What consequences follow from that standing?
-- What happens when control is transferred, encumbered, discharged, surrendered, or terminated?
+- What state variable matters?
+- Which events may change it?
+- Which signing keys may authorize those events?
+- What prior-state constraints apply?
+- How can another party derive the same result independently?
+- How are conflicts, supersession, and termination handled?
+- Who recognizes the result, for what purpose, and with what effect?
 
-This keeps the technical layer honest and the legal layer visible.
-
-## Surrender And Relinquishment
-
-The idea of surrender is especially important for transferable records.
-
-In a commercial setting, surrender can be positive. A party may surrender control of a record after payment, delivery, or discharge of an obligation.
-
-In other settings, surrender can be concerning. A person may be required to surrender a passport or other credential to an authority, with the possibility of revocation or loss of practical freedom.
-
-OpenETR can record the control events around surrender, such as transfer to an authority or termination of an active control state. But the meaning of surrender belongs to the recognition and effect layer. More generally, surrender is a form of relinquishment: giving up a recognized claim, right, position, or control-related status.
+This makes the technical boundary explicit while leaving institutional and
+legal judgment visible.
 
 ## Bottom Line
 
-OpenETR is not trying to declare every anchored file an original. It is a way to express control over digital objects so that legal, institutional, contractual, and community systems can decide what standing and effect to give them.
+OpenETR is not a magic originality machine and does not try to prevent copying.
+It gives copied digital content a portable, verifiable history from which
+consequential state can be independently derived.
 
-That is the core design move:
+The architectural objective is simple:
 
-```text
-Digital object + control + recognition = possible Digital Original
-```
+> Digital Originals should outlive applications.
 
-The policy opportunity is to stop treating originality as a property of a file and start treating it as recognized standing attached to a controlled digital object.
+## Related Design Notes
 
-## Related Design Note
-
-For the detailed model, see the [Digital Originality, Control, And Standing Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md).
+- [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
+- [Digital Originality, Control, And Standing](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)

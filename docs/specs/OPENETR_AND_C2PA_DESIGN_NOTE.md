@@ -2,9 +2,12 @@
 
 This note describes how OpenETR can complement C2PA content provenance.
 
-The purpose is not to replace C2PA or to treat whole-file digesting as a substitute for provenance verification. The useful design question is narrower:
+The purpose is not to replace C2PA or to treat whole-file digesting as a
+substitute for provenance verification. The useful design question is:
 
-> How can OpenETR provide final-artifact integrity evidence for a file that may already carry C2PA provenance?
+> How can C2PA provenance evidence participate in an OpenETR Consequential
+> State Architecture without being mistaken for control, recognition, or
+> effect?
 
 ## Summary
 
@@ -12,7 +15,9 @@ OpenETR and C2PA operate at different layers.
 
 C2PA is a content provenance framework. It attaches, embeds, or references a signed manifest that describes provenance assertions about a media asset or document.
 
-OpenETR is a control and evidence graph for digest-identified records. It can record a digest of a finalized artifact and then associate signed lifecycle events, control events, and linked evidence with that digest.
+OpenETR is a consequential-state and evidence graph for digest-identified
+records. It binds end-verifiable events to an object and applies protocol rules
+to derive control and lifecycle state independently of any one application.
 
 The compact model is:
 
@@ -21,14 +26,15 @@ C2PA:
 content -> manifest/assertions/signature -> provenance verification
 
 OpenETR:
-final artifact bytes -> digest -> signed object-centric evidence graph
+final artifact bytes -> digest -> end-verifiable events -> consequential state
 ```
 
 Used together:
 
 ```text
-C2PA explains where the content came from.
-OpenETR proves which finalized artifact is being relied on.
+C2PA explains the content and its provenance.
+OpenETR explains the object's consequential state and control.
+Recognition explains accepted meaning and effect.
 ```
 
 ## Design Boundary
@@ -44,16 +50,18 @@ Examples include:
 - whether protected content still matches the manifest
 - whether the C2PA certificate or trust chain is acceptable to a relying party
 
-OpenETR answers object and control evidence questions.
+OpenETR answers object and consequential-state questions.
 
 Examples include:
 
 - what exact file was recorded
 - what digest identifies that file
-- which signer created the origin record
+- which signer created an Anchor Event
 - what control events or linked evidence records reference that object
 - whether the same file can later be recomputed to the same digest
-- what candidate control or evidence graph exists for that object
+- what candidate control or evidence graphs exist for that object
+- which consequential state follows from each valid graph under the applicable
+  OpenETR rules
 
 The Recognition Layer remains separate from both.
 
@@ -76,7 +84,7 @@ C2PA:
   Is this provenance authentic for this asset?
 
 OpenETR:
-  What is this record, and who controls it now?
+  What object is this, and what consequential state follows from its valid events?
 ```
 
 C2PA binds signed provenance assertions to an asset. Its hard-binding mechanisms let a validator determine whether a manifest belongs with a particular asset and whether the protected content still matches the signed claim.
@@ -98,7 +106,7 @@ Or more sharply:
 
 ```text
 C2PA makes provenance portable with content.
-OpenETR makes evidence portable without making control copyable.
+OpenETR makes consequential state reconstructable without making control copyable.
 ```
 
 This matters because digital copying is not the security problem by itself. Everything digital can be copied. The necessary property for an electronic transferable record is that copying the bytes, assertions, signatures, or history cannot copy or alter control of the record.
@@ -128,14 +136,50 @@ This distinction fits the OpenETR layered model:
 Protocol:
   Can I verify these signatures, hashes, events, and references?
 
-Control:
-  Who controls this record now under the reconstructed graph?
+Consequential state:
+  Who controls this record, which guards apply, and what lifecycle state follows?
 
 Recognition:
   What legal, commercial, institutional, or operational effect follows?
 ```
 
-C2PA operates primarily around cryptographically verifiable provenance. OpenETR deliberately adds a control primitive for records whose lifecycle, transfer, encumbrance, redemption, or termination must be evaluated over time.
+C2PA operates primarily around cryptographically verifiable provenance.
+OpenETR adds a consequential state machine for records whose lifecycle,
+transfer, encumbrance, redemption, or termination must be independently
+derived over time.
+
+## Digital Original Boundary
+
+Under OpenETR Consequential State Architecture:
+
+> A Digital Object has stably identifiable content. A Digital Original has
+> consequential state.
+
+A C2PA Content Credential can provide strong end-verifiable provenance
+evidence, but C2PA validity alone does not establish OpenETR consequential
+state. A C2PA-enabled asset becomes a Digital Original in the OpenETR technical
+sense when valid OpenETR events establish consequential state for the
+identified object.
+
+Recognition remains separate. A relying party may require a trusted C2PA
+signer, particular capture assertions, a valid OpenETR control graph, and a
+recognized OpenETR signer before giving the Digital Original evidentiary,
+institutional, contractual, or legal effect.
+
+```text
+C2PA provenance evidence
+          +
+OpenETR end-verifiable events
+          |
+          v
+OpenETR consequential state
+          |
+          v
+Digital Original
+          |
+          v
+Recognition -> Effect
+```
 
 ## Final-Artifact Digest Pattern
 
@@ -149,7 +193,7 @@ The sequence is:
 4. Sign the C2PA manifest.
 5. Finalize the file package.
 6. Compute the OpenETR digest over the final artifact bytes.
-7. Publish or preserve an OpenETR origin, control, or linked evidence record for that digest.
+7. Publish or preserve an OpenETR Anchor Event, control event, or linked evidence record for that digest.
 
 The important ordering rule is:
 
@@ -173,7 +217,7 @@ Example:
 ```text
 final-c2pa-enabled.pdf
   -> sha256(final-c2pa-enabled.pdf)
-  -> OpenETR origin event
+  -> OpenETR Anchor Event
   -> later control or evidence events
 ```
 
@@ -243,7 +287,13 @@ It should determine:
 - whether the OpenETR event signatures are valid
 - whether the object graph can be retrieved and traversed
 - whether linked evidence records point to the expected object
-- whether the selected verifier policy recognizes the relevant events
+- which consequential state follows from the valid relevant event set
+
+### Recognition Check
+
+The recognition check is separate from C2PA and OpenETR protocol validation.
+It should determine which signers, assertions, graphs, objects, or derived
+states are accepted for the stated purpose and what effect follows.
 
 The checks are complementary.
 
@@ -262,6 +312,8 @@ An OpenETR digest may pass while the C2PA check fails if the file is byte-identi
 | Is this exact final artifact unchanged? | Depends on packaging and verifier behavior | Strong fit |
 | Can verification work without parsing the file internals? | No, requires C2PA-aware tooling | Yes, for digest identity |
 | Can evidence be linked into a broader object lifecycle graph? | Not by itself | Strong fit |
+| Can consequential control state be independently reconstructed? | Not a base C2PA function | Strong fit |
+| Does validation compel legal or institutional effect? | No | No; recognition remains separate |
 
 ## Risks And Caveats
 
@@ -298,18 +350,20 @@ Such workflows should define whether:
 
 ## Recommended Policy Position
 
-OpenETR should treat C2PA as a provenance input, not as a competing control layer.
+OpenETR should treat C2PA as a provenance input, not as a competing
+consequential state layer.
 
 C2PA provides embedded or attached provenance for content.
 
-OpenETR provides external final-artifact integrity and object-centric graph evidence.
+OpenETR provides external final-artifact identity and end-verifiable events
+from which consequential state can be derived.
 
 The recommended policy framing is:
 
 ```text
-C2PA records content provenance.
-OpenETR records final-artifact identity and control evidence.
-Recognition policy decides what effect to give both.
+C2PA explains the content.
+OpenETR explains consequential state and control.
+Recognition explains accepted meaning and effect.
 ```
 
 This approach is especially useful where a relying party needs to know both:
@@ -331,3 +385,5 @@ Further design work should decide:
 ## Related Documents
 
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
+- [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
+- [Digital Originality, Control, And Standing Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)

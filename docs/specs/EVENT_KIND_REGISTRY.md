@@ -43,7 +43,11 @@ Current intended role:
 - bind the object identifier into the scheme
 - serve as the starting point for later control analysis
 
-An Anchor Event does not, by itself, make an object a Digital Original. It is a wire-level starting point for a candidate control graph. Recognition, standing, and effect are determined above the event-kind registry by applicable policies, domain adapters, recognition frameworks, and law.
+An Anchor Event is the wire-level starting point for a candidate control graph.
+When valid under the applicable OpenETR rules, it establishes initial
+consequential state and brings the identified Digital Object into the Digital
+Original model. The registry does not decide which candidate graph is
+authoritative, whether it is recognized, or what external effect follows.
 
 A single object digest may have more than one Anchor Event. The registry does not require global uniqueness of `kind 1415` events per object digest; verifiers must evaluate candidate anchors under the relevant recognition profile.
 

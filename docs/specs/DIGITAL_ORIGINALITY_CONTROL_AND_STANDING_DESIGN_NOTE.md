@@ -6,47 +6,71 @@ Draft design note.
 
 ## Purpose
 
-This note captures a core design decision for OpenETR and related applications: a digital record does not become an original merely because it has been scanned, hashed, signed, timestamped, anchored, or stored. Those steps may provide useful evidence, but they do not by themselves create original standing.
+This note captures a core design decision for OpenETR and related applications:
+a digital object becomes a Digital Original, in the OpenETR technical sense,
+when valid end-verifiable events establish consequential state for it under the
+protocol rules. Recognition and external effect remain separate.
 
 The central distinction is:
 
-> Digital originality is about standing, not copying.
+> Digital originality is about consequential state, not copy prevention.
 
-OpenETR is one implementation of this distinction. It provides a control layer for digital objects, but the standing of a controlled digital object as an original depends on recognition by the relevant legal, institutional, contractual, or community context.
+OpenETR implements this distinction through Consequential State Architecture.
+Copying bytes does not copy control, satisfy transition guards, or create a
+valid state transition. A relying party still decides whether to recognize the
+derived state and what effect to give it.
 
 ## Core Thesis
 
-In a digital environment, perfect copies are normal. Originality therefore cannot be treated as a natural property of the bytes. A file may have integrity, provenance, a signature, a timestamp, or a durable anchor, but none of those alone answers the question: is this object recognized as the operative original for a particular purpose?
+In a digital environment, perfect copies are normal. Originality therefore
+cannot be treated as a natural property of one physical instance of the bytes.
+The content identifies the object; end-verifiable events establish its
+consequential state.
 
 The working thesis is:
 
-> A Digital Original is a controlled digital object with recognized standing as an original.
+> A Digital Object has stably identifiable content. A Digital Original has
+> consequential state.
 
-This gives three separate layers:
+This gives five separate layers:
 
 | Layer | Question | Example |
 | --- | --- | --- |
-| Digital object | What data exists? | A PDF, scan, JSON document, image, or structured record. |
-| Control | Who can act on this object and under what state-transition rules? | Anchor, transfer, encumber, discharge, terminate. |
-| Standing and effect | What consequences does a recognition regime give to this controlled object? | Treated as the original, authoritative copy, transferable record, official record, surrendered instrument, or evidentiary record. |
+| Object | What exact content exists? | A PDF, scan, JSON document, image, or structured record identified by digest. |
+| Events | What signed transition evidence exists? | Anchor, transfer, encumber, discharge, terminate. |
+| Consequential state | What state follows when protocol rules are applied to the valid event set? | Current controller, active guards, lifecycle state, candidate branches. |
+| Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
+| Effect | What consequence follows from recognized state? | Treated as an authoritative copy, transferable record, official record, or evidentiary record. |
 
-This distinction is important because protocol validity is not the same as recognized standing.
+Protocol validity can establish consequential state. It cannot compel external
+recognition or effect.
 
 ## Definitions
 
 ### Digital Object
 
-A Digital Object is a sequence of digital data. It may be hashed, signed, stored, copied, referenced, transmitted, or rendered, but none of those actions alone gives it standing as an original.
+A Digital Object is a sequence of digital data with stably identifiable
+content, normally bound to an object identifier through a cryptographic digest.
+It may be stored, copied, referenced, transmitted, or rendered without those
+operations changing its consequential state.
 
 ### Controlled Digital Object
 
-A Controlled Digital Object is a digital object whose control state can be described and updated through a control layer.
+A Controlled Digital Object is a Digital Object whose control state can be
+described and updated through valid end-verifiable events under a control layer.
 
-Control makes the object governable. It does not, by itself, make the object legally, institutionally, or socially authoritative.
+Control makes the object governable. It does not, by itself, make the object
+legally, institutionally, or socially recognized.
 
 ### Digital Original
 
-A Digital Original is a controlled digital object with recognized standing as an original.
+A Digital Original is a Digital Object for which consequential state can be
+derived from a relevant set of valid end-verifiable events under the applicable
+OpenETR protocol rules.
+
+This is a technical architecture term. A **recognized Digital Original** is a
+Digital Original whose actor, graph, object, or derived state has also been
+accepted under an identified recognition context for a stated purpose.
 
 The term is used here as a conceptual term, not as a claim that every legal regime uses the same vocabulary. Some regimes may instead refer to an authoritative electronic copy, an electronic transferable record, a controllable electronic record, an official electronic record, or another domain-specific category.
 
@@ -58,7 +82,7 @@ OpenETR can verify that a cryptographic key made a signed assertion. It does not
 
 ### Recognition
 
-Recognition is relational and contextual:
+Recognition remains relational and contextual:
 
 > A relying party, institution, community, or legal regime recognizes an actor, assertion, object, or control state for a particular purpose.
 
@@ -66,9 +90,15 @@ The important question is not only whether an object was anchored or signed. The
 
 ### Standing
 
-Standing is the consequential status accorded to a controlled digital object in a recognition context. Digital Original is one possible standing. Other possible standings include official copy, evidentiary copy, transferable record, retired record, cancelled record, or non-authoritative copy.
+Standing is a status asserted, derived, or accorded to a Digital Original.
+Protocol rules may derive a standing-related state, but **recognized standing**
+exists only when a recognition context accepts that state for a purpose.
+Examples include official copy, evidentiary copy, transferable record, retired
+record, cancelled record, or non-authoritative copy.
 
-Recognition determines standing.
+Protocol events and rules can establish consequential state. Recognition
+determines whether a relying party accepts that state; applicable rules
+determine its effect.
 
 ### Effect
 
@@ -76,28 +106,35 @@ Effect is the consequence that law, policy, contract, institutional rules, commu
 
 Rules determine effect.
 
-## What Does Not Create A Digital Original
+## What Does Not Create Consequential State
 
-The following actions can provide useful evidence, but they do not independently create a Digital Original:
+The following actions do not independently create OpenETR consequential state:
 
 - Scanning a physical document.
 - Hashing a digital file.
-- Signing a digest.
+- Signing a digest outside a protocol-valid state transition.
 - Timestamping a record.
 - Storing a record in a repository.
-- Anchoring a digest in a public system.
-- Publishing a control event.
+- Anchoring a digest in a system that does not define the resulting state.
+- Publishing a malformed, invalid, unauthorized, or unlinked control event.
 - Placing a file in a digital wallet.
 
-Each may help establish integrity, authenticity, provenance, persistence, or control. Original standing requires recognition.
+Each may help establish integrity, authenticity, provenance, or persistence.
+A valid OpenETR Anchor Event, applied under the protocol rules, can establish
+initial consequential state. That makes the identified Digital Object a
+Digital Original in the technical OpenETR sense, while recognition and effect
+remain unresolved.
 
 Useful shorthand:
 
 - Hashing establishes integrity, not originality.
 - Signing establishes an assertion, not necessarily authority.
-- Anchoring establishes a reference point, not necessarily standing.
-- Control makes actions possible. Standing makes them consequential.
-- Originality is not a property of the bytes.
+- Arbitrary anchoring establishes a reference point, not consequential state.
+- A valid OpenETR anchor establishes candidate consequential state, not
+  universal recognition.
+- Control transitions are consequential because conforming implementations can
+  derive state from them.
+- Digital originality is not a uniqueness property of the bytes.
 
 ## The Control Layer
 
@@ -163,7 +200,13 @@ The minimal control primitive set is:
 
 Anchor establishes the initial anchored control state for a digital object. It creates a technical reference point and a starting point for the control graph.
 
-An Anchor Event does not make the object an original by itself. Earlier terminology such as Original Event should be avoided where it suggests that anchoring alone creates original standing.
+When a valid Anchor Event is applied under OpenETR protocol rules, it
+establishes the initial consequential state for a candidate control graph. It
+therefore brings the identified Digital Object into the Digital Original model.
+It does not establish that its candidate graph is uniquely authoritative,
+recognized, or legally effective. Earlier terminology such as Original Event
+should still be avoided because the event is an anchor, not a declaration of
+universal authority.
 
 A single object or digest may have multiple Anchor Events. Different recognition contexts may recognize different anchoring authorities for different purposes.
 
@@ -216,7 +259,9 @@ The generic effect vocabulary is:
 - Standing.
 - Relinquishment.
 
-These are not primitive control-state transitions. They may cause, authorize, interpret, or result from control transitions, but they belong to the recognition and effect layer.
+These are not primitive control-state transitions. They may accept, interpret,
+or give consequence to derived state, but they belong to recognition and
+effect policy rather than the base event grammar.
 
 ### Recognition
 
@@ -226,7 +271,9 @@ For example, a verifier may recognize a licensing authority as authoritative for
 
 ### Standing
 
-Standing is the consequential status accorded to the controlled object in that recognition context.
+Standing is status asserted or derived for the controlled object. A relying
+party's recognition context determines whether it accepts that standing and
+the applicable rules determine its effect.
 
 For example, a controlled digital object may be recognized as the original warehouse receipt, an authoritative electronic copy, an official municipal record, or a non-authoritative copy.
 
@@ -246,29 +293,37 @@ Surrender intent or effect
 
 Transfer describes the control-state change. Surrender or relinquishment describes the real-world meaning around that change.
 
-## Parallel Model
+## Consequential State Pipeline
 
-The model is best understood as parallel tracks rather than a single ladder:
+The model is best understood as a derivation pipeline with a separate external
+effect path:
 
 ```text
 Digital Object
-  |
-  v
-Controlled Digital Object
+  -> End-verifiable events
+  -> Consequential state
+  -> Digital Original
+  -> Recognition
+  -> Effect
 
-Effect layer:   Recognition -> Standing -> Relinquishment
-Control layer:  Anchor -> Transfer -> Encumber -> Discharge -> Terminate
+Control events: Anchor -> Transfer -> Encumber -> Discharge -> Terminate
 ```
 
-Control makes a digital object governable. Effect gives it meaning. A controlled digital object with recognized standing can be a Digital Original.
+End-verifiable events make the object's consequential state independently
+derivable. Recognition and effect determine what external parties do with that
+state.
 
 ## Example: Driver's Licence
 
 A physical driver's licence can be scanned into a file. That scan is a digital object or digital copy. It can be hashed, signed, timestamped, stored, and anchored. Those actions may prove that a particular scan existed at a particular time and has not changed.
 
-They do not, by themselves, make the scan a Digital Original.
+They do not, by themselves, establish OpenETR consequential state for the scan.
 
-The scan becomes a candidate for Digital Original standing only if a competent licensing authority or relevant recognition regime recognizes the controlled digital object as authoritative for a particular purpose.
+The scan becomes a Digital Original in the technical OpenETR sense when valid
+OpenETR events establish consequential state for it. It becomes a recognized
+Digital Original for a licensing purpose only if a competent licensing
+authority or relevant recognition regime accepts the actor, graph, object, and
+derived state for that purpose.
 
 The sequence is:
 
@@ -278,12 +333,15 @@ Physical licence
   -> Digital object
   -> Anchor
   -> Controlled digital object
-  -> Recognition by competent authority
-  -> Recognized standing
   -> Digital Original
+  -> Recognition by competent authority
+  -> Recognized standing and effect
 ```
 
-This also allows physical and digital originals to coexist where the recognition regime permits it. Digital originality does not require pretending the physical original disappeared. It requires clarity about which object has which standing for which purpose.
+This also allows physical and digital originals to coexist. OpenETR's technical
+definition does not pretend that a physical original disappeared or require a
+jurisdiction to accept the digital object. It requires clarity about derived
+state, recognition context, standing, and purpose.
 
 ## Community And Institutional Records
 
@@ -320,7 +378,12 @@ The graduated disclosure vocabulary remains useful:
 - Share.
 - Surrender.
 
-Those interaction modes become more meaningful when the object has recognized standing. For example, checking an anchored copy is different from checking a recognized Digital Original. Presenting a controlled object is different from presenting a mere file. Sharing may preserve control or create a bounded disclosure. Surrender may relinquish control, recognized status, or both.
+Those interaction modes become more meaningful when consequential state is
+visible and recognition is stated separately. Checking a Record File verifies
+content and event evidence. Presenting a Digital Original exposes its derived
+state without transferring it. Sharing discloses the Record File and evidence
+without copying control. Surrender may relinquish control, recognized status,
+or both under a domain profile.
 
 However, Surrender should not be treated as the generic primitive in the Control Layer. At the generic layer, Relinquishment is the effect concept. Domain profiles can define surrender as a specific form of relinquishment and map it to one or more control transitions.
 
@@ -342,12 +405,12 @@ Use caution with VouchSafe etymology. The historical meaning of vouchsafe is clo
 
 1. Use Anchor Event rather than Original Event where the protocol event establishes an initial anchored control state.
 2. Allow more than one Anchor Event for the same object or digest.
-3. Preserve the distinction between protocol validity and recognized standing.
+3. Preserve the distinction between consequential protocol state, recognition, and effect.
 4. Keep the Control Layer independent from any single technical binding.
 5. Treat Nostr as a technical binding for the Control Layer, not as the Control Layer itself.
 6. Model encumbrances as transition guards.
 7. Keep Recognition, Standing, and Relinquishment in the effect layer, not as primitive control transitions.
-8. Ensure verifier output distinguishes integrity, authenticity, control validity, recognition, standing, and effect.
+8. Ensure verifier output distinguishes integrity, authenticity, event validity, consequential state, recognition, standing, and effect.
 9. Avoid implying that OpenETR performs KYC, creates legal authority, determines institutional recognition, or substitutes for a reliable system where law or policy requires one.
 
 ## Specification Language
@@ -362,11 +425,19 @@ The following language can be reused in future specs:
 
 **Transition Guard:** A condition arising from the current control state that determines whether a proposed control-state transition is valid.
 
-**Digital Original:** A controlled digital object with recognized standing as an original.
+**Digital Original:** A Digital Object for which consequential state can be
+derived from a relevant set of valid end-verifiable events under applicable
+OpenETR protocol rules.
+
+**Consequential State:** Protocol state derived from end-verifiable events that
+is capable of affecting control, authority, rights, obligations, restrictions,
+standing, or permitted actions.
 
 **Recognition:** The acceptance of an actor, assertion, object, or control state by a relying party, institution, community, or legal regime for a particular purpose.
 
-**Standing:** The consequential status accorded to a controlled digital object in a recognition context.
+**Standing:** Status asserted or derived for a Digital Original; recognized
+standing is that status accepted under an identified recognition context for a
+stated purpose.
 
 **Effect:** The consequence that law, policy, contract, institutional rules, community governance, or another recognition regime gives to a recognized object, state, or action.
 
@@ -375,14 +446,16 @@ The following language can be reused in future specs:
 ## Open Questions
 
 - Which existing documents and implementation terms should be migrated from Original Event to Anchor Event?
-- Should Digital Original be defined as a site-wide glossary term, a protocol term, or a policy-facing explanatory term?
+- How should public material distinguish the technical term Digital Original from a recognized Digital Original in a specific domain?
 - How should verifier interfaces visually distinguish protocol validity from recognized standing?
 - How should domain adapters express the recognition regime that gives a controlled object standing?
+- Which state variables in each domain profile pass the Consequential State Architecture design rule?
 - Which domain profiles require an explicit surrender operation, and which should model relinquishment through existing transfer, discharge, or terminate transitions?
 
 ## Related Notes
 
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
+- [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [Control Event Policy Guards Design Note](./CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)

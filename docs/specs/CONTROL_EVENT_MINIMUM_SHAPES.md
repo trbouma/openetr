@@ -7,7 +7,11 @@ It is intended to extend the current OpenETR working model in which:
 - `kind 1415` represents the Anchor Event
 - `kind 1416` represents the control-event family
 
-The Anchor Event establishes the initial anchored control state for a candidate control graph. It does not, by itself, make the object a Digital Original or determine legal, institutional, contractual, or community standing.
+The Anchor Event establishes initial consequential state for a candidate
+control graph and brings the identified Digital Object into the OpenETR
+Digital Original model. It does not determine that the candidate is uniquely
+authoritative, recognized, or entitled to legal, institutional, contractual,
+or community effect.
 
 The goal is to define a minimal, internally consistent event shape for the current working `1416` action family:
 

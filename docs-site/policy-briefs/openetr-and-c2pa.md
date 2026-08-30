@@ -8,15 +8,16 @@ They should not be treated as competing models.
 
 C2PA attaches a signed provenance record to content. The C2PA manifest is like a sidecar record added to the file, often embedded inside the PDF, image, video, or other asset. It can describe who created the asset, what actions were performed, what assertions are being made, and whether the protected content still matches the signed provenance record.
 
-OpenETR can provide an additional final-artifact integrity layer by taking a cryptographic digest of the completed file. But for electronic transferable records, OpenETR's more important contribution is control: the digest identifies the record, signed events establish assertions and state transitions, and the control graph shows who controls the record under a selected verifier policy.
+OpenETR can provide an additional final-artifact integrity layer by taking a cryptographic digest of the completed file. But for electronic transferable records, OpenETR's more important contribution is consequential state: the digest identifies the record, signed events provide end-verifiable evidence, and protocol rules derive control and lifecycle state.
 
-Used together, C2PA helps explain and verify the provenance of content, while OpenETR helps identify the record and preserve its signed control history.
+Used together, C2PA helps explain and verify the provenance of content, while OpenETR identifies the record and derives consequential state from its signed event history. Recognition policy then decides what effect to give either result.
 
 The short version is:
 
 ```text
-C2PA establishes provenance of an asset.
-OpenETR establishes control of a record.
+C2PA explains content and provenance.
+OpenETR derives consequential state and control.
+Recognition determines accepted meaning and effect.
 ```
 
 Or:
@@ -58,6 +59,19 @@ The digest does not need to understand the internal structure of the file. It do
 
 It treats the final file as the evidence object.
 
+For a controllable record, OpenETR then goes beyond integrity. It applies
+versioned protocol rules to valid signed events to derive consequential state:
+the current controller, lifecycle status, active guards, and other results that
+constrain what may validly happen next.
+
+```text
+Digital Object + end-verifiable events + protocol rules = Digital Original
+```
+
+This is the technical OpenETR boundary. Recognition is separate: a relying
+party still decides whether to accept the signer, graph, or derived state for a
+particular purpose and what effect follows.
+
 ## Why The Layers Are Different
 
 C2PA and OpenETR answer different trust questions.
@@ -70,10 +84,12 @@ C2PA and OpenETR answer different trust questions.
 | Has protected content changed relative to the manifest? | Strong fit | Indirectly, if the whole-file digest changes |
 | Is this exact final file unchanged? | Not always the simplest model | Strong fit |
 | Can the check be reproduced without understanding file internals? | Requires C2PA-aware verification | Strong fit |
+| What consequential state follows from the event history? | Not its purpose | Strong fit |
 | Who controls this transferable record now? | Not its purpose | Strong fit |
 | Can copying the bytes copy control? | Not the problem it solves | No, control depends on the graph |
 
-C2PA is richer for content provenance. OpenETR is stronger for control semantics.
+C2PA is richer for content provenance. OpenETR is stronger for consequential
+state and control semantics.
 
 The policy opportunity is to use both where each is strongest.
 
@@ -89,7 +105,7 @@ For a transferable record, the harder question is:
 What is this record, and who controls it now?
 ```
 
-That second question is why signatures, manifests, credentials, and content provenance are not enough by themselves for electronic transferable records. The record also needs a control primitive.
+That second question is why signatures, manifests, credentials, and content provenance are not enough by themselves for electronic transferable records. The record also needs a protocol-defined state machine.
 
 Copyability is not the security failure. Everything digital can be copied. The necessary property is that copying the record, its assertions, or its history cannot copy or alter control of the record.
 
@@ -128,6 +144,10 @@ OpenETR evidence should show:
 - where and how the digest was recorded
 - how a relying party can recompute the digest
 - that any modification to the final file changes the digest
+- which signed events form the candidate graph
+- which protocol version and transition rules were applied
+- what consequential state was derived
+- whether conflicts, invalid transitions, or unresolved branches remain
 
 Combined evidence should show:
 
@@ -165,16 +185,18 @@ Useful implementation questions include:
 
 ## Policy Position
 
-OpenETR can complement C2PA by adding final-artifact identity and, where the artifact is a controllable record, an object-specific control graph.
+OpenETR can complement C2PA by adding final-artifact identity and, where the
+artifact is a controllable record, an object-specific consequential state
+machine whose results can be independently reconstructed.
 
 The recommended policy framing is:
 
 ```text
 C2PA provides embedded or attached provenance for content.
-OpenETR provides record identity, signed control events, and graph evidence.
+OpenETR provides record identity, end-verifiable events, and derived consequential state.
 Recognition policy decides what effect to give both.
 ```
 
 This combined approach is especially useful where a relying party needs to know both what a digital document claims to be and whether the identified record has a valid control history.
 
-For the broader architectural distinction, see [Provenance Is Not Control](./provenance-is-not-control.md).
+For the broader architectural distinction, see [Provenance Is Not Control](./provenance-is-not-control.md) and [Consequential State](../openetr/consequential-state.md).

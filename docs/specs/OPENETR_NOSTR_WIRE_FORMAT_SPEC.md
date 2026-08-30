@@ -53,7 +53,11 @@ Its current wire-level role is to:
 - establish the initial anchored control state
 - provide the starting point for later control traversal
 
-An Anchor Event does not, by itself, make the object a Digital Original. It creates a signed control-graph starting point. Recognition, standing, and legal or operational effect remain outside the wire layer.
+A valid Anchor Event establishes the initial consequential state for a
+candidate control graph and therefore brings the identified Digital Object
+into the OpenETR Digital Original model. It does not establish that the
+candidate is uniquely authoritative or compel recognition, standing, or legal
+or operational effect outside the protocol.
 
 A single object digest may have more than one Anchor Event. Different issuers, systems, communities, or recognition contexts may anchor the same object. Verifiers should therefore treat each `1415` event as a candidate anchor and apply the relevant recognition profile to decide which anchor, if any, is authoritative for the purpose at hand.
 
@@ -250,11 +254,12 @@ Control meaning:
 Compatibility note:
 
 - the current Nostr binding still uses `["action", "issue"]` on `kind 1415`
-- this tag should be read as the current wire action label for anchoring or issuance, not as a claim that the event itself creates original standing
+- this tag should be read as the current wire action label for anchoring or issuance, not as a claim of universal recognition or external effect
 
 Recognition boundary:
 
-- does not, by itself, make the object a Digital Original
+- establishes candidate consequential state when the event is valid under the
+  OpenETR rules, without deciding external recognition or effect
 - does not, by itself, determine legal authority, ownership, title, mandate, priority, or effect
 - may be one of several candidate Anchor Events for the same object digest
 
