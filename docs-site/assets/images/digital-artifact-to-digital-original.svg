@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
   <title id="title">Digital Artifact to Digital Original</title>
-  <desc id="desc">An OpenETR diagram showing a Digital Artifact becoming a Digital Original through end-verifiable events and derived consequential state, followed by recognition and effect.</desc>
+  <desc id="desc">An OpenETR diagram showing a Digital Artifact occupying the Controlled Object role between end-verifiable events and recognition and effect, then becoming a Digital Original when protocol rules derive consequential state.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fbff"/>
@@ -26,6 +26,11 @@
       <stop offset="0" stop-color="#b9dcfb"/>
       <stop offset="1" stop-color="#d8edff"/>
     </linearGradient>
+    <linearGradient id="controlledObject" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e9defa"/>
+      <stop offset="0.5" stop-color="#f3ecff"/>
+      <stop offset="1" stop-color="#e9defa"/>
+    </linearGradient>
     <linearGradient id="original" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#fff0bd"/>
       <stop offset="1" stop-color="#fff8df"/>
@@ -42,6 +47,8 @@
       .panel-title { font: 800 29px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .panel-subtitle { font: 500 21px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .chip { font: 800 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .role-title { font: 800 23px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .role-subtitle { font: 600 19px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .card-title { font: 800 25px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .card-subtitle { font: 700 20px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       .body { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -64,8 +71,8 @@
   <text x="90" y="356" class="panel-subtitle ink">Persistent content</text>
   <text x="90" y="384" class="panel-subtitle ink">identified by digest.</text>
 
-  <path class="arrow" d="M290 323h64"/>
-  <path class="arrow" d="M336 300l24 23-24 23"/>
+  <path class="arrow" d="M290 341h64"/>
+  <path class="arrow" d="M336 318l24 23-24 23"/>
 
   <rect x="360" y="136" width="880" height="176" rx="14" fill="url(#effect)" filter="url(#shadow)"/>
   <text x="800" y="175" text-anchor="middle" class="panel-title ink">Recognition And Effect</text>
@@ -91,26 +98,22 @@
   <text x="982" y="494" text-anchor="middle" class="chip ink">Discharge</text>
   <text x="1148" y="494" text-anchor="middle" class="chip ink">Terminate</text>
 
-  <path class="dash" d="M511 318v43"/>
-  <path class="arrow" d="M501 334l10-14 10 14"/>
-  <path class="arrow" d="M501 348l10 14 10-14"/>
-  <path class="dash" d="M800 318v43"/>
-  <path class="arrow" d="M790 334l10-14 10 14"/>
-  <path class="arrow" d="M790 348l10 14 10-14"/>
-  <path class="dash" d="M1089 318v43"/>
-  <path class="arrow" d="M1079 334l10-14 10 14"/>
-  <path class="arrow" d="M1079 348l10 14 10-14"/>
+  <rect x="360" y="318" width="880" height="46" rx="12" fill="url(#controlledObject)" stroke="#76549f" stroke-width="2"/>
+  <text x="800" y="348" text-anchor="middle" class="ink">
+    <tspan class="role-title">Controlled Object</tspan>
+    <tspan class="role-subtitle"> — Digital Artifact identified as the event-graph subject</tspan>
+  </text>
 
-  <path class="arrow" d="M1240 323h64"/>
-  <path class="arrow" d="M1286 300l24 23-24 23"/>
+  <path class="arrow" d="M1240 341h64"/>
+  <path class="arrow" d="M1286 318l24 23-24 23"/>
 
   <rect x="1310" y="178" width="250" height="290" rx="10" fill="url(#original)" filter="url(#shadow)"/>
   <text x="1385" y="252" class="panel-title ink">Digital</text>
   <text x="1385" y="292" class="panel-title ink">Original</text>
-  <text x="1340" y="350" class="panel-subtitle ink">A Digital Artifact</text>
+  <text x="1340" y="350" class="panel-subtitle ink">A Controlled Object</text>
   <text x="1340" y="378" class="panel-subtitle ink">with consequential</text>
   <text x="1340" y="406" class="panel-subtitle ink">state derived from</text>
-  <text x="1340" y="434" class="panel-subtitle ink">valid events.</text>
+  <text x="1340" y="434" class="panel-subtitle ink">valid events + rules.</text>
 
   <rect x="40" y="568" width="310" height="300" rx="8" fill="url(#object)" filter="url(#shadow)"/>
   <text x="62" y="602" class="card-title ink">Digital Artifact</text>
@@ -158,10 +161,10 @@
   <rect x="1340" y="568" width="220" height="300" rx="8" fill="url(#original)" filter="url(#shadow)"/>
   <text x="1362" y="602" class="card-title ink">Digital Original</text>
   <text x="1362" y="628" class="card-subtitle ink">Definition</text>
-  <text x="1362" y="670" class="body fine">A Digital Artifact with</text>
+  <text x="1362" y="670" class="body fine">A Controlled Object with</text>
   <text x="1362" y="694" class="body fine">consequential state</text>
   <text x="1362" y="718" class="body fine">derived from valid,</text>
-  <text x="1362" y="742" class="body fine">verifiable events.</text>
+  <text x="1362" y="742" class="body fine">events and rules.</text>
 
   <rect x="40" y="888" width="500" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
   <text x="62" y="920" class="card-title ink">Transition Guards</text>

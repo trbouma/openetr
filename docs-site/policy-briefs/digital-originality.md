@@ -14,6 +14,19 @@ The key distinction is:
 
 > Digital originality is about consequential state, not copy prevention.
 
+**Consequential state** is protocol state that can change what may validly
+happen next concerning an identified artifact. It can establish or change a
+controller, record a transfer in progress, activate an encumbrance, discharge
+a restriction, delegate authority, or terminate an active lifecycle. It is
+consequential because relying on it can affect control, authority, rights,
+obligations, restrictions, standing, status, or permitted actions.
+
+This is different from ordinary application state. A selected tab, cached
+display value, database row, or background-job status may help an application
+operate, but it does not become authoritative OpenETR state merely because the
+application stores it. Consequential state must be reproducible from portable,
+end-verifiable events under identified protocol rules.
+
 ## Digital Artifact And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
@@ -33,14 +46,28 @@ Digital Artifact -> identified as graph subject -> Controlled Object
 Controlled Object + valid events + protocol rules = Digital Original
 ```
 
-Consequential state may describe the current controller, lifecycle status,
-active guards, prior transitions, or another result that matters to what may
-validly happen next. An application may display or cache that state, but it is
-not the sole authority for it.
+![Digital Artifact to Controlled Object to Digital Original](../assets/images/digital-artifact-to-digital-original.svg)
 
 ## The Consequential State Pipeline
 
-OpenETR separates five questions that are often blended together:
+Digital originality does not arise from one cryptographic operation or one
+institutional decision. It emerges through a sequence of distinct layers.
+First, canonical content gives the Digital Artifact a stable identity. Candidate
+events then identify that artifact as the Controlled Object—the subject of the
+OpenETR graph. The events provide portable evidence of what actors attempted or
+asserted. OpenETR rules validate that evidence against prior state and derive
+the consequential state that makes the Controlled Object a Digital Original.
+
+Recognition and effect come afterward. A verifier, institution, community,
+contract, or jurisdiction decides whether to accept the actor, graph, or
+derived state for a particular purpose. Applicable rules then determine what
+practical, institutional, commercial, or legal consequence follows. Keeping
+these layers separate prevents content identity, cryptographic validity,
+protocol state, authority, and legal effect from being mistaken for one
+another.
+
+The pipeline therefore separates six questions that are often blended
+together:
 
 | Layer | Question |
 | --- | --- |
@@ -51,10 +78,16 @@ OpenETR separates five questions that are often blended together:
 | Recognition | Who accepts that state, and for what purpose? |
 | Effect | What external consequence follows? |
 
-The relationship is:
+The complete relationship is:
 
 ```text
-event -> protocol rules -> consequential state -> recognition -> effect
+Digital Artifact
+  -> Controlled Object
+  -> end-verifiable events
+  -> OpenETR protocol rules
+  -> consequential state and Digital Original
+  -> recognition
+  -> effect
 ```
 
 A candidate Anchor identifies a Digital Artifact as a Controlled Object. A
