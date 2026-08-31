@@ -23,7 +23,7 @@ Integrators do not need to adopt every OpenETR surface at once. A practical inte
 
 | Milestone | Integration Question | OpenETR Concern |
 | --- | --- | --- |
-| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as object, origin event, control event, Commitment Profile, Acting Profile, contact, reference, and verifier policy. |
+| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as Digital Artifact, Anchor record, control record, DCR, Commitment Profile, Acting Profile, contact, reference, and verifier policy. |
 | Separate control from document movement | How do documents move today, and where should control evidence live? | Use OpenETR as the signed control layer while allowing PDFs, files, records, registry entries, or business documents to move through existing channels. |
 | Define the host-system boundary | Which existing or new system owns users, accounts, workflow, documents, and policy? | Treat OpenETR as portable signed evidence underneath the host system rather than as the host system's application database. |
 | Define authentication and recognition | How are users authenticated and recognized in the relevant domain or jurisdiction? | Let the host system, domain adapter, registry, KYC provider, trust framework, or verifier policy decide whether an actor is recognized for a particular role. |
@@ -95,7 +95,7 @@ The host application may store very little OpenETR-specific local state:
 Everything important for OpenETR control can be reconstructed from signed events:
 
 - Commitment Profiles and profile configuration;
-- object origin events;
+- Anchor records;
 - control events;
 - graph links;
 - signer attribution;

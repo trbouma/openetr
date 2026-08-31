@@ -26,7 +26,7 @@ In an OpenETR eBL domain:
 
 - the eBL artifact or canonical eBL data package is the **Digital Artifact**;
 - the eBL digest is the stable object identity;
-- the issuing profile signs an origin control record;
+- the issuing profile signs an Anchor record;
 - transfer, acceptance, encumbrance, presentation, surrender, cancellation, and termination can be represented as signed control or evidence events;
 - related maritime data, DCSA messages, registry responses, C2PA-enabled media, or carrier records can be linked as evidence;
 - verifier policy decides which graph branch or event is recognized for a relying context.
@@ -36,7 +36,7 @@ The compact model is:
 ```text
 bill of lading artifact
   -> SHA-256 digest
-  -> OpenETR origin record
+  -> OpenETR Anchor record
   -> signed control and evidence graph
   -> eBL domain adapter interpretation
   -> recognition policy decides effect
@@ -66,7 +66,7 @@ An eBL workspace could map domain actions to OpenETR operations as follows.
 
 | eBL action | OpenETR mapping |
 | --- | --- |
-| Issue bill of lading | Origin control record |
+| Issue bill of lading | Anchor record plus issuance metadata |
 | Transfer control | `TRANSFER` initiate / accept |
 | Record endorsement or instruction | `ATTEST` or profile-specific transfer evidence |
 | Record pledge or financing interest | `ENCUMBER` |
@@ -82,7 +82,7 @@ An eBL workspace could map domain actions to OpenETR operations as follows.
 OpenETR can show:
 
 - which eBL artifact was identified by digest
-- who signed the origin and control events
+- who signed the Anchor and control events
 - how transfer or presentation events are linked
 - whether there are competing graph branches or policy warnings
 - whether linked evidence points to the same object

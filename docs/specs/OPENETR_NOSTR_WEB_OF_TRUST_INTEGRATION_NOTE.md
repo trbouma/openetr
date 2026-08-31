@@ -152,7 +152,7 @@ WoT can help a verifier decide how much confidence to place in a signer profile 
 Examples:
 
 - show a warning if an issuer profile has very low WoT score from the verifier's selected seed set;
-- rank multiple competing origin events by signer reputation;
+- rank multiple competing Anchor Events by signer reputation;
 - flag newly created or socially isolated profiles for additional review;
 - allow a community to recognize attestors that are trusted by its own graph;
 - distinguish familiar operational counterparties from unknown pubkeys.
@@ -195,7 +195,7 @@ OpenETR is an open signed-event system. Anyone with a key can publish structural
 WoT can help keep open publication usable:
 
 - filter obvious spam origins;
-- lower the display priority of unknown or low-trust competing origin records;
+- lower the display priority of unknown or low-trust competing Anchor records;
 - mark suspicious control branches;
 - require additional evidence for low-trust signers;
 - help user interfaces avoid treating all events as equally relevant.
@@ -273,7 +273,7 @@ Reading a WoT score without knowing the seed set, provider, algorithm, or viewpo
 A verifier that uses WoT could follow this sequence:
 
 1. Determine the OpenETR object id from the document digest or supplied object reference.
-2. Retrieve origin events using `kind = 1415` and `#o`.
+2. Retrieve Anchor Events using `kind = 1415` and `#o`.
 3. Retrieve control events using `kind = 1416` and `#o`.
 4. Verify event ids, signatures, required tags, and `e` links.
 5. Enumerate candidate control chains.

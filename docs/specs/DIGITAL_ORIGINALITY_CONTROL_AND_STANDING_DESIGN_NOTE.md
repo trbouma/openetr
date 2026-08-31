@@ -21,6 +21,13 @@ Copying bytes does not copy control, satisfy transition guards, or create a
 valid state transition. A relying party still decides whether to recognize the
 derived state and what effect to give it.
 
+Within that architecture, the Consequential State Machine (CSM) is the
+protocol-defined state machine that evaluates DCR evidence and determines what
+consequential state follows.
+
+> The DCR records the consequential actions. The CSM determines their
+> consequences.
+
 ## Core Thesis
 
 In a digital environment, perfect copies are normal. Originality therefore
@@ -39,7 +46,7 @@ This gives five separate layers:
 | --- | --- | --- |
 | Artifact | What exact persistent content is identified? | A PDF, scan, JSON document, image, or structured record identified by digest. |
 | DCR | What signed record or record graph exists? | Anchor, transfer, encumber, discharge, terminate. |
-| Policy validation and consequential state | What state results when the DCR is evaluated under the identified policy? | Current controller, active guards, lifecycle state, candidate branches. |
+| CSM validation and consequential state | What state results when the DCR is evaluated under the identified policy? | Current controller, active guards, lifecycle state, candidate branches. |
 | Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
 | Effect | What consequence follows from recognized state? | Treated as an authoritative copy, transferable record, official record, or evidentiary record. |
 
@@ -94,10 +101,10 @@ The important question is not only whether an object was anchored or signed. The
 
 ### Standing
 
-Standing is a status asserted, derived, or accorded to a Digital Original.
-A validation policy may produce a standing-related state, but **recognized
-standing** exists only when a recognition context accepts that state for a
-purpose.
+Standing may be asserted in a DCR, derived by validation, or accepted through
+recognition. A validation policy may produce a standing-related state, but
+**recognized standing** exists only when a recognition context accepts that
+state for a purpose.
 Examples include official copy, evidentiary copy, transferable record, retired
 record, cancelled record, or non-authoritative copy.
 
@@ -309,7 +316,7 @@ effect path:
 ```text
 Digital Artifact
   -> Digital Controllable Record
-  -> OpenETR protocol rules
+  -> OpenETR Consequential State Machine
   -> Consequential state
   -> Digital Original
   -> Recognition

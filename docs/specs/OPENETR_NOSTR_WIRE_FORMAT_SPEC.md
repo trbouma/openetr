@@ -35,6 +35,10 @@ This specification does not by itself determine:
 
 Those remain outside the wire format and are determined by the applicable OpenETR policy, attestation, and recognition framework.
 
+Nostr provides the event substrate. OpenETR defines the Consequential State
+Machine (CSM). Relays transport and preserve signed evidence; they do not
+determine OpenETR consequential state.
+
 ## Event Families
 
 The current OpenETR wire format uses two event families:
@@ -60,10 +64,11 @@ Its current wire-level role is to:
 - provide the starting point for later control traversal
 
 A valid Anchor Event forms a one-record candidate DCR. Validation of that DCR
-under an applicable policy may establish initial consequential state and bring
-the identified Digital Artifact into the OpenETR Digital Original model. The
-event does not by itself establish that the candidate is uniquely authoritative
-or compel recognition, standing, or legal or operational effect.
+under an applicable policy by the CSM may establish initial consequential
+state and bring the identified Digital Artifact into the OpenETR Digital
+Original model. The event does not by itself establish that the candidate is
+uniquely authoritative or compel recognition, standing, or legal or operational
+effect.
 
 A single object digest may have more than one Anchor Event. Different issuers, systems, communities, or recognition contexts may anchor the same object. Verifiers should therefore treat each `1415` event as a candidate anchor and apply the relevant recognition profile to decide which anchor, if any, is authoritative for the purpose at hand.
 

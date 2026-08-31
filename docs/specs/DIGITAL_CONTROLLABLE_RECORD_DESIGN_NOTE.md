@@ -23,7 +23,7 @@ single record or record graph spanning the evidenced lifecycle
 
 DCR + APPLICABLE POLICY
         |
-        | validation
+        | Consequential State Machine validation
         v
 CONSEQUENTIAL STATE -> RECOGNITION -> EFFECT
 
@@ -49,7 +49,7 @@ The canonical definitions are:
 
 A DCR may contain one record or a directed graph of records expressing:
 
-- origin or issuance;
+- anchoring or issuance assertions;
 - control and transfer;
 - encumbrance and discharge;
 - provenance or attestation;
@@ -64,6 +64,25 @@ application may cache the result, but the cache is not the authority.
 
 Every displayed consequential state should therefore be traceable to the DCR
 record or records that produced it.
+
+The DCR records the consequential actions. The Consequential State Machine
+(CSM) determines their consequences.
+
+```text
+Consequential Action
+        |
+        v
+End-verifiable event
+        |
+        v
+DCR record or graph
+        |
+        v
+CSM + applicable policy
+        |
+        v
+Consequential State
+```
 
 ## Claims And Recognition
 
@@ -106,8 +125,8 @@ Nostr provides signed events, identifiers, references, keys, relay transport,
 and redundant distribution. OpenETR defines event semantics, authorization,
 transition rules, conflict handling, and state derivation.
 
-> Nostr provides the event substrate. OpenETR defines the consequential state
-> machine.
+> Nostr provides the event substrate. OpenETR defines the Consequential State
+> Machine.
 
 Relays preserve and transport DCR evidence. They do not determine OpenETR
 state.
@@ -126,7 +145,7 @@ The state projection should be produced through one versioned derivation
 boundary conceptually equivalent to:
 
 ```text
-validate_dcr(artifact_id, dcr_records, policy_id) -> ConsequentialState
+csm.validate(artifact_id, dcr_records, policy_id) -> ConsequentialState
 ```
 
 If the answer to “Why is this state true?” is only “because the application

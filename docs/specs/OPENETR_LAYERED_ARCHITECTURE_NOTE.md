@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       Digital Artifacts, DCRs, validation policies, consequential state
+OpenETR control       Digital Artifacts, DCRs, CSM, validation policies, consequential state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -24,7 +24,7 @@ The Nostr wire format is the publication and retrieval substrate.
 
 At this layer, OpenETR defines:
 
-- event kinds such as `1415` for origin events and `1416` for control events
+- event kinds such as `1415` for Anchor Events and `1416` for control events
 - core query and traversal tags such as `o`, `e`, and `p`
 - signed named tags for structured event data such as `name`, `size_bytes`, `domain`, `document_type`, `record_reference`, or `record_description`
 - readable event `content` for narrative context rather than machine parsing
@@ -54,18 +54,19 @@ and Control Events is a candidate DCR graph.
 This is distinct from a **Digital Original**, which is a Digital Artifact for
 which validation of its DCR under an applicable policy establishes
 consequential state. The artifact identifies the content; the DCR is durable
-signed evidence spanning the lifecycle; policy validation produces
-consequential state; and recognition determines what effect, if any, follows.
+signed evidence spanning the lifecycle; the Consequential State Machine (CSM)
+evaluates the DCR under policy to produce consequential state; and recognition
+determines what effect, if any, follows.
 
 At this layer, OpenETR defines:
 
 - Digital Artifacts identified by cryptographic digest
 - DCRs formed from signed end-verifiable records
-- origin control records that bring an object into the OpenETR scheme
+- Anchor records that begin candidate DCRs for Digital Artifacts
 - later control records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
-- current-controller derivation from origin and control-event chains
-- validation policies that evaluate the DCR as a whole and produce
+- current-controller derivation from Anchor and control-event chains
+- the Consequential State Machine and validation policies that evaluate the DCR as a whole and produce
   consequential state
 - guardrails against ambiguous or duplicate actions where appropriate
 
@@ -96,7 +97,7 @@ It speaks in terms of:
 
 Under the surface, those actions map to general OpenETR operations:
 
-- create receipt control record -> origin control record
+- create receipt control record -> Anchor record
 - transfer receipt -> transfer initiate / accept control events
 - pledge or restriction -> encumber control event
 - release encumbrance -> discharge control event
@@ -147,7 +148,7 @@ These models complement OpenETR because they mostly answer recognition questions
 OpenETR is focused on control evidence:
 
 - what object exists;
-- what event created the origin record;
+- which Anchor Event began the candidate DCR;
 - which signed events reference the object;
 - how control events link through exact `e` references;
 - which profile key signed each event;

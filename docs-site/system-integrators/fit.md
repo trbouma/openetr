@@ -16,7 +16,7 @@ Domain adapter
   maps domain actions into OpenETR event semantics
 
 OpenETR control layer
-  digest, origin event, control events, linked evidence, graph
+  artifact digest, Anchor record, control records, linked evidence, graph
 
 Recognition layer
   legal, registry, institutional, contractual, or verifier decision
@@ -41,7 +41,7 @@ document, file, JSON artifact, credential, record package
 
 Signed events then attach to that object:
 
-- origin
+- anchor
 - transfer
 - acceptance
 - encumbrance
@@ -60,8 +60,8 @@ The graph is portable because the evidence is tied to the object digest and even
 
 | Domain | Host System Owns | OpenETR Adds |
 | --- | --- | --- |
-| Warehouse receipts | account onboarding, goods records, inventory, facility workflow, financing workflow | signed receipt origin, pledge, release, transfer, redemption, and linked evidence |
-| Bills of lading | carrier workflow, shipment data, document presentation, surrender workflow | signed eBL origin, transfer, presentation, surrender, and registry/platform evidence |
+| Warehouse receipts | account onboarding, goods records, inventory, facility workflow, financing workflow | signed receipt Anchor records, pledge, release, transfer, redemption, and linked evidence |
+| Bills of lading | carrier workflow, shipment data, document presentation, surrender workflow | signed eBL Anchor records, transfer, presentation, surrender, and registry/platform evidence |
 | Product passports | product data, supplier portals, compliance workflows | signed lifecycle evidence, component links, attestations, dependency graph |
 | Apostille documents | authority workflow, document verification, official records | signed authority evidence and document lifecycle references |
 | Trade finance | bank systems, credit policy, payment and settlement | evidence links between controlled records, financing events, pledge status, and discharge |
@@ -71,7 +71,7 @@ The graph is portable because the evidence is tied to the object digest and even
 A verifier should be able to receive:
 
 - the Digital Artifact or its digest
-- relevant origin and control events
+- relevant Anchor and control records
 - linked evidence events
 - signer/profile references
 - domain-adapter interpretation

@@ -32,7 +32,7 @@ That includes:
 OpenETR is responsible for the signed control evidence:
 
 - receipt digest
-- origin event
+- Anchor Event
 - profile signer
 - control events
 - prior-event links
@@ -119,7 +119,7 @@ OpenETR records signed attestation evidence. Recognition policy decides whether 
 The first pilot should demonstrate that:
 
 - a warehouse receipt artifact can be digest-identified
-- an account-authorized profile can sign an origin event
+- an account-authorized profile can sign an Anchor Event
 - later control events can link to the same object
 - account-to-key accountability can be evidenced by the host system
 - required attestations can attach to the graph

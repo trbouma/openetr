@@ -6,7 +6,7 @@ The Warehouse Receipts workspace uses warehouse receipt language, but each actio
 
 | Domain Action | OpenETR Action | Purpose |
 | --- | --- | --- |
-| Create receipt control record | origin control record | Create the first signed OpenETR control record for the receipt digest. |
+| Create receipt control record | Anchor record | Create the first signed OpenETR control record for the receipt digest. |
 | Transfer receipt | `transfer_initiate` and `transfer_accept` | Move control from one holder/controller to another. |
 | Record pledge or lien | `encumber` | Record a control-relevant restriction, pledge, lien, or secured-party interest. |
 | Release pledge or lien | `discharge` | Discharge a specific encumbrance event. |
@@ -22,7 +22,7 @@ Control records can also link to prior records through the `e` tag. This makes t
 ```mermaid
 flowchart LR
   A["Receipt PDF / artifact"] --> B["SHA-256 digest"]
-  B --> C["Origin event"]
+  B --> C["Anchor Event"]
   C --> D["Transfer initiated"]
   D --> E["Transfer accepted"]
   E --> F["Encumbrance"]

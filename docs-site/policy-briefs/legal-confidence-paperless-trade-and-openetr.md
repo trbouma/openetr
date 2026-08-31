@@ -63,7 +63,7 @@ existing trade platform
   -> digest of the operative record
   -> signed OpenETR control events
   -> portable Digital Controllable Record
-  -> policy validation produces consequential state
+  -> CSM validation produces consequential state
   -> independent verifier applies its rule book
 ```
 

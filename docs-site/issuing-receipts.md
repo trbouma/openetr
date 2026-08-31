@@ -6,13 +6,13 @@ The warehouse operator creates or obtains a receipt document, then OpenETR commi
 
 ## Minimal Issuance Evidence
 
-An OpenETR origin event records:
+An OpenETR Anchor Event records:
 
 | Evidence | Description |
 | --- | --- |
 | Receipt digest | SHA-256 digest of the uploaded document. |
 | Object tag `o` | Digest-addressed object identity. |
-| Origin event id | Event id of the signed issuance event. |
+| Anchor Event id | Event id of the signed anchor or issuance event. |
 | Issuer profile | Nostr public key of the selected profile signer. |
 | Signature | Nostr event signature over the event payload. |
 | Structured tags | Signed metadata such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `record_reference`, and `record_description`. |
@@ -52,4 +52,3 @@ The event `content` field is reserved for a short human-readable narrative.
 
 - [MLWR Warehouse Operator Issuance Use Case](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_WAREHOUSE_OPERATOR_ISSUANCE_USE_CASE.md)
 - [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
-

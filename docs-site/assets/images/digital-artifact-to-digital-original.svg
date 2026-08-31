@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
   <title id="title">Digital Artifact to Digital Original</title>
-  <desc id="desc">An OpenETR diagram showing a Digital Artifact referenced by a Digital Controllable Record spanning its signed lifecycle. Validation of that record or graph against an applicable policy produces consequential state, which enables recognition and effect and establishes a Digital Original.</desc>
+  <desc id="desc">An OpenETR diagram showing a Digital Artifact referenced by a Digital Controllable Record spanning its signed lifecycle. The Consequential State Machine evaluates that record or graph against an applicable policy to produce consequential state, which enables recognition and effect and establishes a Digital Original.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fbff"/>
@@ -86,7 +86,7 @@
 
   <path class="dash" d="M800 316v-24"/>
   <path class="arrow" d="M788 300l12-12 12 12"/>
-  <text x="822" y="307" class="small ink">Policy validation produces consequential state</text>
+  <text x="822" y="307" class="small ink">CSM validation produces consequential state</text>
 
   <rect x="360" y="318" width="880" height="46" rx="12" fill="url(#controlledObject)" stroke="#76549f" stroke-width="2"/>
   <text x="800" y="348" text-anchor="middle" class="ink">
@@ -130,7 +130,7 @@
 
   <rect x="370" y="568" width="950" height="300" rx="8" fill="url(#control)" filter="url(#shadow)"/>
   <text x="392" y="602" class="card-title ink">Digital Controllable Record</text>
-  <text x="392" y="628" class="card-subtitle ink">The evidence spans the lifecycle; validation produces consequential state.</text>
+  <text x="392" y="628" class="card-subtitle ink">The evidence spans the lifecycle; the CSM produces consequential state.</text>
   <text x="392" y="670" class="body fine">One signed end-verifiable record</text>
   <text x="392" y="694" class="body fine">or a graph of related signed</text>
   <text x="392" y="718" class="body fine">records concerning a Digital</text>
@@ -138,10 +138,10 @@
   <text x="392" y="766" class="body fine">evidence of consequential</text>
   <text x="392" y="790" class="body fine">statements and lifecycle events.</text>
   <line x1="820" y1="650" x2="820" y2="842" class="rule"/>
-  <text x="850" y="670" class="body-strong ink">Policy Validation</text>
-  <text x="850" y="704" class="body fine">An applicable policy evaluates the DCR</text>
-  <text x="850" y="728" class="body fine">or graph as a whole. Consequential state</text>
-  <text x="850" y="752" class="body fine">is the result of that validation, not a</text>
+  <text x="850" y="670" class="body-strong ink">Consequential State Machine</text>
+  <text x="850" y="704" class="body fine">The CSM applies an applicable policy</text>
+  <text x="850" y="728" class="body fine">to evaluate the DCR or graph as a whole.</text>
+  <text x="850" y="752" class="body fine">Consequential state is the result, not a</text>
   <text x="850" y="776" class="body fine">separate record or container.</text>
   <text x="850" y="816" class="body-strong ink">Recognition accepts that state and</text>
   <text x="850" y="840" class="body fine">determines its external effect.</text>
@@ -151,7 +151,7 @@
   <text x="1362" y="628" class="card-subtitle ink">Definition</text>
   <text x="1362" y="670" class="body fine">A Digital Artifact with</text>
   <text x="1362" y="694" class="body fine">consequential state</text>
-  <text x="1362" y="718" class="body fine">established by policy</text>
+  <text x="1362" y="718" class="body fine">established by CSM</text>
   <text x="1362" y="742" class="body fine">validation of its DCR.</text>
 
   <rect x="40" y="888" width="500" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>

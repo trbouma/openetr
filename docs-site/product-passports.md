@@ -10,10 +10,10 @@ In this domain:
 
 - the Product Passport file or data artifact is the **Digital Artifact**;
 - the Product Passport digest is the stable object identity;
-- each signed OpenETR origin or control event is a **control record** for that Product Passport;
+- each signed OpenETR Anchor or control event is a **control record** for that Product Passport;
 - later lifecycle documents can be attached as **linked evidence records**;
-- the linked set of origin and control records is the Product Passport **control graph**;
-- the broader linked set of origin, control, and evidence records is the Product Passport **evidence graph**.
+- the linked set of Anchor and control records is the Product Passport **control graph**;
+- the broader linked set of Anchor, control, and evidence records is the Product Passport **evidence graph**.
 
 The Product Passport itself may be a PDF, image, JSON document, data bundle, credential, registry export, or another canonical artifact. OpenETR does not need to parse it before it can identify the artifact by digest and record control-relevant evidence.
 
@@ -73,7 +73,7 @@ Product Passports and Warehouse Receipts should use the same underlying OpenETR 
 | Shared OpenETR Concept | Warehouse Receipts | Product Passports |
 | --- | --- | --- |
 | Digital Artifact | Receipt document | Product Passport artifact |
-| Origin control record | Initial receipt control evidence | Initial Product Passport control evidence |
+| Anchor record | Initial receipt control evidence | Initial Product Passport control evidence |
 | Linked evidence record | Supporting receipt evidence or attestations | Repair reports, recall notices, lifecycle certificates, audit evidence |
 | Evidence graph | Receipt control and evidence history | Product Passport control and lifecycle evidence history |
 | Recognition layer | MLWR law, registry rules, warehouse policy | Product regulation, compliance policy, registry rules, marketplace policy |

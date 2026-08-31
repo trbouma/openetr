@@ -35,7 +35,7 @@ The OpenETR component remains general.
 It works with:
 
 - digests;
-- origin events;
+- Anchor Events;
 - control events;
 - Nostr pubkeys;
 - action tags;

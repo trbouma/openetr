@@ -5,7 +5,7 @@ intend to rely on, what has happened to it, and what state it is in—even when
 they cannot depend on the application that created it.**
 
 It does this by giving the underlying Digital Artifact a durable,
-independently verifiable state.
+independently verifiable basis for state.
 
 A digital file can be copied perfectly. That is useful, but the file alone
 cannot tell us who made a consequential statement about it, what has happened
@@ -17,8 +17,8 @@ people and institutions act upon.
 
 OpenETR addresses the problem without making one application, database,
 registry, or wallet the permanent source of truth. It identifies the exact
-content, preserves signed evidence concerning it, and applies shared protocol
-rules so another conforming system can derive the same state.
+content, preserves signed evidence concerning it, and applies a Consequential
+State Machine so another conforming system can derive the same state.
 
 <figure class="openetr-model-figure">
   <img src="assets/images/digital-artifact-to-digital-original.svg" alt="The OpenETR model showing a Digital Artifact, its Digital Controllable Record, policy validation producing consequential state, a Digital Original, and recognition and effect">
@@ -45,13 +45,17 @@ attestation, redemption, or termination.
 The DCR is not the file. It is the portable record of consequential statements
 made about the file.
 
-### Consequential State Through Policy Validation
+### Consequential State Through The CSM
 
 Consequential State is not another record or container. It is the result of
 validating a DCR—or its graph of related records—in relation to an applicable
-policy. The result says what state has been established: for example, who the
-candidate current controller is, whether the artifact is encumbered, or
-whether its active lifecycle has ended.
+policy through the OpenETR **Consequential State Machine (CSM)**. The result
+says what state has been established: for example, who the candidate current
+controller is, whether the artifact is encumbered, or whether its active
+lifecycle has ended.
+
+The DCR records the consequential actions. The CSM determines their
+consequences.
 
 Consequential State is what an external authority, registry, institution, or
 relying party can recognize and give practical effect. Recognition does not
@@ -73,7 +77,7 @@ The complete path is:
 content -> Digital Artifact
         -> Digital Controllable Record spanning its signed lifecycle
 
-DCR + applicable policy -> validation -> consequential state
+DCR + applicable policy -> CSM validation -> consequential state
 consequential state -> recognition and effect
 artifact + established consequential state -> Digital Original
 ```

@@ -57,8 +57,8 @@ For example, a warehouse receipt system may use terms such as:
 
 OpenETR should not force those users to speak in protocol terms. Instead, the domain adapter or host system should map those terms to OpenETR concepts such as:
 
-- object digest and object id;
-- origin event;
+- Digital Artifact digest and object id;
+- Anchor Event;
 - control event;
 - control graph;
 - Commitment Profile;
@@ -236,7 +236,7 @@ The core philosophy is that an OpenETR user should not be required to rely on so
 
 OpenETR depends on cryptographically signed events, not on a particular live application service.
 
-In the common networked case, those events can be served by a publicly available relay pool. A relying party may retrieve the relevant origin events, control events, profile records, and configuration records from relays, verify signatures, traverse event links, and apply its own recognition policy.
+In the common networked case, those events can be served by a publicly available relay pool. A relying party may retrieve the relevant Anchor Events, control events, profile records, and configuration records from relays, verify signatures, traverse event links, and apply its own recognition policy.
 
 But public relay availability is a distribution convenience, not the trust anchor.
 
@@ -282,7 +282,7 @@ Relay-backed configuration currently includes or is converging toward:
 
 OpenETR record evidence is also relay-backed:
 
-- `kind 1415` origin events;
+- `kind 1415` Anchor Events;
 - `kind 1416` control events;
 - object identity through `o` tags;
 - action semantics through `action` tags;
@@ -312,7 +312,7 @@ OpenETR-specific state can remain reconstructable from signed events and relay-b
 - profile metadata;
 - encrypted or managed signer records where supported;
 - aliases, contacts, references, and known-entity records;
-- origin events;
+- Anchor Events;
 - control events;
 - graph traversal links and verifier annotations.
 
@@ -558,7 +558,7 @@ Current demonstration surfaces include:
 | --- | --- | --- |
 | `POST /api/nobj-from-upload` | derive object reference from an uploaded document | digest and object id computation |
 | `POST /api/query-etr-from-upload` | query OpenETR state for an uploaded document | `build_query_etr_result` |
-| `POST /api/issue-etr-from-upload` | issue an origin event for an uploaded document | `publish_issue_etr` |
+| `POST /api/issue-etr-from-upload` | issue an Anchor Event for an uploaded document | `publish_issue_etr` |
 | `GET /warehouse-receipts` | MLWR domain dashboard | domain adapter over generic OpenETR services |
 | `POST /warehouse-receipts/query` | query warehouse receipt state | `build_query_etr_result` |
 | `POST /warehouse-receipts/issue` | issue warehouse receipt evidence | `publish_issue_etr` |

@@ -32,7 +32,7 @@ Domain adapter
   domain vocabulary, workflows, validation, UI/API, rulebook-specific state
 
 OpenETR control layer
-  Controlled Objects, control records, control graphs, profile signing,
+  Digital Artifacts, DCRs, control records, control graphs, profile signing,
   transfer/attest/encumber/discharge/redeem/terminate primitives
 
 Wire format
@@ -51,8 +51,8 @@ The OpenETR core provides generic control and evidence infrastructure.
 
 It defines:
 
-- digest-identified Controlled Objects
-- origin records
+- digest-identified Digital Artifacts
+- Anchor records
 - control records
 - linked evidence records
 - signed event publication and retrieval
@@ -187,16 +187,16 @@ The adapter should state:
 - relevant external standards or rulebooks
 - recognition assumptions
 
-### Controlled Object Strategy
+### Digital Artifact Strategy
 
 The adapter should define what is hashed.
 
 Possible strategies include:
 
-- final artifact as Controlled Object
-- canonical structured record as Controlled Object
-- package or bundle as Controlled Object
-- public document as Controlled Object with linked evidence
+- final artifact as the Digital Artifact
+- canonical structured record as the Digital Artifact
+- package or bundle as the Digital Artifact
+- public document as the Digital Artifact with linked evidence
 - evidence artifact as linked object
 
 The adapter must specify:
@@ -313,7 +313,7 @@ OpenETR may derive generic control state. The adapter decides how to present dom
 
 ### Linked Evidence Model
 
-The adapter should define which artifacts are linked evidence rather than the main Controlled Object.
+The adapter should define which artifacts are linked evidence rather than the main Digital Artifact.
 
 Examples:
 
@@ -377,7 +377,7 @@ A domain adapter specification should use this structure unless there is a reaso
 2. Purpose
 3. Architectural boundary
 4. Domain model
-5. Controlled Object strategy
+5. Digital Artifact strategy
 6. Domain roles
 7. Domain actions and OpenETR mapping
 8. Suggested event tags
@@ -445,7 +445,7 @@ Examples:
 - Verifiable Credential-backed role proof
 - mDL or identity-backed signer recognition
 
-The credential may be the Controlled Object, linked evidence, or a recognition input.
+The credential may be the Digital Artifact, linked evidence, or a recognition input.
 
 ## Validation Versus Recognition
 
@@ -508,7 +508,7 @@ A generic domain adapter specification should not:
 
 A domain adapter is conformant with this generic specification if it:
 
-- identifies its Controlled Object strategy
+- identifies its Digital Artifact strategy
 - maps domain actions to OpenETR operations
 - documents its domain tags
 - documents its validation stages
@@ -546,4 +546,3 @@ OpenETR records portable signed control and evidence facts.
 Domain adapters translate those facts into domain workflows.
 Recognition layers decide legal, regulatory, institutional, or commercial effect.
 ```
-

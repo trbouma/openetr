@@ -18,6 +18,13 @@ artifact's evidenced lifecycle. Validation of that DCR under an identified
 policy produces state affecting control, authority, rights, obligations,
 restrictions, standing, or permitted actions.
 
+A **Consequential State Machine (CSM)** is the deterministic mechanism inside
+CSA. It applies protocol-defined transition rules to end-verifiable DCR
+evidence and derives consequential state.
+
+> The DCR records the consequential actions. The CSM determines their
+> consequences.
+
 Applications may maintain projections of consequential state, but they are not
 its sole authority:
 
@@ -74,7 +81,12 @@ uniquely identifiable content
 DIGITAL CONTROLLABLE RECORD
 single record or record graph spanning the evidenced lifecycle
         |
-        | validate as a whole under an applicable policy
+        | consumed by
+        v
+CONSEQUENTIAL STATE MACHINE
+protocol-defined transition rules
+        |
+        | validates as a whole under an applicable policy
         v
 CONSEQUENTIAL STATE (validation result)
         |
@@ -105,9 +117,10 @@ A DCR may consist of:
   delegation, termination, or related events.
 
 The graph is evidence. Current consequential state is the result of validating
-the DCR graph as a whole under an applicable policy. The DCR therefore spans
-the signed evidence lifecycle between content identity and state evaluation;
-it must not be used as a synonym for the Digital Artifact itself.
+the DCR graph as a whole under an applicable policy. The CSM is the rule
+machine that performs that evaluation. The DCR therefore spans the signed
+evidence lifecycle between content identity and state evaluation; it must not
+be used as a synonym for the Digital Artifact itself.
 
 **Digital Controllable Record** is an OpenETR protocol term. It is not legally
 synonymous with a **Controllable Electronic Record (CER)** under UCC Article
@@ -135,16 +148,59 @@ evidence to determine:
 The durable primitive is not an application's state row. It is portable,
 verifiable evidence of a state transition.
 
+## Consequential State Machine
+
+A Consequential State Machine is a state machine in which consequential
+actions are evidenced by end-verifiable records and evaluated under
+protocol-defined transition rules.
+
+```text
+CURRENT CONSEQUENTIAL STATE
+        |
+        | consequential action
+        | evidenced by signed event
+        v
+TRANSITION RULE
+        |
+        v
+NEW CONSEQUENTIAL STATE
+```
+
+A consequential action is an action capable of producing a protocol-defined
+change in consequential state. OpenETR control primitives include:
+
+- Anchor;
+- Transfer;
+- Encumber;
+- Discharge;
+- Terminate.
+
+Domain profiles may define additional actions or effect concepts such as
+relinquishment, surrender, redemption, amendment, cancellation, or replacement.
+Those profiles should state whether the concept is a CSM transition, a domain
+interpretation of one or more transitions, or an external recognition effect.
+
+Consequential actions deserve durable, end-verifiable evidence. A conforming
+implementation should be able to determine from the DCR and identified policy:
+
+1. the prior consequential state;
+2. the consequential action asserted by the event;
+3. whether the signing key was permitted to make that transition;
+4. whether transition guards were satisfied;
+5. whether the event links coherently into the relevant DCR graph; and
+6. the new consequential state, if the transition is valid.
+
 ## Derived State
 
 Consequential state is produced by validating the relevant DCR record or graph
-under an identified policy. The policy includes the applicable OpenETR
-protocol rules and any stated profile constraints needed for that evaluation:
+under an identified policy through the CSM. The policy includes the applicable
+OpenETR protocol rules and any stated profile constraints needed for that
+evaluation:
 
 ```text
 DCR Record Or Graph + Identified Policy
           |
-          | validation
+          | CSM validation
           v
   Consequential State (result)
           |
@@ -245,8 +301,22 @@ meaning or effect of that evidence. OpenETR defines the event grammar,
 validation rules, and consequential state machine.
 
 ```text
-Nostr   -> event substrate
-OpenETR -> consequential state machine
+CONSEQUENTIAL ACTION
+        |
+        v
+NOSTR EVENT
+signed evidence
+        |
+        v
+NOSTR RELAYS
+transport and preserve
+        |
+        v
+OPENETR CSM
+verify and interpret
+        |
+        v
+CONSEQUENTIAL STATE
 ```
 
 Nostr is the current OpenETR technical binding, not the definition of CSA.

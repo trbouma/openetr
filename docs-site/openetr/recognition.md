@@ -10,7 +10,7 @@ The recurring pattern is:
 real-world object, product, document, or record
   -> canonical file or data artifact
   -> digest
-  -> signed origin record
+  -> signed Anchor record
   -> signed control records or linked evidence records
   -> verifier, registry, authority, or relying party decides effect
 ```
@@ -22,7 +22,7 @@ OpenETR does not decide effect. It provides the control layer and preserves the 
 OpenETR can answer questions such as:
 
 - what object digest is being referenced?
-- which origin event created the object record?
+- which Anchor record began the candidate DCR?
 - which signed events reference the same object?
 - how do control events link through `e` references?
 - which profile key signed each event?

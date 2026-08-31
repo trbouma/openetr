@@ -36,7 +36,7 @@ Host application
   accounts, roles, UX, document storage, workflow, domain policy
 
 OpenETR
-  object digest, origin event, control events, linked evidence,
+  artifact digest, Anchor record, control records, linked evidence,
   dependency edges, verifier output
 
 Recognition layer

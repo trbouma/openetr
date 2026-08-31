@@ -29,7 +29,7 @@ Signed-in users can operate the workspace with profiles and signer keys.
 | Control Desk Key | The root/admin key used for recovery and profile management. |
 | Commitment Profile | A profile organized by the Control Desk Key that can sign commitments. |
 | Acting Profile | The selected Commitment Profile currently used to sign warehouse receipt actions. |
-| Receipt Control Record | A signed OpenETR origin or control event. |
+| Receipt Control Record | A signed OpenETR Anchor or control record. |
 | Docs | Link back to this documentation site. |
 
 The **Acting Profile** is the selected Commitment Profile that signs operational actions such as creating the initial control record, transferring, encumbering, discharging, redeeming, or terminating receipt control.
@@ -43,7 +43,7 @@ Use **Query Control Record** when you have a warehouse receipt file and want to 
 3. Confirm or adjust the relay field.
 4. Select **Query Control Record**.
 
-The app computes the file digest locally in the request flow, queries the configured relays, and shows the origin event, current controller, lifecycle state, control events, and outstanding encumbrances where available.
+The app computes the file digest locally in the request flow, queries the configured relays, and shows candidate Anchor records, current controller, lifecycle state, control events, and outstanding encumbrances where available.
 
 ## Sign In And Select An Acting Profile
 
@@ -83,13 +83,13 @@ The profile editor publishes an updated Nostr profile event for the acting signe
 
 ## Create A Receipt Control Record
 
-Use **Create Control Record** when the warehouse operator or issuer profile wants to publish the first OpenETR origin control record for an already-issued warehouse receipt artifact.
+Use **Create Control Record** when the warehouse operator or issuer profile wants to publish the first OpenETR Anchor record for an already-issued warehouse receipt artifact.
 
 The app:
 
 1. hashes the uploaded receipt file;
 2. creates the object id;
-3. signs an origin event with the Acting Profile;
+3. signs an Anchor Event with the Acting Profile;
 4. includes structured event tags such as receipt reference and description where provided;
 5. publishes the event to the configured relay set.
 

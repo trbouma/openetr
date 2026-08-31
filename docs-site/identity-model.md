@@ -11,7 +11,7 @@ The Warehouse Receipts workspace uses business terms over the OpenETR root/profi
 | Commitment Profile | Operational signer identity the desk can act as |
 | Contact | External party the desk can address or transact with |
 | Reference | External recognition, assurance, registry, KYC, assessment, audit, attestation, or policy source |
-| Receipt control record | Signed OpenETR origin or control event |
+| Receipt control record | Signed OpenETR Anchor or control event |
 
 ## What The Categories Mean
 

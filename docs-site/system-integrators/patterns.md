@@ -57,7 +57,7 @@ The host system exports a bundle containing the evidence needed by another party
 A bundle may include:
 
 - object digest
-- origin event
+- Anchor Event
 - relevant control events
 - linked evidence records
 - signer/profile metadata
@@ -87,7 +87,7 @@ For example:
 
 | Domain Action | OpenETR Pattern |
 | --- | --- |
-| issue warehouse receipt | origin event |
+| issue warehouse receipt | Anchor Event plus issuance metadata |
 | pledge receipt to bank | encumbrance event |
 | release pledge | discharge event |
 | transfer eBL | transfer and acceptance events |
