@@ -1,77 +1,86 @@
 # OpenETR
 
-Many important records are becoming digital, but the institutions around them still need something that paper used to provide almost by accident: a way to distinguish the operative record from a copy, a way to know who can act on it, and a way to preserve evidence of what happened to it over time.
+**OpenETR gives an important digital artifact a durable, independently
+verifiable state.**
 
-That problem appears in many domains:
+A digital file can be copied perfectly. That is useful, but the file alone
+cannot tell us who made a consequential statement about it, what has happened
+to it, or which state should now be relied upon.
 
-- a warehouse receipt may support financing against stored goods
-- a bill of lading may control rights to goods in transit
-- a promissory note or bill of exchange may be transferred or discharged
-- a product passport may depend on lifecycle and compliance evidence
-- an apostille or certificate may need durable authority evidence
-- a health record may need continuity, consent, and trustworthy provenance
+This matters for warehouse receipts, bills of lading, permits, certificates,
+product passports, health records, photographs, and many other records that
+people and institutions act upon.
 
-Digital records are easy to copy. That is useful for sharing information, but it creates a problem when a record's value depends on control, presentation, transfer, pledge, release, redemption, or recognition by another party.
+OpenETR addresses the problem without making one application, database,
+registry, or wallet the permanent source of truth. It identifies the exact
+content, preserves signed evidence concerning it, and applies shared protocol
+rules so another conforming system can derive the same state.
 
-Many systems solve this by making one platform, registry, wallet, or database the source of truth. That can work inside one environment. It becomes harder when records need to move across organizations, legal frameworks, industries, financing arrangements, archives, and software systems.
-
-**OpenETR** is a general control layer for durable electronic records.
-
-In plain language, OpenETR gives an important digital record a durable,
-verifiable history. The file is identified by its cryptographic fingerprint.
-Signed records describe consequential actions such as issue, transfer,
-encumbrance, discharge, or termination. Any conforming application can inspect
-that evidence and reconstruct the resulting state without depending on the
-application that originally created it.
-
-<figure class="openetr-home-figure">
-  <img src="assets/images/global-relay-race-zach-lucero-unsplash.jpg" alt="Runner carrying a relay baton on a track field">
+<figure class="openetr-model-figure">
+  <img src="assets/images/digital-artifact-to-digital-original.svg" alt="The OpenETR model showing a Digital Artifact, its Digital Controllable Record, consequential state, a Digital Original, and the separate recognition layer">
   <figcaption>
-    OpenETR is intended to be part of a global relay race: each system can carry the record forward while preserving signed evidence of the handoff.
-    Photo by <a href="https://unsplash.com/@zlucerophoto?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Zach Lucero</a> on <a href="https://unsplash.com/photos/woman-running-on-field-x_x3RPpDbII?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>.
+    The OpenETR model separates content, signed evidence, derived state, and external recognition.
   </figcaption>
 </figure>
 
-The formal model gives each part one job:
+## Three Ideas, Three Different Jobs
 
-- the **Digital Artifact** is the identifiable content—the PDF, image, data
-  file, or other record;
-- the **Digital Controllable Record (DCR)** is the signed evidence concerning
-  that content—it may be one signed record or a graph of related records;
-- **consequential state** is what OpenETR rules derive from that evidence; and
-- the artifact becomes a **Digital Original** when consequential state has
-  been established for it.
+### Digital Artifact
 
-The DCR is not the file. It is the portable record of what happened concerning
-the file.
+The **Digital Artifact** is the exact content: a PDF, image, data file, media
+file, or canonical data package. A cryptographic fingerprint identifies its
+bytes. An altered file has a different fingerprint.
 
-OpenETR does not try to become every domain's registry, legal authority, KYC system, wallet, storage service, or compliance engine. It preserves portable signed evidence that those systems can evaluate.
+### Digital Controllable Record
 
-For example, a warehouse receipt PDF can be copied, but copying it does not
-make the copier its controller. OpenETR identifies the PDF, preserves signed
-issuance and transfer evidence, and applies common rules to determine the
-current protocol state. A bank, court, registry, or trading partner separately
-decides whether to recognize that state and what effect to give it.
+The **Digital Controllable Record (DCR)** is the signed evidence concerning
+that artifact. It may be one end-verifiable record or a graph containing an
+Anchor and later lifecycle records such as transfer, encumbrance, discharge,
+attestation, redemption, or termination.
 
-The basic idea is:
+The DCR is not the file. It is the portable record of consequential statements
+made about the file.
+
+### Digital Original
+
+OpenETR validates the DCR and derives **consequential state** under its protocol
+rules. A **Digital Original** is the Digital Artifact once that consequential
+state has been established through a valid DCR.
+
+Originality does not belong to one physical copy. Identical copies represent
+the same artifact and can be checked against the same DCR and state.
+
+The complete path is:
 
 ```text
-content -> Digital Artifact
-signed evidence -> Digital Controllable Record
-evidence + protocol rules -> consequential state
-artifact + consequential state -> Digital Original
-accepted state -> recognition and effect
+content -> Digital Artifact -> DCR evidence -> consequential state
+        -> Digital Original -> recognition and practical effect
 ```
 
-This is why OpenETR is described as a control layer. It records durable evidence about the lifecycle of an object without pretending that cryptography alone decides legal or commercial effect.
+## A Simple Example
+
+A warehouse issues a PDF receipt for stored grain. Its fingerprint identifies
+the Digital Artifact. The warehouse signs an Anchor record, and a later signed
+record transfers control to a buyer. Those records form the candidate DCR.
+OpenETR validates the evidence and derives the candidate current-controller
+state.
+
+Emailing another copy of the PDF does not transfer the receipt. Editing the PDF
+creates a different artifact. Changing its consequential state requires valid
+signed evidence.
+
+A bank, registry, court, or trading partner then decides whether to recognize
+the signers and resulting state. OpenETR preserves the evidence and derives
+protocol state; it does not claim that cryptography alone creates legal or
+commercial effect.
 
 ## Start Here
 
 | Area | Purpose |
 | --- | --- |
-| [OpenETR Overview](openetr/index.md) | Learn the general control model, wire format, implementation surfaces, and recognition boundary. |
-| [The Three-Part Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Start with a plain-language explanation of Digital Artifacts, Digital Controllable Records, and Digital Originals. |
-| [Digital Originality](policy-briefs/digital-originality.md) | See the model explained through a concrete warehouse-receipt example before reading the technical specifications. |
+| [The Three-Part Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read the plain-language explanation of Digital Artifacts, DCRs, and Digital Originals. |
+| [Digital Originality](policy-briefs/digital-originality.md) | Explore consequential state and the model through detailed examples. |
+| [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
 | [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over the OpenETR control layer. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
 | [Health Records](health-records.md) | Placeholder for future health-record control graph workflows, with privacy and consent concerns called out early. |
@@ -110,14 +119,17 @@ Instead, it provides a thin signed control layer that produces durable evidence:
 ```text
 real-world object, product, document, or record
   -> canonical file or data artifact
-  -> SHA-256 digest
-  -> signed OpenETR origin control record
-  -> signed control records and linked evidence records
+  -> Digital Artifact identified by digest
+  -> Digital Controllable Record containing an Anchor and later records
+  -> protocol rules derive consequential state
+  -> Digital Original
   -> durable query link and QR code
   -> verifier / registry / authority / relying party decides effect
 ```
 
-The object content can stay with the operator, manufacturer, registry, platform, or storage service. OpenETR records the cryptographic object identity and the signed evidence graph.
+The artifact content can stay with the operator, manufacturer, registry,
+platform, or storage service. OpenETR preserves its cryptographic identity and
+portable DCR evidence.
 
 OpenETR does not decide effect. It preserves durable signed evidence that a recognition layer can evaluate.
 

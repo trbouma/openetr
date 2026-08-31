@@ -95,6 +95,25 @@
   line-height: 1.45;
 }
 
+.openetr-model-figure {
+  margin: 1.6rem 0;
+}
+
+.openetr-model-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid color-mix(in srgb, var(--openetr-line) 55%, transparent);
+  border-radius: 8px;
+}
+
+.openetr-model-figure figcaption {
+  margin-top: 0.45rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
 .md-nav__title,
 .md-nav__item .md-nav__link--active {
   font-weight: 700;
