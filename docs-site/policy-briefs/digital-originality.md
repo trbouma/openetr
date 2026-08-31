@@ -14,7 +14,13 @@ The key distinction is:
 
 > Digital originality is about consequential state, not copy prevention.
 
-**Consequential state** is protocol state that can change what may validly
+In plain language, the important question is not “which physical file is the
+one true copy?” It is “what verifiable history and current state concern this
+exact content?” A copy can reproduce the content, but it cannot create a valid
+issuance, transfer, discharge, or termination event.
+
+**Consequential state** means state that matters to what can happen next. More
+formally, it is protocol state that can change what may validly
 happen next concerning an identified artifact. It can establish or change a
 controller, record a transfer in progress, activate an encumbrance, discharge
 a restriction, delegate authority, or terminate an active lifecycle. It is
@@ -27,6 +33,29 @@ operate, but it does not become authoritative OpenETR state merely because the
 application stores it. Consequential state must be reproducible from portable,
 end-verifiable events under identified protocol rules.
 
+An **end-verifiable event** is a signed record that a recipient can verify
+independently, without calling the application that originally produced it.
+
+## A First Example
+
+Consider a warehouse receipt stored as a PDF:
+
+1. A digest identifies the exact PDF content. That content is the **Digital
+   Artifact**.
+2. A warehouse signs an Anchor record concerning the PDF. Later signed records
+   may transfer it, encumber it, discharge the encumbrance, or terminate its
+   lifecycle. Together those records are the **Digital Controllable Record**.
+3. OpenETR rules validate those records and derive the current
+   **consequential state**.
+4. The PDF, now associated with established consequential state, is a
+   **Digital Original** in the OpenETR technical sense.
+5. A bank, registry, court, or trading partner decides whether to recognize
+   that state and what legal or commercial effect follows.
+
+The PDF may be copied many times. Those copies represent the same
+digest-identified artifact; they do not independently reproduce its signed
+history or state.
+
 ## Digital Artifact, Digital Controllable Record, And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
@@ -37,6 +66,9 @@ A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
 graph of related end-verifiable records through which consequential state
 concerning a Digital Artifact can be established and transitioned. The DCR is
 the signed evidence structure, not the file.
+
+The name is easiest to understand as **the controllable record concerning the
+artifact**, rather than as a description of the artifact itself.
 
 A **Digital Original** is a Digital Artifact for which consequential state has
 been established through a DCR under OpenETR protocol rules.
@@ -54,6 +86,141 @@ new Digital Artifact. Novelty alone does not make it a Digital Original.
 
 > Creation produces a Digital Artifact. Consequential state makes that
 > artifact a Digital Original.
+
+## Concrete Example: An English Gutenberg Reconstruction
+
+Consider a digitized page from the Gutenberg Bible. The Bible was printed in
+Latin in Mainz in the mid-fifteenth century, and digitized page images are now
+available through institutions including the [Library of
+Congress](https://www.loc.gov/item/2021666734/).
+
+Suppose an editor translates the Latin text into English and renders the
+translation using typography and layout intended to preserve the visual
+character of the source page. The resulting image is new. Gutenberg never
+printed this English page. It is neither a scan of an existing physical page
+nor merely another copy of the source image.
+
+Once finalized, the new content is put into canonical form and assigned a
+cryptographic digest:
+
+```text
+Original Gutenberg page
+          |
+          | translate and render
+          v
+   New digital content
+          |
+          | canonicalize and digest
+          v
+   DIGITAL ARTIFACT
+```
+
+The digest establishes the content identity of the new artifact. The image may
+be novel and may be the first representation of its kind, but novelty alone
+does not make it an OpenETR Digital Original.
+
+Now suppose a scholar, library, archive, publisher, or other institution
+examines the artifact and signs this statement:
+
+> This Digital Artifact is an English reconstruction of the identified
+> Gutenberg Bible page, prepared to represent the content and visual
+> experience of that source page.
+
+The signed end-verifiable record references the artifact's digest. It becomes
+the first record in a candidate DCR:
+
+```text
+DIGITAL ARTIFACT
+digest: abc123...
+        |
+        | referenced by
+        v
+SIGNED RECORD
+        |
+        v
+DIGITAL CONTROLLABLE RECORD
+```
+
+The DCR may initially contain only that Anchor record. It may later grow into
+a graph containing attestations, control transfers, restrictions, superseding
+versions, or termination records.
+
+OpenETR rules validate the DCR and derive consequential state concerning the
+artifact. A simplified projection might show:
+
+```text
+artifact       = abc123...
+lifecycle      = active
+controller     = <controller key>
+anchor signer  = <signing key>
+source         = <identified Gutenberg page>
+designation    = English reconstruction
+evidence       = <basis event ids>
+```
+
+This state is not authoritative merely because an application stored it in a
+database. Another conforming application can obtain the artifact and DCR,
+verify the signatures and references, apply the same protocol rules, and
+reproduce the applicable consequential state.
+
+Once consequential state has been established through the valid DCR, the
+artifact is an OpenETR Digital Original in the technical sense:
+
+```text
+NEW DIGITAL CONTENT
+        |
+        v
+DIGITAL ARTIFACT
+uniquely identifiable content
+        |
+        v
+DIGITAL CONTROLLABLE RECORD
+signed end-verifiable evidence
+        |
+        v
+CONSEQUENTIAL STATE
+        |
+        v
+DIGITAL ORIGINAL
+```
+
+The signature proves which key made the statement, what artifact the statement
+concerns, and what was said. It does not prove that the signer is a recognized
+Gutenberg authority. A university might recognize a particular scholar; a
+national library might recognize its curator; another institution might apply
+a different recognition policy.
+
+```text
+Digital Original
+      |
+      | signer and state accepted for a purpose?
+      v
+RECOGNITION
+      |
+      v
+EFFECT
+```
+
+The resulting English image can still be copied freely. Byte-identical copies
+have the same digest and represent the same Digital Artifact:
+
+```text
+Copy A --+
+Copy B --+-- same digest --> DIGITAL ARTIFACT abc123...
+Copy C --+
+```
+
+Making another copy does not create another DCR, controller, or consequential
+history. OpenETR does not make the information scarce; it makes the
+consequential history surrounding its content identity independently
+verifiable.
+
+The distinction can therefore be summarized precisely:
+
+> The translated page is created as a new Digital Artifact. Valid DCR evidence
+> and protocol rules establish consequential state and make it a Digital
+> Original. Recognition determines whether the signer and state are accepted
+> as authoritative for a particular purpose.
 
 ## The Consequential State Pipeline
 
@@ -73,7 +240,7 @@ these layers separate prevents content identity, cryptographic validity,
 protocol state, authority, and legal effect from being mistaken for one
 another.
 
-The pipeline therefore separates six questions that are often blended
+The pipeline therefore separates five questions that are often blended
 together:
 
 | Layer | Question |
@@ -115,7 +282,7 @@ of prior state and what state follows.
 
 This lets an independent verifier ask:
 
-- Which object is involved?
+- Which Digital Artifact is involved?
 - Which events are authentic and structurally valid?
 - Which prior state constrains the next transition?
 - Who controls the object under the applicable rules?

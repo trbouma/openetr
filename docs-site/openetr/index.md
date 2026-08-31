@@ -2,13 +2,35 @@
 
 OpenETR is a general control layer for durable electronic records.
 
+If this is your first encounter with OpenETR, start with one practical
+question: **how can another party determine what happened to a digital record
+without having to trust the application displaying it?** OpenETR answers by
+keeping the identifiable content, the signed evidence, the derived state, and
+external recognition separate.
+
 It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support Digital Artifacts such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
-The protocol construct is the **Digital Controllable Record (DCR)**: one
-end-verifiable record or a graph of related records concerning a Digital
-Artifact. Valid DCR evidence and protocol rules derive consequential state and
-make the artifact a Digital Original. This protocol term is not automatically
-synonymous with a legally recognized controllable electronic record.
+The model can be read from left to right:
+
+```text
+identifiable content
+  -> signed evidence concerning it
+  -> state derived under common rules
+  -> recognition and practical effect
+```
+
+OpenETR calls the identifiable content a **Digital Artifact**. It calls the
+signed evidence a **Digital Controllable Record (DCR)**. A DCR may be one
+independently verifiable signed record or a graph of related records. Valid DCR
+evidence and protocol rules derive consequential state. A Digital Artifact
+with consequential state is a **Digital Original**.
+
+The DCR is not the file, and the word “controllable” does not automatically
+give it legal status. Legal recognition remains a separate question.
+
+For a complete worked example, see the [English Gutenberg reconstruction in
+the Digital Originality
+brief](../policy-briefs/digital-originality.md#concrete-example-an-english-gutenberg-reconstruction).
 
 ## Layered Model
 
