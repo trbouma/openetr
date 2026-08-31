@@ -70,6 +70,7 @@ This is why OpenETR is described as a control layer. It records durable evidence
 | Area | Purpose |
 | --- | --- |
 | [OpenETR Overview](openetr/index.md) | Learn the general control model, wire format, implementation surfaces, and recognition boundary. |
+| [The Three-Part Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Start with a plain-language explanation of Digital Artifacts, Digital Controllable Records, and Digital Originals. |
 | [Digital Originality](policy-briefs/digital-originality.md) | See the model explained through a concrete warehouse-receipt example before reading the technical specifications. |
 | [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over the OpenETR control layer. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
@@ -92,10 +93,11 @@ This is why OpenETR is described as a control layer. It records durable evidence
 | --- | --- |
 | Digital Artifact | Persistent content, such as a document or data artifact, identified by digest. |
 | Digital Controllable Record | One end-verifiable record or a graph of related records concerning a Digital Artifact. |
-| Control Record | A signed OpenETR origin or control event within a DCR. |
+| Control Record | A signed OpenETR lifecycle record within a DCR. |
 | Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Digital Artifact without necessarily transferring control. |
 | Control Graph | The linked control-event portion of a DCR. |
-| Evidence Graph | The broader DCR graph, including origin, control, and linked-evidence records. |
+| Evidence Graph | The broader DCR graph, including Anchor, control, and linked-evidence records. |
+| Digital Original | A Digital Artifact for which consequential state has been established through a valid DCR under OpenETR rules. |
 | Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR control layer underneath. |
 | Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide legal or operational effect. |
 
