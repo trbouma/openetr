@@ -52,7 +52,8 @@ Fourth, ETRs are becoming financing infrastructure. Bills of exchange, promissor
 
 ## OpenETR Implications
 
-OpenETR can help by treating each transferable record as a digest-identified controlled object with a signed control graph.
+OpenETR can help by identifying each transferable record as a Digital Artifact
+and preserving its signed evidence as a DCR graph.
 
 For eBLs, OpenETR can record issuance, transfer, presentation, and surrender events while domain adapters preserve maritime and carrier-specific semantics.
 

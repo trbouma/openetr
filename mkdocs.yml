@@ -63,6 +63,7 @@ nav:
       - Overview: openetr/index.md
       - Control Layer: openetr/control-layer.md
       - Consequential State: openetr/consequential-state.md
+      - Digital Controllable Record: https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md
       - Nostr Wire Format: openetr/wire-format.md
       - Component And CLI: openetr/component-and-cli.md
       - Integration Model: openetr/integration.md

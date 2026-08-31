@@ -10,9 +10,13 @@ This note defines the broader family of **controllable records** and explains ho
 
 It also clarifies a terminology boundary that is important in OpenETR:
 
-- the **Controlled Object** is the artifact, document, file, credential, record bundle, or data object identified by digest;
-- the **Control Graph** is the signed OpenETR event history associated with that object;
-- the **Controllable Record** is the broader conceptual and policy category: the controlled object understood together with its control graph and the recognition context that gives the evidence practical meaning.
+- the **Digital Artifact** is the artifact, document, file, credential, record bundle, or data object identified by digest;
+- the **Digital Controllable Record (DCR)** is one signed end-verifiable record or the graph of related records concerning that artifact;
+- the broader legal or policy category depends on the recognition context and must not be inferred from the DCR name alone.
+
+This note predates the canonical DCR terminology. Where older material uses
+**Controlled Object**, read **Digital Artifact**. Where it refers to the signed
+event structure, read **Digital Controllable Record**.
 
 The goal is to keep OpenETR's broader architecture visible while preserving the OpenETR brand and its connection to electronic transferable records.
 
@@ -26,12 +30,12 @@ An **electronic transferable record** is an important subclass of controllable r
 
 ```mermaid
 flowchart TD
-    CR["Controllable Records<br/>controlled objects plus control graphs evaluated under recognition context"]
+    CR["Controllable Records<br/>Digital Artifacts and DCRs evaluated under recognition context"]
 
     ETR["Electronic Transferable Records<br/>control transfer may have legal or commercial transfer effect"]
     NTR["Non-Transferable Controllable Records<br/>control, stewardship, status, or lifecycle evidence without negotiability"]
     CRED["Credentials And Attestations<br/>claim-centric records used for presentation and reliance"]
-    LER["Linked Evidence Records<br/>supporting artifacts associated with a controlled object"]
+    LER["Linked Evidence Records<br/>supporting artifacts associated with a Digital Artifact"]
     RAR["Registry Or Authority Recognized Records<br/>records whose effect depends on an external rulebook"]
 
     CR --> ETR
@@ -69,22 +73,25 @@ A **controllable record** is not merely the underlying file or artifact.
 
 In OpenETR terms:
 
-- the **Controlled Object** is the record artifact itself, such as a PDF, image, JSON document, credential, registry export, document bundle, product data artifact, certificate, or other canonical electronic artifact;
+- the **Digital Artifact** is the record artifact itself, such as a PDF, image, JSON document, credential, registry export, document bundle, product data artifact, certificate, or other canonical electronic artifact;
 - the object is identified by cryptographic digest;
-- signed OpenETR events about that object are **control records**;
-- the linked set of those events is the object's **control graph**;
+- signed OpenETR events about that artifact are DCR records;
+- the linked set of those events is the DCR graph;
 - recognition policy decides what practical, legal, regulatory, commercial, or operational effect to give the graph.
 
 A **controllable record** is therefore best understood as:
 
 ```text
 Controllable Record
-  = Controlled Object
-  + Control Graph
+  = Digital Artifact
+  + Digital Controllable Record
   + Recognition Context
 ```
 
-The Controlled Object is the artifact at the center of the controllable record. The Control Graph is the signed evidence that makes its control state durable and inspectable. The recognition context is the rulebook, law, registry policy, institutional policy, verifier profile, or relying-party judgment that gives the evidence meaning.
+The Digital Artifact is the content at the center of the model. The DCR is the
+signed evidence from which consequential state is derived. The recognition
+context is the rulebook, law, registry policy, institutional policy, verifier
+profile, or relying-party judgment that gives the derived state meaning.
 
 ### Electronic Transferable Record
 
@@ -121,14 +128,14 @@ A **credential** is usually claim-centric. It records assertions by an issuer ab
 
 Credentials can fit into the controllable-record family in two ways:
 
-- the credential itself may be the Controlled Object;
+- the credential itself may be the Digital Artifact;
 - the credential may be linked evidence or an authority signal that supports recognition of an OpenETR event.
 
 This includes W3C Verifiable Credentials, mobile driver's licenses, role credentials, authority credentials, accreditation credentials, or organization credentials.
 
 ### Linked Evidence Record
 
-A **linked evidence record** is supporting evidence associated with a controlled object or control graph.
+A **linked evidence record** is supporting evidence associated with a Digital Artifact or DCR graph.
 
 Linked evidence may include inspection reports, test results, photographs, repair records, certificates, audit reports, registry extracts, or other records that should remain independently digest-addressed and verifiable.
 
@@ -155,14 +162,14 @@ Instead, it clarifies the layers:
 ```text
 Record family         controllable records
 Domain category       ETRs, non-transferable records, credentials, linked evidence, registry records
-OpenETR control layer controlled objects, control records, control graphs, profiles, policy guards
+OpenETR control layer Digital Artifacts, DCR records and graphs, profiles, policy guards
 Wire format           signed events, kinds, tags, relays, object queries
 Recognition layer     law, contracts, registries, trust frameworks, competent authorities, verifier policy
 ```
 
 OpenETR should remain precise at the control layer:
 
-- identify the controlled object;
+- identify the Digital Artifact;
 - publish signed control records;
 - derive candidate state from the control graph;
 - expose policy guards and warnings;
@@ -200,7 +207,7 @@ Should this verifier rely on it?
 OpenETR is centered on object history:
 
 ```text
-What is the controlled object?
+What is the Digital Artifact?
 Who issued the origin control record?
 What signed events exist for this object?
 Who is the current controller, if any?
@@ -210,7 +217,7 @@ What should a verifier recognize under its policy?
 
 These models are complementary.
 
-A credential may authorize a participant to issue or act on a control graph. A credential may also be the controlled object itself. A verifier may use credentials, registry lookups, or authority attestations as recognition inputs when evaluating the OpenETR graph.
+A credential may authorize a participant to issue or act on a DCR graph. A credential may also be the Digital Artifact itself. A verifier may use credentials, registry lookups, or authority attestations as recognition inputs when evaluating the OpenETR graph.
 
 ## Design Implications
 
@@ -219,7 +226,7 @@ The controllable-record taxonomy suggests several design rules:
 1. OpenETR should not hard-code transfer as the only meaningful lifecycle event.
 2. Transferable-record workflows should remain first-class, but not exclusive.
 3. Non-transferable records should be able to use origin, attestation, linked evidence, lifecycle, and recognition patterns without pretending to be negotiable instruments.
-4. Credentials should be treated as complementary recognition inputs or as specialized controlled objects.
+4. Credentials should be treated as complementary recognition inputs or as specialized Digital Artifacts.
 5. Domain adapters should choose the vocabulary that fits the domain while mapping to the same OpenETR control layer.
 6. Recognition should remain outside the base protocol and should be expressed through policy, registries, trust frameworks, credentials, attestations, or verifier profiles.
 
@@ -231,7 +238,10 @@ The controllable-record taxonomy suggests several design rules:
 
 **Non-transferable controllable records**, **credentials**, **linked evidence records**, and **registry-recognized records** are also part of the broader family because they need durable signed evidence about record identity, lifecycle, authority, status, or recognition.
 
-The Controlled Object should not be treated as synonymous with the Controllable Record. The object is the digest-addressed artifact. The controllable record is the object plus the signed control graph and the recognition context used to evaluate it.
+The Digital Artifact should not be treated as synonymous with the DCR or with
+a legally recognized controllable record. The artifact is digest-addressed
+content; the DCR is signed evidence; recognition determines the applicable
+legal or policy category and effect.
 
 OpenETR can keep its brand focus while making this broader architecture explicit:
 

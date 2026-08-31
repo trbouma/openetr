@@ -10,10 +10,10 @@ Those questions are related, but they should not be collapsed into one applicati
 
 OpenETR is designed as a thin, open control layer for durable electronic records. It identifies a record by cryptographic digest and records signed lifecycle events about that record. The result is an object-centric control graph that can be queried, verified, and interpreted by many different domain systems.
 
-The broader umbrella category is the **controllable record**. In OpenETR, that
-should be understood as a Digital Artifact occupying the Controlled Object
-role, its signed control graph and derived state, plus the recognition context
-used to evaluate it. Electronic transferable records are one important
+The OpenETR protocol construct is the **Digital Controllable Record**: one
+signed end-verifiable record or graph concerning a Digital Artifact. The DCR
+and protocol rules produce derived state; the recognition context determines
+accepted effect. Electronic transferable records are one important
 subclass, but the same control-layer pattern can also support non-transferable
 records, credentials, linked evidence, Product Passports, health records,
 Apostille documents, and authority-recognized records. See the [Controllable
@@ -80,23 +80,22 @@ It lets policymakers and implementers distinguish:
 - records where transfer of control may have legal or commercial effect;
 - records where control means stewardship, authority, status, or lifecycle accountability;
 - credentials and attestations that support recognition of an actor or event;
-- linked evidence records that support a controlled object's history;
+- linked evidence records that support a Digital Artifact's history;
 - registry or authority-recognized records whose effect depends on an external rulebook.
 
 This terminology keeps the layers clean. A **Digital Artifact** is persistent
-content identified by digest. **Controlled Object** is the role that artifact
-occupies as the subject of an OpenETR event graph; the term does not itself
-assert valid state or a current controller. A **Digital Original** is the
-Controlled Object once consequential state can be derived from valid events
-under OpenETR rules. A **Controllable Record** is the broader policy-level
-concept evaluated in a recognition context.
+content identified by digest. A **Digital Controllable Record** is the signed
+evidence record or graph concerning that artifact. A **Digital Original** is
+the Digital Artifact once consequential state has been established through a
+valid DCR under OpenETR rules. Legal and policy categories remain recognition
+questions.
 
 That umbrella framing keeps OpenETR from becoming too narrow. It can remain deeply relevant to electronic transferable records while also providing a general control layer for other durable electronic records.
 
 ## Why An Open Graph
 
-OpenETR treats each Controlled Object as the subject of one or more candidate
-open graphs.
+OpenETR treats each Digital Artifact as the subject of one or more candidate
+DCR graphs.
 
 The graph may include:
 
@@ -124,7 +123,7 @@ What credentials does this holder carry?
 The OpenETR question is:
 
 ```text
-What happened to this controlled object?
+What happened concerning this Digital Artifact?
 ```
 
 Wallets can still be important. A wallet credential may prove identity, authority, regulated status, or eligibility. But those credentials support actions in the graph; they do not replace the graph.

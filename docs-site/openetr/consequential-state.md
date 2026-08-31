@@ -5,21 +5,19 @@ OpenETR is designed around one governing principle:
 > Consequential state should be derived from end-verifiable events, not
 > asserted solely by applications.
 
-## Digital Artifact And Digital Original
+## Digital Artifact, Digital Controllable Record, And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
 identity established by a cryptographic digest. It may exist in many locations
 or byte-for-byte copies; copies with the same digest represent the same Digital
 Artifact.
 
-A **Controlled Object** is the protocol role occupied by a Digital Artifact
-when it is identified as the subject of an OpenETR event graph. It is an
-intermediate role, not a claim that the graph is valid or that a controller has
-been derived.
+A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+graph of related end-verifiable records concerning a Digital Artifact. It is
+the signed evidence structure, not the artifact itself.
 
-A **Digital Original** is a Controlled Object with consequential state
-established through valid OpenETR end-verifiable events and derived under the
-applicable protocol rules.
+A **Digital Original** is a Digital Artifact with consequential state
+established through a valid DCR under the applicable protocol rules.
 
 > Content makes an artifact identifiable. Consequential state makes it an
 > original.
@@ -28,8 +26,8 @@ Copying content does not copy consequential state.
 
 ```text
 Digital Artifact
-  -> Controlled Object
-  -> valid events + OpenETR rules
+  -> Digital Controllable Record
+  -> OpenETR rules
   -> consequential state
   -> Digital Original
 ```

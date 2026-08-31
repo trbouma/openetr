@@ -113,7 +113,7 @@ adapters can add selective disclosure where appropriate.
 
 ## The OpenETR Role
 
-OpenETR gives a digest-identified Digital Artifact the **Controlled Object**
+OpenETR associates a digest-identified Digital Artifact with a **Digital Controllable Record**
 role when it becomes the subject of a candidate event graph. It binds signed
 Anchor, Control, Attestation, and linked-evidence events to that object. The
 role does not itself assert valid consequential state; that state must be
@@ -122,7 +122,7 @@ derived from valid events under OpenETR rules.
 The compact model is:
 
 ```text
-exact artifact -> digest -> Controlled Object -> valid event graph
+exact artifact -> digest -> Digital Controllable Record -> valid event graph
                -> consequential state -> recognition policy
 ```
 

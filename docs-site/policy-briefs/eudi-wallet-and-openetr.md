@@ -30,7 +30,7 @@ That is a powerful model for:
 OpenETR asks a different question:
 
 ```text
-What happened to this controlled object?
+What happened concerning this Digital Artifact?
 ```
 
 OpenETR identifies a record by digest and records signed events about that record.
@@ -69,7 +69,7 @@ OpenETR helps answer the object-history question.
 | Function | EUDI Wallet | OpenETR |
 | --- | --- | --- |
 | Primary focus | Identity, credentials, authentication, selective disclosure, presentation. | Durable records, control records, linked evidence, object history, recognition inputs. |
-| Main unit | Wallet holder and wallet-held credentials. | Controlled Object identified by digest. |
+| Main unit | Wallet holder and wallet-held credentials. | Digital Artifact identified by digest. |
 | Main question | What credentials does this person or organization present? | What signed events exist for this object? |
 | Technical center | Wallet, issuer, verifier, service provider interactions. | Digest, signed events, control graph, evidence graph, verifier policy. |
 | Recognition boundary | Relying party decides whether to accept a presented credential. | Verifier, registry, authority, or relying party decides what effect to give the signed graph. |

@@ -30,7 +30,7 @@ OpenETR records the evidence that a verifier may need later, including outside t
 
 OpenETR is object-centric.
 
-It starts with a controlled object:
+It starts with a Digital Artifact:
 
 ```text
 document, file, JSON artifact, credential, record package
@@ -70,7 +70,7 @@ The graph is portable because the evidence is tied to the object digest and even
 
 A verifier should be able to receive:
 
-- the controlled object or its digest
+- the Digital Artifact or its digest
 - relevant origin and control events
 - linked evidence events
 - signer/profile references

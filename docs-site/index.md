@@ -25,12 +25,11 @@ Many systems solve this by making one platform, registry, wallet, or database th
   </figcaption>
 </figure>
 
-It identifies a document, file, or data artifact by cryptographic digest. The
-Digital Artifact occupies the **Controlled Object** role when it becomes the
-subject of an OpenETR event graph. Signed Anchor, Control, and linked-evidence
-events form candidate graphs that can be queried, verified, and interpreted by
-domain-specific workflows. The role does not itself assert valid state or a
-current controller.
+It identifies a document, file, or data artifact by cryptographic digest.
+Signed Anchor, Control, and linked-evidence events concerning that Digital
+Artifact form a candidate **Digital Controllable Record (DCR)**. OpenETR
+validates that evidence and derives consequential state; domain-specific
+workflows decide how to interpret and recognize it.
 
 OpenETR does not try to become every domain's registry, legal authority, KYC system, wallet, storage service, or compliance engine. It preserves portable signed evidence that those systems can evaluate.
 
@@ -39,8 +38,8 @@ The basic idea is:
 ```text
 record or artifact
   -> digest-identified Digital Artifact
-  -> Controlled Object named by candidate events
-  -> valid event graph and protocol rules
+  -> Digital Controllable Record made of candidate events
+  -> valid DCR and protocol rules
   -> consequential state and Digital Original
   -> domain adapter interprets the graph
   -> recognition layer decides effect
@@ -72,11 +71,12 @@ This is why OpenETR is described as a control layer. It records durable evidence
 
 | Term | Meaning |
 | --- | --- |
-| Controlled Object | The document, file, Product Passport artifact, warehouse receipt, or other record identified by digest. |
-| Control Record | A signed OpenETR origin or control event about a Controlled Object. |
-| Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Controlled Object without necessarily transferring control. |
-| Control Graph | The linked set of origin records and control records for one Controlled Object. |
-| Evidence Graph | The broader linked set of origin records, control records, and linked evidence records for one Controlled Object. |
+| Digital Artifact | Persistent content, such as a document or data artifact, identified by digest. |
+| Digital Controllable Record | One end-verifiable record or a graph of related records concerning a Digital Artifact. |
+| Control Record | A signed OpenETR origin or control event within a DCR. |
+| Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Digital Artifact without necessarily transferring control. |
+| Control Graph | The linked control-event portion of a DCR. |
+| Evidence Graph | The broader DCR graph, including origin, control, and linked-evidence records. |
 | Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR control layer underneath. |
 | Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide legal or operational effect. |
 

@@ -55,7 +55,7 @@ OpenETR preserves durable signed evidence about a record.
 
 At the control layer, OpenETR can show:
 
-- the digest of the controlled object;
+- the digest of the Digital Artifact;
 - the signed origin control record;
 - later signed control records;
 - linked evidence records;
@@ -134,7 +134,7 @@ It requires shared control evidence that can cross institutional boundaries.
 | Trust-framework need | OpenETR contribution |
 | --- | --- |
 | Evidence of what happened | Signed origin, control, and linked evidence records. |
-| Stable object identity | Digest-based Controlled Object identifiers. |
+| Stable object identity | Digest-based Digital Artifact identifiers. |
 | Auditability | Reconstructable control and evidence graphs. |
 | Interoperability | Shared event grammar and object-centric queries. |
 | Registry integration | Registries can recognize profile keys, object digests, event ids, and graph states. |

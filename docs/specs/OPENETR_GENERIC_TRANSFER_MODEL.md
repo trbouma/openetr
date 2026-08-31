@@ -8,13 +8,13 @@ It is intended to describe control over a transferable electronic record in a wa
 - any specific legal recognition regime
 - any specific protocol implementation
 
-OpenETR is not a Recognition Layer system. It does not itself provide ownership, title, contractual rights, priority, mandate, or legal effect. It preserves signed control evidence concerning a Controlled Object and derives consequential state under protocol rules.
+OpenETR is not a Recognition Layer system. It does not itself provide ownership, title, contractual rights, priority, mandate, or legal effect. It preserves a Digital Controllable Record concerning a Digital Artifact and derives consequential state under protocol rules.
 
 ## Purpose
 
 OpenETR is a Control Layer for electronic transferable records.
 
-Its purpose is to make the event history and consequential state of a Controlled Object independently verifiable.
+Its purpose is to make the DCR evidence and consequential state concerning a Digital Artifact independently verifiable.
 
 It does not determine:
 
@@ -28,45 +28,49 @@ Those matters belong to the Recognition Layer.
 
 ## Core Primitives
 
-### Controlled Object
+### Digital Artifact
 
-A **Controlled Object** is the protocol role occupied by a Digital Artifact when
-it is identified as the subject of an OpenETR event graph. The term identifies
-what the events concern; it does not, by itself, establish valid consequential
-state, a current controller, recognition, or effect.
+A **Digital Artifact** is persistent digital content uniquely identified by the
+SHA-256 digest of its canonical representation.
 
-The Controlled Object:
+The Digital Artifact:
 
 - is uniquely identified by the SHA-256 digest of its canonical representation;
 - is the common subject referenced by candidate assertions and Control Events;
 - may have incomplete, invalid, competing, ambiguous, or terminated event
   history; and
-- becomes a Digital Original when valid end-verifiable events and OpenETR rules
-  establish consequential state for it.
+- becomes a Digital Original when a valid DCR and OpenETR rules establish
+  consequential state for it.
+
+### Digital Controllable Record
+
+A **Digital Controllable Record (DCR)** is one end-verifiable record or a graph
+of related end-verifiable records concerning the Digital Artifact. The DCR is
+the control evidence structure, not the artifact itself.
 
 ### Current Controller
 
 For a valid, complete, unambiguous, and active candidate graph, OpenETR rules
 may derive exactly one Participant as the Current Controller. A Controlled
-Object does not necessarily have a derivable Current Controller: the relevant
+Artifact does not necessarily have a derivable Current Controller: the relevant
 event set may be absent, incomplete, invalid, conflicting, or terminated.
 
 The Current Controller has the exclusive ability to:
 
 - transfer control
-- redeem the Controlled Object
+- redeem the Digital Artifact
 - perform other authorized control actions
 
 This is a Control Layer statement only. It does not by itself determine who owns the underlying asset or what legal consequences follow from control.
 
 ### Control Graph
 
-The Control Graph is the portable signed event graph concerning the lifecycle
-of the Controlled Object.
+The Control Graph is the control-event portion of the DCR concerning the
+lifecycle of the Digital Artifact.
 
 - nodes represent Participants
 - directed edges represent authenticated Control Events
-- every event references the Controlled Object
+- every event references the Digital Artifact
 - every event is cryptographically signed by the Participant performing the event
 
 The graph provides evidence from which control state can be derived. A
@@ -104,8 +108,8 @@ exist outside the model.
 
 ### ISSUE
 
-Introduces a Digital Artifact as a Controlled Object and, when valid under the
-applicable OpenETR rules, establishes initial consequential state.
+Creates the first DCR record concerning a Digital Artifact and, when valid
+under the applicable OpenETR rules, establishes initial consequential state.
 
 An ISSUE event:
 
@@ -123,7 +127,7 @@ A TRANSFER event:
 
 ### ATTEST
 
-Adds an authenticated assertion relating to the Controlled Object.
+Adds an authenticated assertion relating to the Digital Artifact.
 
 Examples include:
 
@@ -137,7 +141,7 @@ Attestations do not change the Current Controller.
 
 ### ENCUMBER
 
-Records an authenticated declaration of an encumbrance affecting the Controlled Object.
+Records an authenticated declaration of an encumbrance affecting the Digital Artifact.
 
 Examples include:
 
@@ -159,11 +163,11 @@ Records the authenticated release or satisfaction of a previously declared encum
 
 ### REDEEM
 
-Records that the Current Controller has presented the Controlled Object to the Obligor and requested performance.
+Records that the Current Controller has presented the Digital Artifact to the Obligor and requested performance.
 
 ### TERMINATE
 
-Records that the Obligor has completed performance and that the Controlled Object has reached the end of its lifecycle.
+Records that the Obligor has completed performance and that the Digital Artifact has reached the end of its OpenETR lifecycle.
 
 No further control events may occur after termination.
 
@@ -214,7 +218,7 @@ OpenETR records authenticated facts.
 
 It answers:
 
-- What is the Controlled Object?
+- What is the Digital Artifact and what DCR concerns it?
 - Who is the Current Controller?
 - Who made which authenticated assertions?
 - How has control evolved?
@@ -255,7 +259,7 @@ In some settings, attestation may additionally be required for legal effect, ins
 
 OpenETR should therefore be understood as supporting a spectrum from simplified local recognition, to selective event-level attestation, to fuller attested models designed for broader reliance and recognition.
 
-The same generic model applies regardless of whether the Controlled Object represents:
+The same generic model applies regardless of whether the Digital Artifact represents:
 
 - a warehouse receipt
 - a bill of lading

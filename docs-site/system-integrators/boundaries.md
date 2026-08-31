@@ -53,7 +53,7 @@ It may manage:
 
 OpenETR is a correctness protocol between and beneath those systems.
 
-It helps preserve signed evidence that an action occurred against a particular controlled object.
+It helps preserve signed evidence that an action occurred concerning a particular Digital Artifact.
 
 The distinction is:
 
@@ -70,7 +70,7 @@ OpenETR:
 OpenETR verification can show that:
 
 - an event signature is valid
-- the event references a controlled object digest
+- the event references a Digital Artifact digest
 - the event links to a prior event
 - the graph has a candidate current controller
 - linked evidence exists
@@ -138,4 +138,5 @@ Examples:
 
 The linked evidence may be public, private, encrypted, off-platform, or available only to authorized verifiers.
 
-OpenETR should record enough structured reference material for a verifier to know that the evidence exists and how it relates to the controlled object.
+OpenETR should record enough structured reference material for a verifier to
+know that the evidence exists and how it relates to the Digital Artifact.

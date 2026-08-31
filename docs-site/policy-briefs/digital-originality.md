@@ -27,36 +27,43 @@ operate, but it does not become authoritative OpenETR state merely because the
 application stores it. Consequential state must be reproducible from portable,
 end-verifiable events under identified protocol rules.
 
-## Digital Artifact And Digital Original
+## Digital Artifact, Digital Controllable Record, And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
 identity established by a cryptographic digest. Byte-for-byte copies with the
 same digest represent the same Digital Artifact.
 
-A **Controlled Object** is the protocol role occupied by a Digital Artifact
-when it is identified as the subject of an OpenETR event graph. That role says
-what the events concern; it does not yet claim that valid state or a current
-controller has been established.
+A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+graph of related end-verifiable records through which consequential state
+concerning a Digital Artifact can be established and transitioned. The DCR is
+the signed evidence structure, not the file.
 
-A **Digital Original** is a Controlled Object for which consequential state can
-be derived from valid, end-verifiable events under OpenETR protocol rules.
+A **Digital Original** is a Digital Artifact for which consequential state has
+been established through a DCR under OpenETR protocol rules.
 
 ```text
-Digital Artifact -> identified as graph subject -> Controlled Object
-Controlled Object + valid events + protocol rules = Digital Original
+Digital Artifact -> referenced by -> Digital Controllable Record
+Digital Controllable Record + protocol rules -> consequential state
+Digital Artifact + consequential state -> Digital Original
 ```
 
-![Digital Artifact to Controlled Object to Digital Original](../assets/images/digital-artifact-to-digital-original.svg)
+![Digital Artifact to Digital Controllable Record to Digital Original](../assets/images/digital-artifact-to-digital-original.svg)
+
+Creation, scanning, translation, rendering, or transformation may produce a
+new Digital Artifact. Novelty alone does not make it a Digital Original.
+
+> Creation produces a Digital Artifact. Consequential state makes that
+> artifact a Digital Original.
 
 ## The Consequential State Pipeline
 
 Digital originality does not arise from one cryptographic operation or one
 institutional decision. It emerges through a sequence of distinct layers.
-First, canonical content gives the Digital Artifact a stable identity. Candidate
-events then identify that artifact as the Controlled Object—the subject of the
-OpenETR graph. The events provide portable evidence of what actors attempted or
-asserted. OpenETR rules validate that evidence against prior state and derive
-the consequential state that makes the Controlled Object a Digital Original.
+First, canonical content gives the Digital Artifact a stable identity. One or
+more signed events concerning that artifact form a candidate DCR. Those events
+provide portable evidence of what actors attempted or asserted. OpenETR rules
+validate the DCR against prior state and derive the consequential state that
+makes the artifact a Digital Original.
 
 Recognition and effect come afterward. A verifier, institution, community,
 contract, or jurisdiction decides whether to accept the actor, graph, or
@@ -72,8 +79,7 @@ together:
 | Layer | Question |
 | --- | --- |
 | Artifact | What persistent content is identified? |
-| Controlled Object | Which artifact is the subject of the candidate graph? |
-| Events | What signed actions occurred? |
+| DCR | Which signed record or record graph concerns the artifact? |
 | Consequential state | What state follows under the protocol rules? |
 | Recognition | Who accepts that state, and for what purpose? |
 | Effect | What external consequence follows? |
@@ -82,19 +88,23 @@ The complete relationship is:
 
 ```text
 Digital Artifact
-  -> Controlled Object
-  -> end-verifiable events
+  -> Digital Controllable Record
   -> OpenETR protocol rules
   -> consequential state and Digital Original
   -> recognition
   -> effect
 ```
 
-A candidate Anchor identifies a Digital Artifact as a Controlled Object. A
-valid Anchor processed under OpenETR rules can establish initial consequential
-state and make it a Digital Original. It does not prove that the
+A candidate Anchor is a one-record DCR concerning a Digital Artifact. A valid
+Anchor processed under OpenETR rules can establish initial consequential state
+and make the artifact a Digital Original. It does not prove that the
 signer was uniquely authorized, resolve every competing event, compel a relying
 party to recognize the result, or create legal effect on its own.
+
+A provenance claim such as “I created this artifact” is different from an
+authority claim such as “I certify this artifact for purpose X.” OpenETR makes
+the signer and artifact inspectable. Recognition of the signer's authority is
+separate.
 
 ## What OpenETR Contributes
 
@@ -149,8 +159,8 @@ the corresponding institutional or legal effect.
 Physical licence
   -> scan and stable digest
   -> Digital Artifact
-  -> Controlled Object identified by candidate events
-  -> valid events and protocol rules
+  -> candidate Digital Controllable Record
+  -> valid DCR and protocol rules
   -> Digital Original with consequential state
   -> recognition by a competent verifier
   -> accepted effect
@@ -190,6 +200,9 @@ OpenETR is not a magic originality machine and does not try to prevent copying.
 It gives copied digital content a portable, verifiable history from which
 consequential state can be independently derived.
 
+A copy can reproduce content. It cannot independently reproduce consequential
+state.
+
 The architectural objective is simple:
 
 > Digital Originals should outlive applications.
@@ -197,4 +210,5 @@ The architectural objective is simple:
 ## Related Design Notes
 
 - [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
+- [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [Digital Originality, Control, And Standing](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)

@@ -8,7 +8,7 @@ It is for product data artifacts, compliance evidence, manufacturing metadata, l
 
 In this domain:
 
-- the Product Passport file or data artifact is the **Controlled Object**;
+- the Product Passport file or data artifact is the **Digital Artifact**;
 - the Product Passport digest is the stable object identity;
 - each signed OpenETR origin or control event is a **control record** for that Product Passport;
 - later lifecycle documents can be attached as **linked evidence records**;
@@ -72,7 +72,7 @@ Product Passports and Warehouse Receipts should use the same underlying OpenETR 
 
 | Shared OpenETR Concept | Warehouse Receipts | Product Passports |
 | --- | --- | --- |
-| Controlled Object | Receipt document | Product Passport artifact |
+| Digital Artifact | Receipt document | Product Passport artifact |
 | Origin control record | Initial receipt control evidence | Initial Product Passport control evidence |
 | Linked evidence record | Supporting receipt evidence or attestations | Repair reports, recall notices, lifecycle certificates, audit evidence |
 | Evidence graph | Receipt control and evidence history | Product Passport control and lifecycle evidence history |

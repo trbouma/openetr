@@ -45,12 +45,12 @@ The current OpenETR wire format uses two event families:
 
 ### `1415` Anchor Event
 
-The Anchor Event is the event by which a Controlled Object first enters an OpenETR control graph.
+The Anchor Event is the first candidate DCR record concerning a Digital Artifact.
 
-**Controlled Object** is a protocol-role term: it is the Digital Artifact
-identified by the `o` digest as the subject of the candidate graph. The term
-does not, by itself, assert that the event is valid, that consequential state
-has been derived, or that a current controller, recognition, or effect exists.
+**Digital Controllable Record (DCR)** is the protocol evidence term: it is one
+end-verifiable event or a graph of related events concerning the Digital
+Artifact identified by the `o` digest. A DCR is not the artifact and does not,
+by itself, assert derived or recognized consequential state.
 
 Its current wire-level role is to:
 
@@ -68,7 +68,7 @@ A single object digest may have more than one Anchor Event. Different issuers, s
 
 ### `1416` Control Event Family
 
-The control-event family is used for later control-relevant actions concerning the same Controlled Object.
+The control-event family extends the DCR with later control-relevant actions concerning the same Digital Artifact.
 
 In the current working model, `1416` is a shared action family rather than a single semantic event type.
 
@@ -125,7 +125,7 @@ Readers may display `d` when inspecting legacy events, but new graph reconstruct
 
 ### `o`
 
-`o` is the Controlled Object identifier carried forward across the full object history.
+`o` is the Digital Artifact identifier carried forward across the full DCR history.
 
 In the current model:
 
@@ -252,7 +252,7 @@ Recommended `content` convention:
 
 Control meaning:
 
-- introduces the Controlled Object into the OpenETR scheme
+- creates the first candidate DCR record concerning the Digital Artifact
 - establishes the initial anchored control state
 - establishes the starting point for later control traversal
 
@@ -427,7 +427,11 @@ The `e` tag follows the Nostr convention for event references. In OpenETR, it is
 - for attestations, `e` should point to the specific event being attested
 - for discharges, `enc` identifies the encumbrance being discharged, while `e` links the discharge into the current control chain
 
-This produces an independently verifiable sequence of signed statements about the same controlled object. A verifier can reject events with invalid signatures, inconsistent object identifiers, missing required tags, or broken `e` references without relying on the application that originally displayed the state.
+This produces a DCR: an independently verifiable sequence of signed statements
+about the same Digital Artifact. A verifier can reject events with invalid
+signatures, inconsistent artifact identifiers, missing required tags, or
+broken `e` references without relying on the application that originally
+displayed the state.
 
 Cryptographic control-chain verification is still not the same thing as legal or operational recognition. After the chain is structurally verified, an implementation must apply the relevant recognition profile, domain adapter, policy rules, and applicable law to decide which structurally valid events are effective for a particular purpose.
 

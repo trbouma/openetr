@@ -26,7 +26,7 @@ The current strongest coverage is around:
 - initial Product Passport control-record evidence;
 - linked evidence records for lifecycle documents;
 - durable link and QR-code access to the control graph;
-- optional retrieval of the original controlled object where storage is configured;
+- optional retrieval of the Digital Artifact where storage is configured;
 - basic domain metadata for product name, product id, manufacturer, batch or lot, and description;
 - recognition-boundary documentation.
 

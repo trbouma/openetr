@@ -24,7 +24,7 @@ Those functions are exactly why electronic bills of lading are important in MLET
 
 In an OpenETR eBL domain:
 
-- the eBL artifact or canonical eBL data package is the **Controlled Object**;
+- the eBL artifact or canonical eBL data package is the **Digital Artifact**;
 - the eBL digest is the stable object identity;
 - the issuing profile signs an origin control record;
 - transfer, acceptance, encumbrance, presentation, surrender, cancellation, and termination can be represented as signed control or evidence events;

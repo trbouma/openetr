@@ -84,7 +84,7 @@ Good fabric has reliable properties.
 
 OpenETR's reusable properties are:
 
-- a controlled object can be identified by digest
+- a Digital Artifact can be identified by digest
 - signed events can be independently verified
 - event graphs can be reconstructed from portable records
 - linked evidence can be attached without becoming the main object

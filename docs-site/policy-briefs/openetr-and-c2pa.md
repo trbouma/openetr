@@ -65,8 +65,9 @@ the current controller, lifecycle status, active guards, and other results that
 constrain what may validly happen next.
 
 ```text
-Digital Artifact -> Controlled Object named by candidate events
-Controlled Object + valid events + protocol rules = Digital Original
+Digital Artifact -> Digital Controllable Record made of candidate events
+Digital Controllable Record + protocol rules -> consequential state
+Digital Artifact + consequential state -> Digital Original
 ```
 
 This is the technical OpenETR boundary. Recognition is separate: a relying

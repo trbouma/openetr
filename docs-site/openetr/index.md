@@ -2,19 +2,19 @@
 
 OpenETR is a general control layer for durable electronic records.
 
-It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support other controlled objects such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
+It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support Digital Artifacts such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
-The broader umbrella concept is **controllable records**. A Digital Artifact
-occupies the **Controlled Object** role when it is identified as the subject of
-an OpenETR event graph. Valid events and protocol rules derive consequential
-state and make it a Digital Original. A controllable record is the broader
-policy concept that also includes its graph and recognition context.
+The protocol construct is the **Digital Controllable Record (DCR)**: one
+end-verifiable record or a graph of related records concerning a Digital
+Artifact. Valid DCR evidence and protocol rules derive consequential state and
+make the artifact a Digital Original. This protocol term is not automatically
+synonymous with a legally recognized controllable electronic record.
 
 ## Layered Model
 
 ```text
 Domain adapter         Warehouse Receipts, Product Passports, bills of lading, credentials
-OpenETR control layer  controlled objects, control records, linked evidence records, profiles, state
+OpenETR control layer  Digital Artifacts, DCRs, profiles, derived state
 Nostr wire format      signed events, kinds, tags, relays, event ids
 Recognition layer      law, contracts, registry rules, institutional policy
 ```
@@ -25,7 +25,8 @@ OpenETR sits in the middle. It turns domain actions, document identities, contro
 
 OpenETR defines:
 
-- digest-addressed Digital Artifacts occupying the Controlled Object role;
+- digest-addressed Digital Artifacts;
+- Digital Controllable Records made of signed end-verifiable events;
 - origin events that bring objects into the scheme;
 - control events for transfer, encumbrance, discharge, redemption, termination, and attestation;
 - linked evidence records for supporting documents and lifecycle evidence;
@@ -52,6 +53,7 @@ Those are recognition questions. OpenETR provides the control layer and produces
 ## Source Specs
 
 - [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md)
+- [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)

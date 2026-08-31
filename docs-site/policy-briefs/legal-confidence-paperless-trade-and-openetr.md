@@ -41,7 +41,7 @@ OpenETR is designed around the same functional questions:
 
 | Reliable-system concern | OpenETR evidence |
 | --- | --- |
-| Identify the operative record | SHA-256 digest and Controlled Object identifier |
+| Identify the operative record | SHA-256 Digital Artifact identifier |
 | Detect alteration | Recalculation of the digest over the exact artifact or canonical data package |
 | Evidence control | Signed origin and control events linked in an object-specific graph |
 | Demonstrate current control | Reconstructable candidate controller state under a stated verifier policy |

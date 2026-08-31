@@ -1,17 +1,17 @@
 # Control Layer
 
 The OpenETR control layer interprets signed Nostr events under protocol rules
-to derive consequential state for a controlled object.
+to derive consequential state concerning a Digital Artifact.
 
-## Controlled Object
+## Digital Artifact And Digital Controllable Record
 
-A **Controlled Object** is the protocol role occupied by a Digital Artifact
-when it is identified as the subject of an OpenETR event graph. The artifact is
-identified by a cryptographic digest, normally SHA-256.
+A **Digital Artifact** is the persistent content identified by cryptographic
+digest, normally SHA-256. A **Digital Controllable Record (DCR)** is one signed,
+end-verifiable record or a graph of related records concerning that artifact.
 
-The term identifies what candidate events concern. It does not, by itself,
-establish that those events are valid, that consequential state or a current
-controller can be derived, or that the object is recognized.
+The DCR carries evidence. Its presence does not, by itself, establish that the
+events are valid, that consequential state or a current controller can be
+derived, or that the artifact is recognized.
 
 The object may be:
 
@@ -24,7 +24,7 @@ The object may be:
 OpenETR does not need to parse the object to track its control history. It needs the digest.
 
 When valid end-verifiable events and OpenETR rules establish consequential
-state for the Controlled Object, it becomes a **Digital Original** in the
+state for the Digital Artifact, it becomes a **Digital Original** in the
 technical OpenETR sense.
 
 ## Anchor Event
@@ -61,7 +61,7 @@ Current actions include:
 
 The control graph is reconstructed from signed events:
 
-- `o` identifies the controlled object;
+- `o` identifies the Digital Artifact by digest;
 - `e` links to a prior event;
 - `p` identifies an action-specific participant;
 - `action` identifies the control-event subtype;
@@ -84,3 +84,4 @@ its sole authority. See [Consequential State](./consequential-state.md).
 - [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [State Transition Note](https://github.com/trbouma/openetr/blob/main/docs/specs/STATE-TRANSITION.md)
 - [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
+- [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)

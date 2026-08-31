@@ -22,20 +22,20 @@ its sole authority:
 
 > Applications interpret consequential state; they do not own it.
 
-## Digital Artifacts And Digital Originals
+## Digital Artifacts, Controllable Records, And Digital Originals
 
 A **Digital Artifact** is persistent digital content having a unique content
 identity established by a cryptographic digest. It may exist in any number of
 locations or byte-for-byte copies. Copies with the same protocol-defined digest
 represent the same Digital Artifact.
 
-A **Controlled Object** is the protocol role occupied by a Digital Artifact
-when it is identified as the subject of an OpenETR event graph. This role does
-not itself assert valid state, a current controller, recognition, or effect.
+A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+graph of related end-verifiable records through which consequential state
+concerning a Digital Artifact can be established and transitioned. A DCR is
+the protocol evidence structure, not the file or content that it concerns.
 
-A **Digital Original** is a Controlled Object for which OpenETR can derive
-consequential state from a relevant set of valid, end-verifiable events under
-the applicable protocol rules.
+A **Digital Original** is a Digital Artifact for which consequential state has
+been established through a DCR under the applicable protocol rules.
 
 This is a technical architecture definition. It does not claim that an
 external institution, community, contract, or jurisdiction must recognize the
@@ -61,6 +61,57 @@ Consequential state may concern:
 Copying content does not copy or alter consequential state. A byte-for-byte
 copy with the same digest represents the same Digital Artifact, but possession
 of the copy does not create a new controller or valid state transition.
+
+The canonical relationship is:
+
+```text
+DIGITAL ARTIFACT
+uniquely identifiable content
+        |
+        | referenced by
+        v
+DIGITAL CONTROLLABLE RECORD
+single record or record graph
+        |
+        | derives
+        v
+CONSEQUENTIAL STATE
+        |
+        | establishes
+        v
+DIGITAL ORIGINAL
+```
+
+Creation, scanning, translation, rendering, or transformation may produce a
+new Digital Artifact. Novelty alone does not make it a Digital Original:
+
+> Creation produces a Digital Artifact. Consequential state makes that
+> artifact a Digital Original.
+
+A creator may make a provenance claim such as “I created this artifact.” An
+issuer or other authority may make a different claim such as “I certify this
+artifact as authoritative for purpose X.” OpenETR establishes who signed the
+claim and which artifact it concerns. Recognition of the signer's standing or
+authority remains a separate determination.
+
+## Digital Controllable Record
+
+A DCR may consist of:
+
+- one end-verifiable record;
+- multiple related records; or
+- a directed graph of control, transfer, encumbrance, discharge, provenance,
+  delegation, termination, or related events.
+
+The graph is evidence. Current consequential state is derived from the valid
+DCR graph. The DCR therefore sits between content identity and state; it must
+not be used as a synonym for the Digital Artifact itself.
+
+**Digital Controllable Record** is an OpenETR protocol term. It is not legally
+synonymous with a **Controllable Electronic Record (CER)** under UCC Article
+12. A DCR may qualify as a CER, electronic transferable record, negotiable
+cargo document, or another legally recognized record only where the applicable
+legal requirements are satisfied.
 
 ## End-Verifiable Events
 
@@ -229,8 +280,8 @@ OpenETR should distinguish:
 | Layer | Responsibility |
 | --- | --- |
 | Artifact Layer | Establish the unique content identity of persistent digital content. |
-| Event Layer | Carry signed evidence concerning the artifact and transitions affecting it. |
-| State Layer | Derive consequential state according to versioned OpenETR rules. |
+| DCR Layer | Carry the signed, end-verifiable record or record graph concerning the artifact. |
+| State Layer | Derive consequential state from the valid DCR according to versioned OpenETR rules. |
 | Recognition Layer | Determine which actors, graphs, objects, or states are accepted for a purpose. |
 | Effect Layer | Apply legal, institutional, contractual, community, or operational consequences. |
 
@@ -242,11 +293,11 @@ UNIQUE CONTENT
       v
 DIGITAL ARTIFACT
       |
-      | identified as event-graph subject
+      | referenced by
       v
-CONTROLLED OBJECT
+DIGITAL CONTROLLABLE RECORD
       |
-      | valid end-verifiable events + protocol rules
+      | protocol rules derive
       v
 CONSEQUENTIAL STATE
       |
@@ -341,6 +392,18 @@ Future OpenETR specifications and reviews should:
   and
 - test that independent implementations derive equivalent state from the same
   event set.
+
+For every feature, reviewers should also ask:
+
+1. What is the Digital Artifact and which digest identifies it?
+2. What DCR record or graph establishes the relevant state?
+3. Who is authorized to produce those records, and what prior state constrains
+   the transition?
+4. Can another implementation reproduce the same state and trace it to
+   inspectable evidence?
+5. Is recognition being confused with protocol state?
+6. Would the consequential state survive if the originating application
+   disappeared?
 
 ## Related Notes
 

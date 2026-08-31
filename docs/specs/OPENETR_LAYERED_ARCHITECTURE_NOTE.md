@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       controlled objects, control records, control graphs, profiles, state
+OpenETR control       Digital Artifacts, DCRs, profiles, derived state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -44,25 +44,23 @@ It does not decide whether a warehouse receipt is legally valid, whether a trans
 
 OpenETR is the control layer above the wire format.
 
-It interprets signed events as control records for a Controlled Object.
+It interprets signed events as a DCR concerning a Digital Artifact.
 
-A **Controlled Object** is the protocol role occupied by a digest-identified
-Digital Artifact when it is the subject of an OpenETR event graph. The term
-does not itself assert that the graph is valid or that a current controller has
-been derived. A **control record** is one signed OpenETR event about that
-object. The linked set of Anchor and Control Events is its candidate control
-graph.
+A **Digital Controllable Record (DCR)** is one end-verifiable record or a graph
+of related records concerning a digest-identified Digital Artifact. It is the
+protocol evidence structure, not the artifact itself. A linked set of Anchor
+and Control Events is a candidate DCR graph.
 
-This is distinct from a **Digital Original**, which is a Controlled Object for
-which valid end-verifiable events and OpenETR rules establish consequential
-state. It is also distinct from the broader policy category of a
-**controllable record**. The Controlled Object identifies the protocol subject;
-the graph is durable signed evidence; derived state makes it a Digital
-Original; and recognition determines what effect, if any, follows.
+This is distinct from a **Digital Original**, which is a Digital Artifact for
+which valid DCR evidence and OpenETR rules establish consequential state. The
+artifact identifies the content; the DCR is durable signed evidence; derived
+state makes the artifact a Digital Original; and recognition determines what
+effect, if any, follows.
 
 At this layer, OpenETR defines:
 
-- Controlled Objects identified by cryptographic digest
+- Digital Artifacts identified by cryptographic digest
+- DCRs formed from signed end-verifiable records
 - origin control records that bring an object into the OpenETR scheme
 - later control records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity

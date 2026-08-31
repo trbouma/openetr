@@ -694,7 +694,7 @@ def query_etr(
     json_output: bool,
     debug: bool,
 ) -> None:
-    """Query a controlled object and display its control graph."""
+    """Query a Digital Artifact and display its candidate DCR graph."""
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
     if digest is not None and digest_file is not None:

@@ -31,7 +31,7 @@ Each of the events in this note is a `kind 1416` event.
 
 They follow the same general pattern:
 
-- `o` identifies the Controlled Object
+- `o` identifies the Digital Artifact
 - `e` links the event to the current control chain
 - `action` identifies the event type
 
@@ -104,7 +104,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 ### Purpose
 
-`TERMINATE` records termination of the active OpenETR lifecycle for the Controlled Object.
+`TERMINATE` records termination of the active OpenETR lifecycle concerning the Digital Artifact.
 
 ### Minimum Shape
 
@@ -123,7 +123,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 ### Purpose
 
-`ATTEST` records an authenticated assertion relating to the Controlled Object.
+`ATTEST` records an authenticated assertion relating to the Digital Artifact.
 
 The attestation should reference the specific prior event being attested.
 
@@ -161,7 +161,7 @@ An attestation does not change the Current Controller.
 
 ### Purpose
 
-`ENCUMBER` records an authenticated declaration of an encumbrance affecting the Controlled Object.
+`ENCUMBER` records an authenticated declaration of an encumbrance affecting the Digital Artifact.
 
 Examples may include:
 
@@ -220,9 +220,9 @@ This event should identify the encumbrance event being discharged.
 
 ### Purpose
 
-`REDEEM` records that the Current Controller has presented the Controlled Object to the Obligor and requested performance.
+`REDEEM` records that the Current Controller has presented the Digital Artifact to the Obligor and requested performance.
 
-`REDEEM` does not itself terminate the Controlled Object.
+`REDEEM` does not itself terminate the Digital Artifact's OpenETR lifecycle.
 
 ### Minimum Shape
 
@@ -239,7 +239,7 @@ This event should identify the encumbrance event being discharged.
 
 ### Control Effect
 
-- conceptually moves the Controlled Object into a redemption-pending state
+- conceptually moves the Digital Artifact's derived state into a redemption-pending state
 - does not itself terminate the object
 - does not by itself change the Current Controller unless a later policy layer says otherwise
 
@@ -247,7 +247,7 @@ This event should identify the encumbrance event being discharged.
 
 The minimum convention in this note is:
 
-- `o` finds all candidate graph events for the Controlled Object
+- `o` finds all candidate DCR events for the Digital Artifact
 - `e` links each non-anchor graph event to the exact prior event id
 - `action` identifies how the event should be interpreted
 - action-specific tags such as `p`, `enc`, `type`, and `ref` provide signed structured event data

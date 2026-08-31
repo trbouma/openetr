@@ -38,7 +38,7 @@ But digital systems are increasingly doing more than moving information. AI agen
 
 That shift exposes questions that the older vocabulary was not designed to keep separate.
 
-OpenETR fits this moment because it does not claim to be the final architecture. It offers a sharper vocabulary for one family of concerns: controllable records, controlled objects, control records, control graphs, linked evidence, and recognition context.
+OpenETR fits this moment because it does not claim to be the final architecture. It offers a sharper vocabulary for one family of concerns: Digital Artifacts, Digital Controllable Records, consequential state, linked evidence, and recognition context.
 
 ## The Core Insight
 
@@ -106,7 +106,7 @@ OpenETR is primarily concerned with **control** and **evidence**.
 It asks:
 
 ```text
-What is the controlled object?
+What is the Digital Artifact and which DCR concerns it?
 What signed events exist for that object?
 Who signed them?
 How do they link?
@@ -130,7 +130,7 @@ It should not absorb identity, intent, and recognition into itself just because 
 | --- | --- |
 | Identity | OpenETR profile keys sign events. Profiles may be linked to NIP-05 identifiers, published profiles, known entities, credentials, registries, or trust-framework signals. OpenETR can show which key signed, but external policy decides whether that identity is recognized. |
 | Intent | OpenETR events can carry actions, tags, comments, references, and domain metadata that express what the signer intended to do. Domain adapters and workflow systems provide the user-facing intent capture. |
-| Control | OpenETR's central contribution is object-centric control evidence. It derives candidate controller and lifecycle state from the signed control graph for a digest-identified Controlled Object. |
+| Control | OpenETR's central contribution is artifact-centric control evidence. It derives candidate controller and lifecycle state from the DCR graph concerning a digest-identified Digital Artifact. |
 | Evidence | OpenETR creates cryptographically self-contained signed events. Event ids, signatures, object digests, graph links, relay results, and linked evidence records can be independently inspected. |
 | Recognition | OpenETR does not decide final effect. Laws, contracts, registries, courts, competent authorities, trust frameworks, verifier policies, and relying parties decide what the evidence means. |
 
@@ -146,20 +146,20 @@ In OpenETR:
 
 ```text
 Controllable Record
-  = Controlled Object
-  + Control Graph
+  = Digital Artifact
+  + Digital Controllable Record
   + Recognition Context
 ```
 
 The **Digital Artifact** is the persistent content: a document, file, Product
 Passport, warehouse receipt, credential, certificate, registry export, data
-bundle, or other digest-addressed record. **Controlled Object** is the protocol
-role it occupies when it becomes the subject of an OpenETR event graph. This
-does not, by itself, assert valid consequential state or a current controller.
+bundle, or other digest-addressed record. A **Digital Controllable Record** is
+the signed record or graph concerning that artifact. Its presence does not, by
+itself, assert derived consequential state or a current controller.
 
 The **Control Graph** is the signed event history around that object. Valid
 events and OpenETR rules derive consequential state; that is what makes the
-Controlled Object a Digital Original.
+Digital Artifact a Digital Original.
 
 The **Recognition Context** is the legal, institutional, contractual, registry, or verifier-policy setting that decides effect.
 

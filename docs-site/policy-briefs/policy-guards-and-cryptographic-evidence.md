@@ -49,7 +49,7 @@ OpenETR's base contribution is durable cryptographic evidence.
 
 At the evidence layer, OpenETR can show:
 
-- the digest of the controlled object;
+- the digest of the Digital Artifact;
 - the origin record that introduced the object into the graph;
 - the profile key that signed each event;
 - the control records linked to the object;

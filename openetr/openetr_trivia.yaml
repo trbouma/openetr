@@ -29,7 +29,7 @@ facts:
   - "MLWR focuses on warehouse receipts, including issuance, transfer, holders, protected holders, storage agreements, and warehouse operator obligations."
   - "MLWR treats warehouse receipts as records that may be paper-based or electronic, depending on the applicable implementation."
   - "In an OpenETR integration, MLWR-style rules belong in a domain adapter and recognition policy rather than in the base wire format."
-  - "OpenETR can represent an electronic warehouse receipt as a controlled object identified by the digest of the receipt record."
+  - "OpenETR can identify an electronic warehouse receipt as a Digital Artifact and represent its signed evidence as a Digital Controllable Record."
   - "Under an MLWR-style profile, warehouse receipt terms such as depositor, holder, warehouse operator, protected holder, and goods map onto generic OpenETR profiles, participants, control events, and recognition rules."
   - "MLWR recognition questions include warehouse operator authority, goods custody, protected-holder status, security rights, priority, delivery obligations, and local-law effect."
   - "MLETR is positioned as a building block for paperless trade."

@@ -102,7 +102,7 @@ Read:
 
 ## Implementation Checklist
 
-- identify the controlled object and canonicalization rule
+- identify the Digital Artifact and canonicalization rule
 - decide where content is stored
 - define which actions require OpenETR events
 - map domain actors to OpenETR profile signers

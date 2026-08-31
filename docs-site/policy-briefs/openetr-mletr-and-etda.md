@@ -67,7 +67,7 @@ The better approach is layered:
 
 ```text
 OpenETR core:
-  controlled objects, signed events, control graphs, linked evidence
+  Digital Artifacts, DCRs, derived state, linked evidence
 
 MLETR alignment:
   default international functional-equivalence orientation
@@ -82,7 +82,7 @@ OpenETR can provide technical evidence for the functions that MLETR and ETDA car
 
 | Legal Concern | OpenETR Contribution |
 | --- | --- |
-| Identification | digest-identified Controlled Object and signed origin event |
+| Identification | digest-identified Digital Artifact and signed Anchor record |
 | Integrity | recomputable hash, signed events, prior-event references, linked evidence |
 | Control | object-specific control graph and candidate current-controller derivation |
 | Exclusive control | verifier policy that recognizes only one current controller path |

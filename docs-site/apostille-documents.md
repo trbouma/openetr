@@ -8,7 +8,7 @@ Under the HCCH Apostille Convention, Apostilles are issued and verified by desig
 
 ## How OpenETR Could Fit
 
-OpenETR could treat an apostilled document package as a **Controlled Object**.
+OpenETR could identify an apostilled document package as a **Digital Artifact**.
 
 That package might include:
 
@@ -28,7 +28,7 @@ In an OpenETR model, a Competent Authority should be treated as the **issuer of 
 
 That means:
 
-- the **Controlled Object** is the document package being apostilled;
+- the **Digital Artifact** is the document package being apostilled;
 - the **Competent Authority** is a trusted issuer or controller identity;
 - the **Apostille** is an authority attestation over the document package, its digest, or both;
 - the **recognition rule** says that attestations from this authority, for this jurisdiction and document class, are accepted as Apostille evidence.
@@ -91,7 +91,7 @@ Legal recognition remains with the relevant authority, law, treaty framework, re
 
 | OpenETR Concept | Apostille Documents Mapping |
 | --- | --- |
-| Controlled Object | Apostilled document bundle, e-Apostille package, notarized/certified document package, or related verification artifact. |
+| Digital Artifact | Apostilled document bundle, e-Apostille package, notarized/certified document package, or related verification artifact. |
 | Origin control record | Initial OpenETR record for the package digest. |
 | Control graph | Linked evidence about authority, provenance, registry references, verification, replacement, or warnings. |
 | Recognition layer | Apostille Convention rules, Competent Authority practice, e-Register checks, local law, court or agency policy, and relying-party verification rules. |

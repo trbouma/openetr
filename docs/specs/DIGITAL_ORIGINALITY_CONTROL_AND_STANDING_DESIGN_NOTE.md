@@ -37,7 +37,7 @@ This gives five separate layers:
 | Layer | Question | Example |
 | --- | --- | --- |
 | Artifact | What exact persistent content is identified? | A PDF, scan, JSON document, image, or structured record identified by digest. |
-| Events | What signed transition evidence exists? | Anchor, transfer, encumber, discharge, terminate. |
+| DCR | What signed record or record graph exists? | Anchor, transfer, encumber, discharge, terminate. |
 | Consequential state | What state follows when protocol rules are applied to the valid event set? | Current controller, active guards, lifecycle state, candidate branches. |
 | Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
 | Effect | What consequence follows from recognized state? | Treated as an authoritative copy, transferable record, official record, or evidentiary record. |
@@ -55,21 +55,21 @@ referenced, transmitted, or rendered without those operations changing its
 identity or consequential state. Byte-for-byte copies with the same digest
 represent the same Digital Artifact.
 
-### Controlled Object
+### Digital Controllable Record
 
-A Controlled Object is the protocol role occupied by a Digital Artifact when
-it is identified as the subject of an OpenETR event graph. The term describes
-what the candidate events concern. It does not, by itself, establish valid
-consequential state, a current controller, recognition, or effect.
+A Digital Controllable Record (DCR) is one end-verifiable record or a graph of
+related end-verifiable records through which consequential state concerning a
+Digital Artifact can be established and transitioned. It is the signed
+protocol evidence structure, not the artifact itself.
 
-Controlled Object is the preferred protocol term. Specifications and domain
-adapters should not introduce a second synonym for this intermediate role.
+Digital Controllable Record is the preferred protocol term for this evidence
+layer. It is not a synonym for the file or for a legally recognized
+Controllable Electronic Record under UCC Article 12.
 
 ### Digital Original
 
-A Digital Original is a Controlled Object for which consequential state can be
-derived from a relevant set of valid end-verifiable events under the applicable
-OpenETR protocol rules.
+A Digital Original is a Digital Artifact for which consequential state has
+been established through a valid DCR under the applicable OpenETR rules.
 
 This is a technical architecture term. A **recognized Digital Original** is a
 Digital Original whose actor, graph, object, or derived state has also been
@@ -274,7 +274,7 @@ For example, a verifier may recognize a licensing authority as authoritative for
 
 ### Standing
 
-Standing is status asserted or derived for the controlled object. A relying
+Standing is status asserted or derived for the Digital Artifact. A relying
 party's recognition context determines whether it accepts that standing and
 the applicable rules determine its effect.
 
@@ -303,9 +303,8 @@ effect path:
 
 ```text
 Digital Artifact
-  -> identified as the subject of candidate OpenETR events
-  -> Controlled Object
-  -> valid end-verifiable events and OpenETR rules
+  -> Digital Controllable Record
+  -> OpenETR protocol rules
   -> Consequential state
   -> Digital Original
   -> Recognition
@@ -339,8 +338,7 @@ The sequence is:
 Physical licence
   -> Scan
   -> Digital Artifact
-  -> Anchor
-  -> Controlled Object
+  -> candidate Digital Controllable Record (Anchor)
   -> Digital Original
   -> Recognition by competent authority
   -> Recognized standing and effect
@@ -429,10 +427,9 @@ The following language can be reused in future specs:
 identity established by a cryptographic digest. Byte-for-byte copies with the
 same digest represent the same Digital Artifact.
 
-**Controlled Object:** The protocol role occupied by a Digital Artifact when it
-is identified as the subject of an OpenETR event graph. The term does not, by
-itself, assert valid consequential state, a current controller, recognition, or
-effect.
+**Digital Controllable Record:** One end-verifiable record or a graph of
+related end-verifiable records through which consequential state concerning a
+Digital Artifact can be established and transitioned.
 
 **Control Layer:** An expressive grammar for describing control state, governing valid state transitions, and establishing or removing guards upon those transitions, independent of any particular technical binding.
 
@@ -440,9 +437,8 @@ effect.
 
 **Transition Guard:** A condition arising from the current control state that determines whether a proposed control-state transition is valid.
 
-**Digital Original:** A Controlled Object for which consequential state can be
-derived from a relevant set of valid end-verifiable events under applicable
-OpenETR protocol rules.
+**Digital Original:** A Digital Artifact for which consequential state has
+been established through a valid DCR under applicable OpenETR protocol rules.
 
 **Consequential State:** Protocol state derived from end-verifiable events that
 is capable of affecting control, authority, rights, obligations, restrictions,
@@ -456,14 +452,14 @@ stated purpose.
 
 **Effect:** The consequence that law, policy, contract, institutional rules, community governance, or another recognition regime gives to a recognized object, state, or action.
 
-**Relinquishment:** A party giving up a recognized claim, right, position, or control-related status associated with a controlled object.
+**Relinquishment:** A party giving up a recognized claim, right, position, or control-related status associated with a Digital Artifact.
 
 ## Open Questions
 
 - Which existing documents and implementation terms should be migrated from Original Event to Anchor Event?
 - How should public material distinguish the technical term Digital Original from a recognized Digital Original in a specific domain?
 - How should verifier interfaces visually distinguish protocol validity from recognized standing?
-- How should domain adapters express the recognition regime that gives a controlled object standing?
+- How should domain adapters express the recognition regime that gives a Digital Original standing?
 - Which state variables in each domain profile pass the Consequential State Architecture design rule?
 - Which domain profiles require an explicit surrender operation, and which should model relinquishment through existing transfer, discharge, or terminate transitions?
 
