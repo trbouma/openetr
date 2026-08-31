@@ -68,7 +68,10 @@ What concern is this technology actually trying to address?
 
 That is different from asking where a technology fits in a stack.
 
-A technology may be strong at identity and weak at evidence. Another may be strong at recognition inside one rulebook and weak at portability. Another may provide a reliable object-control graph while intentionally leaving identity recognition and legal effect to other systems.
+A technology may be strong at identity and weak at evidence. Another may be
+strong at recognition inside one rulebook and weak at portability. Another may
+provide reliable DCR evidence and state derivation while intentionally leaving
+identity recognition and legal effect to other systems.
 
 This distinction helps explain why apparently competing standards may actually be illuminating different parts of the same problem.
 
@@ -89,7 +92,7 @@ That scenario immediately raises the five questions:
 | --- | --- |
 | Identity | Who are the people, organizations, systems, and agents participating? |
 | Intent | What has each actor or agent been authorized to accomplish? |
-| Control | Who currently controls the electronic bill of lading or related controllable record? |
+| Control | What control state can be derived for the electronic bill of lading or related Digital Artifact? |
 | Evidence | What will convince a court, auditor, bank, customs authority, or trading partner later? |
 | Recognition | What legal, contractual, regulatory, or institutional consequence follows from each event? |
 
@@ -118,7 +121,9 @@ OpenETR does not try to be the whole digital trust stack.
 
 It does not replace identity wallets, registries, trust frameworks, competent authorities, legal rulebooks, enterprise account systems, or domain platforms.
 
-Instead, it supplies a connective control fabric: digest identifiers, signed control records, linked evidence records, control graphs, and verifier outputs that can be used by other systems.
+Instead, it supplies a connective control fabric: Digital Artifact digests,
+signed DCR evidence, linked evidence, derived state, and verifier outputs that
+can be used by other systems.
 
 That is exactly why OpenETR should remain narrow.
 
@@ -138,17 +143,16 @@ This mapping keeps OpenETR disciplined.
 
 It can be very strong at control and evidence without pretending to answer every identity, intent, or recognition question by itself.
 
-## Controllable Records Framing
+## Artifact, DCR, State, And Recognition
 
-The five-centres model also clarifies the emerging OpenETR terminology around **controllable records**.
+The five-centres model also clarifies why OpenETR keeps content, evidence,
+state, and recognition separate.
 
 In OpenETR:
 
 ```text
-Controllable Record
-  = Digital Artifact
-  + Digital Controllable Record
-  + Recognition Context
+Digital Artifact -> Digital Controllable Record -> consequential state
+consequential state -> recognition -> effect
 ```
 
 The **Digital Artifact** is the persistent content: a document, file, Product
@@ -157,8 +161,8 @@ bundle, or other digest-addressed record. A **Digital Controllable Record** is
 the signed record or graph concerning that artifact. Its presence does not, by
 itself, assert derived consequential state or a current controller.
 
-The **Control Graph** is the signed event history around that object. Valid
-events and OpenETR rules derive consequential state; that is what makes the
+The DCR graph is the signed event history concerning the artifact. Valid DCR
+records and OpenETR rules derive consequential state; that is what makes the
 Digital Artifact a Digital Original.
 
 The **Recognition Context** is the legal, institutional, contractual, registry, or verifier-policy setting that decides effect.
@@ -171,7 +175,10 @@ The five centres help show why those pieces should not be collapsed:
 - evidence asks what can be independently verified;
 - recognition asks what consequence follows.
 
-An electronic transferable record is one important kind of controllable record. But Product Passports, health records, Apostille documents, credentials, linked evidence records, and authority-recognized records can also fit the broader pattern.
+An electronic transferable record is one important application of the model.
+Product Passports, health records, Apostille documents, credentials, linked
+evidence records, and authority-recognized records can also fit the broader
+pattern without being treated as legally transferable instruments.
 
 ## Why OpenETR Should Stay Behind The Scenes
 

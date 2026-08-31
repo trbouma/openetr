@@ -10,12 +10,13 @@ OpenETR plays a similar role for durable electronic records.
 
 It supplies a reusable control-and-evidence material:
 
-- digest-based object identity
+- digest-based Digital Artifact identity
 - signed events
-- control graphs
+- Digital Controllable Records (DCRs)
+- reproducible consequential-state derivation
 - linked evidence
 - profile-backed attribution
-- object-centric retrieval
+- artifact-centric retrieval
 - verifier-policy warnings
 - portable proof that can move across systems
 
@@ -59,7 +60,7 @@ Or, more technically:
 
 ```text
 OpenETR:
-common signed control and evidence substrate
+common artifact, DCR, and state-derivation substrate
 
 Domain adapter:
 domain vocabulary, workflows, validation, roles, statuses, and presentation
@@ -86,7 +87,8 @@ OpenETR's reusable properties are:
 
 - a Digital Artifact can be identified by digest
 - signed events can be independently verified
-- event graphs can be reconstructed from portable records
+- DCR graphs can be reconstructed from portable signed records
+- consequential state can be derived under explicit protocol rules
 - linked evidence can be attached without becoming the main object
 - profile keys can attribute actions
 - different verifiers can apply different recognition policies to the same evidence
@@ -111,7 +113,9 @@ OpenETR likewise does not decide:
 
 Those are domain and recognition questions.
 
-OpenETR gives the record a durable evidence structure. It does not decide every rule that gives the record effect.
+OpenETR gives the Digital Artifact a durable DCR evidence structure and derives
+its consequential state. It does not decide every rule that gives that state
+legal, institutional, or commercial effect.
 
 ## Domain Adapter Role
 

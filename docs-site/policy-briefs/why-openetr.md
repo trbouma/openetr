@@ -8,7 +8,11 @@ OpenETR exists because many important records are becoming digital, but the digi
 
 Those questions are related, but they should not be collapsed into one application, one database, one wallet, one registry, or one legal rulebook.
 
-OpenETR is designed as a thin, open control layer for durable electronic records. It identifies a record by cryptographic digest and records signed lifecycle events about that record. The result is an object-centric control graph that can be queried, verified, and interpreted by many different domain systems.
+OpenETR is designed as a thin, open control layer for durable electronic
+records. It identifies a Digital Artifact by cryptographic digest and records
+signed lifecycle evidence about that artifact as a Digital Controllable Record.
+Protocol rules derive consequential state from the valid DCR; many different
+domain systems can then interpret and recognize that state.
 
 The OpenETR protocol construct is the **Digital Controllable Record**: one
 signed end-verifiable record or graph concerning a Digital Artifact. The DCR
@@ -48,9 +52,9 @@ OpenETR separates the control problem from the recognition problem.
 
 At the control layer, OpenETR asks:
 
-- What object is being controlled?
-- Which signed event created the object record?
-- Which signed events changed or annotated its state?
+- What Digital Artifact is the subject of the record?
+- Which signed Anchor record began the candidate DCR?
+- Which signed records changed or annotated its candidate state?
 - Who is the current controller under a selected policy?
 - What evidence supports that conclusion?
 
@@ -67,13 +71,14 @@ This separation is the central rationale of the project.
 
 OpenETR preserves durable signed evidence. Recognition frameworks decide what effect to give that evidence.
 
-## Why Controllable Records
+## Why The Model Extends Beyond Transferable Records
 
 Not every important electronic record is transferable.
 
 Some records need exclusive control and transfer, such as warehouse receipts, bills of lading, or promissory notes. Other records need durable lifecycle evidence without negotiability, such as Product Passports, health records, certificates, Apostille documents, permits, or compliance artifacts. Credentials add another pattern: they may be claim-centric records in their own right, or they may help prove that an actor is authorized to sign an OpenETR event.
 
-The concept of a controllable record gives OpenETR a broader policy vocabulary.
+The Artifact/DCR/state model gives OpenETR a broader policy vocabulary without
+assuming that every record is negotiable or legally controllable.
 
 It lets policymakers and implementers distinguish:
 
@@ -90,7 +95,9 @@ the Digital Artifact once consequential state has been established through a
 valid DCR under OpenETR rules. Legal and policy categories remain recognition
 questions.
 
-That umbrella framing keeps OpenETR from becoming too narrow. It can remain deeply relevant to electronic transferable records while also providing a general control layer for other durable electronic records.
+That framing keeps OpenETR from becoming too narrow. It can remain deeply
+relevant to electronic transferable records while also providing a general
+control layer for other durable electronic records.
 
 ## Why An Open Graph
 
@@ -99,7 +106,7 @@ DCR graphs.
 
 The graph may include:
 
-- an origin control record
+- an Anchor record
 - transfer events
 - attestation events
 - encumbrance and discharge events
@@ -112,7 +119,8 @@ This is different from a digital wallet model.
 
 A digital wallet is primarily a credential container. It holds credentials for a person or organization and helps the holder present selected claims to relying parties.
 
-OpenETR is not mainly a container. It is a shared evidentiary graph about an object.
+OpenETR is not mainly a container. It is a shared DCR evidence structure about
+a Digital Artifact.
 
 The wallet question is:
 
@@ -159,9 +167,8 @@ A warehouse receipt platform should not have to replace its receipt workflow. A 
 
 Instead, OpenETR can generate self-contained identifiers and signed events around the record:
 
-- the Digital Artifact is identified by digest and occupies the Controlled
-  Object role when candidate events reference it;
-- the object id can be generated from the record itself;
+- the Digital Artifact is identified by a digest derived from its content;
+- signed records concerning it form a candidate DCR;
 - each event is signed by the acting profile key;
 - event ids are content-derived;
 - graph links are carried in signed tags;
@@ -180,7 +187,7 @@ OpenETR uses Nostr-style signed events and relays as a publication and retrieval
 That gives the project:
 
 - portable signed records
-- object-centric queries by digest
+- artifact-centric queries by digest
 - relay-backed distribution
 - independently verifiable event signatures
 - simple replication across infrastructure

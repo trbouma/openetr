@@ -113,16 +113,17 @@ adapters can add selective disclosure where appropriate.
 
 ## The OpenETR Role
 
-OpenETR associates a digest-identified Digital Artifact with a **Digital Controllable Record**
-role when it becomes the subject of a candidate event graph. It binds signed
-Anchor, Control, Attestation, and linked-evidence events to that object. The
-role does not itself assert valid consequential state; that state must be
-derived from valid events under OpenETR rules.
+OpenETR associates a digest-identified **Digital Artifact** with a **Digital
+Controllable Record (DCR)**: one signed end-verifiable record or a graph of
+related signed records concerning that artifact. Anchor, Control, Attestation,
+and linked-evidence records may all form part of the DCR. Their presence does
+not itself establish consequential state; that state must be derived from the
+valid DCR under OpenETR rules.
 
 The compact model is:
 
 ```text
-exact artifact -> digest -> Digital Controllable Record -> valid event graph
+exact artifact -> digest -> candidate DCR -> protocol validation
                -> consequential state -> recognition policy
 ```
 
@@ -354,7 +355,7 @@ separate.
 | Is that key authorized or recognized? | Registry, organizational, community, contractual, or legal policy |
 | Is the record current? | Control and lifecycle evidence |
 | Is the presenter the rightful holder? | Holder-binding or control evidence appropriate to the domain |
-| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Control graph and domain-specific lifecycle events |
+| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Valid DCR and domain-specific state derivation |
 | Should the verifier rely on it? | Verifier policy and surrounding facts |
 
 A hash proves integrity relative to exact bytes. A signature proves that a key

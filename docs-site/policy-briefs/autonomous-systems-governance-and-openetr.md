@@ -12,7 +12,8 @@ what evidence shows that the action was authorized, current,
 bounded, traceable, and accountable?
 ```
 
-OpenETR can help answer that question for one important class of actions: actions involving controllable records.
+OpenETR can help answer that question for actions involving digest-identified
+Digital Artifacts and the signed evidence records that concern them.
 
 ## The Governance Context
 
@@ -39,7 +40,9 @@ Governance must identify the point where consequence becomes possible and enforc
 
 OpenETR is not an autonomous-systems governance framework.
 
-It is a correctness protocol for digest-identified records and signed control events.
+It is a correctness protocol for **Digital Artifacts**, **Digital Controllable
+Records (DCRs)**, and the consequential state derived from valid signed
+evidence.
 
 The relationship is:
 
@@ -48,7 +51,7 @@ autonomous systems governance:
   authority, accountability, delegation, oversight, enforcement, review
 
 OpenETR:
-  object identity, signed control events, linked evidence, graph state
+  artifact identity, DCR evidence, linked evidence, derived state
 ```
 
 OpenETR is useful where autonomous or semi-autonomous systems interact with authoritative records such as:
@@ -75,8 +78,11 @@ agent proposal:
 authorization:
   host system or accountable party permits the action
 
-OpenETR control event:
-  signed event that changes or records state for an identified record
+OpenETR record:
+  signed evidence concerning an identified Digital Artifact
+
+protocol derivation:
+  determination of consequential state from the valid DCR
 
 recognition:
   domain system, federation, registry, counterparty, or legal framework gives effect
@@ -86,7 +92,10 @@ An AI agent may recommend transferring a warehouse receipt.
 
 That recommendation should not itself be the transfer.
 
-The transfer becomes a consequential record action only when the right authority signs the relevant control event and the domain system or recognition policy gives it effect.
+The transfer becomes candidate consequential evidence when the relevant event
+is signed. OpenETR rules determine whether it forms part of a valid DCR and
+what state follows; the domain system or recognition policy decides what
+effect to give that state.
 
 ## Governance Value
 
@@ -107,12 +116,12 @@ This helps with several governance norms.
 | --- | --- |
 | Human authority | signer attribution and account-to-key evidence |
 | Bounded delegation | action-specific events and domain policy |
-| Proposal/action separation | proposals can remain evidence; control events are commitment points |
-| Time-of-action validation | current graph state can be checked before signing |
+| Proposal/action separation | proposals can remain linked evidence; signed lifecycle records are candidate commitment evidence |
+| Time-of-action validation | current derived state can be checked before signing |
 | Human oversight | approvals or countersignatures can be linked evidence |
 | Enforcement | systems can gate execution on valid OpenETR events |
 | Evidence integrity | object digests and signed event history |
-| Traceability | object-centric control graph |
+| Traceability | artifact-centric DCR and its signed event graph |
 | Cross-system continuity | portable signed events and verifier output |
 | Lifecycle review | event history, warnings, termination, and incident evidence |
 
@@ -156,14 +165,15 @@ The pilot should distinguish:
 ```text
 agent recommendation
   -> account authorization
-  -> time-of-action graph validation
-  -> signed OpenETR control event
+  -> time-of-action state validation
+  -> signed OpenETR record added to the DCR
+  -> protocol state derivation
   -> domain or federation recognition
 ```
 
 The warehouse receipt platform remains the reliable system for accounts, KYC, roles, document generation, workflow, and attestations.
 
-OpenETR provides the signed control evidence.
+OpenETR provides the signed DCR evidence and deterministic state derivation.
 
 Recognition policy decides effect.
 

@@ -6,6 +6,12 @@ The Singapore AI Safety Hub paper *Designing Agent IDs* asks what information se
 
 OpenETR fits that layered model, but it draws a firm protocol boundary.
 
+For each record lifecycle, OpenETR distinguishes the exact **Digital Artifact**
+from the **Digital Controllable Record (DCR)** made up of signed evidence about
+that artifact. Protocol rules evaluate the DCR to derive consequential state.
+Identity and governance systems then help a relying party decide whether to
+recognize the signer, its authority, and the resulting state.
+
 ## The OpenETR Position
 
 OpenETR does not distinguish between a human actor and an agent actor at the protocol layer.
@@ -48,7 +54,7 @@ OpenETR can carry or link the evidence needed by an Agent ID framework without b
 | Persistent actor reference | Event signer `npub` | Identity provider or registry maps the key to an agent, provider, deployer, or legal entity |
 | Authentication | Signature proves control of the signing key | OIDC, passkeys, or enterprise IAM authenticates the account or principal |
 | Authorization | Event records the action performed | OAuth, mandates, workflow policy, or domain rules define permitted actions |
-| Accountability | Signed graph preserves durable action evidence | Governance processes assign responsibility and retain operational logs |
+| Accountability | A DCR preserves durable signed action evidence | Governance processes assign responsibility and retain operational logs |
 | Incident response | Events identify affected objects and signer history | Providers and deployers supply monitoring, suspension, escalation, and remediation |
 | Recognition | Verifiers can evaluate linked evidence | Trust frameworks, registries, counterparties, and law decide effect |
 
@@ -102,7 +108,8 @@ Agent identity and governance:
   who or what is acting, for whom, under what authority and safeguards
 
 OpenETR control layer:
-  what signed action occurred to which digest-identified record
+  what DCR evidence exists for which digest-identified artifact,
+  and what consequential state follows under the protocol rules
 
 Recognition policy:
   whether that actor and action should be accepted in context
@@ -116,4 +123,3 @@ This boundary lets OpenETR support both people and agents without making the con
 - [OpenETR Actor-Neutral Identity Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md)
 - [Root And Profile Identity Model](https://github.com/trbouma/openetr/blob/main/docs/specs/ROOT_AND_PROFILE_IDENTITY_MODEL.md)
 - [Autonomous Systems Governance And OpenETR](./autonomous-systems-governance-and-openetr.md)
-

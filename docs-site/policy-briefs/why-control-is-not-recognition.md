@@ -11,21 +11,23 @@ OpenETR provides a general control layer for durable electronic records. It iden
 
 ## The Control Question
 
-Control is an evidence question.
+Control is a state-derivation question grounded in evidence.
 
 At the control layer, OpenETR can ask:
 
-- What object digest is being referenced?
-- Which signed origin record brought the object into the graph?
-- Which signed control records reference the same object?
+- What Digital Artifact digest is being referenced?
+- Which signed Anchor record begins the candidate DCR?
+- Which later signed records reference the same artifact?
 - How do later records link to prior records?
 - Which profile key signed each record?
 - What candidate controller or lifecycle state can be derived from the graph?
-- Which linked evidence records point back to the object?
+- Which linked evidence records point back to the artifact?
 
 These questions can be answered by inspecting cryptographic evidence.
 
-The result is not a hidden database state. It is a signed control graph that can be queried, replayed, and independently verified.
+The evidence is a DCR that can be queried and independently verified. The
+result is consequential state derived by applying OpenETR rules to that valid
+DCR—not a hidden application database value.
 
 ## The Recognition Question
 
@@ -68,8 +70,8 @@ This lets the same evidence graph be evaluated by different relying parties with
 OpenETR can provide durable signed evidence that:
 
 - a specific file, document, or data artifact has a particular digest;
-- a profile key signed an origin record for that digest;
-- later events reference the same object;
+- a profile key signed an Anchor record for that digest;
+- later events reference the same Digital Artifact;
 - events link to prior events;
 - a transfer, attestation, encumbrance, discharge, redemption, termination, or linked evidence record was published;
 - the event signatures and ids verify;
@@ -98,7 +100,8 @@ OpenETR can preserve the evidence needed to reach them, but it should not claim 
 
 ## Policy Layers Are Not Protocol Forks
 
-Different organizations can apply different recognition rules to the same signed graph.
+Different organizations can apply different recognition rules to the same DCR
+evidence and derived state.
 
 A warehouse receipt registry may require a licensed warehouse operator profile. A bank may require KYC and encumbrance disclosure. A customs authority may require a specific Product Passport registry response. A marketplace may accept only certain manufacturers or repairer attestations.
 
@@ -120,19 +123,22 @@ The evidence remains visible even when a policy refuses recognition.
 
 ### Warehouse Receipts
 
-OpenETR can show that a warehouse receipt digest was issued, transferred, pledged, discharged, presented, or terminated by particular profile keys.
+OpenETR can show which profile keys signed warehouse-receipt lifecycle records
+and what candidate state derives from the valid DCR.
 
 Warehouse receipt law, registry rules, storage agreements, courts, and verifier policy decide whether those actions are legally effective.
 
 ### Product Passports
 
-OpenETR can show the original Product Passport digest, the issuer profile, linked lifecycle evidence, and verifier warnings.
+OpenETR can show the Product Passport artifact digest, its Anchor signer,
+linked lifecycle evidence, derived state, and verifier warnings.
 
 Product regulation, delegated acts, registries, market-surveillance authorities, customs authorities, marketplaces, and relying parties decide whether the passport information is sufficient and recognized.
 
 ### Apostille Documents
 
-OpenETR can show a document bundle digest, authority attestations, registry references, and verification history.
+OpenETR can show a document-bundle artifact digest, authority attestations,
+registry references, derived state, and verification history.
 
 The Apostille Convention framework, Competent Authorities, e-Registers, courts, agencies, and relying institutions decide the legal recognition of the Apostille.
 
@@ -140,7 +146,8 @@ The Apostille Convention framework, Competent Authorities, e-Registers, courts, 
 
 A wallet credential can help show who is acting or what authorization they hold.
 
-OpenETR records what happened to the object.
+OpenETR preserves DCR evidence concerning the Digital Artifact and derives
+consequential state from it.
 
 The relying party decides whether the wallet credential and OpenETR graph together satisfy the applicable policy.
 
@@ -160,7 +167,7 @@ They can:
 The core principle is:
 
 ```text
-Control is what the signed graph shows.
+Control is state derived from the valid DCR under protocol rules.
 Recognition is what a rule book does with it.
 ```
 

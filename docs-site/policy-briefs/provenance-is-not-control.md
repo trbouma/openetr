@@ -8,7 +8,7 @@ The core distinction is simple once named:
 
 ```text
 Provenance asks where something came from and what happened to it.
-Control asks who can exercise recognized power over the record now.
+Control asks what consequential state can be derived for the record now.
 ```
 
 That distinction matters most when the record is not just evidence or content, but something whose value depends on transfer, presentation, redemption, encumbrance, discharge, or exclusive control.
@@ -72,7 +72,9 @@ A participant may copy:
 
 But copying that evidence should not create a new current controller.
 
-Control depends on the recognized state of the record, not on the mere availability of a copy.
+Control depends on state derived from valid DCR evidence. Whether that state is
+accepted for a legal or institutional purpose is a separate recognition
+question.
 
 ## C2PA As Provenance Infrastructure
 
@@ -96,9 +98,9 @@ It is not the same as control.
 
 ## OpenETR As Control Infrastructure
 
-OpenETR implements the control side of the distinction.
-
-It identifies a record by digest and associates signed events with that record.
+OpenETR implements the control side of the distinction. It identifies content
+as a Digital Artifact by digest. Signed events concerning the artifact form a
+DCR, and protocol rules derive consequential state from the valid DCR.
 
 Those events can express:
 
@@ -117,7 +119,9 @@ The resulting graph helps answer:
 What is this record, and who controls it now?
 ```
 
-OpenETR can carry provenance-like evidence too, but its distinctive role is the control graph: a signed, object-specific history that can be replayed under a verifier policy.
+OpenETR can carry provenance-like evidence too, but its distinctive role is
+the DCR: a signed, artifact-specific record or graph from which consequential
+state can be independently derived.
 
 ## Why They Are Complementary
 
@@ -128,8 +132,8 @@ They are examples of different trust primitives.
 The short comparison is:
 
 ```text
-C2PA establishes provenance of an asset.
-OpenETR establishes control of a record.
+C2PA provides provenance evidence about content.
+OpenETR derives consequential state from DCR evidence.
 ```
 
 Or more sharply:
@@ -146,14 +150,16 @@ For example:
 ```text
 digital trade record
   -> C2PA provenance for content, media, or supporting evidence
-  -> OpenETR digest identifying the controlled record
-  -> signed control graph for transfer, encumbrance, redemption, or termination
+  -> OpenETR digest identifying the Digital Artifact
+  -> DCR graph for transfer, encumbrance, redemption, or termination
+  -> protocol rules deriving consequential state
   -> recognition policy deciding effect
 ```
 
 C2PA can tell a relying party where the content came from.
 
-OpenETR can tell a relying party which record is being controlled and what the control graph says.
+OpenETR can tell a relying party which Digital Artifact is involved, what DCR
+evidence exists, and what state follows under the protocol rules.
 
 Recognition policy decides what legal, commercial, institutional, or operational effect follows.
 
@@ -170,7 +176,7 @@ This record has authentic provenance, therefore it is controlled.
 Nor should it conclude:
 
 ```text
-This record has a control graph, therefore all provenance claims are trusted.
+This artifact has a DCR, therefore all provenance claims are trusted.
 ```
 
 The better architecture is layered:
@@ -180,7 +186,7 @@ Protocol:
   verify hashes, signatures, manifests, events, and references
 
 Control:
-  derive record state and current controller from the graph
+  derive record state and current controller from the valid DCR
 
 Recognition:
   decide what effect to give the evidence and state
@@ -196,7 +202,9 @@ Provenance explains history.
 
 Control governs state.
 
-C2PA is a strong provenance technology. OpenETR is a control-graph implementation. The useful policy move is to use each where it belongs and avoid asking one layer to do the work of the other.
+C2PA is a strong provenance technology. OpenETR provides DCR evidence and a
+consequential state machine. The useful policy move is to use each where it
+belongs and avoid asking one layer to do the work of the other.
 
 ## Related Design Note
 

@@ -6,7 +6,10 @@ They define rules, roles, assurance levels, conformity criteria, certification p
 
 OpenETR fits into that landscape differently.
 
-OpenETR is not itself a full trust framework. It is a general control layer for durable electronic records. Its job is to preserve signed evidence about digest-identified records so trust frameworks, registries, authorities, and relying parties can decide what effect to give that evidence.
+OpenETR is not itself a full trust framework. It is a general control layer for
+durable electronic records. Its job is to identify Digital Artifacts, preserve
+their DCR evidence, and derive consequential state so trust frameworks,
+registries, authorities, and relying parties can decide what effect to give it.
 
 ## What Trust Frameworks Do
 
@@ -53,10 +56,10 @@ That distinction is important.
 
 OpenETR preserves durable signed evidence about a record.
 
-At the control layer, OpenETR can show:
+At the control layer, OpenETR makes it possible to inspect:
 
 - the digest of the Digital Artifact;
-- the signed origin control record;
+- the signed Anchor record;
 - later signed control records;
 - linked evidence records;
 - event ids, signatures, tags, and graph links;
@@ -76,19 +79,18 @@ Trust frameworks often focus on governance, rules, roles, certification, credent
 
 Those are necessary.
 
-But durable electronic records also need an object-centric evidence layer:
+But durable electronic records also need an artifact-centric evidence layer:
 
 ```text
-record or artifact
-  -> digest
-  -> signed origin control record
-  -> signed control records and linked evidence records
+record or artifact -> Digital Artifact by digest
+  -> DCR: Anchor, control, and linked-evidence records
+  -> consequential state derived under OpenETR rules
   -> verifier policy / registry / trust framework decides effect
 ```
 
 Without that layer, trust frameworks can become too dependent on one platform, one registry database, one credential presentation, or one application session.
 
-OpenETR makes the object history independently inspectable.
+OpenETR makes the DCR history and derived state independently inspectable.
 
 That is the underpinning: not trust by assertion alone, but trust supported by durable signed evidence.
 
@@ -114,7 +116,7 @@ Trust frameworks can codify expected behavior, and registries can recognize acto
 OpenETR is aimed at that missing layer. It gives digital-government and trust-framework ecosystems a way to preserve:
 
 - object identity by digest;
-- signed origin control records;
+- signed Anchor records;
 - signed lifecycle and control events;
 - linked evidence records;
 - durable query links and QR codes;
@@ -133,10 +135,10 @@ It requires shared control evidence that can cross institutional boundaries.
 
 | Trust-framework need | OpenETR contribution |
 | --- | --- |
-| Evidence of what happened | Signed origin, control, and linked evidence records. |
+| Evidence of what happened | DCR containing signed Anchor, control, and linked-evidence records. |
 | Stable object identity | Digest-based Digital Artifact identifiers. |
 | Auditability | Reconstructable control and evidence graphs. |
-| Interoperability | Shared event grammar and object-centric queries. |
+| Interoperability | Shared event grammar and artifact-centric queries. |
 | Registry integration | Registries can recognize profile keys, object digests, event ids, and graph states. |
 | Policy overlays | Different rule books can evaluate the same signed evidence without forking the protocol. |
 | Revocation or suspension evidence | Authority notices, registry references, attestations, or linked evidence can be attached to the graph. |
@@ -149,12 +151,14 @@ The framework can still define the behavior. The registry can still decide recog
 
 Gaia-X uses trust-framework concepts to support compliance, technical compatibility, policy rules, trust anchors, digital clearing-house services, self-descriptions, and verifiable credentials.
 
-OpenETR could complement such an ecosystem by providing object-centric evidence for controlled records that participate in a data space or compliance process.
+OpenETR could complement such an ecosystem by providing artifact-centric DCR
+evidence and derived state for records that participate in a data space or
+compliance process.
 
 For example, OpenETR could record:
 
 - a service-offering evidence artifact by digest;
-- a signed origin record for that artifact;
+- a signed Anchor record for that artifact;
 - linked evidence records for certifications, audits, or compliance checks;
 - registry references to trust anchors or labels;
 - verifier output under a Gaia-X-style rule book.
@@ -197,7 +201,8 @@ A registry can:
 
 The actual record artifact can remain with an issuer, platform, storage service, archive, holder, or sector-specific system.
 
-OpenETR gives the registry a digest and signed graph to reference.
+OpenETR gives the registry a Digital Artifact digest, its DCR evidence, and
+derived state to reference.
 
 That reduces pressure to make the registry both governance authority and universal storage provider.
 
@@ -234,7 +239,7 @@ But durable electronic records also need evidence that can survive outside a sin
 
 OpenETR gives policymakers a way to separate:
 
-- the control layer: what the signed graph shows;
+- the control layer: what DCR evidence exists and what state derives from it;
 - the trust framework: what behavior and assurance rules apply;
 - the registry: which actors, authorities, statuses, or records are recognized;
 - the verifier: what effect to give the evidence in context.

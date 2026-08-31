@@ -33,11 +33,12 @@ OpenETR asks a different question:
 What happened concerning this Digital Artifact?
 ```
 
-OpenETR identifies a record by digest and records signed events about that record.
+OpenETR identifies content as a Digital Artifact by digest. Signed events
+concerning it form a DCR, from which protocol rules derive consequential state.
 
 The graph may include:
 
-- an origin control record;
+- an Anchor record;
 - transfer or control events;
 - attestations;
 - encumbrance and discharge events;
@@ -46,7 +47,9 @@ The graph may include:
 - profile and participant references;
 - verifier warnings or recognition annotations.
 
-OpenETR is therefore object-centric. The central unit is not the holder's wallet; it is the durable electronic record and the signed control/evidence graph around that record.
+OpenETR is therefore artifact-centric. The central unit is not the holder's
+wallet; it is the Digital Artifact, its DCR evidence, and the consequential
+state derived from that evidence.
 
 ## Practical Distinction
 
@@ -71,8 +74,8 @@ OpenETR helps answer the object-history question.
 | Primary focus | Identity, credentials, authentication, selective disclosure, presentation. | Durable records, control records, linked evidence, object history, recognition inputs. |
 | Main unit | Wallet holder and wallet-held credentials. | Digital Artifact identified by digest. |
 | Main question | What credentials does this person or organization present? | What signed events exist for this object? |
-| Technical center | Wallet, issuer, verifier, service provider interactions. | Digest, signed events, control graph, evidence graph, verifier policy. |
-| Recognition boundary | Relying party decides whether to accept a presented credential. | Verifier, registry, authority, or relying party decides what effect to give the signed graph. |
+| Technical center | Wallet, issuer, verifier, service provider interactions. | Digital Artifact, DCR, derived state, verifier policy. |
+| Recognition boundary | Relying party decides whether to accept a presented credential. | Verifier, registry, authority, or relying party decides what effect to give the derived state. |
 
 ## How They Can Work Together
 
@@ -82,7 +85,8 @@ A practical integration could look like this:
 EUDI Wallet credential
   -> proves identity, role, mandate, or authorization
   -> OpenETR profile signs a record event
-  -> OpenETR graph preserves durable signed evidence
+  -> OpenETR DCR preserves durable signed evidence
+  -> OpenETR rules derive consequential state
   -> registry / authority / relying party evaluates effect
 ```
 
@@ -97,7 +101,7 @@ For Product Passports, an EUDI Wallet could help an economic operator or represe
 OpenETR could then record:
 
 - the original Product Passport digest;
-- the origin control record for that passport artifact;
+- the Anchor record for that passport artifact;
 - the recognized organization profile key that issued it;
 - linked evidence records for repair, recall, recycling, audit, or end-of-life documents;
 - durable query links and QR codes;
@@ -114,7 +118,9 @@ For warehouse receipts, wallet-held credentials could help prove that:
 - a holder is entitled to present a receipt;
 - a regulator or court officer has authority to inspect a record.
 
-OpenETR would still preserve the receipt digest, origin event, transfer path, encumbrances, discharges, redemption, termination, and verifier warnings.
+OpenETR would still preserve the receipt's artifact digest and DCR: its Anchor,
+transfer path, encumbrances, discharges, redemption, termination, and related
+evidence.
 
 The legal effect of the graph remains a recognition-layer question.
 
@@ -122,9 +128,12 @@ The legal effect of the graph remains a recognition-layer question.
 
 Policymakers should avoid treating digital wallets as the only trust layer for durable electronic records.
 
-Wallets are essential for identity, credentials, and user-controlled presentation. But many important records also need an object-centric history that survives outside any one wallet session, application, registry, or platform.
+Wallets are essential for identity, credentials, and user-controlled
+presentation. But many important records also need an artifact-centric DCR
+that survives outside any one wallet session, application, registry, or
+platform.
 
-OpenETR offers that object-centric control layer.
+OpenETR offers that artifact-centric control layer.
 
 It lets identity systems, registries, institutions, and authorities evaluate durable signed evidence without requiring every domain to collapse into a single wallet model.
 

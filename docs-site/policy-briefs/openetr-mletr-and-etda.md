@@ -84,7 +84,7 @@ OpenETR can provide technical evidence for the functions that MLETR and ETDA car
 | --- | --- |
 | Identification | digest-identified Digital Artifact and signed Anchor record |
 | Integrity | recomputable hash, signed events, prior-event references, linked evidence |
-| Control | object-specific control graph and candidate current-controller derivation |
+| Control | artifact-specific DCR and candidate current-controller derivation |
 | Exclusive control | verifier policy that recognizes only one current controller path |
 | Demonstration of control | presentable graph of signed events and profiles |
 | Transfer | signed transfer event linked to prior control state |
@@ -97,7 +97,9 @@ This makes OpenETR useful without pretending that cryptography alone creates leg
 
 ## Control Is Not Recognition
 
-OpenETR can show that a record has a signed control graph.
+OpenETR can show what signed DCR evidence concerns a Digital Artifact and what
+candidate consequential state follows under a stated version of its protocol
+rules.
 
 That does not automatically mean a court, bank, port, carrier, registry, insurer, or customs authority must recognize the result.
 
@@ -131,7 +133,7 @@ ETDA is commercially important because of the role of English law in trade and f
 The policy stance is:
 
 ```text
-Build once around controllable records and signed control graphs.
+Build once around Digital Artifacts, DCR evidence, and derived state.
 Recognize many times through MLETR, ETDA, contracts, registries,
 and institutional policies.
 ```
@@ -162,7 +164,9 @@ OpenETR is not a substitute for MLETR or ETDA.
 
 It is a technical fabric that can help records satisfy the evidence demands of both.
 
-MLETR and ETDA decide when an electronic record has legal effect. OpenETR helps produce the signed, portable, inspectable control graph that makes that decision easier to evaluate.
+MLETR and ETDA decide when an electronic record has legal effect. OpenETR
+helps produce portable, inspectable DCR evidence and a reproducible state
+derivation that make that decision easier to evaluate.
 
 ## Related Design Note
 

@@ -4,7 +4,9 @@ Paperless trade is not just the removal of paper.
 
 It is the redesign of trade processes so that data, documents, authority, control, signatures, identity, and evidence can move across systems and borders without requiring a paper original as the operational anchor.
 
-OpenETR is intended to complement that transition by providing a portable control and evidence graph for digest-identified trade records.
+OpenETR is intended to complement that transition by identifying trade records
+as Digital Artifacts, preserving portable DCR evidence concerning them, and
+deriving consequential state under common protocol rules.
 
 It is one layer in a broader paperless trade stack, not the whole stack.
 
@@ -48,11 +50,11 @@ OpenETR's contribution is to make the control and evidence layer portable.
 
 OpenETR provides:
 
-- digest-based object identity
-- signed origin records
+- digest-based Digital Artifact identity
+- signed Anchor records
 - signed control events
 - linked evidence records
-- object-centric graph retrieval
+- artifact-centric DCR retrieval
 - profile-backed attribution
 - verifier-policy warnings
 - domain-adapter interpretation
@@ -61,9 +63,9 @@ OpenETR provides:
 The compact model is:
 
 ```text
-trade record or package
-  -> digest
-  -> signed OpenETR graph
+trade record or package -> Digital Artifact by digest
+  -> signed OpenETR DCR
+  -> consequential state derived under protocol rules
   -> domain adapter interpretation
   -> recognition policy decides effect
 ```
@@ -71,7 +73,7 @@ trade record or package
 This helps paperless trade systems answer:
 
 - Which artifact is being relied on?
-- Who signed the origin record?
+- Who signed the Anchor record?
 - What control or evidence events exist?
 - Has the record been transferred, encumbered, redeemed, terminated, replaced, or warned about?
 - Which linked evidence supports the record?
@@ -112,7 +114,7 @@ OpenETR can support those technical evidence needs:
 ```text
 identify record -> digest
 retain integrity -> recomputable hash
-control history -> signed control graph
+control history -> signed DCR graph -> derived consequential state
 exclusive control evidence -> recognized current-controller path
 identify controller -> profile signer plus recognition inputs
 ```
@@ -153,7 +155,8 @@ OpenETR helps by separating:
 - domain interpretation
 - recognition policy
 
-That lets different actors inspect the same signed graph while applying their own rulebooks:
+That lets different actors inspect the same DCR evidence and derived state
+while applying their own rulebooks:
 
 - customs authority
 - carrier
@@ -195,7 +198,7 @@ It can begin by:
 1. selecting a document type
 2. defining the final artifact or canonical package
 3. computing a digest
-4. publishing an origin record
+4. publishing an Anchor record
 5. recording control or evidence events
 6. linking supporting documents
 7. applying a domain verifier policy
@@ -226,4 +229,3 @@ OpenETR is not the whole paperless trade system. It is a reusable evidence layer
 - [UNCITRAL Model Law on Electronic Transferable Records](https://uncitral.un.org/en/texts/ecommerce/modellaw/electronic_transferable_records)
 - [WTO Standards Toolkit for Cross-border Paperless Trade](https://www.wto.org/english/res_e/publications_e/standtoolkit22_e.htm)
 - [ESCAP Legal Implementation Guide for Cross-border Paperless Trade](https://www.unescap.org/kp/2024/legal-implementation-guide-cross-border-paperless-trade)
-

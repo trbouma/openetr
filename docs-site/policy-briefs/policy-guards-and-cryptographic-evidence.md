@@ -2,11 +2,16 @@
 
 OpenETR is unequivocal about publishing evidence.
 
-It records digest-identified objects, signed origin records, linked control records, and related evidence in a form that can be retrieved, replayed, and independently verified.
+It identifies Digital Artifacts by digest and preserves their Anchor, control,
+and linked-evidence records as DCR evidence that can be retrieved and
+independently verified.
 
 But OpenETR is equally clear about what that evidence does not do by itself.
 
-A signed event is not universal recognition. A cryptographically valid control graph is not automatic legal, regulatory, commercial, or institutional effect. Recognition depends on the rule book by which the evidence is evaluated.
+A signed event is not universal recognition. A valid DCR and its derived state
+do not automatically have legal, regulatory, commercial, or institutional
+effect. Recognition depends on the rule book by which the evidence and state
+are evaluated.
 
 That distinction is central to OpenETR.
 
@@ -50,9 +55,9 @@ OpenETR's base contribution is durable cryptographic evidence.
 At the evidence layer, OpenETR can show:
 
 - the digest of the Digital Artifact;
-- the origin record that introduced the object into the graph;
+- the Anchor record that begins the candidate DCR;
 - the profile key that signed each event;
-- the control records linked to the object;
+- the control records linked to the Digital Artifact;
 - the prior-event links between records;
 - transfer, acceptance, encumbrance, discharge, redemption, termination, attestation, or linked-evidence actions;
 - whether the event ids, signatures, tags, and graph shape can be verified.
@@ -71,13 +76,13 @@ Policy guards are implementation rules that decide whether a particular applicat
 
 For example, a baseline OpenETR guard may ask:
 
-- Is the object digest well formed?
-- Can the active control chain be resolved?
+- Is the Digital Artifact digest well formed?
+- Can the active DCR chain be resolved?
 - Is the signer the current controller before initiating a transfer?
 - Is the signer the intended transferee before accepting a transfer?
 - Is the target chain ambiguous?
 - Does an encumbrance event being discharged actually exist?
-- Has a duplicate action already been published for this object and signer?
+- Has a duplicate action already been published for this artifact and signer?
 
 These checks matter.
 
@@ -210,7 +215,7 @@ OpenETR takes a different approach.
 
 It separates:
 
-- cryptographic evidence: what was signed and how it links to the object;
+- cryptographic evidence: what was signed and how it links to the Digital Artifact;
 - policy guards: what an implementation allows or warns about;
 - verifier policy: how a relying party evaluates the graph;
 - recognition: what effect the relying party gives the evidence.

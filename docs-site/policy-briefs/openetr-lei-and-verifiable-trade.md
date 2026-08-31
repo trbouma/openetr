@@ -70,14 +70,14 @@ The Verifiable.Trade articles argue for trade data that carries verifiable evide
 
 OpenETR is compatible with that direction.
 
-It provides a concrete control/evidence graph pattern:
+It provides a concrete DCR and state-derivation pattern:
 
 ```text
 record artifact or canonical package
   -> digest
-  -> signed origin event
+  -> signed Anchor record in a DCR
   -> signed control, attestation, and evidence events
-  -> verifier evaluates graph
+  -> protocol rules validate the DCR and derive consequential state
   -> recognition policy decides effect
 ```
 
@@ -112,7 +112,7 @@ organizational reference
   -> resolves who the actor is
 
 OpenETR graph
-  -> records what the actor signed about the object
+  -> records what the actor signed about the Digital Artifact
 
 domain adapter
   -> explains the event in domain language
@@ -203,4 +203,3 @@ OpenETR is strongest when it remains the portable evidence fabric.
 - [OpenETR Dependency Integrity Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DEPENDENCY_INTEGRITY_DESIGN_NOTE.md)
 - [OpenETR Generic Domain Adapter Specification](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
 - [OpenETR TRQP Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_TRQP_INTEGRATION_NOTE.md)
-
