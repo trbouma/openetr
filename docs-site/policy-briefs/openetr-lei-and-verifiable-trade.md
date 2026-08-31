@@ -77,7 +77,7 @@ record artifact or canonical package
   -> digest
   -> signed Anchor record in a DCR
   -> signed control, attestation, and evidence events
-  -> protocol rules validate the DCR and derive consequential state
+  -> an applicable policy validates the DCR and produces consequential state
   -> recognition policy decides effect
 ```
 

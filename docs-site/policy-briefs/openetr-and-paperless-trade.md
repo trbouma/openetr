@@ -6,7 +6,8 @@ It is the redesign of trade processes so that data, documents, authority, contro
 
 OpenETR is intended to complement that transition by identifying trade records
 as Digital Artifacts, preserving portable DCR evidence concerning them, and
-deriving consequential state under common protocol rules.
+supporting validation of those DCRs under applicable policies to produce
+consequential state.
 
 It is one layer in a broader paperless trade stack, not the whole stack.
 
@@ -65,7 +66,8 @@ The compact model is:
 ```text
 trade record or package -> Digital Artifact by digest
   -> signed OpenETR DCR
-  -> consequential state derived under protocol rules
+  -> validation under an applicable policy
+  -> consequential state
   -> domain adapter interpretation
   -> recognition policy decides effect
 ```
@@ -114,7 +116,7 @@ OpenETR can support those technical evidence needs:
 ```text
 identify record -> digest
 retain integrity -> recomputable hash
-control history -> signed DCR graph -> derived consequential state
+control history -> signed DCR graph -> policy validation -> consequential state
 exclusive control evidence -> recognized current-controller path
 identify controller -> profile signer plus recognition inputs
 ```

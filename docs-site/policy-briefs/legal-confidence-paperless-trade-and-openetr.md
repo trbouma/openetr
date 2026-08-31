@@ -63,7 +63,7 @@ existing trade platform
   -> digest of the operative record
   -> signed OpenETR control events
   -> portable Digital Controllable Record
-  -> derived consequential state
+  -> policy validation produces consequential state
   -> independent verifier applies its rule book
 ```
 
@@ -131,7 +131,7 @@ OpenETR can show the signed sequence of events and identify competing branches o
 A Digital Artifact identifier is not itself the cargo, goods, document of
 title, or underlying claim. Nor does DCR evidence automatically create a
 tokenized asset. OpenETR binds signed evidence to a digest-identified artifact
-and derives consequential state; the applicable legal framework determines
+and supports policy validation of its DCR to produce consequential state; the applicable legal framework determines
 what that artifact and state embody or represent.
 
 ### Custody And Insolvency
@@ -147,9 +147,9 @@ That kind of work complements OpenETR particularly well.
 OpenETR separates control evidence from recognition. A legal statement, statute, contract, registry rule book, or institutional policy can explain how a verifier should interpret the evidence.
 
 ```text
-OpenETR DCR and state derivation:
+OpenETR DCR and policy validation:
   what was signed, by which key, about which artifact, in what sequence,
-  and what state follows under the protocol rules
+  and what state results under the identified validation policy
 
 legal or institutional rule book:
   whether the signer and transition are recognized and what effect follows

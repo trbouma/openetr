@@ -19,19 +19,20 @@ one true copy?” It is “what verifiable history and current state concern thi
 exact content?” A copy can reproduce the content, but it cannot create a valid
 issuance, transfer, discharge, or termination event.
 
-**Consequential state** means state that matters to what can happen next. More
-formally, it is protocol state that can change what may validly
-happen next concerning an identified artifact. It can establish or change a
-controller, record a transfer in progress, activate an encumbrance, discharge
-a restriction, delegate authority, or terminate an active lifecycle. It is
-consequential because relying on it can affect control, authority, rights,
-obligations, restrictions, standing, status, or permitted actions.
+**Consequential State** is the result of validating a Digital Controllable
+Record—or its graph of related records—in relation to an identified policy. It
+matters because accepting that result can change what may validly happen next
+concerning the artifact. It can establish or change a controller, record a
+transfer in progress, activate an encumbrance, discharge a restriction,
+delegate authority, or terminate an active lifecycle. It is consequential
+because recognition of it can affect control, authority, rights, obligations,
+restrictions, standing, status, or permitted actions.
 
 This is different from ordinary application state. A selected tab, cached
 display value, database row, or background-job status may help an application
 operate, but it does not become authoritative OpenETR state merely because the
-application stores it. Consequential state must be reproducible from portable,
-end-verifiable events under identified protocol rules.
+application stores it. Consequential State must be reproducible by validating
+portable, end-verifiable DCR evidence under the same identified policy.
 
 An **end-verifiable event** is a signed record that a recipient can verify
 independently, without calling the application that originally produced it.
@@ -45,8 +46,8 @@ Consider a warehouse receipt stored as a PDF:
 2. A warehouse signs an Anchor record concerning the PDF. Later signed records
    may transfer it, encumber it, discharge the encumbrance, or terminate its
    lifecycle. Together those records are the **Digital Controllable Record**.
-3. OpenETR rules validate those records and derive the current
-   **consequential state**.
+3. An applicable policy validates the DCR as a whole and produces the current
+   **Consequential State**.
 4. The PDF, now associated with established consequential state, is a
    **Digital Original** in the OpenETR technical sense.
 5. A bank, registry, court, or trading partner decides whether to recognize
@@ -70,13 +71,14 @@ the signed evidence structure, not the file.
 The name is easiest to understand as **the controllable record concerning the
 artifact**, rather than as a description of the artifact itself.
 
-A **Digital Original** is a Digital Artifact for which consequential state has
-been established through a DCR under OpenETR protocol rules.
+A **Digital Original** is a Digital Artifact for which Consequential State has
+been established by validating its DCR under an applicable policy.
 
 ```text
 Digital Artifact -> referenced by -> Digital Controllable Record
-Digital Controllable Record + protocol rules -> consequential state
-Digital Artifact + consequential state -> Digital Original
+Digital Controllable Record + applicable policy -> validation
+validation result -> Consequential State
+Digital Artifact + established Consequential State -> Digital Original
 ```
 
 ![Digital Artifact to Digital Controllable Record to Digital Original](../assets/images/digital-artifact-to-digital-original.svg)
@@ -145,8 +147,8 @@ The DCR may initially contain only that Anchor record. It may later grow into
 a graph containing attestations, control transfers, restrictions, superseding
 versions, or termination records.
 
-OpenETR rules validate the DCR and derive consequential state concerning the
-artifact. A simplified projection might show:
+An applicable policy validates the DCR as a whole and produces Consequential
+State concerning the artifact. A simplified projection might show:
 
 ```text
 artifact       = abc123...
@@ -160,11 +162,12 @@ evidence       = <basis event ids>
 
 This state is not authoritative merely because an application stored it in a
 database. Another conforming application can obtain the artifact and DCR,
-verify the signatures and references, apply the same protocol rules, and
-reproduce the applicable consequential state.
+verify the signatures and references, apply the same validation policy, and
+reproduce the applicable Consequential State.
 
-Once consequential state has been established through the valid DCR, the
-artifact is an OpenETR Digital Original in the technical sense:
+Once Consequential State has been established by validating the DCR under an
+applicable policy, the artifact is an OpenETR Digital Original in the technical
+sense:
 
 ```text
 NEW DIGITAL CONTENT
@@ -175,10 +178,12 @@ uniquely identifiable content
         |
         v
 DIGITAL CONTROLLABLE RECORD
-signed end-verifiable evidence
+signed end-verifiable evidence spanning the lifecycle
         |
+        | validate the DCR as a whole
+        | against an applicable policy
         v
-CONSEQUENTIAL STATE
+CONSEQUENTIAL STATE (validation result)
         |
         v
 DIGITAL ORIGINAL
@@ -217,28 +222,27 @@ verifiable.
 
 The distinction can therefore be summarized precisely:
 
-> The translated page is created as a new Digital Artifact. Valid DCR evidence
-> and protocol rules establish consequential state and make it a Digital
-> Original. Recognition determines whether the signer and state are accepted
-> as authoritative for a particular purpose.
+> The translated page is created as a new Digital Artifact. Validation of its
+> DCR under an applicable policy establishes Consequential State and makes it a
+> Digital Original. Recognition determines whether that result is accepted as
+> authoritative and what effect it receives for a particular purpose.
 
 ## The Consequential State Pipeline
 
 Digital originality does not arise from one cryptographic operation or one
-institutional decision. It emerges through a sequence of distinct layers.
-First, canonical content gives the Digital Artifact a stable identity. One or
-more signed events concerning that artifact form a candidate DCR. Those events
-provide portable evidence of what actors attempted or asserted. OpenETR rules
-validate the DCR against prior state and derive the consequential state that
-makes the artifact a Digital Original.
+institutional decision. Canonical content first gives the Digital Artifact a
+stable identity. One or more signed records concerning that artifact form a
+candidate DCR spanning its evidenced lifecycle. Those records provide portable
+evidence of what actors attempted or asserted. The DCR is then evaluated as a
+whole under an applicable policy. Consequential State is the result of that
+validation; it is not another record or container beside the DCR.
 
-Recognition and effect come afterward. A verifier, institution, community,
-contract, or jurisdiction decides whether to accept the actor, graph, or
-derived state for a particular purpose. Applicable rules then determine what
-practical, institutional, commercial, or legal consequence follows. Keeping
-these layers separate prevents content identity, cryptographic validity,
-protocol state, authority, and legal effect from being mistaken for one
-another.
+Recognition and effect follow from that result. A verifier, institution,
+community, contract, or jurisdiction decides whether to accept the signer,
+DCR, and Consequential State for a particular purpose and what practical,
+institutional, commercial, or legal consequence follows. Keeping these layers
+separate prevents content identity, cryptographic validity, policy validation,
+authority, and external effect from being mistaken for one another.
 
 The pipeline therefore separates five questions that are often blended
 together:
@@ -247,7 +251,7 @@ together:
 | --- | --- |
 | Artifact | What persistent content is identified? |
 | DCR | Which signed record or record graph concerns the artifact? |
-| Consequential state | What state follows under the protocol rules? |
+| Policy validation and Consequential State | What state results when the DCR is evaluated under the identified policy? |
 | Recognition | Who accepts that state, and for what purpose? |
 | Effect | What external consequence follows? |
 
@@ -256,15 +260,15 @@ The complete relationship is:
 ```text
 Digital Artifact
   -> Digital Controllable Record
-  -> OpenETR protocol rules
-  -> consequential state and Digital Original
-  -> recognition
+  -> validation of the DCR under an applicable policy
+  -> Consequential State and Digital Original
+  -> recognition of that state
   -> effect
 ```
 
 A candidate Anchor is a one-record DCR concerning a Digital Artifact. A valid
-Anchor processed under OpenETR rules can establish initial consequential state
-and make the artifact a Digital Original. It does not prove that the
+Anchor evaluated under an applicable policy can establish initial
+Consequential State and make the artifact a Digital Original. It does not prove that the
 signer was uniquely authorized, resolve every competing event, compel a relying
 party to recognize the result, or create legal effect on its own.
 
@@ -275,10 +279,10 @@ separate.
 
 ## What OpenETR Contributes
 
-OpenETR provides a consequential state layer for Digital Artifacts. Signed events
-can describe anchoring, transfer, encumbrance, discharge, redemption, and
-termination. Protocol rules determine whether those events are valid in light
-of prior state and what state follows.
+OpenETR provides a Consequential State layer for Digital Artifacts. Signed
+records can describe anchoring, transfer, encumbrance, discharge, redemption,
+and termination. An applicable policy determines whether the DCR is valid in
+light of prior state and what result follows.
 
 This lets an independent verifier ask:
 
@@ -315,8 +319,8 @@ jurisdiction must accept.
 ## A Simple Example
 
 A driver's licence can be scanned, hashed, and signed. The scan becomes an
-OpenETR Digital Original when valid events about that identified object produce
-derivable consequential state under OpenETR rules.
+OpenETR Digital Original when its DCR is validated under an applicable policy
+and produces Consequential State.
 
 A verifier may then recognize the licensing authority's key and accept that
 state for a particular purpose. Only at that point does the verification have
@@ -327,7 +331,7 @@ Physical licence
   -> scan and stable digest
   -> Digital Artifact
   -> candidate Digital Controllable Record
-  -> valid DCR and protocol rules
+  -> DCR validation under an applicable policy
   -> Digital Original with consequential state
   -> recognition by a competent verifier
   -> accepted effect
@@ -340,9 +344,9 @@ passports, permits, certificates, community records, and archives.
 
 A Digital Artifact may have multiple anchors or competing event branches.
 OpenETR should preserve that evidence rather than silently selecting an
-authority. Deterministic protocol rules can reject invalid transitions and
-derive candidate states; recognition policy decides which candidate, actor, or
-rule set is accepted in a particular context.
+authority. A stated validation policy can reject invalid transitions and
+produce candidate Consequential State; recognition determines which result,
+actor, or policy is accepted in a particular context.
 
 Conflict visibility is therefore a feature, not a defect.
 

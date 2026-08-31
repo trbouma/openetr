@@ -26,8 +26,8 @@ At the control layer, OpenETR can ask:
 These questions can be answered by inspecting cryptographic evidence.
 
 The evidence is a DCR that can be queried and independently verified. The
-result is consequential state derived by applying OpenETR rules to that valid
-DCR—not a hidden application database value.
+result is consequential state produced by validating that DCR under an
+applicable policy—not a hidden application database value.
 
 ## The Recognition Question
 
@@ -124,7 +124,8 @@ The evidence remains visible even when a policy refuses recognition.
 ### Warehouse Receipts
 
 OpenETR can show which profile keys signed warehouse-receipt lifecycle records
-and what candidate state derives from the valid DCR.
+and what candidate state results when the DCR is validated under the identified
+policy.
 
 Warehouse receipt law, registry rules, storage agreements, courts, and verifier policy decide whether those actions are legally effective.
 
@@ -167,7 +168,7 @@ They can:
 The core principle is:
 
 ```text
-Control is state derived from the valid DCR under protocol rules.
+Control is state produced by validating the DCR under an applicable policy.
 Recognition is what a rule book does with it.
 ```
 

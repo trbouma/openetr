@@ -19,10 +19,15 @@ uniquely identifiable content
         |
         v
 DIGITAL CONTROLLABLE RECORD
-single record or record graph
+single record or record graph spanning the evidenced lifecycle
+
+DCR + APPLICABLE POLICY
         |
+        | validation
         v
-CONSEQUENTIAL STATE
+CONSEQUENTIAL STATE -> RECOGNITION -> EFFECT
+
+DIGITAL ARTIFACT + ESTABLISHED CONSEQUENTIAL STATE
         |
         v
 DIGITAL ORIGINAL
@@ -32,8 +37,9 @@ The canonical definitions are:
 
 - A **Digital Artifact** is persistent digital content with a unique content
   identity, normally established by a cryptographic digest.
-- A **Digital Controllable Record** establishes and transitions consequential
-  state concerning a Digital Artifact.
+- A **Digital Controllable Record** is the signed evidence structure that is
+  validated under an applicable policy to establish and transition
+  consequential state concerning a Digital Artifact.
 - A **Digital Original** is a Digital Artifact with consequential state.
 
 > Content makes an artifact identifiable. Consequential state makes it an
@@ -51,9 +57,10 @@ A DCR may contain one record or a directed graph of records expressing:
 - surrender, redemption, or termination; or
 - another protocol-defined consequential relationship.
 
-The DCR is evidence. A conforming implementation validates that evidence and
-derives consequential state from it under identified, versioned protocol
-rules. An application may cache the result, but the cache is not the authority.
+The DCR is evidence. A conforming implementation evaluates the record or graph
+as a whole under an identified, versioned validation policy. Consequential
+state is the result of that validation, not another record beside the DCR. An
+application may cache the result, but the cache is not the authority.
 
 Every displayed consequential state should therefore be traceable to the DCR
 record or records that produced it.
@@ -68,10 +75,11 @@ recognized standing or authority is a recognition-layer question.
 Cryptographic validity does not itself create legal or institutional effect:
 
 ```text
-DCR EVENT
+DCR OR DCR GRAPH + APPLICABLE POLICY
     |
+    | validation
     v
-CONSEQUENTIAL STATE
+CONSEQUENTIAL STATE (result)
     |
     v
 RECOGNITION
@@ -111,14 +119,14 @@ Implementations should separate:
 ```text
 ARTIFACT         digest + content
 DCR              signed end-verifiable records or graph
-STATE PROJECTION derived consequential state
+STATE PROJECTION result of validating the DCR under an identified policy
 ```
 
 The state projection should be produced through one versioned derivation
 boundary conceptually equivalent to:
 
 ```text
-derive_state(artifact_id, dcr_records) -> ConsequentialState
+validate_dcr(artifact_id, dcr_records, policy_id) -> ConsequentialState
 ```
 
 If the answer to “Why is this state true?” is only “because the application
@@ -136,8 +144,8 @@ reproduce consequential state.
 
 ## Governing Rules
 
-- Consequential state should be derived from end-verifiable events, not
-  asserted by applications.
+- Consequential state should result from validation of end-verifiable DCR
+  evidence under an identified policy, not be asserted by applications.
 - Applications interpret consequential state; they do not own it.
 - Recognition determines the effect given to consequential state.
 - System failure need not become state failure.

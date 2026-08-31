@@ -70,7 +70,7 @@ That is different from asking where a technology fits in a stack.
 
 A technology may be strong at identity and weak at evidence. Another may be
 strong at recognition inside one rulebook and weak at portability. Another may
-provide reliable DCR evidence and state derivation while intentionally leaving
+provide reliable DCR evidence and policy validation while intentionally leaving
 identity recognition and legal effect to other systems.
 
 This distinction helps explain why apparently competing standards may actually be illuminating different parts of the same problem.
@@ -161,9 +161,9 @@ bundle, or other digest-addressed record. A **Digital Controllable Record** is
 the signed record or graph concerning that artifact. Its presence does not, by
 itself, assert derived consequential state or a current controller.
 
-The DCR graph is the signed event history concerning the artifact. Valid DCR
-records and OpenETR rules derive consequential state; that is what makes the
-Digital Artifact a Digital Original.
+The DCR graph is the signed event history concerning the artifact. Validation
+of the DCR under an applicable policy produces consequential state; that is
+what makes the Digital Artifact a Digital Original.
 
 The **Recognition Context** is the legal, institutional, contractual, registry, or verifier-policy setting that decides effect.
 

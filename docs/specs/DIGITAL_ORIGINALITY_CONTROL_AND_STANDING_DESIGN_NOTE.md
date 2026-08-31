@@ -8,8 +8,9 @@ Draft design note.
 
 This note captures a core design decision for OpenETR and related applications:
 a Digital Artifact becomes a Digital Original, in the OpenETR technical sense,
-when valid end-verifiable events establish consequential state for it under the
-protocol rules. Recognition and external effect remain separate.
+when its DCR is validated under an applicable policy and that validation
+establishes consequential state. Recognition accepts that result for a stated
+purpose and determines external effect.
 
 The central distinction is:
 
@@ -38,12 +39,12 @@ This gives five separate layers:
 | --- | --- | --- |
 | Artifact | What exact persistent content is identified? | A PDF, scan, JSON document, image, or structured record identified by digest. |
 | DCR | What signed record or record graph exists? | Anchor, transfer, encumber, discharge, terminate. |
-| Consequential state | What state follows when protocol rules are applied to the valid event set? | Current controller, active guards, lifecycle state, candidate branches. |
+| Policy validation and consequential state | What state results when the DCR is evaluated under the identified policy? | Current controller, active guards, lifecycle state, candidate branches. |
 | Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
 | Effect | What consequence follows from recognized state? | Treated as an authoritative copy, transferable record, official record, or evidentiary record. |
 
-Protocol validity can establish consequential state. It cannot compel external
-recognition or effect.
+Policy validation of the DCR can establish consequential state. It cannot
+compel external recognition or effect.
 
 ## Definitions
 
@@ -69,7 +70,7 @@ Controllable Electronic Record under UCC Article 12.
 ### Digital Original
 
 A Digital Original is a Digital Artifact for which consequential state has
-been established through a valid DCR under the applicable OpenETR rules.
+been established by validating its DCR under an applicable policy.
 
 This is a technical architecture term. A **recognized Digital Original** is a
 Digital Original whose actor, graph, object, or derived state has also been
@@ -94,14 +95,15 @@ The important question is not only whether an object was anchored or signed. The
 ### Standing
 
 Standing is a status asserted, derived, or accorded to a Digital Original.
-Protocol rules may derive a standing-related state, but **recognized standing**
-exists only when a recognition context accepts that state for a purpose.
+A validation policy may produce a standing-related state, but **recognized
+standing** exists only when a recognition context accepts that state for a
+purpose.
 Examples include official copy, evidentiary copy, transferable record, retired
 record, cancelled record, or non-authoritative copy.
 
-Protocol events and rules can establish consequential state. Recognition
-determines whether a relying party accepts that state; applicable rules
-determine its effect.
+Policy validation of DCR evidence can establish consequential state.
+Recognition determines whether a relying party accepts that state and what
+effect follows.
 
 ### Effect
 
@@ -123,8 +125,9 @@ The following actions do not independently create OpenETR consequential state:
 - Placing a file in a digital wallet.
 
 Each may help establish integrity, authenticity, provenance, or persistence.
-A valid OpenETR Anchor Event, applied under the protocol rules, can establish
-initial consequential state. That makes the identified Digital Artifact a
+A valid OpenETR Anchor Event forms a one-record DCR. Validation of that DCR
+under an applicable policy can establish initial consequential state. That
+makes the identified Digital Artifact a
 Digital Original in the technical OpenETR sense, while recognition and effect
 remain unresolved.
 
@@ -133,8 +136,8 @@ Useful shorthand:
 - Hashing establishes integrity, not originality.
 - Signing establishes an assertion, not necessarily authority.
 - Arbitrary anchoring establishes a reference point, not consequential state.
-- A valid OpenETR anchor establishes candidate consequential state, not
-  universal recognition.
+- Validation of a one-record Anchor DCR under an applicable policy may
+  establish candidate consequential state, not universal recognition.
 - Control transitions are consequential because conforming implementations can
   derive state from them.
 - Digital originality is not a uniqueness property of the bytes.
@@ -201,11 +204,13 @@ The minimal control primitive set is:
 
 ### Anchor
 
-Anchor establishes the initial anchored control state for a Digital Artifact. It creates a technical reference point and a starting point for the control graph.
+Anchor creates the first candidate DCR record for a Digital Artifact. It
+provides a technical reference point and a starting point for the control
+graph.
 
-When a valid Anchor Event is applied under OpenETR protocol rules, it
-establishes the initial consequential state for a candidate control graph. It
-therefore brings the identified Digital Artifact into the Digital Original model.
+When the one-record DCR is validated under an applicable policy, it may produce
+initial consequential state for a candidate control graph. It may therefore
+bring the identified Digital Artifact into the Digital Original model.
 It does not establish that its candidate graph is uniquely authoritative,
 recognized, or legally effective. Earlier terminology such as Original Event
 should still be avoided because the event is an anchor, not a declaration of
@@ -326,8 +331,8 @@ particular file instance becoming uniquely original.
 
 They do not, by themselves, establish OpenETR consequential state for the scan.
 
-The scan becomes a Digital Original in the technical OpenETR sense when valid
-OpenETR events establish consequential state for it. It becomes a recognized
+The scan becomes a Digital Original in the technical OpenETR sense when its DCR
+is validated under an applicable policy and produces consequential state. It becomes a recognized
 Digital Original for a licensing purpose only if a competent licensing
 authority or relevant recognition regime accepts the actor, graph, object, and
 derived state for that purpose.
@@ -438,11 +443,12 @@ Digital Artifact can be established and transitioned.
 **Transition Guard:** A condition arising from the current control state that determines whether a proposed control-state transition is valid.
 
 **Digital Original:** A Digital Artifact for which consequential state has
-been established through a valid DCR under applicable OpenETR protocol rules.
+been established by validating its DCR under an applicable policy.
 
-**Consequential State:** Protocol state derived from end-verifiable events that
-is capable of affecting control, authority, rights, obligations, restrictions,
-standing, or permitted actions.
+**Consequential State:** The result of validating end-verifiable DCR evidence
+under an identified policy. The result is capable of affecting control,
+authority, rights, obligations, restrictions, standing, or permitted actions
+when it is recognized for a stated purpose.
 
 **Recognition:** The acceptance of an actor, assertion, object, or control state by a relying party, institution, community, or legal regime for a particular purpose.
 

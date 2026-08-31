@@ -8,10 +8,10 @@ independently verified.
 
 But OpenETR is equally clear about what that evidence does not do by itself.
 
-A signed event is not universal recognition. A valid DCR and its derived state
-do not automatically have legal, regulatory, commercial, or institutional
-effect. Recognition depends on the rule book by which the evidence and state
-are evaluated.
+A signed event is not universal recognition. A DCR and the consequential state
+produced by validating it under an applicable policy do not automatically have
+legal, regulatory, commercial, or institutional effect. Recognition determines
+whether that result is accepted and what effect it receives.
 
 That distinction is central to OpenETR.
 

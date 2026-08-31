@@ -9,13 +9,14 @@ events, projections, and application boundaries.
 
 ## Core Principle
 
-> Consequential state should be derived from end-verifiable events, not
-> asserted solely by applications.
+> Consequential state should result from validating end-verifiable DCR
+> evidence under an identified policy, not be asserted solely by applications.
 
 **Consequential State Architecture (CSA)** is an architectural approach in
-which state affecting control, authority, rights, obligations, restrictions,
-standing, or permitted actions is established and transitioned through signed,
-independently verifiable events.
+which signed, independently verifiable records form a DCR spanning an
+artifact's evidenced lifecycle. Validation of that DCR under an identified
+policy produces state affecting control, authority, rights, obligations,
+restrictions, standing, or permitted actions.
 
 Applications may maintain projections of consequential state, but they are not
 its sole authority:
@@ -35,7 +36,7 @@ concerning a Digital Artifact can be established and transitioned. A DCR is
 the protocol evidence structure, not the file or content that it concerns.
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established through a DCR under the applicable protocol rules.
+been established by validating its DCR under an applicable policy.
 
 This is a technical architecture definition. It does not claim that an
 external institution, community, contract, or jurisdiction must recognize the
@@ -71,11 +72,11 @@ uniquely identifiable content
         | referenced by
         v
 DIGITAL CONTROLLABLE RECORD
-single record or record graph
+single record or record graph spanning the evidenced lifecycle
         |
-        | derives
+        | validate as a whole under an applicable policy
         v
-CONSEQUENTIAL STATE
+CONSEQUENTIAL STATE (validation result)
         |
         | establishes
         v
@@ -103,9 +104,10 @@ A DCR may consist of:
 - a directed graph of control, transfer, encumbrance, discharge, provenance,
   delegation, termination, or related events.
 
-The graph is evidence. Current consequential state is derived from the valid
-DCR graph. The DCR therefore sits between content identity and state; it must
-not be used as a synonym for the Digital Artifact itself.
+The graph is evidence. Current consequential state is the result of validating
+the DCR graph as a whole under an applicable policy. The DCR therefore spans
+the signed evidence lifecycle between content identity and state evaluation;
+it must not be used as a synonym for the Digital Artifact itself.
 
 **Digital Controllable Record** is an OpenETR protocol term. It is not legally
 synonymous with a **Controllable Electronic Record (CER)** under UCC Article
@@ -127,24 +129,24 @@ evidence to determine:
 3. which transition or assertion is being made;
 4. whether the event is authentic and unaltered;
 5. which prior state, signatures, guards, or events constrain it; and
-6. how it participates in derivation of consequential state.
+6. how it participates in policy validation of the DCR and the resulting
+   consequential state.
 
 The durable primitive is not an application's state row. It is portable,
 verifiable evidence of a state transition.
 
 ## Derived State
 
-Consequential state is derived by applying OpenETR protocol rules to the
-relevant valid event set:
+Consequential state is produced by validating the relevant DCR record or graph
+under an identified policy. The policy includes the applicable OpenETR
+protocol rules and any stated profile constraints needed for that evaluation:
 
 ```text
-End-Verifiable Events
+DCR Record Or Graph + Identified Policy
           |
+          | validation
           v
-    Protocol Rules
-          |
-          v
-  Consequential State
+  Consequential State (result)
           |
    +------+------+ 
    |      |      |
@@ -159,8 +161,8 @@ Applications **MAY** maintain databases, indexes, caches, APIs, snapshots, and
 materialized views. These are projections of consequential state rather than
 its ultimate source of authority.
 
-A projection must be reproducible or auditable from the event evidence and the
-identified protocol or policy version used for derivation.
+A projection must be reproducible or auditable from the DCR evidence and the
+identified policy version used for validation.
 
 ## Conflicts And Candidate State
 
@@ -197,10 +199,11 @@ or applicable rule for a stated purpose.
 acted upon.
 
 ```text
-EVENT
+DCR OR DCR GRAPH + IDENTIFIED POLICY
   |
+  | validation
   v
-CONSEQUENTIAL STATE
+CONSEQUENTIAL STATE (result)
   |
   v
 RECOGNITION
@@ -209,7 +212,8 @@ RECOGNITION
 EFFECT
 ```
 
-OpenETR can establish end-verifiable consequential state without claiming that
+OpenETR can produce end-verifiable consequential state through policy
+validation of DCR evidence without claiming that
 every external party or jurisdiction must recognize it or give it a particular
 legal, institutional, contractual, community, or operational effect.
 
@@ -281,7 +285,7 @@ OpenETR should distinguish:
 | --- | --- |
 | Artifact Layer | Establish the unique content identity of persistent digital content. |
 | DCR Layer | Carry the signed, end-verifiable record or record graph concerning the artifact. |
-| State Layer | Derive consequential state from the valid DCR according to versioned OpenETR rules. |
+| State Layer | Validate the DCR under an identified, versioned policy and expose the resulting consequential state. |
 | Recognition Layer | Determine which actors, graphs, objects, or states are accepted for a purpose. |
 | Effect Layer | Apply legal, institutional, contractual, community, or operational consequences. |
 
@@ -297,9 +301,9 @@ DIGITAL ARTIFACT
       v
 DIGITAL CONTROLLABLE RECORD
       |
-      | protocol rules derive
+      | validate as a whole under an identified policy
       v
-CONSEQUENTIAL STATE
+CONSEQUENTIAL STATE (validation result)
       |
       v
 DIGITAL ORIGINAL
@@ -342,7 +346,8 @@ C2PA and OpenETR are complementary.
 
 C2PA binds signed provenance assertions to content and describes creation,
 transformation, ingredients, and publication history. OpenETR identifies the
-Digital Artifact and derives consequential state from a portable control-event graph.
+Digital Artifact and validates its portable DCR graph under an applicable
+policy to produce consequential state.
 Recognition determines what effect a relying party gives both forms of
 evidence.
 

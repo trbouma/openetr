@@ -55,14 +55,15 @@ by itself, assert derived or recognized consequential state.
 Its current wire-level role is to:
 
 - bind the object digest into the OpenETR event graph
-- establish the initial anchored control state
+- provide the candidate evidence from which initial anchored state may be
+  produced by policy validation
 - provide the starting point for later control traversal
 
-A valid Anchor Event establishes the initial consequential state for a
-candidate control graph and therefore brings the identified Digital Artifact
-into the OpenETR Digital Original model. It does not establish that the
-candidate is uniquely authoritative or compel recognition, standing, or legal
-or operational effect outside the protocol.
+A valid Anchor Event forms a one-record candidate DCR. Validation of that DCR
+under an applicable policy may establish initial consequential state and bring
+the identified Digital Artifact into the OpenETR Digital Original model. The
+event does not by itself establish that the candidate is uniquely authoritative
+or compel recognition, standing, or legal or operational effect.
 
 A single object digest may have more than one Anchor Event. Different issuers, systems, communities, or recognition contexts may anchor the same object. Verifiers should therefore treat each `1415` event as a candidate anchor and apply the relevant recognition profile to decide which anchor, if any, is authoritative for the purpose at hand.
 
@@ -263,8 +264,8 @@ Compatibility note:
 
 Recognition boundary:
 
-- establishes candidate consequential state when the event is valid under the
-  OpenETR rules, without deciding external recognition or effect
+- provides a one-record candidate DCR from which policy validation may produce
+  consequential state, without deciding external recognition or effect
 - does not, by itself, determine legal authority, ownership, title, mandate, priority, or effect
 - may be one of several candidate Anchor Events for the same object digest
 

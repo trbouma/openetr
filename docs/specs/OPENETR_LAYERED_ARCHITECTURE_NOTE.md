@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       Digital Artifacts, DCRs, profiles, derived state
+OpenETR control       Digital Artifacts, DCRs, validation policies, consequential state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -52,10 +52,10 @@ protocol evidence structure, not the artifact itself. A linked set of Anchor
 and Control Events is a candidate DCR graph.
 
 This is distinct from a **Digital Original**, which is a Digital Artifact for
-which valid DCR evidence and OpenETR rules establish consequential state. The
-artifact identifies the content; the DCR is durable signed evidence; derived
-state makes the artifact a Digital Original; and recognition determines what
-effect, if any, follows.
+which validation of its DCR under an applicable policy establishes
+consequential state. The artifact identifies the content; the DCR is durable
+signed evidence spanning the lifecycle; policy validation produces
+consequential state; and recognition determines what effect, if any, follows.
 
 At this layer, OpenETR defines:
 
@@ -65,7 +65,8 @@ At this layer, OpenETR defines:
 - later control records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
 - current-controller derivation from origin and control-event chains
-- lifecycle state derived from the signed event history
+- validation policies that evaluate the DCR as a whole and produce
+  consequential state
 - guardrails against ambiguous or duplicate actions where appropriate
 
 The control layer is domain-neutral.

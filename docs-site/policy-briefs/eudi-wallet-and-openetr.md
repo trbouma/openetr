@@ -33,8 +33,9 @@ OpenETR asks a different question:
 What happened concerning this Digital Artifact?
 ```
 
-OpenETR identifies content as a Digital Artifact by digest. Signed events
-concerning it form a DCR, from which protocol rules derive consequential state.
+OpenETR identifies content as a Digital Artifact by digest. Signed records
+concerning it form a DCR, which an applicable policy validates as a whole to
+produce consequential state.
 
 The graph may include:
 
@@ -86,7 +87,7 @@ EUDI Wallet credential
   -> proves identity, role, mandate, or authorization
   -> OpenETR profile signs a record event
   -> OpenETR DCR preserves durable signed evidence
-  -> OpenETR rules derive consequential state
+  -> an applicable policy validates the DCR and produces consequential state
   -> registry / authority / relying party evaluates effect
 ```
 

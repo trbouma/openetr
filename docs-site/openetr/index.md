@@ -15,15 +15,17 @@ The model can be read from left to right:
 ```text
 identifiable content
   -> signed evidence concerning it
-  -> state derived under common rules
+  -> DCR validated under an applicable policy
+  -> consequential state
   -> recognition and practical effect
 ```
 
 OpenETR calls the identifiable content a **Digital Artifact**. It calls the
 signed evidence a **Digital Controllable Record (DCR)**. A DCR may be one
-independently verifiable signed record or a graph of related records. Valid DCR
-evidence and protocol rules derive consequential state. A Digital Artifact
-with consequential state is a **Digital Original**.
+independently verifiable signed record or a graph of related records spanning
+the evidenced lifecycle. Consequential state is the result of validating that
+DCR under an applicable policy. A Digital Artifact with established
+consequential state is a **Digital Original**.
 
 The DCR is not the file, and the word “controllable” does not automatically
 give it legal status. Legal recognition remains a separate question.
@@ -36,7 +38,7 @@ brief](../policy-briefs/digital-originality.md#concrete-example-an-english-guten
 
 ```text
 Domain adapter         Warehouse Receipts, Product Passports, bills of lading, credentials
-OpenETR control layer  Digital Artifacts, DCRs, profiles, derived state
+OpenETR control layer  Digital Artifacts, DCRs, validation policies, consequential state
 Nostr wire format      signed events, kinds, tags, relays, event ids
 Recognition layer      law, contracts, registry rules, institutional policy
 ```
@@ -49,7 +51,7 @@ OpenETR defines:
 
 - digest-addressed Digital Artifacts;
 - Digital Controllable Records made of signed end-verifiable events;
-- origin events that bring objects into the scheme;
+- Anchor records that begin candidate DCRs;
 - control events for transfer, encumbrance, discharge, redemption, termination, and attestation;
 - linked evidence records for supporting documents and lifecycle evidence;
 - profile-backed signing;

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
   <title id="title">Digital Artifact to Digital Original</title>
-  <desc id="desc">An OpenETR diagram showing a Digital Artifact referenced by a Digital Controllable Record, from which protocol rules derive consequential state and establish a Digital Original before recognition and effect.</desc>
+  <desc id="desc">An OpenETR diagram showing a Digital Artifact referenced by a Digital Controllable Record spanning its signed lifecycle. Validation of that record or graph against an applicable policy produces consequential state, which enables recognition and effect and establishes a Digital Original.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fbff"/>
@@ -63,7 +63,7 @@
   <rect width="1600" height="1000" fill="url(#bg)"/>
 
   <text x="800" y="58" text-anchor="middle" class="title ink">Digital Artifact -&gt; Digital Original</text>
-  <text x="800" y="104" text-anchor="middle" class="subtitle muted">Events provide evidence. Rules derive state. Recognition gives effect.</text>
+  <text x="800" y="104" text-anchor="middle" class="subtitle muted">Validate the DCR against policy. Consequential state enables recognition and effect.</text>
 
   <rect x="40" y="178" width="250" height="290" rx="10" fill="url(#object)" filter="url(#shadow)"/>
   <text x="90" y="262" class="panel-title ink">Digital</text>
@@ -74,35 +74,38 @@
   <path class="arrow" d="M290 341h64"/>
   <path class="arrow" d="M336 318l24 23-24 23"/>
 
-  <rect x="360" y="136" width="880" height="176" rx="14" fill="url(#effect)" filter="url(#shadow)"/>
-  <text x="800" y="175" text-anchor="middle" class="panel-title ink">Recognition And Effect</text>
-  <text x="800" y="204" text-anchor="middle" class="panel-subtitle ink">Accept derived state and give it external consequence.</text>
-  <rect x="386" y="224" width="250" height="64" rx="8" fill="url(#effectChip)"/>
-  <rect x="675" y="224" width="250" height="64" rx="8" fill="url(#effectChip)"/>
-  <rect x="964" y="224" width="250" height="64" rx="8" fill="url(#effectChip)"/>
-  <text x="511" y="263" text-anchor="middle" class="chip ink">Recognition</text>
-  <text x="800" y="263" text-anchor="middle" class="chip ink">Standing</text>
-  <text x="1089" y="263" text-anchor="middle" class="chip ink">Relinquishment</text>
+  <rect x="360" y="132" width="880" height="154" rx="14" fill="url(#effect)" filter="url(#shadow)"/>
+  <text x="800" y="171" text-anchor="middle" class="panel-title ink">Recognition And Effect</text>
+  <text x="800" y="202" text-anchor="middle" class="panel-subtitle ink">A relying party accepts consequential state and gives it external effect.</text>
+  <rect x="386" y="220" width="250" height="44" rx="8" fill="url(#effectChip)"/>
+  <rect x="675" y="220" width="250" height="44" rx="8" fill="url(#effectChip)"/>
+  <rect x="964" y="220" width="250" height="44" rx="8" fill="url(#effectChip)"/>
+  <text x="511" y="249" text-anchor="middle" class="chip ink">Recognition</text>
+  <text x="800" y="249" text-anchor="middle" class="chip ink">Standing</text>
+  <text x="1089" y="249" text-anchor="middle" class="chip ink">Effect</text>
 
+  <path class="dash" d="M800 316v-24"/>
+  <path class="arrow" d="M788 300l12-12 12 12"/>
+  <text x="822" y="307" class="small ink">Policy validation produces consequential state</text>
+
+  <rect x="360" y="318" width="880" height="46" rx="12" fill="url(#controlledObject)" stroke="#76549f" stroke-width="2"/>
+  <text x="800" y="348" text-anchor="middle" class="ink">
+    <tspan class="role-title">Digital Controllable Record</tspan>
+    <tspan class="role-subtitle"> — one end-verifiable record or graph spanning the signed lifecycle</tspan>
+  </text>
   <rect x="360" y="370" width="880" height="168" rx="14" fill="url(#control)" filter="url(#shadow)"/>
-  <text x="800" y="408" text-anchor="middle" class="panel-title ink">End-Verifiable Events</text>
-  <text x="800" y="436" text-anchor="middle" class="panel-subtitle ink">Protocol rules derive consequential state.</text>
-  <rect x="380" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
-  <rect x="554" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
-  <rect x="728" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
-  <rect x="902" y="456" width="160" height="62" rx="8" fill="url(#controlChip)"/>
-  <rect x="1076" y="456" width="144" height="62" rx="8" fill="url(#controlChip)"/>
+  <text x="800" y="410" text-anchor="middle" class="panel-title ink">End-Verifiable DCR Evidence</text>
+  <text x="800" y="438" text-anchor="middle" class="panel-subtitle ink">The record or graph is evaluated as a whole in relation to policy.</text>
+  <rect x="380" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
+  <rect x="554" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
+  <rect x="728" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
+  <rect x="902" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
+  <rect x="1076" y="458" width="144" height="58" rx="8" fill="url(#controlChip)"/>
   <text x="460" y="494" text-anchor="middle" class="chip ink">Anchor</text>
   <text x="634" y="494" text-anchor="middle" class="chip ink">Transfer</text>
   <text x="808" y="494" text-anchor="middle" class="chip ink">Encumber</text>
   <text x="982" y="494" text-anchor="middle" class="chip ink">Discharge</text>
   <text x="1148" y="494" text-anchor="middle" class="chip ink">Terminate</text>
-
-  <rect x="360" y="318" width="880" height="46" rx="12" fill="url(#controlledObject)" stroke="#76549f" stroke-width="2"/>
-  <text x="800" y="348" text-anchor="middle" class="ink">
-    <tspan class="role-title">Digital Controllable Record</tspan>
-    <tspan class="role-subtitle"> — one end-verifiable record or a graph of related records</tspan>
-  </text>
 
   <path class="arrow" d="M1240 341h64"/>
   <path class="arrow" d="M1286 318l24 23-24 23"/>
@@ -125,46 +128,31 @@
   <text x="62" y="766" class="body fine">Digital Artifact but do not</text>
   <text x="62" y="790" class="body fine">copy consequential state.</text>
 
-  <rect x="370" y="568" width="430" height="300" rx="8" fill="url(#control)" filter="url(#shadow)"/>
-  <text x="392" y="602" class="card-title ink">Control Primitives</text>
-  <text x="392" y="628" class="card-subtitle ink">Definitions: state transitions</text>
-  <text x="392" y="662" class="body-strong ink">Anchor</text>
-  <text x="505" y="662" class="body fine">Establishes the initial anchored</text>
-  <text x="505" y="686" class="body fine">control state.</text>
-  <text x="392" y="718" class="body-strong ink">Transfer</text>
-  <text x="505" y="718" class="body fine">Changes the controller.</text>
-  <text x="392" y="750" class="body-strong ink">Encumber</text>
-  <text x="505" y="750" class="body fine">Establishes a guard on subsequent</text>
-  <text x="505" y="774" class="body fine">control-state transitions.</text>
-  <text x="392" y="806" class="body-strong ink">Discharge</text>
-  <text x="505" y="806" class="body fine">Removes an established guard.</text>
-  <text x="392" y="838" class="body-strong ink">Terminate</text>
-  <text x="505" y="838" class="body fine">Ends the active control state.</text>
-  <line x1="486" y1="648" x2="486" y2="844" class="rule"/>
-
-  <rect x="820" y="568" width="500" height="300" rx="8" fill="url(#effect)" filter="url(#shadow)"/>
-  <text x="842" y="602" class="card-title ink">Effect Primitives</text>
-  <text x="842" y="628" class="card-subtitle ink">Definitions: meaning and consequence</text>
-  <text x="842" y="662" class="body-strong ink">Recognition</text>
-  <text x="994" y="662" class="body fine">An actor, assertion, object, or</text>
-  <text x="994" y="686" class="body fine">control state is accepted for a</text>
-  <text x="994" y="710" class="body fine">particular purpose.</text>
-  <text x="842" y="750" class="body-strong ink">Standing</text>
-  <text x="994" y="750" class="body fine">A Digital Original is accorded</text>
-  <text x="994" y="774" class="body fine">consequential status within a</text>
-  <text x="994" y="798" class="body fine">recognition context.</text>
-  <text x="842" y="838" class="body-strong ink">Relinquishment</text>
-  <text x="994" y="838" class="body fine">A party gives up a recognized</text>
-  <text x="994" y="862" class="body fine">claim, right, position, or status.</text>
-  <line x1="974" y1="648" x2="974" y2="872" class="rule"/>
+  <rect x="370" y="568" width="950" height="300" rx="8" fill="url(#control)" filter="url(#shadow)"/>
+  <text x="392" y="602" class="card-title ink">Digital Controllable Record</text>
+  <text x="392" y="628" class="card-subtitle ink">The evidence spans the lifecycle; validation produces consequential state.</text>
+  <text x="392" y="670" class="body fine">One signed end-verifiable record</text>
+  <text x="392" y="694" class="body fine">or a graph of related signed</text>
+  <text x="392" y="718" class="body fine">records concerning a Digital</text>
+  <text x="392" y="742" class="body fine">Artifact. It preserves portable</text>
+  <text x="392" y="766" class="body fine">evidence of consequential</text>
+  <text x="392" y="790" class="body fine">statements and lifecycle events.</text>
+  <line x1="820" y1="650" x2="820" y2="842" class="rule"/>
+  <text x="850" y="670" class="body-strong ink">Policy Validation</text>
+  <text x="850" y="704" class="body fine">An applicable policy evaluates the DCR</text>
+  <text x="850" y="728" class="body fine">or graph as a whole. Consequential state</text>
+  <text x="850" y="752" class="body fine">is the result of that validation, not a</text>
+  <text x="850" y="776" class="body fine">separate record or container.</text>
+  <text x="850" y="816" class="body-strong ink">Recognition accepts that state and</text>
+  <text x="850" y="840" class="body fine">determines its external effect.</text>
 
   <rect x="1340" y="568" width="220" height="300" rx="8" fill="url(#original)" filter="url(#shadow)"/>
   <text x="1362" y="602" class="card-title ink">Digital Original</text>
   <text x="1362" y="628" class="card-subtitle ink">Definition</text>
   <text x="1362" y="670" class="body fine">A Digital Artifact with</text>
   <text x="1362" y="694" class="body fine">consequential state</text>
-  <text x="1362" y="718" class="body fine">derived from its</text>
-  <text x="1362" y="742" class="body fine">valid DCR.</text>
+  <text x="1362" y="718" class="body fine">established by policy</text>
+  <text x="1362" y="742" class="body fine">validation of its DCR.</text>
 
   <rect x="40" y="888" width="500" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
   <text x="62" y="920" class="card-title ink">Transition Guards</text>
@@ -178,6 +166,6 @@
 
   <rect x="1140" y="888" width="420" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
   <text x="1162" y="920" class="card-title ink">Key Takeaway</text>
-  <text x="1162" y="948" class="body-strong ink">Rules derive consequential state.</text>
-  <text x="1162" y="970" class="body fine">Recognition determines accepted effect.</text>
+  <text x="1162" y="948" class="body-strong ink">Validate the DCR against policy.</text>
+  <text x="1162" y="970" class="body fine">The resulting state enables effect.</text>
 </svg>

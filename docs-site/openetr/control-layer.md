@@ -1,7 +1,8 @@
 # Control Layer
 
-The OpenETR control layer interprets signed Nostr events under protocol rules
-to derive consequential state concerning a Digital Artifact.
+The OpenETR control layer assembles signed Nostr records into a DCR concerning
+a Digital Artifact. It validates that record or graph under an identified
+policy to produce consequential state.
 
 ## Digital Artifact And Digital Controllable Record
 
@@ -23,14 +24,14 @@ The object may be:
 
 OpenETR does not need to parse the object to track its control history. It needs the digest.
 
-When valid end-verifiable events and OpenETR rules establish consequential
-state for the Digital Artifact, it becomes a **Digital Original** in the
-technical OpenETR sense.
+When validation of the DCR under an applicable policy establishes
+consequential state for the Digital Artifact, it becomes a **Digital Original**
+in the technical OpenETR sense.
 
 ## Anchor Event
 
-An Anchor event brings the object into the OpenETR scheme and establishes
-candidate consequential state.
+An Anchor event forms a one-record candidate DCR. Validation of that DCR under
+an applicable policy may establish candidate consequential state.
 
 It binds:
 
@@ -67,12 +68,12 @@ The control graph is reconstructed from signed events:
 - `action` identifies the control-event subtype;
 - action-specific tags such as `enc`, `type`, and `ref` add structured context.
 
-The graph is portable evidence. OpenETR rules derive protocol state from that
-evidence. Recognition policy separately decides whether to accept that state
-for a purpose and what effect to give it.
+The graph is portable evidence. An identified policy validates the DCR as a
+whole and produces consequential state. Recognition separately decides whether
+to accept that result for a purpose and what effect to give it.
 
 ```text
-signed events -> OpenETR rules -> consequential state -> recognition -> effect
+DCR + applicable policy -> validation -> consequential state -> recognition -> effect
 ```
 
 Applications may cache and display a projection of the state, but they are not

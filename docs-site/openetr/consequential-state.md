@@ -2,8 +2,8 @@
 
 OpenETR is designed around one governing principle:
 
-> Consequential state should be derived from end-verifiable events, not
-> asserted solely by applications.
+> Consequential state should result from validating end-verifiable DCR
+> evidence under an identified policy, not be asserted solely by applications.
 
 ## Digital Artifact, Digital Controllable Record, And Digital Original
 
@@ -17,7 +17,7 @@ graph of related end-verifiable records concerning a Digital Artifact. It is
 the signed evidence structure, not the artifact itself.
 
 A **Digital Original** is a Digital Artifact with consequential state
-established through a valid DCR under the applicable protocol rules.
+established by validating its DCR under an applicable policy.
 
 > Content makes an artifact identifiable. Consequential state makes it an
 > original.
@@ -27,8 +27,8 @@ Copying content does not copy consequential state.
 ```text
 Digital Artifact
   -> Digital Controllable Record
-  -> OpenETR rules
-  -> consequential state
+  -> validation under an applicable policy
+  -> consequential state (validation result)
   -> Digital Original
 ```
 
@@ -40,12 +40,13 @@ application disappears, that state may become inaccessible or impossible to
 verify independently.
 
 OpenETR uses a different boundary. Applications create and present signed
-events. Protocol rules derive the resulting state. An application can cache a
-projection for performance, but another implementation can reconstruct the
-same result from the evidence.
+records that form a DCR. An identified policy validates that record or graph as
+a whole and produces consequential state. An application can cache a projection
+for performance, but another implementation can reconstruct the same result
+from the evidence and policy.
 
 ```text
-event -> protocol rules -> consequential state
+DCR + identified policy -> validation -> consequential state
 ```
 
 ## End-Verifiable Events
@@ -69,18 +70,18 @@ For each consequential state variable, the specification should identify:
 1. the events that may change it;
 2. the signing keys permitted to authorize those events;
 3. the prior-state constraints;
-4. the deterministic verification procedure;
+4. the identified validation policy and deterministic verification procedure;
 5. the rules for conflict, supersession, and termination; and
 6. the resulting state.
 
 ## Recognition Is A Separate Boundary
 
-Derivable protocol state does not compel recognition. A law, contract,
+Consequential state produced by policy validation does not compel recognition. A law, contract,
 institution, community, or relying-party policy still decides whether to
 accept the actor, graph, or state for a stated purpose and what effect follows.
 
 ```text
-protocol-valid state -> recognition -> external effect
+consequential state -> recognition -> external effect
 ```
 
 This separation lets OpenETR remain technically portable without pretending

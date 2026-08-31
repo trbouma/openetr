@@ -13,7 +13,7 @@ It supplies a reusable control-and-evidence material:
 - digest-based Digital Artifact identity
 - signed events
 - Digital Controllable Records (DCRs)
-- reproducible consequential-state derivation
+- reproducible DCR validation under identified policies
 - linked evidence
 - profile-backed attribution
 - artifact-centric retrieval
@@ -88,7 +88,7 @@ OpenETR's reusable properties are:
 - a Digital Artifact can be identified by digest
 - signed events can be independently verified
 - DCR graphs can be reconstructed from portable signed records
-- consequential state can be derived under explicit protocol rules
+- DCRs can be validated under explicit policies to produce consequential state
 - linked evidence can be attached without becoming the main object
 - profile keys can attribute actions
 - different verifiers can apply different recognition policies to the same evidence

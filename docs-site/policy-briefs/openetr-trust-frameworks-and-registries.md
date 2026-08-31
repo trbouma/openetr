@@ -8,7 +8,7 @@ OpenETR fits into that landscape differently.
 
 OpenETR is not itself a full trust framework. It is a general control layer for
 durable electronic records. Its job is to identify Digital Artifacts, preserve
-their DCR evidence, and derive consequential state so trust frameworks,
+their DCR evidence, and support policy validation that produces consequential state so trust frameworks,
 registries, authorities, and relying parties can decide what effect to give it.
 
 ## What Trust Frameworks Do
@@ -84,7 +84,8 @@ But durable electronic records also need an artifact-centric evidence layer:
 ```text
 record or artifact -> Digital Artifact by digest
   -> DCR: Anchor, control, and linked-evidence records
-  -> consequential state derived under OpenETR rules
+  -> DCR validated under an applicable policy
+  -> consequential state produced by that validation
   -> verifier policy / registry / trust framework decides effect
 ```
 

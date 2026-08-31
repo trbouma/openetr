@@ -8,18 +8,23 @@ They should not be treated as competing models.
 
 C2PA attaches a signed provenance record to content. The C2PA manifest is like a sidecar record added to the file, often embedded inside the PDF, image, video, or other asset. It can describe who created the asset, what actions were performed, what assertions are being made, and whether the protected content still matches the signed provenance record.
 
-OpenETR can provide an additional final-artifact integrity layer by taking a cryptographic digest of the completed file. But for electronic transferable records, OpenETR's more important contribution is consequential state: the digest identifies the record, signed events provide end-verifiable evidence, and protocol rules derive control and lifecycle state.
+OpenETR can provide an additional final-artifact integrity layer by taking a
+cryptographic digest of the completed file. But for electronic transferable
+records, OpenETR's more important contribution is consequential state: the
+digest identifies the artifact, signed records form end-verifiable DCR
+evidence, and an applicable policy validates that DCR to produce control and
+lifecycle state.
 
 Used together, C2PA helps explain and verify the provenance of content, while
-OpenETR identifies the Digital Artifact and derives consequential state from
-its valid DCR. Recognition policy then decides what effect to give either
-result.
+OpenETR identifies the Digital Artifact and supports validation of its DCR to
+produce consequential state. Recognition then decides what effect to give
+either result.
 
 The short version is:
 
 ```text
 C2PA explains content and provenance.
-OpenETR derives consequential state and control.
+OpenETR validates DCR evidence under policy to produce consequential state.
 Recognition determines accepted meaning and effect.
 ```
 
@@ -63,13 +68,14 @@ The digest does not need to understand the internal structure of the file. It do
 It treats the final file as the evidence object.
 
 For a Digital Artifact with DCR evidence, OpenETR then goes beyond integrity.
-It applies versioned protocol rules to the valid DCR to derive consequential state:
+It validates the DCR as a whole under an identified, versioned policy to
+produce consequential state:
 the current controller, lifecycle status, active guards, and other results that
 constrain what may validly happen next.
 
 ```text
-Digital Artifact -> Digital Controllable Record made of candidate events
-Digital Controllable Record + protocol rules -> consequential state
+Digital Artifact -> Digital Controllable Record spanning candidate evidence
+Digital Controllable Record + applicable policy -> validation -> consequential state
 Digital Artifact + consequential state -> Digital Original
 ```
 
@@ -198,7 +204,7 @@ The recommended policy framing is:
 
 ```text
 C2PA provides embedded or attached provenance for content.
-OpenETR provides record identity, end-verifiable events, and derived consequential state.
+OpenETR provides record identity, end-verifiable DCR evidence, and policy validation that produces consequential state.
 Recognition policy decides what effect to give both.
 ```
 

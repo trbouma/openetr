@@ -8,7 +8,8 @@ OpenETR fits that layered model, but it draws a firm protocol boundary.
 
 For each record lifecycle, OpenETR distinguishes the exact **Digital Artifact**
 from the **Digital Controllable Record (DCR)** made up of signed evidence about
-that artifact. Protocol rules evaluate the DCR to derive consequential state.
+that artifact. An applicable policy validates the DCR as a whole to produce
+consequential state.
 Identity and governance systems then help a relying party decide whether to
 recognize the signer, its authority, and the resulting state.
 
@@ -109,7 +110,7 @@ Agent identity and governance:
 
 OpenETR control layer:
   what DCR evidence exists for which digest-identified artifact,
-  and what consequential state follows under the protocol rules
+  and what consequential state results under the identified validation policy
 
 Recognition policy:
   whether that actor and action should be accepted in context

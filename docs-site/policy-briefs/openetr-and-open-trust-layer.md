@@ -4,9 +4,9 @@ Open Trust Layer (`OTL`) and OpenETR address different but complementary parts o
 
 OTL focuses on participant identity, secure communication, compliance
 messaging, payment sessions, and local counterparty trust decisions. OpenETR
-focuses on a digest-identified Digital Artifact, the Digital Controllable
-Record (DCR) concerning it, and the consequential state derived from that
-evidence.
+focuses on a digest-identified Digital Artifact and the Digital Controllable
+Record (DCR) spanning the signed evidence concerning it. Consequential state
+is the result of validating that DCR under an applicable policy.
 
 The useful distinction is:
 
@@ -37,8 +37,8 @@ OTL identity and transport
 OpenETR DCR
   -> preserve durable signed evidence concerning the Digital Artifact
 
-OpenETR protocol rules
-  -> derive consequential state from that evidence
+OpenETR validation policy
+  -> evaluate the DCR as a whole and produce consequential state
 
 Domain adapter
   -> translate evidence into eBL, eWR, eBoE, ePN, or other domain semantics

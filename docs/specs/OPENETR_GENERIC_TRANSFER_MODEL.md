@@ -8,13 +8,18 @@ It is intended to describe control over a transferable electronic record in a wa
 - any specific legal recognition regime
 - any specific protocol implementation
 
-OpenETR is not a Recognition Layer system. It does not itself provide ownership, title, contractual rights, priority, mandate, or legal effect. It preserves a Digital Controllable Record concerning a Digital Artifact and derives consequential state under protocol rules.
+OpenETR is not a Recognition Layer system. It does not itself provide
+ownership, title, contractual rights, priority, mandate, or legal effect. It
+preserves a Digital Controllable Record concerning a Digital Artifact and
+supports validation of that DCR under an applicable policy. Consequential
+state is the result of that validation.
 
 ## Purpose
 
 OpenETR is a Control Layer for electronic transferable records.
 
-Its purpose is to make the DCR evidence and consequential state concerning a Digital Artifact independently verifiable.
+Its purpose is to make the DCR evidence, validation policy, and resulting
+consequential state concerning a Digital Artifact independently verifiable.
 
 It does not determine:
 
@@ -39,8 +44,8 @@ The Digital Artifact:
 - is the common subject referenced by candidate assertions and Control Events;
 - may have incomplete, invalid, competing, ambiguous, or terminated event
   history; and
-- becomes a Digital Original when a valid DCR and OpenETR rules establish
-  consequential state for it.
+- becomes a Digital Original when validation of its DCR under an applicable
+  policy establishes consequential state.
 
 ### Digital Controllable Record
 
@@ -50,9 +55,9 @@ the control evidence structure, not the artifact itself.
 
 ### Current Controller
 
-For a valid, complete, unambiguous, and active candidate graph, OpenETR rules
-may derive exactly one Participant as the Current Controller. A Controlled
-Artifact does not necessarily have a derivable Current Controller: the relevant
+For a valid, complete, unambiguous, and active candidate graph, an applicable
+validation policy may produce exactly one Participant as the Current
+Controller. A Digital Artifact does not necessarily have a resulting Current Controller: the relevant
 event set may be absent, incomplete, invalid, conflicting, or terminated.
 
 The Current Controller has the exclusive ability to:
@@ -73,9 +78,9 @@ lifecycle of the Digital Artifact.
 - every event references the Digital Artifact
 - every event is cryptographically signed by the Participant performing the event
 
-The graph provides evidence from which control state can be derived. A
-particular retrieved graph may be incomplete or may compete with another
-candidate graph.
+The graph provides evidence that a stated policy can validate to produce
+control state. A particular retrieved graph may be incomplete or may compete
+with another candidate graph.
 
 ### Participants
 
@@ -108,8 +113,9 @@ exist outside the model.
 
 ### ISSUE
 
-Creates the first DCR record concerning a Digital Artifact and, when valid
-under the applicable OpenETR rules, establishes initial consequential state.
+Creates the first DCR record concerning a Digital Artifact. Validation of that
+one-record DCR under the applicable policy may establish initial consequential
+state.
 
 An ISSUE event:
 

@@ -152,15 +152,17 @@ derived over time.
 
 Under OpenETR Consequential State Architecture:
 
-> A Digital Artifact has uniquely identifiable content. It occupies the
-> Controlled Object role when candidate OpenETR events identify it as their
-> subject. A Digital Original is a Controlled Object with consequential state.
+> A Digital Artifact has uniquely identifiable content. Signed OpenETR records
+> concerning it form a Digital Controllable Record spanning its evidenced
+> lifecycle. Validation of that DCR under an applicable policy produces
+> consequential state. A Digital Original is the Digital Artifact with that
+> established state.
 
 A C2PA Content Credential can provide strong end-verifiable provenance
 evidence, but C2PA validity alone does not establish OpenETR consequential
 state. A C2PA-enabled asset becomes a Digital Original in the OpenETR technical
-sense when valid OpenETR events establish consequential state for the
-identified Digital Artifact.
+sense when its DCR is validated under an applicable policy and that validation
+produces consequential state for the identified Digital Artifact.
 
 Recognition remains separate. A relying party may require a trusted C2PA
 signer, particular capture assertions, a valid OpenETR control graph, and a
@@ -356,8 +358,9 @@ consequential state layer.
 
 C2PA provides embedded or attached provenance for content.
 
-OpenETR provides external final-artifact identity and end-verifiable events
-from which consequential state can be derived.
+OpenETR provides external final-artifact identity and a DCR whose
+end-verifiable evidence can be validated under a stated policy to produce
+consequential state.
 
 The recommended policy framing is:
 

@@ -117,8 +117,8 @@ OpenETR associates a digest-identified **Digital Artifact** with a **Digital
 Controllable Record (DCR)**: one signed end-verifiable record or a graph of
 related signed records concerning that artifact. Anchor, Control, Attestation,
 and linked-evidence records may all form part of the DCR. Their presence does
-not itself establish consequential state; that state must be derived from the
-valid DCR under OpenETR rules.
+not itself establish consequential state; that state is the result of
+validating the DCR as a whole under an applicable policy.
 
 The compact model is:
 
@@ -355,7 +355,7 @@ separate.
 | Is that key authorized or recognized? | Registry, organizational, community, contractual, or legal policy |
 | Is the record current? | Control and lifecycle evidence |
 | Is the presenter the rightful holder? | Holder-binding or control evidence appropriate to the domain |
-| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Valid DCR and domain-specific state derivation |
+| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Validation of the DCR under the applicable domain policy |
 | Should the verifier rely on it? | Verifier policy and surrounding facts |
 
 A hash proves integrity relative to exact bytes. A signature proves that a key

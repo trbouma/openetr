@@ -94,7 +94,7 @@ nav:
           - Overview: apostille-documents.md
   - Policy Briefs:
       - Why OpenETR: policy-briefs/why-openetr.md
-      - The Three-Part Model: policy-briefs/digital-artifact-dcr-digital-original.md
+      - The Core Model: policy-briefs/digital-artifact-dcr-digital-original.md
       - Digital Originality: policy-briefs/digital-originality.md
       - Graduated Disclosure: policy-briefs/graduated-disclosure.md
       - OpenETR As Fabric: policy-briefs/openetr-as-fabric.md

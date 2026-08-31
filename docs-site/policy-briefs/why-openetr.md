@@ -11,12 +11,13 @@ Those questions are related, but they should not be collapsed into one applicati
 OpenETR is designed as a thin, open control layer for durable electronic
 records. It identifies a Digital Artifact by cryptographic digest and records
 signed lifecycle evidence about that artifact as a Digital Controllable Record.
-Protocol rules derive consequential state from the valid DCR; many different
-domain systems can then interpret and recognize that state.
+An applicable policy validates the DCR as a whole and produces consequential
+state; many different domain systems can then interpret and recognize that
+state.
 
 The OpenETR protocol construct is the **Digital Controllable Record**: one
-signed end-verifiable record or graph concerning a Digital Artifact. The DCR
-and protocol rules produce derived state; the recognition context determines
+signed end-verifiable record or graph concerning a Digital Artifact. Policy
+validation of the DCR produces consequential state; the recognition context determines
 accepted effect. Electronic transferable records are one important
 subclass, but the same control-layer pattern can also support non-transferable
 records, credentials, linked evidence, Product Passports, health records,
@@ -91,8 +92,8 @@ It lets policymakers and implementers distinguish:
 This terminology keeps the layers clean. A **Digital Artifact** is persistent
 content identified by digest. A **Digital Controllable Record** is the signed
 evidence record or graph concerning that artifact. A **Digital Original** is
-the Digital Artifact once consequential state has been established through a
-valid DCR under OpenETR rules. Legal and policy categories remain recognition
+the Digital Artifact once consequential state has been established by
+validating its DCR under an applicable policy. Legal and policy categories remain recognition
 questions.
 
 That framing keeps OpenETR from becoming too narrow. It can remain deeply
