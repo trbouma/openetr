@@ -28,13 +28,14 @@ thing should be recognized and what real-world effect it should have.
 **What happened concerning it?** The **Digital Controllable Record**, containing
 evidence signed by actors.
 
-**What follows?** **Consequential State**, derived according to the rules.
+**What follows?** **Consequential State**, derived according to defined rules.
 
 **What has the thing become?** A **Digital Original**, the thing with
 consequential state.
 
-The external question is **so what?** People, institutions, systems, and law
-recognize consequential state and determine what effect it receives.
+The final question sits outside the protocol: **so what?** People,
+institutions, systems, and law recognize consequential state and determine what
+effect it receives.
 
 > Consequential state should be derived from end-verifiable evidence, not
 > merely asserted by applications, databases or blockchains.
