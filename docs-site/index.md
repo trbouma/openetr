@@ -1,6 +1,6 @@
 # OpenETR
 
-**Digital Things You Can Rely On.**
+## Digital Things You Can Rely On
 
 OpenETR provides a simple protocol model for digital things people need to rely
 on. It separates the thing itself, the evidence of actions concerning it, and
@@ -12,7 +12,11 @@ establish it as a Digital Original that can be independently verified, while
 the relevant authority, institution, or law determines whether the digital
 thing should be recognized and what real-world effect it should have.
 
-**Three primitives. One core concept.**
+## Three Primitives. One Core Concept.
+
+The OpenETR model is deliberately simple. The diagram below shows how three
+primitives and one core concept fit together, with recognition and effect
+remaining outside the protocol.
 
 <figure class="openetr-model-figure openetr-model-figure--marquee">
   <img src="assets/images/openetr-model.png" alt="OpenETR model showing Digital Artifact, Digital Controllable Record, Consequential State, Digital Original, Recognition and Effect">
@@ -21,30 +25,15 @@ thing should be recognized and what real-world effect it should have.
   </figcaption>
 </figure>
 
-## Four Questions
+## The Problem And The Insight
 
-**What is the thing?** The **Digital Artifact**, identified by a digest.
+The central insight is that the problem is not how to prevent copies. Digital
+content can be copied perfectly, and that is often useful. The harder problem
+is determining what constitutes the Digital Original and what verifiable
+evidence establishes its consequential state.
 
-**What happened concerning it?** The **Digital Controllable Record**, containing
-evidence signed by actors.
-
-**What follows?** **Consequential State**, derived according to defined rules.
-
-**What has the thing become?** A **Digital Original**, the thing with
-consequential state.
-
-The final question sits outside the protocol: **so what?** People,
-institutions, systems, and law recognize consequential state and determine what
-effect it receives.
-
-> Consequential state should be derived from end-verifiable evidence, not
-> merely asserted by applications, databases or blockchains.
-
-## The Problem
-
-A digital file can be copied perfectly. That is useful, but the file alone
-cannot tell us who made a consequential statement about it, what has happened
-to it, or which state should now be relied upon.
+The file alone cannot tell us who made a consequential statement about it,
+what has happened to it, or which state should now be relied upon.
 
 This matters for warehouse receipts, bills of lading, permits, certificates,
 product passports, health records, photographs, and many other records that
@@ -58,6 +47,35 @@ protocol rules so another conforming system can derive the same state.
 Applications may maintain projections of consequential state, but those
 projections are not the authority. Applications derive consequential state;
 they do not own it.
+
+## Four Questions
+
+These questions extend, in spirit, the [Law Commission of England and Wales's
+recognition](https://lawcom.gov.uk/project/digital-assets/) that some digital
+assets may exist beyond the traditional personal-property categories of things
+in possession and things in action. The [Property (Digital Assets etc) Act
+2025](https://www.legislation.gov.uk/ukpga/2025/29) now confirms that a digital
+or electronic thing is not excluded from personal-property rights merely
+because it is neither. In that spirit, OpenETR uses **digital things** as a
+broader protocol description, not as the legal name of the third category or a
+claim that every Digital Artifact is property.
+
+**What is the digital thing?** The **Digital Artifact**, identified by a digest.
+
+**What happened concerning it?** The **Digital Controllable Record**, containing
+evidence signed by actors.
+
+**What follows?** **Consequential State**, derived according to defined rules.
+
+**What has the digital thing become?** A **Digital Original**, the thing with
+consequential state.
+
+The final question sits outside the protocol: **so what?** People,
+institutions, systems, and law recognize consequential state and determine what
+effect it receives.
+
+> Consequential state should be derived from end-verifiable evidence, not
+> merely asserted by applications, databases or blockchains.
 
 ## Three Primitives And One Core Concept
 
