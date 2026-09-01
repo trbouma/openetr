@@ -1,6 +1,6 @@
 # OpenETR
 
-**Durable Control. Portable Records.**
+**Digital Things You Can Rely On.**
 
 OpenETR provides a simple protocol model for consequential digital things. It
 separates the thing itself, the evidence of actions concerning it, and what
