@@ -2,9 +2,15 @@
 
 **Digital Things You Can Rely On.**
 
-OpenETR provides a simple protocol model for consequential digital things. It
-separates the thing itself, the evidence of actions concerning it, and what
-follows from those actions.
+OpenETR provides a simple protocol model for digital things people need to rely
+on. It separates the thing itself, the evidence of actions concerning it, and
+the state that follows from those actions under defined rules.
+
+For example, the digital thing might be a government-issued document, an
+electronic trade document, or a digitized cultural artifact. OpenETR can
+establish it as a Digital Original that can be independently verified, while
+the relevant authority, institution, or law determines whether the digital
+thing should be recognized and what real-world effect it should have.
 
 **Three primitives. One core concept.**
 
