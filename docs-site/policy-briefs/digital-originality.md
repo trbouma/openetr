@@ -234,12 +234,13 @@ institutional decision. Canonical content first gives the Digital Artifact a
 stable identity. One or more signed records concerning that artifact form a
 candidate DCR spanning its evidenced lifecycle. Those records provide portable
 evidence of what actors attempted or asserted. The DCR is then evaluated as a
-whole under an applicable policy by the **Consequential State Machine
-(CSM)**. Consequential State is the result of that CSM validation; it is not
-another record or container beside the DCR.
+whole under an applicable policy and state transition rules. Consequential
+State is the result of that validation; it is not another record or container
+beside the DCR.
 
-The DCR records the consequential actions. The CSM determines their
-consequences.
+Actions have consequences. OpenETR represents consequential actions as
+end-verifiable events and defines the rules by which those events change
+consequential state.
 
 Recognition and effect follow from that result. A verifier, institution,
 community, contract, or jurisdiction decides whether to accept the signer,
@@ -255,7 +256,7 @@ together:
 | --- | --- |
 | Artifact | What persistent content is identified? |
 | DCR | Which signed record or record graph concerns the artifact? |
-| CSM validation and Consequential State | What state results when the DCR is evaluated under the identified policy? |
+| State transition rules and Consequential State | What state results when the DCR is evaluated under the identified policy? |
 | Recognition | Who accepts that state, and for what purpose? |
 | Effect | What external consequence follows? |
 
@@ -264,7 +265,7 @@ The complete relationship is:
 ```text
 Digital Artifact
   -> Digital Controllable Record
-  -> CSM validation of the DCR under an applicable policy
+  -> validation under applicable state transition rules
   -> Consequential State and Digital Original
   -> recognition of that state
   -> effect
@@ -285,8 +286,8 @@ separate.
 
 OpenETR provides a Consequential State layer for Digital Artifacts. Signed
 records can describe anchoring, transfer, encumbrance, discharge, redemption,
-and termination. The CSM applies an applicable policy to determine whether the
-DCR is valid in light of prior state and what result follows.
+and termination. Applicable policy and state transition rules determine whether
+the DCR is valid in light of prior state and what result follows.
 
 This lets an independent verifier ask:
 

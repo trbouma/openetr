@@ -144,7 +144,7 @@ Recognition:
 ```
 
 C2PA operates primarily around cryptographically verifiable provenance.
-OpenETR adds a consequential state machine for records whose lifecycle,
+OpenETR adds state transition rules for records whose lifecycle,
 transfer, encumbrance, redemption, or termination must be independently
 derived over time.
 

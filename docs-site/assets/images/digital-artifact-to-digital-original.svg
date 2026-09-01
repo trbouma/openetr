@@ -1,171 +1,163 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
-  <title id="title">Digital Artifact to Digital Original</title>
-  <desc id="desc">An OpenETR diagram showing a Digital Artifact referenced by a Digital Controllable Record spanning its signed lifecycle. The Consequential State Machine evaluates that record or graph against an applicable policy to produce consequential state, which enables recognition and effect and establishes a Digital Original.</desc>
+  <title id="title">The OpenETR Model</title>
+  <desc id="desc">The OpenETR model has three primitives: Digital Artifact, Digital Controllable Record, and Digital Original. Consequential State is the core concept. Recognition can give consequential state external effect.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="0" stop-color="#fbfdff"/>
       <stop offset="1" stop-color="#ffffff"/>
     </linearGradient>
-    <linearGradient id="object" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#edf1f7"/>
-      <stop offset="1" stop-color="#f7f9fc"/>
+    <linearGradient id="artifact" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e7f3ff"/>
+      <stop offset="1" stop-color="#f6fbff"/>
     </linearGradient>
-    <linearGradient id="effect" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#e8f8e8"/>
-      <stop offset="1" stop-color="#f3fbf2"/>
-    </linearGradient>
-    <linearGradient id="effectChip" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#caebc9"/>
-      <stop offset="1" stop-color="#e3f5e1"/>
-    </linearGradient>
-    <linearGradient id="control" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#e5f4ff"/>
-      <stop offset="1" stop-color="#f0f9ff"/>
-    </linearGradient>
-    <linearGradient id="controlChip" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#b9dcfb"/>
-      <stop offset="1" stop-color="#d8edff"/>
-    </linearGradient>
-    <linearGradient id="controlledObject" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#e9defa"/>
-      <stop offset="0.5" stop-color="#f3ecff"/>
-      <stop offset="1" stop-color="#e9defa"/>
+    <linearGradient id="dcr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ddf6e7"/>
+      <stop offset="1" stop-color="#f2fbf5"/>
     </linearGradient>
     <linearGradient id="original" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fff0bd"/>
+      <stop offset="0" stop-color="#ffefb7"/>
       <stop offset="1" stop-color="#fff8df"/>
     </linearGradient>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#243a5a" flood-opacity="0.12"/>
+    <linearGradient id="state" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#efe7ff"/>
+      <stop offset="1" stop-color="#f8f4ff"/>
+    </linearGradient>
+    <linearGradient id="recognition" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8e6f2"/>
+      <stop offset="1" stop-color="#fff5fb"/>
+    </linearGradient>
+    <linearGradient id="effect" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8f6f0"/>
+      <stop offset="1" stop-color="#f6fcf9"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#183153" flood-opacity="0.12"/>
     </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#24324a"/>
+    </marker>
     <style>
-      .ink { fill: #071124; }
-      .muted { fill: #546173; }
-      .fine { fill: #263244; }
-      .title { font: 800 52px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .subtitle { font: 500 28px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .panel-title { font: 800 29px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .panel-subtitle { font: 500 21px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .chip { font: 800 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .role-title { font: 800 23px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .role-subtitle { font: 600 19px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .card-title { font: 800 25px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .card-subtitle { font: 700 20px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .body { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .body-strong { font: 800 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .small { font: 500 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .rule { stroke: #95a3b8; stroke-width: 1.4; }
-      .arrow { stroke: #071124; stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-      .dash { stroke: #071124; stroke-width: 3; fill: none; stroke-linecap: round; stroke-dasharray: 8 8; }
+      .ink { fill: #081731; }
+      .muted { fill: #536273; }
+      .blue { fill: #263d61; }
+      .green { fill: #2e6c59; }
+      .gold { fill: #7a5400; }
+      .purple { fill: #4d3c7d; }
+      .title { font: 800 58px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .subtitle { font: 500 30px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .label { font: 800 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 6px; }
+      .card-title { font: 800 30px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .card-subtitle { font: 500 23px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .body { font: 500 21px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .small { font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .footer-title { font: 800 25px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 8px; }
+      .brand { font: 800 31px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .brand-sub { font: 700 14px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 5px; }
+      .arrow { stroke: #24324a; stroke-width: 4; stroke-linecap: round; fill: none; marker-end: url(#arrow); }
+      .soft-arrow { stroke: #5d6b7d; stroke-width: 3; stroke-linecap: round; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 8 10; }
+      .icon-line { stroke: currentColor; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     </style>
   </defs>
 
   <rect width="1600" height="1000" fill="url(#bg)"/>
 
-  <text x="800" y="58" text-anchor="middle" class="title ink">Digital Artifact -&gt; Digital Original</text>
-  <text x="800" y="104" text-anchor="middle" class="subtitle muted">Validate the DCR against policy. Consequential state enables recognition and effect.</text>
+  <text x="800" y="72" text-anchor="middle" class="title ink">The OpenETR Model</text>
+  <text x="800" y="120" text-anchor="middle" class="subtitle muted">Three primitives. One core concept. Verifiable consequences.</text>
 
-  <rect x="40" y="178" width="250" height="290" rx="10" fill="url(#object)" filter="url(#shadow)"/>
-  <text x="90" y="262" class="panel-title ink">Digital</text>
-  <text x="90" y="302" class="panel-title ink">Artifact</text>
-  <text x="90" y="356" class="panel-subtitle ink">Persistent content</text>
-  <text x="90" y="384" class="panel-subtitle ink">identified by digest.</text>
+  <rect x="50" y="158" width="365" height="400" rx="16" fill="url(#artifact)" filter="url(#shadow)"/>
+  <text x="232" y="194" text-anchor="middle" class="label blue">PRIMITIVE 1</text>
+  <text x="232" y="238" text-anchor="middle" class="card-title ink">Digital Artifact</text>
+  <text x="232" y="274" text-anchor="middle" class="card-subtitle ink">Uniquely identifiable content.</text>
+  <g transform="translate(174 318)" color="#0b2347">
+    <path class="icon-line" d="M20 0h80l34 34v116H20z"/>
+    <path class="icon-line" d="M100 0v36h34"/>
+    <path class="icon-line" d="M42 56h54"/>
+    <path class="icon-line" d="M42 78h72"/>
+    <path class="icon-line" d="M42 100h64"/>
+    <path class="icon-line" d="M42 122h48"/>
+  </g>
+  <text x="232" y="482" text-anchor="middle" class="body ink">The content.</text>
 
-  <path class="arrow" d="M290 341h64"/>
-  <path class="arrow" d="M336 318l24 23-24 23"/>
+  <rect x="562" y="158" width="456" height="400" rx="16" fill="url(#dcr)" filter="url(#shadow)"/>
+  <text x="790" y="194" text-anchor="middle" class="label green">PRIMITIVE 2</text>
+  <text x="790" y="238" text-anchor="middle" class="card-title ink">Digital Controllable Record</text>
+  <text x="790" y="274" text-anchor="middle" class="card-subtitle ink">End-verifiable evidence.</text>
+  <g transform="translate(704 308)" color="#245c4e">
+    <rect class="icon-line" x="0" y="32" width="100" height="112" rx="10"/>
+    <rect class="icon-line" x="22" y="12" width="100" height="112" rx="10"/>
+    <path class="icon-line" d="M62 0h106l26 26v118H62z"/>
+    <path class="icon-line" d="M168 0v28h26"/>
+    <circle class="icon-line" cx="110" cy="56" r="13"/>
+    <circle class="icon-line" cx="92" cy="96" r="11"/>
+    <circle class="icon-line" cx="112" cy="132" r="13"/>
+    <circle class="icon-line" cx="168" cy="94" r="13"/>
+    <path class="icon-line" d="M110 69l-18 27 20 36 56-38-58-38"/>
+    <path class="icon-line" d="M82 64H56M76 88H56M78 118H56"/>
+  </g>
+  <text x="790" y="462" text-anchor="middle" class="body ink">A record or graph of events</text>
+  <text x="790" y="490" text-anchor="middle" class="body ink">that establishes and transitions</text>
+  <text x="790" y="518" text-anchor="middle" class="body ink">state concerning the artifact.</text>
 
-  <rect x="360" y="132" width="880" height="154" rx="14" fill="url(#effect)" filter="url(#shadow)"/>
-  <text x="800" y="171" text-anchor="middle" class="panel-title ink">Recognition And Effect</text>
-  <text x="800" y="202" text-anchor="middle" class="panel-subtitle ink">A relying party accepts consequential state and gives it external effect.</text>
-  <rect x="386" y="220" width="250" height="44" rx="8" fill="url(#effectChip)"/>
-  <rect x="675" y="220" width="250" height="44" rx="8" fill="url(#effectChip)"/>
-  <rect x="964" y="220" width="250" height="44" rx="8" fill="url(#effectChip)"/>
-  <text x="511" y="249" text-anchor="middle" class="chip ink">Recognition</text>
-  <text x="800" y="249" text-anchor="middle" class="chip ink">Standing</text>
-  <text x="1089" y="249" text-anchor="middle" class="chip ink">Effect</text>
+  <rect x="1170" y="158" width="380" height="400" rx="16" fill="url(#original)" filter="url(#shadow)"/>
+  <text x="1360" y="194" text-anchor="middle" class="label gold">PRIMITIVE 3</text>
+  <text x="1360" y="238" text-anchor="middle" class="card-title ink">Digital Original</text>
+  <text x="1360" y="274" text-anchor="middle" class="card-subtitle ink">A Digital Artifact with</text>
+  <text x="1360" y="304" text-anchor="middle" class="card-subtitle ink">consequential state.</text>
+  <g transform="translate(1290 332)" color="#805600">
+    <path class="icon-line" d="M20 0h86l28 28v118H20z"/>
+    <path class="icon-line" d="M106 0v30h28"/>
+    <path class="icon-line" d="M46 54h48M46 78h58M46 102h44"/>
+    <circle cx="126" cy="90" r="28" fill="#ffc43b" stroke="#805600" stroke-width="4"/>
+    <path d="M112 116l-10 50 24-16 24 16-10-50" fill="#ffc43b" stroke="#805600" stroke-width="4" stroke-linejoin="round"/>
+  </g>
 
-  <path class="dash" d="M800 316v-24"/>
-  <path class="arrow" d="M788 300l12-12 12 12"/>
-  <text x="822" y="307" class="small ink">CSM validation produces consequential state</text>
+  <path class="arrow" d="M435 344h108"/>
+  <text x="489" y="387" text-anchor="middle" class="small ink">Referenced by</text>
+  <path class="arrow" d="M1040 344h104"/>
+  <text x="1092" y="387" text-anchor="middle" class="small ink">Establishes</text>
+  <text x="1092" y="411" text-anchor="middle" class="small ink">consequential state</text>
 
-  <rect x="360" y="318" width="880" height="46" rx="12" fill="url(#controlledObject)" stroke="#76549f" stroke-width="2"/>
-  <text x="800" y="348" text-anchor="middle" class="ink">
-    <tspan class="role-title">Digital Controllable Record</tspan>
-    <tspan class="role-subtitle"> — one end-verifiable record or graph spanning the signed lifecycle</tspan>
-  </text>
-  <rect x="360" y="370" width="880" height="168" rx="14" fill="url(#control)" filter="url(#shadow)"/>
-  <text x="800" y="410" text-anchor="middle" class="panel-title ink">End-Verifiable DCR Evidence</text>
-  <text x="800" y="438" text-anchor="middle" class="panel-subtitle ink">The record or graph is evaluated as a whole in relation to policy.</text>
-  <rect x="380" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
-  <rect x="554" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
-  <rect x="728" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
-  <rect x="902" y="458" width="160" height="58" rx="8" fill="url(#controlChip)"/>
-  <rect x="1076" y="458" width="144" height="58" rx="8" fill="url(#controlChip)"/>
-  <text x="460" y="494" text-anchor="middle" class="chip ink">Anchor</text>
-  <text x="634" y="494" text-anchor="middle" class="chip ink">Transfer</text>
-  <text x="808" y="494" text-anchor="middle" class="chip ink">Encumber</text>
-  <text x="982" y="494" text-anchor="middle" class="chip ink">Discharge</text>
-  <text x="1148" y="494" text-anchor="middle" class="chip ink">Terminate</text>
+  <rect x="316" y="646" width="600" height="180" rx="16" fill="url(#state)" filter="url(#shadow)"/>
+  <text x="616" y="688" text-anchor="middle" class="label purple">CORE CONCEPT</text>
+  <text x="616" y="728" text-anchor="middle" class="card-title ink">Consequential State</text>
+  <text x="616" y="764" text-anchor="middle" class="body ink">State resulting from consequential actions</text>
+  <text x="616" y="792" text-anchor="middle" class="body ink">that can, when recognized, produce effect.</text>
 
-  <path class="arrow" d="M1240 341h64"/>
-  <path class="arrow" d="M1286 318l24 23-24 23"/>
+  <path class="soft-arrow" d="M236 575c8 76 42 118 82 137"/>
+  <text x="352" y="614" class="small ink">Concerns the artifact</text>
+  <path class="soft-arrow" d="M790 578v50"/>
+  <text x="820" y="596" class="small ink">Events are evaluated by</text>
+  <text x="820" y="620" class="small ink">state transition rules</text>
+  <path class="soft-arrow" d="M950 578c-2 40-12 68-34 92"/>
+  <text x="975" y="610" class="small ink">Makes the artifact</text>
+  <text x="975" y="634" class="small ink">a digital original</text>
 
-  <rect x="1310" y="178" width="250" height="290" rx="10" fill="url(#original)" filter="url(#shadow)"/>
-  <text x="1385" y="252" class="panel-title ink">Digital</text>
-  <text x="1385" y="292" class="panel-title ink">Original</text>
-  <text x="1340" y="350" class="panel-subtitle ink">A Digital Artifact</text>
-  <text x="1340" y="378" class="panel-subtitle ink">with consequential</text>
-  <text x="1340" y="406" class="panel-subtitle ink">state derived from</text>
-  <text x="1340" y="434" class="panel-subtitle ink">its valid DCR.</text>
+  <rect x="1142" y="616" width="188" height="236" rx="12" fill="url(#recognition)" filter="url(#shadow)"/>
+  <text x="1236" y="650" text-anchor="middle" class="label purple" style="letter-spacing:3px">RECOGNITION</text>
+  <g transform="translate(1197 674)" color="#2b2459">
+    <path class="icon-line" d="M0 48h78M8 48V94M70 48V94M28 48V94M50 48V94M0 94h78M8 42l31-20 31 20z"/>
+  </g>
+  <text x="1236" y="786" text-anchor="middle" class="small ink">Accepts the state</text>
+  <text x="1236" y="810" text-anchor="middle" class="small ink">for a purpose.</text>
 
-  <rect x="40" y="568" width="310" height="300" rx="8" fill="url(#object)" filter="url(#shadow)"/>
-  <text x="62" y="602" class="card-title ink">Digital Artifact</text>
-  <text x="62" y="628" class="card-subtitle ink">Definition</text>
-  <text x="62" y="670" class="body fine">Persistent digital content is</text>
-  <text x="62" y="694" class="body fine">identified by a cryptographic</text>
-  <text x="62" y="718" class="body fine">digest. Copies with the same</text>
-  <text x="62" y="742" class="body fine">digest represent the same</text>
-  <text x="62" y="766" class="body fine">Digital Artifact but do not</text>
-  <text x="62" y="790" class="body fine">copy consequential state.</text>
+  <rect x="1378" y="616" width="172" height="236" rx="12" fill="url(#effect)" filter="url(#shadow)"/>
+  <text x="1464" y="650" text-anchor="middle" class="label green" style="letter-spacing:3px">EFFECT</text>
+  <g transform="translate(1426 688)" color="#194d42">
+    <circle class="icon-line" cx="38" cy="38" r="34"/>
+    <path class="icon-line" d="M18 20c14 8 12 18 0 24M52 12c-12 8-10 20 4 24M34 70c4-16 18-16 26-26"/>
+  </g>
+  <text x="1464" y="786" text-anchor="middle" class="small ink">Legal, regulatory,</text>
+  <text x="1464" y="810" text-anchor="middle" class="small ink">contractual, or</text>
+  <text x="1464" y="834" text-anchor="middle" class="small ink">other effect.</text>
 
-  <rect x="370" y="568" width="950" height="300" rx="8" fill="url(#control)" filter="url(#shadow)"/>
-  <text x="392" y="602" class="card-title ink">Digital Controllable Record</text>
-  <text x="392" y="628" class="card-subtitle ink">The evidence spans the lifecycle; the CSM produces consequential state.</text>
-  <text x="392" y="670" class="body fine">One signed end-verifiable record</text>
-  <text x="392" y="694" class="body fine">or a graph of related signed</text>
-  <text x="392" y="718" class="body fine">records concerning a Digital</text>
-  <text x="392" y="742" class="body fine">Artifact. It preserves portable</text>
-  <text x="392" y="766" class="body fine">evidence of consequential</text>
-  <text x="392" y="790" class="body fine">statements and lifecycle events.</text>
-  <line x1="820" y1="650" x2="820" y2="842" class="rule"/>
-  <text x="850" y="670" class="body-strong ink">Consequential State Machine</text>
-  <text x="850" y="704" class="body fine">The CSM applies an applicable policy</text>
-  <text x="850" y="728" class="body fine">to evaluate the DCR or graph as a whole.</text>
-  <text x="850" y="752" class="body fine">Consequential state is the result, not a</text>
-  <text x="850" y="776" class="body fine">separate record or container.</text>
-  <text x="850" y="816" class="body-strong ink">Recognition accepts that state and</text>
-  <text x="850" y="840" class="body fine">determines its external effect.</text>
+  <path class="soft-arrow dashed" d="M926 736h190"/>
+  <text x="986" y="770" class="small ink">When recognized</text>
+  <path class="arrow" d="M1334 734h38"/>
 
-  <rect x="1340" y="568" width="220" height="300" rx="8" fill="url(#original)" filter="url(#shadow)"/>
-  <text x="1362" y="602" class="card-title ink">Digital Original</text>
-  <text x="1362" y="628" class="card-subtitle ink">Definition</text>
-  <text x="1362" y="670" class="body fine">A Digital Artifact with</text>
-  <text x="1362" y="694" class="body fine">consequential state</text>
-  <text x="1362" y="718" class="body fine">established by CSM</text>
-  <text x="1362" y="742" class="body fine">validation of its DCR.</text>
-
-  <rect x="40" y="888" width="500" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
-  <text x="62" y="920" class="card-title ink">Transition Guards</text>
-  <text x="62" y="950" class="body fine">Guards are conditions arising from current control state</text>
-  <text x="62" y="972" class="body fine">that determine whether a proposed transition is valid.</text>
-
-  <rect x="560" y="888" width="560" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
-  <text x="582" y="920" class="card-title ink">Specification Language</text>
-  <text x="582" y="950" class="body fine">The Control Layer is an expressive grammar for describing</text>
-  <text x="582" y="972" class="body fine">control state, valid transitions, and transition guards.</text>
-
-  <rect x="1140" y="888" width="420" height="86" rx="8" fill="#f6f8fb" filter="url(#shadow)"/>
-  <text x="1162" y="920" class="card-title ink">Key Takeaway</text>
-  <text x="1162" y="948" class="body-strong ink">Validate the DCR against policy.</text>
-  <text x="1162" y="970" class="body fine">The resulting state enables effect.</text>
+  <line x1="50" y1="886" x2="1550" y2="886" stroke="#9aa8bb" stroke-width="1.5"/>
+  <text x="800" y="930" text-anchor="middle" class="footer-title muted">A SIMPLE IDEA WITH WIDE APPLICATION</text>
+  <text x="800" y="966" text-anchor="middle" class="subtitle muted">Actions have consequences. OpenETR makes evidence of consequential actions end-verifiable.</text>
+  <text x="1464" y="932" text-anchor="middle" class="brand ink">OpenETR</text>
+  <text x="1464" y="958" text-anchor="middle" class="brand-sub muted">PORTABLE CONSEQUENCES</text>
 </svg>

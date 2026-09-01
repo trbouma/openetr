@@ -68,14 +68,14 @@ The digest does not need to understand the internal structure of the file. It do
 It treats the final file as the evidence object.
 
 For a Digital Artifact with DCR evidence, OpenETR then goes beyond integrity.
-Its Consequential State Machine validates the DCR as a whole under an
-identified, versioned policy to produce consequential state:
+It validates the DCR as a whole under an identified, versioned policy and
+applies state transition rules to produce consequential state:
 the current controller, lifecycle status, active guards, and other results that
 constrain what may validly happen next.
 
 ```text
 Digital Artifact -> Digital Controllable Record spanning candidate evidence
-Digital Controllable Record + applicable policy -> CSM validation -> consequential state
+Digital Controllable Record + applicable policy -> state transition rules -> consequential state
 Digital Artifact + consequential state -> Digital Original
 ```
 
@@ -197,7 +197,7 @@ Useful implementation questions include:
 ## Policy Position
 
 OpenETR can complement C2PA by adding final-artifact identity and, where the
-artifact has a DCR, an artifact-specific consequential state machine whose
+artifact has a DCR and artifact-specific transition rules whose
 results can be independently reconstructed.
 
 The recommended policy framing is:

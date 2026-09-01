@@ -205,7 +205,7 @@ Provenance explains history.
 Control governs state.
 
 C2PA is a strong provenance technology. OpenETR provides DCR evidence and a
-consequential state machine. The useful policy move is to use each where it
+state transition rules. The useful policy move is to use each where it
 belongs and avoid asking one layer to do the work of the other.
 
 ## Related Design Note

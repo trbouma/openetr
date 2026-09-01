@@ -116,7 +116,7 @@ OpenETR can support those technical evidence needs:
 ```text
 identify record -> digest
 retain integrity -> recomputable hash
-control history -> signed DCR graph -> CSM validation -> consequential state
+control history -> signed DCR graph -> state transition rules -> consequential state
 exclusive control evidence -> recognized current-controller path
 identify controller -> profile signer plus recognition inputs
 ```

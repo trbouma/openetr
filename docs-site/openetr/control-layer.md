@@ -2,8 +2,7 @@
 
 The OpenETR control layer assembles signed Nostr records into a DCR concerning
 a Digital Artifact. It validates that record or graph under an identified
-policy through the Consequential State Machine (CSM) to produce consequential
-state.
+policy and applies state transition rules to produce consequential state.
 
 ## Digital Artifact And Digital Controllable Record
 
@@ -70,11 +69,12 @@ The control graph is reconstructed from signed events:
 - action-specific tags such as `enc`, `type`, and `ref` add structured context.
 
 The graph is portable evidence. An identified policy validates the DCR as a
-whole through the CSM and produces consequential state. Recognition separately
-decides whether to accept that result for a purpose and what effect to give it.
+whole and applies state transition rules to produce consequential state.
+Recognition separately decides whether to accept that result for a purpose and
+what effect to give it.
 
 ```text
-DCR + applicable policy -> CSM validation -> consequential state -> recognition -> effect
+DCR + applicable policy -> state transition rules -> consequential state -> recognition -> effect
 ```
 
 Applications may cache and display a projection of the state, but they are not

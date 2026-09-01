@@ -41,17 +41,17 @@ verify independently.
 
 OpenETR uses a different boundary. Applications create and present signed
 records that form a DCR. An identified policy validates that record or graph as
-a whole through a **Consequential State Machine (CSM)** and produces
-consequential state. An application can cache a projection for performance,
-but another implementation can reconstruct the same result from the evidence
-and policy.
+a whole and applies defined state transition rules to produce consequential
+state. An application can cache a projection for performance, but another
+implementation can reconstruct the same result from the evidence and policy.
 
 ```text
-DCR + identified policy -> CSM validation -> consequential state
+DCR + identified policy -> state transition rules -> consequential state
 ```
 
-The DCR records the consequential actions. The CSM determines their
-consequences.
+Actions have consequences. OpenETR represents consequential actions as
+end-verifiable events and defines the rules by which those events change
+consequential state.
 
 ## End-Verifiable Events
 
@@ -64,8 +64,7 @@ Nostr provides the signed event substrate and relay transport. OpenETR defines
 which events matter, how they relate, which transitions are valid, and what
 state follows.
 
-> Nostr provides the event substrate. OpenETR defines the Consequential State
-> Machine.
+> Nostr carries the events. OpenETR determines their consequences.
 
 ## Applications Project State
 
@@ -77,7 +76,7 @@ For each consequential state variable, the specification should identify:
 1. the events that may change it;
 2. the signing keys permitted to authorize those events;
 3. the prior-state constraints;
-4. the identified validation policy and CSM procedure;
+4. the identified validation policy and transition rules;
 5. the rules for conflict, supersession, and termination; and
 6. the resulting state.
 

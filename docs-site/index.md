@@ -17,11 +17,11 @@ people and institutions act upon.
 
 OpenETR addresses the problem without making one application, database,
 registry, or wallet the permanent source of truth. It identifies the exact
-content, preserves signed evidence concerning it, and applies a Consequential
-State Machine so another conforming system can derive the same state.
+content, preserves signed evidence concerning it, and applies defined state
+transition rules so another conforming system can derive the same state.
 
 <figure class="openetr-model-figure">
-  <img src="assets/images/digital-artifact-to-digital-original.svg" alt="The OpenETR model showing a Digital Artifact, its Digital Controllable Record, policy validation producing consequential state, a Digital Original, and recognition and effect">
+  <img src="assets/images/digital-artifact-to-digital-original.svg" alt="The OpenETR model showing a Digital Artifact, its Digital Controllable Record, consequential state, a Digital Original, recognition, and effect">
   <figcaption>
     The OpenETR model separates content, signed evidence, derived state, and external recognition.
   </figcaption>
@@ -45,17 +45,17 @@ attestation, redemption, or termination.
 The DCR is not the file. It is the portable record of consequential statements
 made about the file.
 
-### Consequential State Through The CSM
+### Consequential State Through Transition Rules
 
 Consequential State is not another record or container. It is the result of
 validating a DCR—or its graph of related records—in relation to an applicable
-policy through the OpenETR **Consequential State Machine (CSM)**. The result
-says what state has been established: for example, who the candidate current
-controller is, whether the artifact is encumbered, or whether its active
-lifecycle has ended.
+policy and applying defined state transition rules. The result says what state
+has been established: for example, who the candidate current controller is,
+whether the artifact is encumbered, or whether its active lifecycle has ended.
 
-The DCR records the consequential actions. The CSM determines their
-consequences.
+Actions have consequences. OpenETR represents consequential actions as
+end-verifiable events and defines the rules by which those events change
+consequential state.
 
 Consequential State is what an external authority, registry, institution, or
 relying party can recognize and give practical effect. Recognition does not
@@ -77,7 +77,7 @@ The complete path is:
 content -> Digital Artifact
         -> Digital Controllable Record spanning its signed lifecycle
 
-DCR + applicable policy -> CSM validation -> consequential state
+DCR + applicable policy -> state transition rules -> consequential state
 consequential state -> recognition and effect
 artifact + established consequential state -> Digital Original
 ```

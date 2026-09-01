@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       Digital Artifacts, DCRs, CSM, validation policies, consequential state
+OpenETR control       Digital Artifacts, DCRs, transition rules, consequential state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -54,9 +54,9 @@ and Control Events is a candidate DCR graph.
 This is distinct from a **Digital Original**, which is a Digital Artifact for
 which validation of its DCR under an applicable policy establishes
 consequential state. The artifact identifies the content; the DCR is durable
-signed evidence spanning the lifecycle; the Consequential State Machine (CSM)
-evaluates the DCR under policy to produce consequential state; and recognition
-determines what effect, if any, follows.
+signed evidence spanning the lifecycle; state transition rules evaluate the
+DCR under policy to produce consequential state; and recognition determines
+what effect, if any, follows.
 
 At this layer, OpenETR defines:
 
@@ -66,7 +66,7 @@ At this layer, OpenETR defines:
 - later control records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
 - current-controller derivation from Anchor and control-event chains
-- the Consequential State Machine and validation policies that evaluate the DCR as a whole and produce
+- state transition rules and validation policies that evaluate the DCR as a whole and produce
   consequential state
 - guardrails against ambiguous or duplicate actions where appropriate
 
