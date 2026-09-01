@@ -1,8 +1,8 @@
 # OpenETR
 
 **OpenETR helps people know that an important digital record is the one they
-intend to rely on, what has happened to it, and what state it is in—even when
-they cannot depend on the application that created it.**
+intend to rely on, what has happened to it, and what state it is in, even when
+they can no longer depend on the application that created it.**
 
 It does this by giving the underlying Digital Artifact a durable,
 independently verifiable basis for state.
