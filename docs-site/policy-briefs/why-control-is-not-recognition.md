@@ -29,9 +29,9 @@ At the control layer, OpenETR can ask:
 
 These questions can be answered by inspecting cryptographic evidence.
 
-The evidence is a DCR that can be queried and independently verified. The
-result is consequential state produced by validating that DCR under an
-applicable policy—not a hidden application database value.
+The evidence is a DCR that can be queried and independently verified.
+Consequential state is what follows when that evidence is validated and
+evaluated according to the protocol rules, not a hidden database value.
 
 ## The Recognition Question
 
@@ -172,7 +172,7 @@ They can:
 The core principle is:
 
 ```text
-Control is state produced by validating the DCR under an applicable policy.
+Control is consequential state derived from validated DCR evidence under the protocol rules.
 Recognition is what a rule book does with it.
 ```
 

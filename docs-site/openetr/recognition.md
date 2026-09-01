@@ -19,6 +19,10 @@ real-world object, product, document, or record
 OpenETR does not decide effect. Its control layer preserves DCR evidence and
 derives consequential state that a recognition layer can evaluate.
 
+Ownership is a legal effect, not a cryptographic primitive. A legal regime may
+recognize OpenETR control state and give it property-law consequences, but
+OpenETR itself does not establish ownership.
+
 ## Control Questions
 
 OpenETR can answer questions such as:

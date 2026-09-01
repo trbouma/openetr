@@ -396,7 +396,7 @@ their operational complexity is justified.
 [Safebox Web](https://trbouma.github.io/safebox-web/) demonstrates how
 graduated disclosure can become an ordinary user interaction.
 
-An Acorn safeguards the private record and exact Original Record. Safebox Web
+An Acorn safeguards the private record and exact Record File. Safebox Web
 can render it, temporarily present it through a QR-mediated capability, show
 its Control History and durable verifier link, or share the exact record when
 deep verification is required. OpenETR supplies portable digest-bound evidence

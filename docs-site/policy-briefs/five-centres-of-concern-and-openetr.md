@@ -162,7 +162,7 @@ the signed record or graph concerning that artifact. Its presence does not, by
 itself, assert derived consequential state or a current controller.
 
 The DCR graph is the signed event history concerning the artifact. Validation
-of the DCR under an applicable policy produces consequential state; that is
+checks that evidence, and protocol rules derive consequential state. That is
 what makes the Digital Artifact a Digital Original.
 
 The **Recognition Context** is the legal, institutional, contractual, registry, or verifier-policy setting that decides effect.

@@ -10,7 +10,7 @@ The current regular-event model uses:
 
 | Kind | Use |
 | --- | --- |
-| `1415` | Origin event |
+| `1415` | Anchor Event |
 | `1416` | Control event family |
 
 Legacy prototype events using `31415` and `31416` may exist, but new graph events use regular kinds `1415` and `1416`.
@@ -19,7 +19,7 @@ Legacy prototype events using `31415` and `31416` may exist, but new graph event
 
 | Tag | Role |
 | --- | --- |
-| `o` | Controlled object digest. Primary object-centric query anchor. |
+| `o` | Digital Artifact digest. Primary artifact-centric query anchor. |
 | `e` | Prior event link for graph traversal. |
 | `p` | Action-specific participant. |
 | `action` | Control event subtype. |
@@ -56,4 +56,3 @@ The signed tags are the machine interface.
 - [OpenETR Nostr Wire Format Specification](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [Event Kind Registry](https://github.com/trbouma/openetr/blob/main/docs/specs/EVENT_KIND_REGISTRY.md)
 - [Regular Event Kind Migration Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md)
-

@@ -72,8 +72,8 @@ A participant may copy:
 
 But copying that evidence should not create a new current controller.
 
-Control depends on state produced by validating DCR evidence under an
-applicable policy. Whether that state is accepted for a legal or institutional
+Control depends on consequential state derived from validated DCR evidence
+under protocol rules. Whether that state is accepted for a legal or institutional
 purpose is a separate recognition question.
 
 ## C2PA As Provenance Infrastructure
@@ -100,8 +100,8 @@ It is not the same as control.
 
 OpenETR implements the control side of the distinction. It identifies content
 as a Digital Artifact by digest. Signed records concerning the artifact form a
-DCR spanning its evidenced lifecycle. An applicable policy validates the DCR
-as a whole and produces consequential state.
+DCR spanning its evidenced lifecycle. Validation checks the DCR evidence, and
+protocol rules derive consequential state.
 
 Those events can express:
 
@@ -134,8 +134,8 @@ The short comparison is:
 
 ```text
 C2PA provides provenance evidence about content.
-OpenETR supports policy validation of DCR evidence to produce consequential
-state.
+OpenETR validates DCR evidence and applies protocol rules to derive
+consequential state.
 ```
 
 Or more sharply:
@@ -188,7 +188,7 @@ Protocol:
   verify hashes, signatures, manifests, events, and references
 
 Control:
-  validate the DCR under an applicable policy and produce candidate state
+  validate DCR evidence and derive candidate state under protocol rules
 
 Recognition:
   decide what effect to give the evidence and state

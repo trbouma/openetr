@@ -41,8 +41,8 @@ Governance must identify the point where consequence becomes possible and enforc
 OpenETR is not an autonomous-systems governance framework.
 
 It is a correctness protocol for **Digital Artifacts**, **Digital Controllable
-Records (DCRs)**, and validation of those evidence structures under identified
-policies to produce consequential state.
+Records (DCRs)**, validation of that evidence, and protocol rules that derive
+consequential state.
 
 The relationship is:
 
@@ -82,7 +82,7 @@ OpenETR record:
   signed evidence concerning an identified Digital Artifact
 
 protocol derivation:
-  validation of the DCR under policy and production of consequential state
+  validation of DCR evidence and derivation of consequential state under the rules
 
 recognition:
   domain system, federation, registry, counterparty, or legal framework gives effect
@@ -93,8 +93,8 @@ An AI agent may recommend transferring a warehouse receipt.
 That recommendation should not itself be the transfer.
 
 The transfer becomes candidate consequential evidence when the relevant event
-is signed. A validation policy determines whether it forms part of the DCR and
-what consequential state results; the domain system or recognition context decides what
+is signed. Validation determines whether it forms part of the DCR, and protocol
+rules determine what consequential state follows; the recognition context decides what
 effect to give that state.
 
 ## Governance Value
@@ -167,14 +167,14 @@ agent recommendation
   -> account authorization
   -> time-of-action state validation
   -> signed OpenETR record added to the DCR
-  -> validation of the DCR under an identified policy
+  -> validation of DCR evidence and application of protocol rules
   -> consequential state
   -> domain or federation recognition
 ```
 
 The warehouse receipt platform remains the reliable system for accounts, KYC, roles, document generation, workflow, and attestations.
 
-OpenETR provides the signed DCR evidence and deterministic policy validation.
+OpenETR provides signed DCR evidence and deterministic state derivation.
 
 Recognition policy decides effect.
 

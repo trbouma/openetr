@@ -1,8 +1,8 @@
 # Control Layer
 
 The OpenETR control layer assembles signed Nostr records into a DCR concerning
-a Digital Artifact. It validates that record or graph under an identified
-policy and applies state transition rules to produce consequential state.
+a Digital Artifact. Cryptographic and structural checks validate that evidence;
+state transition rules determine what consequential state follows.
 
 ## Digital Artifact And Digital Controllable Record
 
@@ -68,8 +68,9 @@ The control graph is reconstructed from signed events:
 - `action` identifies the control-event subtype;
 - action-specific tags such as `enc`, `type`, and `ref` add structured context.
 
-The graph is portable evidence. An identified policy validates the DCR as a
-whole and applies state transition rules to produce consequential state.
+The graph is portable evidence. Cryptographic and structural checks validate
+the DCR as a whole, and state transition rules determine what consequential
+state follows.
 Recognition separately decides whether to accept that result for a purpose and
 what effect to give it.
 
@@ -77,8 +78,8 @@ what effect to give it.
 DCR + applicable policy -> state transition rules -> consequential state -> recognition -> effect
 ```
 
-Applications may cache and display a projection of the state, but they are not
-its sole authority. See [Consequential State](./consequential-state.md).
+Applications may cache and display a projection of the state, but they do not
+own it. See [Consequential State](./consequential-state.md).
 
 ## Source Specs
 

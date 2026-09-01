@@ -2,22 +2,23 @@
 
 OpenETR is designed around one governing principle:
 
-> Consequential state should result from validating end-verifiable DCR
-> evidence under an identified policy, not be asserted solely by applications.
+> Consequential state should be derived from end-verifiable evidence, not
+> merely asserted by applications, databases or blockchains.
 
 ## Digital Artifact, Digital Controllable Record, And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
-identity established by a cryptographic digest. It may exist in many locations
-or byte-for-byte copies; copies with the same digest represent the same Digital
-Artifact.
+identity, normally established by a cryptographic digest. It may exist in many
+locations or byte-for-byte copies; copies with the same digest represent the
+same Digital Artifact.
 
 A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
-graph of related end-verifiable records concerning a Digital Artifact. It is
-the signed evidence structure, not the artifact itself.
+graph of related end-verifiable records containing evidence of consequential
+actions concerning a Digital Artifact. It is the protocol evidence structure,
+not the artifact itself.
 
-A **Digital Original** is a Digital Artifact with consequential state
-established by validating its DCR under an applicable policy.
+A **Digital Original** is a Digital Artifact for which consequential state has
+been established through a Digital Controllable Record.
 
 > Content makes an artifact identifiable. Consequential state makes it an
 > original.
@@ -27,8 +28,7 @@ Copying content does not copy consequential state.
 ```text
 Digital Artifact
   -> Digital Controllable Record
-  -> validation under an applicable policy
-  -> consequential state (validation result)
+  -> consequential state derived according to protocol rules
   -> Digital Original
 ```
 
@@ -40,18 +40,20 @@ application disappears, that state may become inaccessible or impossible to
 verify independently.
 
 OpenETR uses a different boundary. Applications create and present signed
-records that form a DCR. An identified policy validates that record or graph as
-a whole and applies defined state transition rules to produce consequential
-state. An application can cache a projection for performance, but another
-implementation can reconstruct the same result from the evidence and policy.
+records that form a DCR. Cryptographic and structural checks validate the
+evidence; defined protocol rules determine what consequential state follows.
+An application can cache a projection for performance, but another conforming
+implementation can reconstruct the same result from the evidence and rules.
 
 ```text
-DCR + identified policy -> state transition rules -> consequential state
+end-verifiable evidence -> OpenETR rules -> consequential state -> application projection
 ```
 
 Actions have consequences. OpenETR represents consequential actions as
 end-verifiable events and defines the rules by which those events change
 consequential state.
+
+> Applications derive consequential state; they do not own it.
 
 ## End-Verifiable Events
 
@@ -69,7 +71,7 @@ state follows.
 ## Applications Project State
 
 An OpenETR application may maintain indexes, caches, and friendly views. These
-are projections, not the sole source of truth.
+are projections, not the authority for consequential state.
 
 For each consequential state variable, the specification should identify:
 
@@ -82,9 +84,10 @@ For each consequential state variable, the specification should identify:
 
 ## Recognition Is A Separate Boundary
 
-Consequential state produced by policy validation does not compel recognition. A law, contract,
-institution, community, or relying-party policy still decides whether to
-accept the actor, graph, or state for a stated purpose and what effect follows.
+Consequential state derived under protocol rules does not compel recognition.
+A law, contract, institution, community, or relying-party policy still decides
+whether to accept the actor, graph, or state for a stated purpose and what
+effect follows.
 
 ```text
 consequential state -> recognition -> external effect

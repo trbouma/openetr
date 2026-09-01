@@ -11,13 +11,13 @@ Those questions are related, but they should not be collapsed into one applicati
 OpenETR is designed as a thin, open protocol for durable electronic records.
 Its control layer identifies a Digital Artifact by cryptographic digest and
 records signed lifecycle evidence about that artifact as a Digital
-Controllable Record. An applicable policy validates the DCR as a whole and
-produces consequential state; many different domain systems can then interpret
+Controllable Record. Validation checks the DCR evidence, and protocol rules
+derive consequential state; many different domain systems can then interpret
 and recognize that state.
 
 The OpenETR protocol construct is the **Digital Controllable Record**: one
-signed end-verifiable record or graph concerning a Digital Artifact. Policy
-validation of the DCR produces consequential state; the recognition context determines
+signed end-verifiable record or graph concerning a Digital Artifact. Protocol
+rules derive consequential state from validated DCR evidence; the recognition context determines
 accepted effect. Electronic transferable records are one important
 subclass, but the same control-layer pattern can also support non-transferable
 records, credentials, linked evidence, Product Passports, health records,
@@ -92,8 +92,8 @@ It lets policymakers and implementers distinguish:
 This terminology keeps the layers clean. A **Digital Artifact** is persistent
 content identified by digest. A **Digital Controllable Record** is the signed
 evidence record or graph concerning that artifact. A **Digital Original** is
-the Digital Artifact once consequential state has been established by
-validating its DCR under an applicable policy. Legal and policy categories remain recognition
+the Digital Artifact once consequential state has been established through its
+DCR. Legal and policy categories remain recognition
 questions.
 
 That framing keeps OpenETR from becoming too narrow. It can remain deeply
@@ -235,7 +235,7 @@ OpenETR is not:
 
 It may interoperate with any of those systems.
 
-Its narrower job is to produce and verify signed control evidence for digest-identified records.
+Its narrower job is to preserve and verify signed control evidence for digest-identified records.
 
 ## Policy Value
 

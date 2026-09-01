@@ -85,8 +85,8 @@ But durable electronic records also need an artifact-centric evidence layer:
 ```text
 record or artifact -> Digital Artifact by digest
   -> DCR: Anchor, control, and linked-evidence records
-  -> DCR validated under an applicable policy
-  -> consequential state produced by that validation
+  -> DCR evidence validated under protocol requirements
+  -> state transition rules derive consequential state
   -> verifier policy / registry / trust framework decides effect
 ```
 

@@ -130,9 +130,10 @@ OpenETR can show the signed sequence of events and identify competing branches o
 
 A Digital Artifact identifier is not itself the cargo, goods, document of
 title, or underlying claim. Nor does DCR evidence automatically create a
-tokenized asset. OpenETR binds signed evidence to a digest-identified artifact
-and supports policy validation of its DCR to produce consequential state; the applicable legal framework determines
-what that artifact and state embody or represent.
+tokenized asset. OpenETR binds signed evidence to a digest-identified artifact,
+validates that evidence, and applies protocol rules to derive consequential
+state. The applicable legal framework determines what that artifact and state
+embody or represent.
 
 ### Custody And Insolvency
 

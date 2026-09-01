@@ -175,16 +175,17 @@ In that deployment:
 
 The OpenETR boundary should be clear:
 
-| Existing application owns | OpenETR owns |
+| Existing application responsibility | OpenETR responsibility |
 | --- | --- |
 | User login and account recovery | Signed event construction |
-| Product UI and workflow | Object ids and graph links |
-| Document storage | Origin and control event publication |
+| Product UI and workflow | Artifact identifiers and graph links |
+| Document storage | Anchor and control-event publication |
 | User permissions and roles | Commitment Profile-backed event attribution |
 | Business policy and recognition | Verifier inputs and warnings |
 | Caches and local indexes | Portable wire-format evidence |
 
-This lets OpenETR behave as a control layer underneath the application rather than as a competing product surface.
+This lets OpenETR provide portable evidence underneath the application rather
+than acting as a competing product surface or owner of consequential state.
 
 ## Source Specs
 

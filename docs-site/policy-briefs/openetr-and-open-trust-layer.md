@@ -6,7 +6,8 @@ OTL focuses on participant identity, secure communication, compliance
 messaging, payment sessions, and local counterparty trust decisions. OpenETR
 focuses on a digest-identified Digital Artifact and the Digital Controllable
 Record (DCR) spanning the signed evidence concerning it. Consequential state
-is the result of validating that DCR under an applicable policy.
+is what follows when that evidence is validated and evaluated according to
+OpenETR rules.
 
 The useful distinction is:
 
@@ -37,8 +38,8 @@ OTL identity and transport
 OpenETR DCR
   -> preserve durable signed evidence concerning the Digital Artifact
 
-OpenETR validation policy
-  -> evaluate the DCR as a whole and produce consequential state
+OpenETR protocol rules
+  -> evaluate validated DCR evidence and derive consequential state
 
 Domain adapter
   -> translate evidence into eBL, eWR, eBoE, ePN, or other domain semantics

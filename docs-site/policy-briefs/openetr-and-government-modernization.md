@@ -73,7 +73,8 @@ If those answers exist only inside one application, modernization can become fra
 
 ## Where OpenETR Fits
 
-OpenETR provides a way to distinguish the digital object from the evidence about its consequential state.
+OpenETR provides a way to distinguish the Digital Artifact from the evidence
+about its consequential state.
 
 The compact model is:
 

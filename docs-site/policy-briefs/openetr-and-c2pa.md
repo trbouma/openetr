@@ -12,19 +12,19 @@ OpenETR can provide an additional final-artifact integrity layer by taking a
 cryptographic digest of the completed file. But for electronic transferable
 records, OpenETR's more important contribution is consequential state: the
 digest identifies the artifact, signed records form end-verifiable DCR
-evidence, and an applicable policy validates that DCR to produce control and
-lifecycle state.
+evidence, validation checks that evidence, and protocol rules derive control
+and lifecycle state.
 
 Used together, C2PA helps explain and verify the provenance of content, while
-OpenETR identifies the Digital Artifact and supports validation of its DCR to
-produce consequential state. Recognition then decides what effect to give
+OpenETR identifies the Digital Artifact, validates its DCR evidence, and
+applies protocol rules to derive consequential state. Recognition then decides what effect to give
 either result.
 
 The short version is:
 
 ```text
 C2PA explains content and provenance.
-OpenETR validates DCR evidence under policy to produce consequential state.
+OpenETR validates DCR evidence and applies protocol rules to derive consequential state.
 Recognition determines accepted meaning and effect.
 ```
 
@@ -68,8 +68,8 @@ The digest does not need to understand the internal structure of the file. It do
 It treats the final file as the evidence object.
 
 For a Digital Artifact with DCR evidence, OpenETR then goes beyond integrity.
-It validates the DCR as a whole under an identified, versioned policy and
-applies state transition rules to produce consequential state:
+It validates the DCR as a whole and applies identified, versioned state
+transition rules to derive consequential state:
 the current controller, lifecycle status, active guards, and other results that
 constrain what may validly happen next.
 
@@ -116,7 +116,9 @@ For a transferable record, the harder question is:
 What is this record, and who controls it now?
 ```
 
-That second question is why signatures, manifests, credentials, and content provenance are not enough by themselves for electronic transferable records. The record also needs a protocol-defined state machine.
+That second question is why signatures, manifests, credentials, and content
+provenance are not enough by themselves for electronic transferable records.
+The record also needs defined state transition rules.
 
 Copyability is not the security failure. Everything digital can be copied. The necessary property is that copying the record, its assertions, or its history cannot copy or alter control of the record.
 
@@ -204,7 +206,7 @@ The recommended policy framing is:
 
 ```text
 C2PA provides embedded or attached provenance for content.
-OpenETR provides record identity, end-verifiable DCR evidence, and policy validation that produces consequential state.
+OpenETR provides record identity, end-verifiable DCR evidence, evidence validation, and rules that derive consequential state.
 Recognition policy decides what effect to give both.
 ```
 

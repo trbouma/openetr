@@ -114,6 +114,15 @@
   line-height: 1.45;
 }
 
+.openetr-model-figure--marquee {
+  margin-top: 1rem;
+}
+
+.openetr-model-figure--marquee img {
+  max-width: 100%;
+  margin-inline: auto;
+}
+
 .md-nav__title,
 .md-nav__item .md-nav__link--active {
   font-weight: 700;
