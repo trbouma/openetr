@@ -1,6 +1,8 @@
 # OpenETR Generic Transfer Model
 
-This note defines a generic Control Layer model for OpenETR.
+This note defines how OpenETR's control layer supports transfer of control
+over a Digital Artifact by preserving DCR evidence and applying state
+transition rules.
 
 It is intended to describe control over a transferable electronic record in a way that remains independent of:
 
@@ -16,7 +18,7 @@ state is the result of that validation.
 
 ## Purpose
 
-OpenETR is a Control Layer for electronic transferable records.
+OpenETR provides a control layer for electronic transferable records.
 
 Its purpose is to make the DCR evidence, validation policy, and resulting
 consequential state concerning a Digital Artifact independently verifiable.
@@ -79,8 +81,8 @@ lifecycle of the Digital Artifact.
 - every event is cryptographically signed by the Participant performing the event
 
 The graph provides evidence that a stated policy can validate to produce
-control state. A particular retrieved graph may be incomplete or may compete
-with another candidate graph.
+consequential state. A particular retrieved graph may be incomplete or may
+compete with another candidate graph.
 
 ### Participants
 

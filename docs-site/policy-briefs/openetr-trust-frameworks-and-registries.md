@@ -6,10 +6,11 @@ They define rules, roles, assurance levels, conformity criteria, certification p
 
 OpenETR fits into that landscape differently.
 
-OpenETR is not itself a full trust framework. It is a general control layer for
-durable electronic records. Its job is to identify Digital Artifacts, preserve
-their DCR evidence, and support policy validation that produces consequential state so trust frameworks,
-registries, authorities, and relying parties can decide what effect to give it.
+OpenETR is not itself a full trust framework. It is a protocol for deriving
+consequential state from end-verifiable evidence concerning durable electronic
+records. Its job is to identify Digital Artifacts, preserve their DCR
+evidence, and support policy validation so trust frameworks, registries,
+authorities, and relying parties can decide what effect to give the result.
 
 ## What Trust Frameworks Do
 
@@ -262,7 +263,8 @@ OpenETR should not claim to be:
 Instead, OpenETR should claim the narrower and more durable role:
 
 ```text
-A general control layer that preserves signed evidence for durable electronic records.
+A protocol for deriving consequential state from end-verifiable evidence
+concerning durable electronic records.
 ```
 
 Trust frameworks codify behavior.

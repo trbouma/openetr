@@ -106,7 +106,7 @@ commercial effect.
 | [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, DCRs, policy validation, consequential state, and Digital Originals fit together. |
 | [Digital Originality](policy-briefs/digital-originality.md) | Explore consequential state and the model through detailed examples. |
 | [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
-| [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over the OpenETR control layer. |
+| [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over OpenETR DCR evidence and state transition rules. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
 | [Health Records](health-records.md) | Placeholder for future health-record control graph workflows, with privacy and consent concerns called out early. |
 | [Apostille Documents](apostille-documents.md) | Placeholder for future apostille and legalization document verification workflows. |
@@ -133,14 +133,15 @@ commercial effect.
 | Control Graph | The linked control-event portion of a DCR. |
 | Evidence Graph | The broader DCR graph, including Anchor, control, and linked-evidence records. |
 | Digital Original | A Digital Artifact for which Consequential State has been established by validating its DCR under an applicable policy. |
-| Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR control layer underneath. |
+| Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR DCR evidence and state transition rules underneath. |
 | Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide whether consequential state is accepted and what effect it receives. |
 
 ## Core Thesis
 
 OpenETR does not try to become each domain's system of record, registry, legal authority, or compliance engine.
 
-Instead, it provides a thin signed control layer that produces durable evidence:
+Instead, its control layer produces durable signed evidence and consequential
+state:
 
 ```text
 real-world object, product, document, or record

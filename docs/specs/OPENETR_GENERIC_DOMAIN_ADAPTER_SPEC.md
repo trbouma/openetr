@@ -10,7 +10,8 @@ Draft.
 
 ## Purpose
 
-OpenETR is a general control layer for durable electronic records.
+OpenETR is a protocol for deriving consequential state from end-verifiable
+evidence concerning durable electronic records.
 
 Different domains need different language, data models, validation rules, roles, workflows, and recognition frameworks. A warehouse receipt system should speak warehouse-receipt language. A bill-of-lading system should speak maritime transport language. An Apostille workflow should speak Competent Authority and e-Register language. A Product Passport workflow should speak product, lifecycle, compliance, and evidence language.
 
@@ -32,8 +33,8 @@ Domain adapter
   domain vocabulary, workflows, validation, UI/API, rulebook-specific state
 
 OpenETR control layer
-  Digital Artifacts, DCRs, control records, control graphs, profile signing,
-  transfer/attest/encumber/discharge/redeem/terminate primitives
+  DCR evidence, control records, control graphs, profile signing,
+  state transition rules, consequential-state derivation
 
 Wire format
   signed events, kinds, tags, relays, event ids, object queries
@@ -47,7 +48,8 @@ The domain adapter sits above OpenETR. It translates domain actions into OpenETR
 
 ## What OpenETR Core Does
 
-The OpenETR core provides generic control and evidence infrastructure.
+The OpenETR core provides generic DCR evidence and state-transition
+infrastructure.
 
 It defines:
 
@@ -71,7 +73,7 @@ OpenETR core answers questions such as:
 - Which profile key signed each event?
 - How do events link through prior-event references?
 - What candidate control graph can be reconstructed?
-- What generic control state can be derived under a selected policy?
+- What consequential state can be derived under a selected policy?
 - What warnings arise from structural or baseline-policy checks?
 
 OpenETR core should remain domain-neutral.

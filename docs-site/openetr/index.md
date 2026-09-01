@@ -1,6 +1,7 @@
 # OpenETR Overview
 
-OpenETR is a general control layer for durable electronic records.
+OpenETR is a protocol for deriving consequential state from end-verifiable
+evidence concerning durable electronic records.
 
 If this is your first encounter with OpenETR, start with one practical
 question: **how can another party determine what happened to a digital record
@@ -41,7 +42,7 @@ brief](../policy-briefs/digital-originality.md#concrete-example-an-english-guten
 
 ```text
 Domain adapter         Warehouse Receipts, Product Passports, bills of lading, credentials
-OpenETR control layer  Digital Artifacts, DCRs, transition rules, consequential state
+OpenETR control layer  DCR evidence, state transition rules, consequential state
 Nostr wire format      signed events, kinds, tags, relays, event ids
 Recognition layer      law, contracts, registry rules, institutional policy
 ```
@@ -76,7 +77,9 @@ OpenETR does not, by itself, decide:
 - statutory effect;
 - priority among competing claims.
 
-Those are recognition questions. OpenETR provides the control layer and produces durable signed evidence that a recognition layer can evaluate.
+Those are recognition questions. OpenETR's control layer preserves durable
+signed evidence and derives consequential state that a recognition layer can
+evaluate.
 
 ## Source Specs
 

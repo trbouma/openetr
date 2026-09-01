@@ -150,12 +150,12 @@ Useful shorthand:
 
 The term Control Layer should be retained and used precisely:
 
-> The Control Layer is an expressive grammar for describing control state, governing valid state transitions, and establishing or removing guards upon those transitions, independent of any particular technical binding.
+> The Control Layer is the protocol layer that records and evaluates end-verifiable events concerning a Digital Artifact in order to derive consequential state, independent of any particular technical binding.
 
 The Control Layer has two jobs:
 
-- Describe control state.
-- Govern valid control-state transitions.
+- Preserve DCR evidence concerning a Digital Artifact.
+- Apply state transition rules to derive consequential state.
 
 It lets a system express statements such as:
 
@@ -170,11 +170,12 @@ The Control Layer does not decide whether A is legally empowered to make X an of
 
 ## Grammar And Technical Binding
 
-The Control Layer is a grammar. A technical binding is an implementation of that grammar.
+The Control Layer is a protocol grammar. A technical binding is an
+implementation of that grammar.
 
 | Concept | Role |
 | --- | --- |
-| Control Layer grammar | Defines what can be meaningfully expressed. |
+| Control Layer grammar | Defines the event and transition concepts used to derive consequential state. |
 | Technical binding | Defines how those statements are represented, signed, linked, published, and verified. |
 | Recognition context | Determines whether an actor, assertion, object, or state is accepted for a purpose. |
 | Applicable rules | Determine the legal, institutional, contractual, or community effect. |
@@ -440,11 +441,14 @@ same digest represent the same Digital Artifact.
 related end-verifiable records through which consequential state concerning a
 Digital Artifact can be established and transitioned.
 
-**Control Layer:** An expressive grammar for describing control state, governing valid state transitions, and establishing or removing guards upon those transitions, independent of any particular technical binding.
+**Control Layer:** The protocol layer that records and evaluates
+end-verifiable events concerning a Digital Artifact in order to derive
+consequential state, independent of any particular technical binding.
 
 **Technical Binding:** A concrete representation of Control Layer statements in a signed, verifiable, publishable, and machine-processable form.
 
-**Transition Guard:** A condition arising from the current control state that determines whether a proposed control-state transition is valid.
+**Transition Guard:** A condition arising from the current consequential state
+that determines whether a proposed state transition is valid.
 
 **Digital Original:** A Digital Artifact for which consequential state has
 been established by validating its DCR under an applicable policy.

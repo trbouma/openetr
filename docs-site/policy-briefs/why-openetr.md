@@ -8,12 +8,12 @@ OpenETR exists because many important records are becoming digital, but the digi
 
 Those questions are related, but they should not be collapsed into one application, one database, one wallet, one registry, or one legal rulebook.
 
-OpenETR is designed as a thin, open control layer for durable electronic
-records. It identifies a Digital Artifact by cryptographic digest and records
-signed lifecycle evidence about that artifact as a Digital Controllable Record.
-An applicable policy validates the DCR as a whole and produces consequential
-state; many different domain systems can then interpret and recognize that
-state.
+OpenETR is designed as a thin, open protocol for durable electronic records.
+Its control layer identifies a Digital Artifact by cryptographic digest and
+records signed lifecycle evidence about that artifact as a Digital
+Controllable Record. An applicable policy validates the DCR as a whole and
+produces consequential state; many different domain systems can then interpret
+and recognize that state.
 
 The OpenETR protocol construct is the **Digital Controllable Record**: one
 signed end-verifiable record or graph concerning a Digital Artifact. Policy
@@ -97,8 +97,8 @@ validating its DCR under an applicable policy. Legal and policy categories remai
 questions.
 
 That framing keeps OpenETR from becoming too narrow. It can remain deeply
-relevant to electronic transferable records while also providing a general
-control layer for other durable electronic records.
+relevant to electronic transferable records while also applying the same DCR
+evidence and state-transition pattern to other durable electronic records.
 
 ## Why An Open Graph
 

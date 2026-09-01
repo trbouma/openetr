@@ -43,7 +43,8 @@ That makes the EUDI Wallet a natural mechanism for proving identity, role, autho
 
 ## OpenETR Role
 
-OpenETR is a general control layer for durable electronic records.
+OpenETR is a protocol for deriving consequential state from end-verifiable
+evidence concerning durable electronic records.
 
 It identifies a record by digest and records signed events about that object.
 

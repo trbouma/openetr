@@ -7,7 +7,11 @@ OpenETR separates two questions that digital-record systems often collapse:
 
 Those questions are related, but they are not the same.
 
-OpenETR provides a general control layer for durable electronic records. It identifies a record by digest and preserves signed evidence about the record's lifecycle. Recognition frameworks decide what legal, regulatory, commercial, or operational effect to give that evidence.
+OpenETR provides a control layer for deriving consequential state from
+end-verifiable evidence concerning durable electronic records. It identifies a
+record by digest and preserves signed evidence about the record's lifecycle.
+Recognition frameworks decide what legal, regulatory, commercial, or
+operational effect to give that evidence.
 
 ## The Control Question
 

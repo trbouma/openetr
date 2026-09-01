@@ -134,7 +134,7 @@ presentation. But many important records also need an artifact-centric DCR
 that survives outside any one wallet session, application, registry, or
 platform.
 
-OpenETR offers that artifact-centric control layer.
+OpenETR offers that artifact-centric DCR evidence layer.
 
 It lets identity systems, registries, institutions, and authorities evaluate durable signed evidence without requiring every domain to collapse into a single wallet model.
 
@@ -152,7 +152,8 @@ OpenETR should not claim to be:
 Instead, OpenETR should claim the narrower role:
 
 ```text
-A general control layer for durable electronic records.
+A protocol for deriving consequential state from end-verifiable evidence
+concerning durable electronic records.
 ```
 
 It preserves durable signed evidence about digest-identified records so that wallets, registries, authorities, and relying parties can evaluate recognition and effect.

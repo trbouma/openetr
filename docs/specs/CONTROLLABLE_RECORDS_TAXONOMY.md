@@ -22,7 +22,8 @@ The goal is to keep OpenETR's broader architecture visible while preserving the 
 
 ## Core Claim
 
-**OpenETR** is a general control layer for durable, controllable electronic records.
+**OpenETR** is a protocol for deriving consequential state from
+end-verifiable evidence concerning durable, controllable electronic records.
 
 An **electronic transferable record** is an important subclass of controllable record, but it is not the entire category. Some controllable records require transfer of control. Others require authority, lifecycle evidence, presentation, revocation, linked evidence, or recognition under a domain rulebook without becoming transferable in the negotiable-document sense.
 
@@ -191,7 +192,8 @@ But the OpenETR control graph model is broader than transferability:
 - `terminate` can mark lifecycle closure;
 - linked evidence can associate supporting records without transferring the original record.
 
-This means OpenETR can support ETR workflows while also serving as a general control layer for other durable electronic records.
+This means OpenETR can support ETR workflows while also applying the same DCR
+evidence and state-transition pattern to other durable electronic records.
 
 ## Relationship To Credentials
 
@@ -227,7 +229,8 @@ The controllable-record taxonomy suggests several design rules:
 2. Transferable-record workflows should remain first-class, but not exclusive.
 3. Non-transferable records should be able to use origin, attestation, linked evidence, lifecycle, and recognition patterns without pretending to be negotiable instruments.
 4. Credentials should be treated as complementary recognition inputs or as specialized Digital Artifacts.
-5. Domain adapters should choose the vocabulary that fits the domain while mapping to the same OpenETR control layer.
+5. Domain adapters should choose the vocabulary that fits the domain while
+   mapping to the same OpenETR DCR evidence and state-transition model.
 6. Recognition should remain outside the base protocol and should be expressed through policy, registries, trust frameworks, credentials, attestations, or verifier profiles.
 
 ## Summary
@@ -245,7 +248,7 @@ legal or policy category and effect.
 
 OpenETR can keep its brand focus while making this broader architecture explicit:
 
-> OpenETR is a control layer for electronic transferable records and other controllable records.
+> OpenETR is a protocol for deriving consequential state from end-verifiable evidence concerning electronic transferable records and other controllable records.
 
 ## Related Notes
 

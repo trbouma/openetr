@@ -1,6 +1,7 @@
 # Recognition Boundary
 
-OpenETR is focused on control-layer evidence.
+OpenETR is focused on control-layer evidence and the consequential state that
+can be derived from it under defined transition rules.
 
 Recognition frameworks decide what effect to give that evidence.
 
@@ -15,7 +16,8 @@ real-world object, product, document, or record
   -> verifier, registry, authority, or relying party decides effect
 ```
 
-OpenETR does not decide effect. It provides the control layer and preserves the evidence that a recognition layer can evaluate.
+OpenETR does not decide effect. Its control layer preserves DCR evidence and
+derives consequential state that a recognition layer can evaluate.
 
 ## Control Questions
 
@@ -26,7 +28,7 @@ OpenETR can answer questions such as:
 - which signed events reference the same object?
 - how do control events link through `e` references?
 - which profile key signed each event?
-- what candidate control state can be derived from the graph?
+- what consequential state can be derived from the graph under the selected policy?
 - which linked evidence records point back to the object?
 
 ## Recognition Questions

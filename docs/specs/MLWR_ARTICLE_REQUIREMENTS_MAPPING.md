@@ -6,7 +6,14 @@ It lists each MLWR article, gives a short project-oriented summary, and leaves a
 
 The matrix is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they can be closely mapped to protocol evidence.
 
-This is not legal advice and does not assert that OpenETR satisfies any enacted warehouse receipt law by itself. OpenETR is a signed evidence and control layer. It can show what was signed, linked, retrieved, transferred, pledged, discharged, presented, or terminated. Legal validity, authorization, protected-holder status, priority, enforcement, and local-law recognition remain questions for the relevant MLWR enactment, institutional rules, contracts, registries, courts, and policy profiles.
+This is not legal advice and does not assert that OpenETR satisfies any enacted
+warehouse receipt law by itself. OpenETR preserves signed DCR evidence and
+derives consequential state under defined transition rules. It can show what
+was signed, linked, retrieved, transferred, pledged, discharged, presented, or
+terminated. Legal validity, authorization, protected-holder status, priority,
+enforcement, and local-law recognition remain questions for the relevant MLWR
+enactment, institutional rules, contracts, registries, courts, and policy
+profiles.
 
 Primary source: [UNCITRAL-UNIDROIT Model Law on Warehouse Receipts - English PDF](https://www.unidroit.org/wp-content/uploads/2025/01/2024-uncitral-unidroit-mlwr.pdf).
 

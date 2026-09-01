@@ -3,7 +3,7 @@
 This note describes the relationship between:
 
 - the Nostr wire format
-- OpenETR as a general control layer
+- OpenETR's control layer for DCR evidence and consequential state
 - domain adapters such as the MLWR warehouse receipts surface
 - recognition frameworks that give legal or operational effect to the evidence
 
@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       Digital Artifacts, DCRs, transition rules, consequential state
+OpenETR control       DCR evidence, state transition rules, consequential state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -42,7 +42,7 @@ It does not decide whether a warehouse receipt is legally valid, whether a trans
 
 ## OpenETR Control Layer
 
-OpenETR is the control layer above the wire format.
+The OpenETR control layer sits above the wire format.
 
 It interprets signed events as a DCR concerning a Digital Artifact.
 
@@ -72,7 +72,10 @@ At this layer, OpenETR defines:
 
 The control layer is domain-neutral.
 
-It should not need to know whether an object is a warehouse receipt, bill of lading, certificate, credential, or another transferable record. It provides the common machinery for signed control evidence and state evaluation.
+It should not need to know whether an object is a warehouse receipt, bill of
+lading, certificate, credential, or another transferable record. It provides
+the common machinery for DCR evidence, state transition rules, and
+consequential-state evaluation.
 
 In implementation terms, this is the role of the `openetr` Python component, CLI, and shared service layer.
 
