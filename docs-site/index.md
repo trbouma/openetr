@@ -11,7 +11,10 @@ should have.
 
 For example, the digital thing might be a government-issued document, an
 electronic trade document, or a digitized cultural artifact. OpenETR can
-establish it as a Digital Original that can be independently verified.
+establish it as a Digital Original whose identity and consequential state can
+be independently verified. This provides a basis for it to be recognized and,
+where appropriate, given the same effect as the originally issued document or
+corresponding real-world object.
 
 ## Three Primitives. One Core Concept.
 
