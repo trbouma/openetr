@@ -237,7 +237,7 @@
         <div class="notice">
           Logged in as <span class="mono" title="{{ identity.npub }}">{{ identity.npub | short_id }}</span>
           {% if identity.profile %}
-            with selected profile <span class="mono">{{ identity.profile }}</span>
+            with Acting Profile <span class="mono">{{ identity.profile }}</span>
           {% endif %}
           {% if query.current_profile_author_npub %}
             and using that signer context for query display.
@@ -246,10 +246,10 @@
       </section>
       {% endif %}
       <section class="panel">
-        <p class="eyebrow">OpenETR Control Graph</p>
-        <h1>Control History</h1>
+        <p class="eyebrow">OpenETR Digital Controllable Record</p>
+        <h1>DCR And Consequential State</h1>
         <p class="section-intro">
-          This page shows the current control state, issuer, controller, and public history for {{ filename }}.
+          This page shows the signed DCR evidence and the consequential state derived for {{ filename }}.
         </p>
         <div class="summary-grid">
           <div class="summary-card">
@@ -257,7 +257,7 @@
             <p class="summary-value">{{ query.lifecycle_state }}</p>
           </div>
           <div class="summary-card">
-            <p class="summary-label">Issuer</p>
+            <p class="summary-label">Anchor Signer</p>
             <p class="summary-value">
               {% if query.no_events %}
               Not found
@@ -278,42 +278,42 @@
           </div>
         </div>
         <div class="kv digest-summary">
-          <div class="muted">Document digest</div><div class="mono">{{ sha256 }}</div>
-          <div class="muted">OpenETR object reference</div><div class="mono">{{ object_id }}</div>
+          <div class="muted">Digital Artifact digest</div><div class="mono">{{ sha256 }}</div>
+          <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
         </div>
       </section>
 
       {% if query.warning_multiple_origin_events %}
       <section class="panel warning">
-        <strong>Warning:</strong> multiple ETR origin events (kind {{ query.origin_kind }}) were found for this object.
+        <strong>Warning:</strong> multiple Anchor Events (kind {{ query.origin_kind }}) were found for this Digital Artifact.
       </section>
       {% endif %}
 
       {% if query.no_events %}
       <section class="panel">
-        <h2>0 events found</h2>
-        <p class="muted">No matching ETR origin events were returned for this object digest.</p>
+        <h2>No DCR Found</h2>
+        <p class="muted">No matching Anchor Records were returned for this Digital Artifact digest.</p>
       </section>
       {% include "_media_preview.html" %}
       {% include "_etr_query_qr.html" %}
       {% include "_blossom_storage.html" %}
       {% else %}
       <section class="panel">
-        <h2>Controllable Record Issued By</h2>
+        <h2>DCR Anchored By</h2>
         <div class="kv">
-          <div class="muted">Issuer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
-          <div class="muted">Issued at</div><div>{{ query.initial_event.created_at }}</div>
-          <div class="muted">Issue statement</div><div>{{ query.initial_event.content }}</div>
+          <div class="muted">Anchor signer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
+          <div class="muted">Anchored at</div><div>{{ query.initial_event.created_at }}</div>
+          <div class="muted">Anchor statement</div><div>{{ query.initial_event.content }}</div>
         </div>
         {% if query.initial_profile %}
-        <h3>Issuer Profile</h3>
+        <h3>Anchor Signer Profile</h3>
         <ul>
           {% for field, value in query.initial_profile %}
           <li><strong>{{ field }}</strong>: {{ value }}</li>
           {% endfor %}
         </ul>
         {% else %}
-        <p class="muted">No issuer profile was found.</p>
+        <p class="muted">No Anchor signer profile was found.</p>
         {% endif %}
       </section>
 
@@ -328,7 +328,7 @@
           <div>{{ query.lifecycle_basis }}</div>
         </div>
         {% if query.current_controller.is_current_profile %}
-        <p class="status-message success">You may be the current controller for this object. The active profile matches the derived controller.</p>
+        <p class="status-message success">You may be the current controller for this Digital Artifact. The Acting Profile matches the derived controller.</p>
         {% endif %}
         {% if query.current_controller.profile %}
         <div class="profile-heading">
@@ -348,8 +348,8 @@
       </section>
 
       <section class="panel">
-        <h2>Control Chain Summary</h2>
-        <p class="muted">Legend: ++ origin, -> transfer, -- terminate, => attest, +$ encumber, -$ discharge, ** redeem</p>
+        <h2>DCR Chain Summary</h2>
+        <p class="muted">Legend: ++ Anchor, -> transfer, -- terminate, => attest, +$ encumber, -$ discharge, ** redeem</p>
         {% for chain in query.summary_control_chains %}
         <div class="event">
           <h3>{{ chain.label }}</h3>
@@ -370,10 +370,10 @@
 
       {% if issue_result %}
       <section class="panel">
-        <h2>Issue Control Record Result</h2>
+        <h2>Anchor Record Result</h2>
         <div class="kv">
-          <div class="muted">Issued Event ID</div><div class="mono">{{ issue_result.event_id }}</div>
-          <div class="muted">Signer</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
+          <div class="muted">Anchor Event ID</div><div class="mono">{{ issue_result.event_id }}</div>
+          <div class="muted">Acting Profile key</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
           <div class="muted">Comment</div><div class="mono">{{ issue_result.comment }}</div>
           <div class="muted">Existing Before Publish</div><div>{{ issue_result.existing_count_before_publish }}</div>
           <div class="muted">Returned After Publish</div><div>{{ issue_result.query_count_after_publish }}</div>
@@ -426,36 +426,36 @@
         </div>
         {% endfor %}
         {% else %}
-        <p class="muted">No outstanding pledge, lien, or restriction was found for this object.</p>
+        <p class="muted">No outstanding pledge, lien, or restriction was found for this Digital Artifact.</p>
         {% endif %}
       </section>
 
       <section class="panel">
-        <h2>Technical Query Details</h2>
+        <h2>Technical DCR Details</h2>
         <p class="section-intro">Relay filters, event IDs, and raw event fields for audit and debugging.</p>
         <div class="kv">
           <div class="muted">Relays</div><div class="mono">{{ relays }}</div>
-          <div class="muted">Origin filter</div><div class="mono">{{ query.relay_filter }}</div>
-          <div class="muted">Control-event filter</div><div class="mono">{{ query.transfer_filter }}</div>
+          <div class="muted">Anchor filter</div><div class="mono">{{ query.relay_filter }}</div>
+          <div class="muted">Control-record filter</div><div class="mono">{{ query.transfer_filter }}</div>
           <div class="muted">Returned</div><div>{{ query.count }} event(s)</div>
         </div>
       </section>
 
       <section class="panel">
-        <h2>Initial ETR Origin Event (kind {{ query.origin_kind }})</h2>
+        <h2>Initial Anchor Event (kind {{ query.origin_kind }})</h2>
         <div class="kv">
-          <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
-          <div class="muted">Origin Event ID</div><div class="mono">{{ query.initial_event.event_ref }}</div>
-          <div class="muted">Issuer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
+          <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
+          <div class="muted">Anchor Event ID</div><div class="mono">{{ query.initial_event.event_ref }}</div>
+          <div class="muted">Anchor signer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
           {% if query.initial_event.is_current_profile_author %}
-          <div class="muted">Current Session Signer</div><div>Yes</div>
+          <div class="muted">Acting Profile signer</div><div>Yes</div>
           {% endif %}
           <div class="muted">Created At</div><div>{{ query.initial_event.created_at }}</div>
           {% if query.initial_event.d_values %}
           <div class="muted">Legacy d value</div><div class="mono">{{ query.initial_event.d_values }}</div>
           {% endif %}
           <div class="muted">o value</div><div class="mono">{{ query.initial_event.o_values }}</div>
-          <div class="muted">Content</div><div class="mono">{{ query.initial_event.content }}</div>
+          <div class="muted">Unstructured content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
         {% if query.initial_event.structured_tags %}
         <h3>Event Data</h3>
@@ -465,7 +465,7 @@
           {% endfor %}
         </div>
         {% endif %}
-        <h3>Issuer Profile</h3>
+        <h3>Anchor Signer Profile</h3>
         {% if query.initial_profile %}
         <ul>
           {% for field, value in query.initial_profile %}
@@ -473,24 +473,24 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p class="muted">No issuer profile found.</p>
+        <p class="muted">No Anchor signer profile found.</p>
         {% endif %}
       </section>
 
       {% if query.origin_events|length > 1 %}
       <section class="panel">
-        <h2>Matching ETR Origin Events (kind {{ query.origin_kind }})</h2>
+        <h2>Matching Anchor Events (kind {{ query.origin_kind }})</h2>
         {% for item in query.origin_events %}
         <div class="event">
           <div class="kv">
-            <div class="muted">Origin Event ID</div><div class="mono">{{ item.event.event_ref }}</div>
-            <div class="muted">Issuer</div><div class="mono" title="{{ item.event.author_npub }}">{{ item.event.author_npub | short_id }}</div>
+            <div class="muted">Anchor Event ID</div><div class="mono">{{ item.event.event_ref }}</div>
+            <div class="muted">Anchor signer</div><div class="mono" title="{{ item.event.author_npub }}">{{ item.event.author_npub | short_id }}</div>
             {% if item.is_current_profile_author %}
-            <div class="muted">Current Session Signer</div><div>Yes</div>
+            <div class="muted">Acting Profile signer</div><div>Yes</div>
             {% endif %}
             <div class="muted">Created At</div><div>{{ item.event.created_at }}</div>
-            <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
-            <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
+            <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
+            <div class="muted">Unstructured content</div><div class="mono">{{ item.event.content }}</div>
           </div>
           {% if item.event.structured_tags %}
           <h3>Event Data</h3>
@@ -501,14 +501,14 @@
           </div>
           {% endif %}
           {% if item.issuer_profile %}
-          <h3>Issuer Profile</h3>
+          <h3>Anchor Signer Profile</h3>
           <ul>
             {% for field, value in item.issuer_profile %}
             <li><strong>{{ field }}</strong>: {{ value }}</li>
             {% endfor %}
           </ul>
           {% else %}
-          <p class="muted">No issuer profile found.</p>
+          <p class="muted">No Anchor signer profile found.</p>
           {% endif %}
         </div>
         {% endfor %}
@@ -516,9 +516,9 @@
       {% endif %}
 
       <section class="panel">
-        <h2>Matching Control Events (kind {{ query.control_event_kind }})</h2>
+        <h2>Matching Control Records (kind {{ query.control_event_kind }})</h2>
         {% if not query.transfer_groups %}
-        <p>No control transfer events were found for this object.</p>
+        <p>No Control Records were found for this Digital Artifact.</p>
         {% else %}
         {% macro render_node(node) %}
           <div class="event">
@@ -526,9 +526,9 @@
               <div class="muted">Event</div><div>{{ node.row_label }}</div>
               <div class="muted">Event ID</div><div class="mono">{{ node.event.event_ref }}</div>
               <div class="muted">Author</div><div class="mono" title="{{ node.event.author_npub }}">{{ node.event.author_npub | short_id }}</div>
-              {% if node.is_current_profile_author %}<div class="muted">Current Session Signer</div><div>Yes</div>{% endif %}
+              {% if node.is_current_profile_author %}<div class="muted">Acting Profile signer</div><div>Yes</div>{% endif %}
               <div class="muted">Created At</div><div>{{ node.event.created_at }}</div>
-              <div class="muted">Object ID</div><div class="mono">{{ object_id }}</div>
+              <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
               {% if node.event.action %}<div class="muted">Action</div><div>{{ node.event.action_label }} (<span class="mono">{{ node.event.action }}</span>)</div>{% endif %}
               {% if node.event.prior_event_id %}<div class="muted">Prior Event ID</div><div class="mono">{{ node.event.prior_event_id }}</div>{% endif %}
               {% if node.event.encumbrance_event_id %}<div class="muted">Encumbrance Event</div><div class="mono">{{ node.event.encumbrance_event_id }}</div>{% endif %}
@@ -537,10 +537,10 @@
               {% if node.event.subject_npub %}<div class="muted">{{ node.event.participant_label or "Participant" }}</div><div class="mono">{{ node.event.subject_npub }}</div>{% endif %}
               {% if node.event.d_values %}<div class="muted">Legacy d value</div><div class="mono">{{ node.event.d_values }}</div>{% endif %}
               <div class="muted">o value</div><div class="mono">{{ node.event.o_values }}</div>
-              <div class="muted">Content</div><div class="mono">{{ node.event.content }}</div>
+              <div class="muted">Unstructured content</div><div class="mono">{{ node.event.content }}</div>
             </div>
             {% if node.signer_profile %}
-            <h3>Control Event Signer Profile</h3>
+            <h3>Control Record Signer Profile</h3>
             <ul>
               {% for field, value in node.signer_profile %}
               <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -567,7 +567,7 @@
 
         {% for group in query.transfer_groups %}
         <div class="event">
-          <h3>Control Event Group {{ group.index }}</h3>
+          <h3>Control Record Group {{ group.index }}</h3>
           {% if group.root_prior_event_id %}
           <p><strong>Root Prior Event ID:</strong> <span class="mono">{{ group.root_prior_event_id }}</span></p>
           {% endif %}

@@ -45,7 +45,7 @@ Then open:
 
 The current demo app renders an OpenETR `query-etr` style result page from an uploaded file digest.
 
-In app terminology, the uploaded receipt or document is the **Controlled Object**. Each signed OpenETR origin or control event is a **control record** for that object. The linked history reconstructed from those records is the object's **control graph**.
+In app terminology, the uploaded receipt or document is a **Digital Artifact** identified by its digest. The first signed record is its **Anchor Record**. The Anchor and later signed control records form a candidate **Digital Controllable Record (DCR)**. OpenETR validates that record graph under a stated verifier policy and derives **Consequential State**; external law, registries, contracts, and institutional policy determine recognition and legal effect.
 
 Uploads are limited to 10 MiB by default. Set `OPENETR_MAX_UPLOAD_BYTES` to override the limit for a deployment.
 
@@ -57,12 +57,12 @@ Result pages include a branded QR code for public digest lookup. The QR image is
 
 The result page includes the same categories of information shown by the CLI:
 
-- the initial ETR origin event
-- issuer profile details
-- matching origin records
-- matching control events
-- the summary control chain
-- the current controller
+- the Anchor Record and Anchor signer
+- matching Anchor Records
+- matching control records
+- the reconstructed DCR history
+- verifier warnings and consequential lifecycle state
+- the derived controller
 
 ## Docker
 

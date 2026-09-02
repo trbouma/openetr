@@ -221,14 +221,14 @@
         <div class="hero-heading">
           <div>
             <p class="eyebrow">OpenETR Control Desk</p>
-            <h1>Query A Control Graph</h1>
+            <h1>Query A Digital Controllable Record</h1>
           </div>
           <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
         </div>
         <p>
-          OpenETR treats a document or data artifact as a Controlled Object identified by its digest.
-          The signed origin and control records for that digest form a control graph that can be queried,
-          verified, and rendered across domains.
+          OpenETR identifies a Digital Artifact by its digest. An Anchor Record and any later signed records
+          form a Digital Controllable Record (DCR) that can be queried, validated, and interpreted across domains.
+          Protocol rules derive Consequential State; external recognition determines its effect.
         </p>
       </header>
 
@@ -237,8 +237,8 @@
 
       <section class="grid">
         <div class="card">
-          <h2>Generic Query</h2>
-          <p>Upload any document or product data file to query the OpenETR control graph associated with its digest.</p>
+          <h2>Query DCR</h2>
+          <p>Upload any document or product data file to query the OpenETR DCR associated with its Digital Artifact digest.</p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -247,7 +247,7 @@
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
               <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
             </label>
-            <button type="submit">Query Control Graph</button>
+            <button type="submit">Query DCR</button>
           </form>
         </div>
 
@@ -256,11 +256,11 @@
           <div class="domain-grid">
             <a class="domain-link" href="/warehouse-receipts">
               Warehouse Receipts
-              <span>Create, query, transfer, pledge, release, present, and complete receipt control workflows.</span>
+              <span>Create and query receipt DCRs, then transfer, pledge, release, present, and complete their domain workflows.</span>
             </a>
             <a class="domain-link" href="/digital-product-passports">
               Product Passports
-              <span>Create and query Product Passport control records for product data, compliance evidence, and lifecycle attestations.</span>
+              <span>Create and query Product Passport DCRs for product data, compliance evidence, and lifecycle attestations.</span>
             </a>
           </div>
         </div>

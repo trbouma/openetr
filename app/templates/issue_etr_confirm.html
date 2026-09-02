@@ -114,13 +114,13 @@
         </p>
       </section>
       <section class="panel warning">
-        <h1>Issue Control Record Confirmation</h1>
+        <h1>Create Anchor Record Confirmation</h1>
         <p><strong>{{ guard.warning_message }}</strong></p>
         <div class="kv">
-          <div>Existing Event</div><div class="mono">{{ guard.latest_event_id }}</div>
-          <div>Existing Issuer</div><div class="mono" title="{{ guard.latest_issuer_npub }}">{{ guard.latest_issuer_npub | short_id }}</div>
-          <div>Object ID</div><div class="mono">{{ object_id }}</div>
-          <div>File</div><div>{{ filename }}</div>
+          <div>Existing Anchor Event</div><div class="mono">{{ guard.latest_event_id }}</div>
+          <div>Existing Anchor Signer</div><div class="mono" title="{{ guard.latest_issuer_npub }}">{{ guard.latest_issuer_npub | short_id }}</div>
+          <div>Artifact reference</div><div class="mono">{{ object_id }}</div>
+          <div>Digital Artifact</div><div>{{ filename }}</div>
           <div>Size</div><div>{{ size_bytes }} bytes</div>
           <div>SHA-256</div><div class="mono">{{ sha256 }}</div>
           <div>Relays</div><div class="mono">{{ relays }}</div>
@@ -130,7 +130,7 @@
         </div>
         {% if existing_issuer_profile %}
         <div class="profile">
-          <h2>Existing Issuer Profile</h2>
+          <h2>Existing Anchor Signer Profile</h2>
           <div class="kv">
             {% for field, value in existing_issuer_profile %}
             <div>{{ field }}</div><div{% if field in ["picture", "banner", "website"] %} class="mono"{% endif %}>{{ value }}</div>
@@ -147,7 +147,7 @@
           <input type="hidden" name="file_digest" value="{{ sha256 }}">
           <input type="hidden" name="file_name" value="{{ filename }}">
           <input type="hidden" name="file_size" value="{{ size_bytes }}">
-          <button type="submit">Continue issuing this control record</button>
+          <button type="submit">Create another Anchor Record</button>
         </form>
         <p><a href="/openetr">Cancel and return</a></p>
       </section>

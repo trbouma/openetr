@@ -164,7 +164,7 @@
       <div class="notice success">{{ success_message }}</div>
       {% endif %}
       <div class="notice info">
-        These relay settings apply to this browser session. Bootstrap relays support root-key profile discovery and recovery; working relays are used by default for record queries and issue actions. Both fields accept comma- or space-delimited relay entries.
+        These relay settings apply to this browser session. Bootstrap relays support Control Desk Key discovery and recovery of Commitment Profiles; working relays are used by default for DCR queries and record publication. Both fields accept comma- or space-delimited relay entries.
       </div>
 
       <section class="panel">
@@ -172,9 +172,9 @@
         <h1>Settings</h1>
         <p>
           {% if identity.logged_in %}
-          Logged in as <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code>.
+          Control Desk Key: <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code>.
           {% else %}
-          No nsec session is active.
+          No Control Desk Key session is active.
           {% endif %}
         </p>
       </section>
@@ -185,12 +185,12 @@
           <label>
             Bootstrap relay(s)
             <input type="text" name="bootstrap_relays" value="{{ bootstrap_relays }}" placeholder="wss://relay.example.com">
-            <span class="field-help">Used with the root key for profile discovery, recovery, and relay-backed signer management. Separate multiple relays with commas or spaces.</span>
+            <span class="field-help">Used with the Control Desk Key for Commitment Profile discovery, recovery, and relay-backed signer management. Separate multiple relays with commas or spaces.</span>
           </label>
           <label>
             Working relay(s)
             <input type="text" name="default_relays" value="{{ default_relays }}" placeholder="wss://relay.example.com,wss://relay.backup.example.com">
-            <span class="field-help">Used by default for record queries and ETR issue operations in this session. Separate multiple relays with commas or spaces.</span>
+            <span class="field-help">Used by default for DCR queries and Anchor or control-record publication in this session. Separate multiple relays with commas or spaces.</span>
           </label>
           <div class="actions">
             <button type="submit">Save Relay Settings</button>

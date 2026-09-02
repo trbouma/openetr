@@ -361,17 +361,17 @@
 
     <h1>Check Record</h1>
 
-    <p class="advisory"><strong>OpenETR evidence.</strong> This page checks the public control history for a digest-identified record.</p>
+    <p class="advisory"><strong>OpenETR evidence.</strong> This page checks the public Digital Controllable Record for a digest-identified Digital Artifact.</p>
 
     {% if query.no_events %}
     <section class="panel" aria-labelledby="record-status-heading">
-      <h2 id="record-status-heading">No origin event found</h2>
-      <p>No OpenETR origin event was returned for this record digest.</p>
+      <h2 id="record-status-heading">No Anchor Record Found</h2>
+      <p>No OpenETR Anchor Record was returned for this Digital Artifact digest.</p>
       <p class="openetr-source">Digest: <code>{{ sha256 }}</code></p>
     </section>
     {% else %}
     <section class="panel" aria-labelledby="record-status-heading">
-      <h2 id="record-status-heading">Record Status</h2>
+      <h2 id="record-status-heading">Consequential State</h2>
       <div class="status-grid">
         <div class="status-item">
           <p class="record-fingerprint">
@@ -392,7 +392,7 @@
           <span class="status-value">{{ query.lifecycle_state }}</span>
         </div>
         <div class="status-item">
-          <span class="status-label">Issuer</span>
+          <span class="status-label">Anchor signer</span>
           <span class="status-value">
             <code title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</code>
           </span>
@@ -431,7 +431,7 @@
     {% endif %}
 
     <section class="openetr-event openetr-origin-issuer" aria-labelledby="openetr-origin-issuer-heading">
-      <h2 id="openetr-origin-issuer-heading">Origin and Issuer</h2>
+      <h2 id="openetr-origin-issuer-heading">Anchor And Signer</h2>
       {% if query.initial_profile %}
       <dl class="openetr-event-fields openetr-human-fields">
         {% for field, value in query.initial_profile %}
@@ -448,17 +448,17 @@
         {% endfor %}
       </dl>
       {% else %}
-      <p class="openetr-source">No issuer profile was returned by the configured relays.</p>
+      <p class="openetr-source">No Anchor signer profile was returned by the configured relays.</p>
       {% endif %}
       <dl class="openetr-event-fields openetr-human-fields">
         <dt>Issued</dt><dd>{{ query.initial_event.created_at }}</dd>
         {% if query.initial_event.content %}<dt>Statement</dt><dd>{{ query.initial_event.content }}</dd>{% endif %}
       </dl>
-      <p class="openetr-evidence-note">Issuer information may help recognition, but it does not independently establish authority.</p>
+      <p class="openetr-evidence-note">Signer information may help recognition, but it does not independently establish authority or effect.</p>
     </section>
 
     <section aria-labelledby="control-history-heading">
-      <h2 id="control-history-heading">Control Events</h2>
+      <h2 id="control-history-heading">Control Records</h2>
       {% set event_count = namespace(value=0) %}
       {% for group in query.transfer_groups %}
         {% macro render_public_node(node) %}
@@ -480,7 +480,7 @@
         {{ render_public_node(group.root) }}
       {% endfor %}
       {% if event_count.value == 0 %}
-      <p>No related control events were found.</p>
+      <p>No related Control Records were found.</p>
       {% endif %}
     </section>
     {% endif %}
@@ -506,13 +506,13 @@
     <details class="openetr-protocol-details">
       <summary>Protocol Details</summary>
       <div class="openetr-protocol-details-content">
-        <h3>Origin Event</h3>
+        <h3>Anchor Event</h3>
         <dl class="openetr-event-fields openetr-protocol-fields">
-          <dt>Object Digest</dt><dd><code>{{ sha256 }}</code></dd>
-          <dt>Object Reference</dt><dd><code>{{ object_id }}</code></dd>
-          <dt>Origin Event ID</dt><dd><code>{{ query.initial_event.id }}</code></dd>
-          <dt>Origin Event Kind</dt><dd>{{ query.initial_event.kind }}</dd>
-          <dt>Issuer Public Key</dt><dd><code>{{ query.initial_event.author_hex }}</code></dd>
+          <dt>Digital Artifact Digest</dt><dd><code>{{ sha256 }}</code></dd>
+          <dt>Artifact Reference</dt><dd><code>{{ object_id }}</code></dd>
+          <dt>Anchor Event ID</dt><dd><code>{{ query.initial_event.id }}</code></dd>
+          <dt>Anchor Event Kind</dt><dd>{{ query.initial_event.kind }}</dd>
+          <dt>Anchor Signer Public Key</dt><dd><code>{{ query.initial_event.author_hex }}</code></dd>
         </dl>
 
         {% for group in query.transfer_groups %}

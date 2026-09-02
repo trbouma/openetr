@@ -1191,7 +1191,7 @@ async def resolve_control_party_pubkey_hex(value: str, identity: dict[str, Any])
 
 def profile_switch_signer_source_label(signer_source: str) -> str:
     if signer_source == "relay":
-        return "its root-managed signer"
+        return "its Control Desk Key-managed signer"
     return f"the {signer_source} signer secret"
 
 
@@ -1674,7 +1674,7 @@ async def warehouse_receipts_issue(
         return await render_warehouse_receipts_page(
             request,
             identity,
-            error_message="Log in with an nsec before creating a warehouse receipt control record.",
+            error_message="Log in with a Control Desk Key before creating a warehouse receipt Anchor Record.",
             status_code=400,
         )
 
@@ -1682,7 +1682,7 @@ async def warehouse_receipts_issue(
         return await render_warehouse_receipts_page(
             request,
             identity,
-            error_message="Select a warehouse operator or issuer profile before creating a warehouse receipt control record.",
+            error_message="Select a warehouse operator or issuer Acting Profile before creating a warehouse receipt Anchor Record.",
             status_code=400,
         )
 
@@ -1707,8 +1707,8 @@ async def warehouse_receipts_issue(
             request,
             identity,
             error_message=(
-                "This receipt file already has a control record from the current signer. "
-                "Select the force checkbox if you intentionally want to publish a replacement origin event."
+                "This receipt Digital Artifact already has an Anchor Record from the Acting Profile. "
+                "Select the force checkbox if you intentionally want to publish another Anchor Event."
             ),
             status_code=400,
         )
@@ -1733,7 +1733,7 @@ async def warehouse_receipts_issue(
         digest=upload.digest,
         relays=validated_relays,
         signer_nsec=identity["nsec"],
-        comment=f"Created warehouse receipt control record {receipt_reference.strip() or upload.filename}",
+        comment=f"Created warehouse receipt Anchor Record {receipt_reference.strip() or upload.filename}",
         extra_tags=extra_tags,
     )
     query_context = await build_query_etr_result(
@@ -1751,7 +1751,7 @@ async def warehouse_receipts_issue(
         relays=validated_relays,
         query_context=query_context,
         issue_result=issue_result,
-        success_message="Warehouse receipt control record published through the general OpenETR issue service.",
+        success_message="Warehouse receipt Anchor Record published through the shared OpenETR service.",
         media_preview=upload.media_preview,
         blossom_storage=blossom_storage,
     )
@@ -1838,7 +1838,7 @@ async def digital_product_passports_create(
         return await render_digital_product_passports_page(
             request,
             identity,
-            error_message="Log in with an nsec before creating a product passport control record.",
+            error_message="Log in with a Control Desk Key before creating a Product Passport Anchor Record.",
             status_code=400,
         )
 
@@ -1846,7 +1846,7 @@ async def digital_product_passports_create(
         return await render_digital_product_passports_page(
             request,
             identity,
-            error_message="Select a manufacturer, importer, or issuer profile before creating a product passport control record.",
+            error_message="Select a manufacturer, importer, or issuer Acting Profile before creating a Product Passport Anchor Record.",
             status_code=400,
         )
 
@@ -1872,8 +1872,8 @@ async def digital_product_passports_create(
             request,
             identity,
             error_message=(
-                "This Product Passport file already has a control record from the current signer. "
-                "Select the force checkbox if you intentionally want to publish a replacement origin event."
+                "This Product Passport Digital Artifact already has an Anchor Record from the Acting Profile. "
+                "Select the force checkbox if you intentionally want to publish another Anchor Event."
             ),
             status_code=400,
         )
@@ -1907,7 +1907,7 @@ async def digital_product_passports_create(
         digest=upload.digest,
         relays=validated_relays,
         signer_nsec=identity["nsec"],
-        comment=f"Created digital product passport control record {reference}",
+        comment=f"Created Product Passport Anchor Record {reference}",
         extra_tags=extra_tags,
     )
     query_context = await build_query_etr_result(
@@ -1932,7 +1932,7 @@ async def digital_product_passports_create(
             "relays": validated_relays,
             "query": query_context,
             "issue_result": issue_result,
-            "success_message": "Digital product passport control record published through the general OpenETR issue service.",
+            "success_message": "Product Passport Anchor Record published through the shared OpenETR service.",
             "media_preview": upload.media_preview,
             "blossom_storage": blossom_storage,
             **qr_context_for_digest(request, issue_result["sha256"]),
@@ -1963,7 +1963,7 @@ async def require_warehouse_action_context(
         return await render_warehouse_receipts_page(
             request,
             identity,
-            error_message="Select a warehouse receipt profile before publishing this action.",
+            error_message="Select a warehouse receipt Acting Profile before publishing this action.",
             status_code=400,
         )
     return validated_relays, object_digest
@@ -3116,9 +3116,9 @@ async def login(
 
     if profiles_index is None:
         template_context["error_message"] = (
-            "No relay-backed profile configuration was found for this nsec on the selected bootstrap relays. "
-            "If this is meant to be a brand-new identity, use 'Generate New nsec'. "
-            "If the identity already exists, specify the correct bootstrap relay(s)."
+            "No relay-backed Control Desk configuration was found for this nsec on the selected bootstrap relays. "
+            "If this is meant to be a brand-new Control Desk Key, use 'Generate Control Desk Key'. "
+            "If the Control Desk already exists, specify the correct bootstrap relay(s)."
         )
         return templates.TemplateResponse(
             request,
@@ -3215,8 +3215,8 @@ async def generate_login(
     request.session.pop(SESSION_PROFILE_KEY, None)
     template_context = await get_default_template_context(session_identity(request))
     template_context["success_message"] = (
-        "Generated a new nsec, initialized the new identity on the selected bootstrap relay(s), "
-        "and started a session. You can use this same nsec and bootstrap relay set to log back in later."
+        "Generated a new Control Desk Key, initialized it on the selected bootstrap relay(s), "
+        "and started a session. Use this same nsec and bootstrap relay set to restore the Control Desk later."
     )
     template_context["generated_nsec"] = generated_nsec
     return templates.TemplateResponse(
@@ -3242,7 +3242,7 @@ async def create_profile(
             request,
             identity,
             return_to,
-            error_message="You must log in with an nsec before creating a profile.",
+            error_message="You must log in with a Control Desk Key before creating a Commitment Profile.",
             status_code=400,
         )
 
@@ -3266,8 +3266,8 @@ async def create_profile(
                 identity,
                 return_to,
                 error_message=(
-                    "Warning: the provided signer matches your root admin nsec. "
-                    "The root key should normally remain separate from profile signer keys. "
+                    "Warning: the provided signer matches your Control Desk Key nsec. "
+                    "The Control Desk Key should normally remain separate from Commitment Profile signing keys. "
                     "If you intentionally want to reuse it, confirm that choice in the profile form and submit again."
                 ),
                 status_code=400,
@@ -3304,9 +3304,9 @@ async def create_profile(
     request.session[SESSION_SIGNER_NSEC_KEY] = created_profile["signer_nsec"]
     request.session[SESSION_PROFILE_KEY] = created_profile["profile_name"]
     if created_profile["generated_signer"]:
-        success_message = f"Created relay-backed profile '{created_profile['profile_name']}' and selected it for this session."
+        success_message = f"Created Commitment Profile '{created_profile['profile_name']}' and selected it as the Acting Profile."
     else:
-        success_message = f"Added existing profile '{created_profile['profile_name']}' to this root and selected it for this session."
+        success_message = f"Added existing Commitment Profile '{created_profile['profile_name']}' to this Control Desk Key and selected it as the Acting Profile."
     return await render_profile_return_page(
         request,
         session_identity(request),
@@ -3331,7 +3331,7 @@ async def use_profile(
             request,
             template_context["identity"],
             return_to,
-            error_message=f"No signer nsec is available for profile '{profile}'.",
+            error_message=f"No signing nsec is available for Commitment Profile '{profile}'.",
             status_code=200 if is_htmx_request(request) else 400,
         )
 
@@ -3342,7 +3342,7 @@ async def use_profile(
             request,
             template_context["identity"],
             return_to,
-            error_message=f"Profile '{profile}' signer is invalid: {exc}",
+            error_message=f"Commitment Profile '{profile}' signer is invalid: {exc}",
             status_code=200 if is_htmx_request(request) else 400,
         )
 
@@ -3350,7 +3350,7 @@ async def use_profile(
     request.session[SESSION_PROFILE_KEY] = profile
     template_context = await get_default_template_context(session_identity(request))
     template_context["success_message"] = (
-        f"Switched to profile '{profile}' using {profile_switch_signer_source_label(signer_source)}."
+        f"Acting Profile switched to '{profile}' using {profile_switch_signer_source_label(signer_source)}."
     )
     return await render_profile_return_page(
         request,
@@ -3367,12 +3367,12 @@ async def edit_profile_page(
 ):
     if not identity.get("logged_in"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "You must log in with an nsec before editing a profile."
+        template_context["error_message"] = "You must log in with a Control Desk Key before editing a Commitment Profile."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before editing its profile."
+        template_context["error_message"] = "Select an Acting Profile before editing its profile information."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     with session_bootstrap(identity):
@@ -3415,12 +3415,12 @@ async def edit_profile_submit(
 ):
     if not identity.get("logged_in"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "You must log in with an nsec before editing a profile."
+        template_context["error_message"] = "You must log in with a Control Desk Key before editing a Commitment Profile."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before editing its profile."
+        template_context["error_message"] = "Select an Acting Profile before editing its profile information."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     field_values = {
@@ -3499,7 +3499,7 @@ async def edit_profile_submit(
             request,
             current_profile=compact_profile(latest_profile),
             publish_result=publish_result,
-            success_message="Published updated profile.",
+            success_message="Published updated Commitment Profile.",
         )
     return await render_profile_edit_response(
         request,
@@ -3508,7 +3508,7 @@ async def edit_profile_submit(
         identity["profile"],
         profile_form_values(latest_profile),
         compact_profile(latest_profile),
-        success_message="Published updated profile.",
+        success_message="Published updated Commitment Profile.",
         publish_result=publish_result,
     )
 
@@ -3529,7 +3529,7 @@ async def bitcoin_send_preview(
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before spending Bitcoin."
+        template_context["error_message"] = "Select an Acting Profile before spending Bitcoin."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     spend_form = {
@@ -3606,7 +3606,7 @@ async def bitcoin_send_broadcast(
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before spending Bitcoin."
+        template_context["error_message"] = "Select an Acting Profile before spending Bitcoin."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     spend_form = {
@@ -3750,12 +3750,12 @@ async def issue_etr_from_upload(
 
     if not identity.get("logged_in"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "You must log in with an nsec before issuing an ETR."
+        template_context["error_message"] = "You must log in with a Control Desk Key before creating an Anchor Record."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     if not identity.get("profile"):
         template_context = await get_default_template_context(identity)
-        template_context["error_message"] = "Select a profile before issuing an ETR."
+        template_context["error_message"] = "Select an Acting Profile before creating an Anchor Record."
         return templates.TemplateResponse(request, "index.html", template_context, status_code=400)
 
     confirmation = request.query_params.get("confirm") == "true"

@@ -171,17 +171,17 @@
       {% endif %}
       {% if generated_nsec %}
       <div class="notice warning">
-        <strong>Important:</strong> copy and safeguard this generated <code>nsec</code> now. If your browser session ends, you will need this key to log back in.
+        <strong>Important:</strong> copy and safeguard this generated Control Desk Key <code>nsec</code> now. If your browser session ends, you will need it to restore the desk.
         <div style="margin-top:0.75rem;"><code>{{ generated_nsec }}</code></div>
       </div>
       {% endif %}
 
       <section class="panel">
         <p class="eyebrow">OpenETR</p>
-        <h1>Login</h1>
+        <h1>Open Control Desk</h1>
         <p>
-          <strong>Login with nsec</strong> is for an existing relay-backed identity that can be recovered from the bootstrap relay set.
-          <strong>Generate New nsec</strong> is for creating a brand-new identity and bootstrapping it on the selected relay set.
+          <strong>Login with a Control Desk Key</strong> restores an existing relay-backed desk and its Commitment Profiles from the bootstrap relay set.
+          <strong>Generate a Control Desk Key</strong> creates a new desk identity and bootstraps it on the selected relay set.
         </p>
       </section>
 
@@ -197,8 +197,8 @@
             <span class="field-help">You can separate multiple relays with commas or spaces. Plain domain names are normalized to <code>wss://</code> automatically.</span>
           </label>
           <div class="button-row">
-            <button type="submit">Login with nsec</button>
-            <button type="submit" formaction="/generate-login" formmethod="post" formnovalidate>Generate New nsec</button>
+            <button type="submit">Login with Control Desk Key</button>
+            <button type="submit" formaction="/generate-login" formmethod="post" formnovalidate>Generate Control Desk Key</button>
           </div>
         </form>
       </section>

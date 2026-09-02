@@ -16,15 +16,15 @@
 <div class="notice success">{{ success_message }}</div>
 {% endif %}
 <div class="notice info">
-  This profile editor is a web adapter over shared <code>openetr</code> profile-publish services.
+  This Commitment Profile editor is a web adapter over shared <code>openetr</code> profile-publish services.
   The intended architecture is one core implementation reused across the web app, human CLI, agent CLI, and agent API.
 </div>
 
 <section class="panel">
   <p class="eyebrow">OpenETR</p>
-  <h1>Update Profile</h1>
-  <p><strong>Selected profile:</strong> <code>{{ profile_name }}</code></p>
-  <p><strong>Signer:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
+  <h1>Update Acting Profile</h1>
+  <p><strong>Acting Profile:</strong> <code>{{ profile_name }}</code></p>
+  <p><strong>Commitment Profile key:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
   <p><strong>Relays:</strong> <span class="mono">{{ relays }}</span></p>
   <p>Blank fields are removed from the merged profile when you publish. Enable replace mode to publish only the fields shown in this form.</p>
   <p>The design note for this multi-modality approach lives in <code>docs/specs/MULTI_MODALITY_ARCHITECTURE_NOTE.md</code>.</p>
@@ -84,7 +84,7 @@
       </label>
     </div>
     <div class="actions">
-      <button type="submit">Publish Profile Update</button>
+      <button type="submit">Publish Commitment Profile Update</button>
     </div>
   </form>
   <form action="/" method="get">

@@ -117,10 +117,10 @@
         <div class="hero">
           <h1>Overview</h1>
           <p>
-            This overview illustrates the OpenETR transferable record scheme: a file or electronic artifact is reduced to a stable digest, represented as a portable object identifier, and then tracked through Nostr events that express current title and the control-transfer chain.
+            This overview illustrates the OpenETR model: a Digital Artifact is identified by a stable digest, and signed Anchor and later control records form a Digital Controllable Record from which consequential state can be derived.
           </p>
           <p>
-            The model is designed to keep object identity stable, make title state queryable, and preserve a verifiable chain of control using signed relay-backed records.
+            The model keeps artifact identity stable, makes DCR evidence portable, and separates protocol-derived Consequential State from external Recognition and Effect.
           </p>
         </div>
       </section>
@@ -139,13 +139,13 @@
         <h2>Relay-Backed Architecture</h2>
         <p>
           OpenETR is also organized as a relay-backed application architecture. The web app and CLI both call the same
-          <code>openetr</code> module, while the root key and bootstrap relays are used to discover profile records,
+          <code>openetr</code> module, while the Control Desk Key and bootstrap relays are used to discover Commitment Profiles,
           relay-backed configuration, and signer secrets. Operational record publishing and querying then happen on the
-          working relays using the selected profile signer.
+          working relays using the Acting Profile signer.
         </p>
         <p>
           This keeps the application stateless at the server layer while still allowing profiles, signer material, and
-          record workflows to be reconstructed from relays. The diagram below shows how the browser session, root key,
+          record workflows to be reconstructed from relays. The diagram below shows how the browser session, Control Desk Key,
           bootstrap relays, working relays, and shared core fit together.
         </p>
       </section>

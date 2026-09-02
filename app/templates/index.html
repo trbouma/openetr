@@ -378,21 +378,21 @@
       {% endif %}
       {% if generated_nsec %}
       <div class="notice warning">
-        <strong>Important:</strong> copy and safeguard this generated <code>nsec</code> now. If your browser session ends, you will need this key to log back in.
+        <strong>Important:</strong> copy and safeguard this generated Control Desk Key <code>nsec</code> now. If your browser session ends, you will need it to restore the desk.
         <div style="margin-top:0.75rem;"><code>{{ generated_nsec }}</code></div>
       </div>
       {% endif %}
       {% if created_profile %}
       <div class="notice warning">
-        <strong>Created profile:</strong> <code>{{ created_profile.profile_name }}</code><br>
-        <strong>Profile signer:</strong> <code title="{{ created_profile.signer_npub }}">{{ created_profile.signer_npub | short_id }}</code><br>
+        <strong>Created Commitment Profile:</strong> <code>{{ created_profile.profile_name }}</code><br>
+        <strong>Commitment Profile key:</strong> <code title="{{ created_profile.signer_npub }}">{{ created_profile.signer_npub | short_id }}</code><br>
         <strong>Signer source:</strong> {{ "generated new nsec" if created_profile.generated_signer else "used provided nsec" }}<br>
         {% if created_profile.uses_root_signer %}
-        <strong>Warning:</strong> this profile is using the root admin nsec as its signer. This is allowed, but it weakens the separation between administrative recovery and operational profile keys.<br>
+        <strong>Warning:</strong> this Commitment Profile is using the Control Desk Key nsec as its signer. This is allowed, but it weakens the separation between administrative recovery and operational signing keys.<br>
         {% endif %}
         <strong>Profile relays:</strong> <code>{{ created_profile.relays }}</code><br>
-        <strong>Important:</strong> the profile signer secret was stored relay-backed under your root session context, and the new profile is now selected for this browser session.
-        If you want independent recovery for this profile signer outside the relay-backed root-managed model, export or otherwise safeguard its signer material before relying on it operationally.
+        <strong>Important:</strong> the Commitment Profile secret was stored relay-backed under your Control Desk Key session, and the new profile is now the Acting Profile.
+        If you want independent recovery outside the relay-backed Control Desk model, export or otherwise safeguard its signer material before relying on it operationally.
       </div>
       {% endif %}
       <div class="notice info">
@@ -409,9 +409,9 @@
         </div>
 
         <div class="subpanel record-panel">
-          <h2>Query Controlled Object</h2>
+          <h2>Query Digital Controllable Record</h2>
           <p class="flow-note">
-            Upload a file and perform an OpenETR <code>query</code>-style lookup using the file digest as the object identifier.
+            Upload a Digital Artifact and query the OpenETR DCR associated with its digest.
           </p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
@@ -421,7 +421,7 @@
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org, relay.damus.io">
               <span class="field-help">Enter one or more relays separated by commas or spaces. Plain domain names are normalized to <code>wss://</code> automatically.</span>
             </label>
-            <button type="submit">Query Control Graph</button>
+            <button type="submit">Query DCR</button>
           </form>
         </div>
         {% endif %}
@@ -430,7 +430,7 @@
           {% if identity.logged_in %}
           <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
           {% if identity.profile %}
-          <p><strong>Selected profile:</strong> <code>{{ identity.profile }}</code></p>
+          <p><strong>Acting Profile:</strong> <code>{{ identity.profile }}</code></p>
           {% if selected_profile_social %}
           <div class="kv-compact">
             {% for field, value in selected_profile_social %}
@@ -439,7 +439,7 @@
           </div>
           {% endif %}
           <form action="/profiles/edit" method="get">
-            <button type="submit">Update Selected Profile</button>
+            <button type="submit">Update Acting Profile</button>
           </form>
           {% endif %}
           <form action="/settings" method="get">
@@ -449,33 +449,33 @@
             <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
           </div>
           {% else %}
-          <p>No nsec session is active.</p>
+          <p>No Control Desk Key session is active.</p>
           <p class="field-help">
-            Most visitors can query records without logging in. Use the <a href="/login">Login</a> page only if you need profile management, record issuance, or relay-backed identity recovery.
+            Most visitors can query DCR evidence without logging in. Use the <a href="/login">Login</a> page only if you need Commitment Profile management, Anchor publication, or relay-backed Control Desk recovery.
           </p>
           {% endif %}
         </div>
 
         {% if identity.logged_in %}
         <div class="section-break">
-          <h2>Profiles</h2>
+          <h2>Commitment Profiles</h2>
         </div>
         <div class="subpanel profile-list">
           <details class="profile-disclosure">
-            <summary>Available Profiles</summary>
+            <summary>Available Commitment Profiles</summary>
             <div class="profile-disclosure-body">
               {% if available_profiles %}
               <ul>
                 {% for profile in available_profiles %}
                 <li>
                   <strong>{{ profile.name }}</strong>
-                  {% if profile.is_active %}(active){% endif %}
-                  {% if profile.is_selected %}(selected){% endif %}
+                  {% if profile.is_active %}(configuration default){% endif %}
+                  {% if profile.is_selected %}(Acting Profile){% endif %}
                   {% if profile.signer_npub %}
-                    <div><span>signer:</span> <code title="{{ profile.signer_npub }}">{{ profile.signer_npub | short_id }}</code></div>
+                    <div><span>Commitment Profile key:</span> <code title="{{ profile.signer_npub }}">{{ profile.signer_npub | short_id }}</code></div>
                     <div><span>source:</span> {{ profile.signer_source }}</div>
                   {% else %}
-                    <div><span>signer:</span> none configured</div>
+                    <div><span>Commitment Profile key:</span> none configured</div>
                   {% endif %}
                   <div>
                     {% if profile.signer_matches_session %}
@@ -488,32 +488,32 @@
                   <form action="/profiles/use" method="post">
                     <input type="hidden" name="return_to" value="/openetr">
                     <input type="hidden" name="profile" value="{{ profile.name }}">
-                    <button type="submit">Use this profile</button>
+                    <button type="submit">Use as Acting Profile</button>
                   </form>
                   {% endif %}
                 </li>
                 {% endfor %}
               </ul>
               {% else %}
-              <p class="field-help">No relay-backed profiles are configured yet for this root identity.</p>
+              <p class="field-help">No relay-backed Commitment Profiles are configured yet for this Control Desk Key.</p>
               {% endif %}
 
               <div class="subpanel" style="margin-top: 1rem;">
-                <h2>Create New Profile</h2>
+                <h2>Create Commitment Profile</h2>
                 <form action="/profiles/create" method="post">
                   <input type="hidden" name="return_to" value="/openetr">
-                  <input type="text" name="profile_name" placeholder="Profile name" required>
+                  <input type="text" name="profile_name" placeholder="Commitment Profile name" required>
                   <input type="text" name="relays" value="{{ default_relays }}">
                   <label>
-                    Existing signer nsec (optional)
+                    Existing Commitment Profile nsec (optional)
                     <input type="text" name="signer_nsec" placeholder="Leave blank to generate a new nsec">
-                    <span class="field-help">Provide an existing nsec to add its published profile to this root. OpenETR must find a profile for that signer on the selected relays. Leave blank to generate a new signer.</span>
+                    <span class="field-help">Provide an existing nsec to add its published profile to this Control Desk Key. OpenETR must find a profile for that signer on the selected relays. Leave blank to generate a new independent signer.</span>
                   </label>
                   <label>
                     <input type="checkbox" name="allow_root_signer" value="true">
-                    I understand that using the root admin nsec as a profile signer is discouraged.
+                    I understand that using the Control Desk Key nsec as a Commitment Profile signer is discouraged.
                   </label>
-                  <button type="submit">Create Relay-Backed Profile</button>
+                  <button type="submit">Create Relay-Backed Commitment Profile</button>
                 </form>
               </div>
             </div>
@@ -527,22 +527,22 @@
         </div>
 
         <div class="subpanel record-panel">
-          <h2>Query Controlled Object</h2>
+          <h2>Query Digital Controllable Record</h2>
           <p class="flow-note">
-            Upload a file and perform an OpenETR <code>query</code>-style lookup using the file digest as the object identifier.
+            Upload a Digital Artifact and query the OpenETR DCR associated with its digest.
           </p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
             <input type="text" name="relays" value="{{ default_relays }}">
-            <button type="submit">Query Control Graph</button>
+            <button type="submit">Query DCR</button>
           </form>
         </div>
 
         <div class="subpanel record-panel">
-          <h2>Issue Control Record</h2>
+          <h2>Create Anchor Record</h2>
           <p class="flow-note">
-            Publish a new origin control record using the selected profile signer.
+            Publish the first signed record in a candidate DCR using the Acting Profile.
           </p>
           <form action="/api/issue-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
@@ -560,7 +560,7 @@
               <span class="field-help">Enter one or more relays separated by commas or spaces. Plain domain names are normalized to <code>wss://</code> automatically, and each relay is validated before publish.</span>
             </label>
             <input type="text" name="comment" placeholder="Optional comment">
-            <button type="submit">Issue Control Record</button>
+            <button type="submit">Create Anchor Record</button>
           </form>
         </div>
         {% endif %}
@@ -588,13 +588,13 @@
       <dialog id="backup-key-dialog">
         <div class="dialog-body">
           <h2>Backup Key</h2>
-          <p>Store this recovery material in a safe place. If your session ends, you will need it to restore access to your relay-backed profiles and signer records.</p>
+          <p>Store this recovery material in a safe place. If your session ends, you will need it to restore access to your relay-backed Commitment Profiles and signer records.</p>
           <p><strong>Bootstrap relays for recovery:</strong></p>
           <p><code>{{ bootstrap_relays }}</code></p>
-          <p>Your root-managed profile data can be discovered again from these relay endpoints.</p>
-          <p><strong>Root admin nsec:</strong></p>
+          <p>Your Control Desk configuration can be discovered again from these relay endpoints.</p>
+          <p><strong>Control Desk Key:</strong></p>
           <p><code>{{ identity.root_nsec or identity.nsec }}</code></p>
-          <p>This root key manages your relay-backed profiles and signer records. Keep it separate from operational profile keys and do not use it as a public-facing identity.</p>
+          <p>This key manages your relay-backed Commitment Profiles and signer records. Keep it separate from operational signing keys and do not use it as a public-facing identity.</p>
           <div class="dialog-actions">
             <span class="copy-status" id="backup-copy-status" aria-live="polite"></span>
             <div class="button-row" style="margin-top:0;">
@@ -621,7 +621,7 @@
           "OpenETR Recovery Material",
           "",
           `Bootstrap relays: ${payload.bootstrap_relays}`,
-          `Root admin nsec: ${payload.root_nsec}`,
+          `Control Desk Key: ${payload.root_nsec}`,
           "",
           "Store this material in a safe place.",
         ].join("\n");

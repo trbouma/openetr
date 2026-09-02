@@ -196,20 +196,20 @@
       {% if success_message %}<div class="notice">{{ success_message }}</div>{% endif %}
 
       <section class="panel">
-        <p class="eyebrow">Warehouse Receipt State</p>
+        <p class="eyebrow">Warehouse Receipt DCR</p>
         <h1>{{ filename }}</h1>
         <p>
-          This page renders the OpenETR control record associated with a warehouse receipt document.
-          The underlying object id, origin event, control events, and encumbrance state are produced by shared OpenETR services.
+          This page renders the Digital Controllable Record associated with a warehouse receipt Digital Artifact.
+          The Anchor, later signed records, and derived receipt state are produced by shared OpenETR services.
         </p>
         <div class="kv">
-          <div class="muted">Receipt file</div><div>{{ filename }}</div>
+          <div class="muted">Digital Artifact</div><div>{{ filename }}</div>
           <div class="muted">Size</div><div>{{ size_bytes }} bytes</div>
           <div class="muted">Receipt digest</div><div class="mono">{{ sha256 }}</div>
-          <div class="muted">Object id</div><div class="mono">{{ object_id }}</div>
+          <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
           <div class="muted">Relays</div><div class="mono">{{ relays }}</div>
-          <div class="muted">Lifecycle</div><div>{{ query.lifecycle_state }}</div>
-          <div class="muted">Lifecycle basis</div><div>{{ query.lifecycle_basis }}</div>
+          <div class="muted">Consequential lifecycle state</div><div>{{ query.lifecycle_state }}</div>
+          <div class="muted">State basis</div><div>{{ query.lifecycle_basis }}</div>
         </div>
       </section>
 
@@ -221,10 +221,10 @@
 
       {% if issue_result %}
       <section class="panel">
-        <h2>Control Record Created</h2>
+        <h2>Anchor Record Created</h2>
         <div class="kv">
-          <div class="muted">Origin event</div><div class="mono">{{ issue_result.event_id }}</div>
-          <div class="muted">Issuing profile signer</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
+          <div class="muted">Anchor Event ID</div><div class="mono">{{ issue_result.event_id }}</div>
+          <div class="muted">Acting Profile key</div><div class="mono" title="{{ issue_result.signer_npub }}">{{ issue_result.signer_npub | short_id }}</div>
           <div class="muted">Record statement</div><div class="mono">{{ issue_result.comment }}</div>
           <div class="muted">Existing before publish</div><div>{{ issue_result.existing_count_before_publish }}</div>
           <div class="muted">Returned after publish</div><div>{{ issue_result.query_count_after_publish }}</div>
@@ -239,7 +239,7 @@
           <div class="muted">Action</div><div>{{ control_result.action }}</div>
           <div class="muted">Event id</div><div class="mono">{{ control_result.event_id }}</div>
           <div class="muted">Prior event</div><div class="mono">{{ control_result.prior_event_id }}</div>
-          <div class="muted">Origin event</div><div class="mono">{{ control_result.origin_event_id }}</div>
+          <div class="muted">Anchor event</div><div class="mono">{{ control_result.origin_event_id }}</div>
           <div class="muted">Verification</div><div>{{ control_result.verification.exact }}/{{ control_result.verification.total }} exact relay match(es)</div>
         </div>
       </section>
@@ -247,17 +247,17 @@
 
       {% if query.no_events %}
       <section class="panel warning">
-        <h2>No Receipt Origin Found</h2>
-        <p>No OpenETR origin event was returned for this warehouse receipt digest.</p>
+        <h2>No Receipt Anchor Found</h2>
+        <p>No OpenETR Anchor Record was returned for this warehouse receipt digest.</p>
       </section>
       {% else %}
       <section class="panel">
-        <h2>Warehouse Receipt Origin</h2>
+        <h2>Warehouse Receipt Anchor</h2>
         <div class="kv">
-          <div class="muted">Origin event</div><div class="mono">{{ query.initial_event.event_ref }}</div>
-          <div class="muted">Issuer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
+          <div class="muted">Anchor Event ID</div><div class="mono">{{ query.initial_event.event_ref }}</div>
+          <div class="muted">Anchor signer</div><div class="mono" title="{{ query.initial_event.author_npub }}">{{ query.initial_event.author_npub | short_id }}</div>
           <div class="muted">Created at</div><div>{{ query.initial_event.created_at }}</div>
-          <div class="muted">Content</div><div class="mono">{{ query.initial_event.content }}</div>
+          <div class="muted">Unstructured content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
         {% if query.initial_event.structured_tags %}
         <h3>Event Data</h3>
@@ -267,7 +267,7 @@
           {% endfor %}
         </div>
         {% endif %}
-        <h3>Issuer Profile</h3>
+        <h3>Anchor Signer Profile</h3>
         {% if query.initial_profile %}
         <ul>
           {% for field, value in query.initial_profile %}
@@ -275,18 +275,18 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p>No issuer profile was found.</p>
+        <p>No Anchor signer profile was found.</p>
         {% endif %}
       </section>
 
       <section class="panel">
-        <h2>Current Holder / Controller</h2>
+        <h2>Derived Holder / Controller State</h2>
         <div class="kv">
           <div class="muted">Controller npub</div><div class="mono">{{ query.current_controller.npub or "none" }}</div>
           <div class="muted">Basis</div><div>{{ query.current_controller.basis }}</div>
         </div>
         {% if query.current_controller.is_current_profile %}
-        <p class="notice success">You may be the current controller for this object. The active profile matches the derived controller.</p>
+        <p class="notice success">You may be the current controller for this Digital Artifact. The Acting Profile matches the derived controller.</p>
         {% endif %}
         {% if query.current_controller.profile %}
         <div class="profile-heading">
@@ -322,7 +322,7 @@
             {% if item.event.subject_npub %}<div class="muted">Secured party</div><div class="mono">{{ item.event.subject_npub }}</div>{% endif %}
             {% if item.event.type %}<div class="muted">Claim type</div><div>{{ item.event.type }}</div>{% endif %}
             {% if item.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ item.event.external_ref }}</div>{% endif %}
-            <div class="muted">Content</div><div class="mono">{{ item.event.content }}</div>
+            <div class="muted">Unstructured content</div><div class="mono">{{ item.event.content }}</div>
           </div>
           {% if item.beneficiary_profile %}
           <h3>Secured Party Profile</h3>
@@ -342,16 +342,16 @@
       {% if identity.logged_in %}
       <section class="panel">
         <h2>Warehouse Receipt Actions</h2>
-        <p>These forms use warehouse receipt language and publish general OpenETR control events underneath.</p>
+        <p>These forms use warehouse receipt language and publish general OpenETR Control Records underneath.</p>
         <div class="action-grid">
           <div class="action-card">
             <h3>Transfer Receipt</h3>
             <form action="/warehouse-receipts/transfer/initiate" method="post">
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
-              <label>Transferee<input type="text" name="transferee" placeholder="profile, alias, npub, hex, or NIP-05..." required></label>
+              <label>Transferee<input type="text" name="transferee" placeholder="Commitment Profile, Contact, npub, hex, or NIP-05..." required></label>
               <label>Reference<input type="text" name="reference" placeholder="transfer reference"></label>
-              <label><input type="checkbox" name="force" value="true"> Publish even if this profile already initiated a transfer for this receipt digest</label>
+              <label><input type="checkbox" name="force" value="true"> Publish even if this Acting Profile already initiated a transfer for this receipt digest</label>
               <button type="submit">Initiate Transfer</button>
             </form>
           </div>
@@ -361,7 +361,7 @@
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
               <label>Reference<input type="text" name="reference" placeholder="acceptance reference"></label>
-              <label><input type="checkbox" name="force" value="true"> Publish even if this profile already accepted a transfer for this receipt digest</label>
+              <label><input type="checkbox" name="force" value="true"> Publish even if this Acting Profile already accepted a transfer for this receipt digest</label>
               <button type="submit">Accept Transfer</button>
             </form>
           </div>
@@ -370,7 +370,7 @@
             <form action="/warehouse-receipts/encumber" method="post">
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
-              <label>Secured party<input type="text" name="beneficiary" placeholder="profile, alias, npub, hex, or NIP-05..." required></label>
+              <label>Secured party<input type="text" name="beneficiary" placeholder="Commitment Profile, Contact, npub, hex, or NIP-05..." required></label>
               <label>Claim type<input type="text" name="claim_type" value="pledge"></label>
               <label>Reference<input type="text" name="reference" placeholder="loan or registry reference"></label>
               <button type="submit">Record Claim</button>
@@ -382,7 +382,7 @@
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
               <label>Encumbrance event id or nevent<input type="text" name="encumbrance_event" placeholder="event id or nevent..." required></label>
-              <label>Releasing party<input type="text" name="releasing_party" placeholder="profile, alias, npub, hex, or NIP-05..."></label>
+              <label>Releasing party<input type="text" name="releasing_party" placeholder="Commitment Profile, Contact, npub, hex, or NIP-05..."></label>
               <label>Reference<input type="text" name="reference" placeholder="release reference"></label>
               <button type="submit">Release Claim</button>
             </form>
@@ -392,7 +392,7 @@
             <form action="/warehouse-receipts/redeem" method="post">
               <input type="hidden" name="digest" value="{{ sha256 }}">
               <input type="hidden" name="relays" value="{{ relays }}">
-              <label>Warehouse operator / obligor<input type="text" name="obligor" placeholder="profile, alias, npub, hex, or NIP-05..." required></label>
+              <label>Warehouse operator / obligor<input type="text" name="obligor" placeholder="Commitment Profile, Contact, npub, hex, or NIP-05..." required></label>
               <label>Reference<input type="text" name="reference" placeholder="delivery request"></label>
               <button type="submit">Present Receipt</button>
             </form>
@@ -411,8 +411,8 @@
       {% endif %}
 
       <section class="panel">
-        <h2>Receipt Control History</h2>
-        <p class="muted">Legend: ++ issue, -> transfer, -- termination, => attestation, +$ encumbrance, -$ discharge, ** presentation/redemption.</p>
+        <h2>Receipt DCR History</h2>
+        <p class="muted">Legend: ++ Anchor, -> transfer, -- termination, => attestation, +$ encumbrance, -$ discharge, ** presentation/redemption.</p>
         {% for chain in query.summary_control_chains %}
         <div class="event">
           <h3>{{ chain.label }}</h3>
@@ -428,8 +428,8 @@
       <section class="panel">
         <h2>Underlying OpenETR Query</h2>
         <div class="kv">
-          <div class="muted">Origin filter</div><div class="mono">{{ query.relay_filter }}</div>
-          <div class="muted">Control-event filter</div><div class="mono">{{ query.transfer_filter }}</div>
+          <div class="muted">Anchor filter</div><div class="mono">{{ query.relay_filter }}</div>
+          <div class="muted">Control-record filter</div><div class="mono">{{ query.transfer_filter }}</div>
           <div class="muted">Returned</div><div>{{ query.count }} event(s)</div>
         </div>
       </section>

@@ -321,10 +321,10 @@
           <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
         </div>
         <p>
-          Work with warehouse receipts in domain terms while the app translates each action into the general OpenETR control layer.
+          Work with warehouse receipts in domain terms while the app translates each action into the general OpenETR protocol.
           This workflow is being built in alignment with the Model Law on Warehouse Receipts (MLWR).
         </p>
-        <p>The receipt file is hashed into an object id, then its OpenETR control graph is created, queried, and evaluated through shared services.</p>
+        <p>The receipt is a Digital Artifact identified by its digest. Its Anchor and later signed records form a Digital Controllable Record (DCR) from which receipt state is derived.</p>
         {% if identity.logged_in %}
         <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
         <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
@@ -336,7 +336,7 @@
           <button type="button" class="ghost-button" onclick="document.getElementById('backup-key-dialog').showModal()">Backup Key</button>
         </div>
         {% else %}
-        <p><strong>Read-only mode:</strong> query receipt control status without logging in. Log in to create control records as a warehouse operator or issuer profile.</p>
+        <p><strong>Read-only mode:</strong> query receipt DCR evidence and derived state without logging in. Log in to sign records through a warehouse operator or issuer Commitment Profile.</p>
         {% endif %}
       </header>
 
@@ -347,7 +347,7 @@
       <section class="panel">
         <h2>Acting Profile</h2>
         <p>
-          Select the role that will sign warehouse receipt actions. The page uses domain language, but each profile is still an independent OpenETR/Nostr signer.
+          Select the Commitment Profile that will sign warehouse receipt actions. Each profile uses an independent OpenETR/Nostr signing key and may represent a person, organization, service, or agent.
         </p>
         <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
         {% if selected_profile_social %}
@@ -360,7 +360,7 @@
         {% if identity.profile %}
         <div class="button-row">
           <form action="/profiles/edit" method="get" style="margin-top:0;">
-            <button type="submit" class="ghost-button">Update Current Profile</button>
+            <button type="submit" class="ghost-button">Update Acting Profile</button>
           </form>
         </div>
         {% endif %}
@@ -378,7 +378,7 @@
                 {% endfor %}
               </select>
             </label>
-            <button type="submit">Use Profile</button>
+            <button type="submit">Use as Acting Profile</button>
           </div>
           <p id="profile-switch-indicator" class="muted htmx-indicator" aria-live="polite">Please wait. Switching acting profile...</p>
           {% if success_message %}
@@ -389,14 +389,14 @@
           {% endif %}
         </form>
         {% else %}
-        <p class="muted">No relay-backed profiles are configured yet for this root identity.</p>
+        <p class="muted">No relay-backed Commitment Profiles are configured yet for this Control Desk Key.</p>
         {% endif %}
         <details>
-          <summary>Create Warehouse Receipt Acting Profile</summary>
+          <summary>Create Warehouse Receipt Commitment Profile</summary>
           {% set profile_create_return_to = "/warehouse-receipts" %}
-          {% set profile_create_title = "Create Warehouse Receipt Acting Profile" %}
+          {% set profile_create_title = "Create Warehouse Receipt Commitment Profile" %}
           {% set profile_create_placeholder = "warehouse-operator, issuer, lender..." %}
-          {% set profile_create_help = "Create a profile that can sign warehouse receipt control records. Leave the signer field blank to generate and store a new profile signer under this control key." %}
+          {% set profile_create_help = "Create a Commitment Profile that can sign warehouse receipt records. Leave the signer field blank to generate and store a new independent signing key under this Control Desk Key." %}
           {% include "_profile_create_form.html" %}
         </details>
       </section>
@@ -404,8 +404,8 @@
 
       <section class="grid">
         <div class="card">
-          <h2>Query Control Record</h2>
-          <p>Upload a warehouse receipt document and inspect the OpenETR control record associated with its digest.</p>
+          <h2>Query Receipt DCR</h2>
+          <p>Upload a warehouse receipt Digital Artifact and inspect the OpenETR DCR associated with its digest.</p>
           <form action="/warehouse-receipts/query" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -414,13 +414,13 @@
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
               <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
             </label>
-            <button type="submit">Query Control Record</button>
+            <button type="submit">Query Receipt DCR</button>
           </form>
         </div>
 
         <div class="card">
-          <h2>Create Control Record</h2>
-          <p>Publish the initial OpenETR control record for an already-issued warehouse receipt document.</p>
+          <h2>Create Anchor Record</h2>
+          <p>Publish the first signed OpenETR record concerning an already-issued warehouse receipt Digital Artifact. The Anchor begins its candidate DCR.</p>
           <form action="/warehouse-receipts/issue" method="post" enctype="multipart/form-data" data-issue-receipt-form>
             <input type="file" name="file" required data-issue-receipt-file>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -445,9 +445,9 @@
             </label>
             <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
               <input type="checkbox" name="force" value="true">
-              Publish even if this profile already created a control record for this receipt digest
+              Publish even if this Acting Profile already created an Anchor Record for this receipt digest
             </label>
-            <button type="submit">Create Control Record</button>
+            <button type="submit">Create Anchor Record</button>
           </form>
         </div>
       </section>
@@ -456,7 +456,7 @@
       <section class="panel">
         <h2>Transfer Receipt Control</h2>
         {% if identity.profile %}
-        <p>Use the receipt digest to initiate a transfer to another profile, alias, public key, or NIP-05 identifier, or to accept a pending transfer addressed to the selected acting profile.</p>
+        <p>Use the receipt digest to initiate a transfer to another Commitment Profile, Contact, public key, or NIP-05 identifier, or accept a pending transfer addressed to the Acting Profile.</p>
         <div class="grid">
           <div class="card">
             <h3>Initiate Transfer</h3>
@@ -467,7 +467,7 @@
               </label>
               <label>
                 Transferee
-                <input type="text" name="transferee" placeholder="profile, alias, npub, hex, or NIP-05..." required>
+                <input type="text" name="transferee" placeholder="Commitment Profile, Contact, npub, hex, or NIP-05..." required>
               </label>
               <label>
                 Reference
@@ -479,7 +479,7 @@
               </label>
               <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
                 <input type="checkbox" name="force" value="true">
-                Publish even if this profile already initiated a transfer for this receipt digest
+                Publish even if this Acting Profile already initiated a transfer for this receipt digest
               </label>
               <button type="submit">Initiate Transfer</button>
             </form>
@@ -501,14 +501,14 @@
               </label>
               <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
                 <input type="checkbox" name="force" value="true">
-                Publish even if this profile already accepted a transfer for this receipt digest
+                Publish even if this Acting Profile already accepted a transfer for this receipt digest
               </label>
               <button type="submit">Accept Transfer</button>
             </form>
           </div>
         </div>
         {% else %}
-        <p>Select or create an acting profile before initiating or accepting a transfer.</p>
+        <p>Select or create an Acting Profile before initiating or accepting a transfer.</p>
         {% endif %}
       </section>
       {% endif %}
@@ -516,7 +516,7 @@
       <section class="panel">
         <h2>Domain Actions</h2>
         <p>
-          These receipt actions are domain names for general OpenETR control events. Query or create a control record first, then use the receipt-state page
+          These receipt actions are domain names for signed records in an OpenETR DCR. Query or create an Anchor Record first, then use the receipt-state page
           to transfer, pledge, release, present, or complete the receipt lifecycle.
         </p>
         <ul class="action-list">
@@ -531,7 +531,7 @@
       <section class="panel">
         <h2>Recognition Boundary</h2>
         <p>
-          OpenETR records signed evidence of control and control-relevant assertions. MLWR-style law, local enactment,
+          OpenETR validates DCR evidence and derives consequential receipt state under stated rules. MLWR-style law, local enactment,
           registry rules, contract, and institutional policy decide legal validity, protected-holder status, pledge effect,
           priority, warehouse obligations, and final recognition.
         </p>

@@ -259,19 +259,19 @@
         <div class="hero-heading">
           <div>
             <p class="eyebrow">Product Passports</p>
-            <h1>Product Passport Control Graph</h1>
+            <h1>Product Passport DCR</h1>
           </div>
           <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
         </div>
         <p>
-          Work with Product Passport files as controlled objects. The Product Passport file is hashed into an object id,
-          then OpenETR records the linked control graph for that Product Passport digest.
+          Treat a Product Passport file as a Digital Artifact identified by its digest. Its Anchor and later signed records
+          form a Digital Controllable Record (DCR) from which consequential product state can be derived.
         </p>
         {% if identity.logged_in %}
         <p><strong>Logged in:</strong> <code title="{{ identity.npub }}">{{ identity.npub | short_id }}</code></p>
         <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
         {% else %}
-        <p><strong>Read-only mode:</strong> query Product Passport control status without logging in. Log in to create control records as a manufacturer, importer, registry, or issuer profile.</p>
+        <p><strong>Read-only mode:</strong> query Product Passport DCR evidence and derived state without logging in. Log in to sign records through a manufacturer, importer, registry, or issuer Commitment Profile.</p>
         {% endif %}
       </header>
 
@@ -281,7 +281,7 @@
       {% if identity.logged_in %}
       <section class="panel">
         <h2>Acting Profile</h2>
-        <p>Select the organization profile that will sign Product Passport control records.</p>
+        <p>Select the Commitment Profile that will sign Product Passport records. A profile may represent a person, organization, service, or agent; OpenETR verifies the key without assigning an actor type.</p>
         <p><strong>Acting Profile:</strong> <code>{{ identity.profile or "no profile selected" }}</code></p>
         {% if selected_profile_social %}
         <ul>
@@ -293,7 +293,7 @@
         {% if identity.profile %}
         <div class="button-row">
           <form action="/profiles/edit" method="get" style="margin-top:0;">
-            <button type="submit" class="ghost-button">Update Current Profile</button>
+            <button type="submit" class="ghost-button">Update Acting Profile</button>
           </form>
         </div>
         {% endif %}
@@ -311,25 +311,25 @@
                 {% endfor %}
               </select>
             </label>
-            <button type="submit">Use Profile</button>
+            <button type="submit">Use as Acting Profile</button>
           </div>
           <p id="profile-switch-indicator" class="muted htmx-indicator" aria-live="polite">Please wait. Switching acting profile...</p>
         </form>
         {% else %}
-        <p class="muted">No relay-backed profiles are configured yet for this root identity.</p>
+        <p class="muted">No relay-backed Commitment Profiles are configured yet for this Control Desk Key.</p>
         {% endif %}
         {% set profile_create_return_to = "/digital-product-passports" %}
-        {% set profile_create_title = "Create Product Passport Acting Profile" %}
+        {% set profile_create_title = "Create Product Passport Commitment Profile" %}
         {% set profile_create_placeholder = "manufacturer, importer, registry..." %}
-        {% set profile_create_help = "Create an organization profile that can sign Product Passport control records. Leave the signer field blank to generate and store a new profile signer under this control key." %}
+        {% set profile_create_help = "Create a Commitment Profile that can sign Product Passport records. Leave the signer field blank to generate and store a new independent signing key under this Control Desk Key." %}
         {% include "_profile_create_form.html" %}
       </section>
       {% endif %}
 
       <section class="grid">
         <div class="card">
-          <h2>Query Product Passport Control</h2>
-          <p>Upload a Product Passport file and inspect the OpenETR control graph associated with its digest.</p>
+          <h2>Query Product Passport DCR</h2>
+          <p>Upload a Product Passport Digital Artifact and inspect the OpenETR DCR associated with its digest.</p>
           <form action="/digital-product-passports/query" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -338,14 +338,14 @@
               <input type="text" name="relays" value="{{ default_relays }}" placeholder="relay.openetr.org">
               <span class="field-help">Relay domains or URLs are normalized to <code>wss://</code> where needed.</span>
             </label>
-            <button type="submit">Query Control Graph</button>
+            <button type="submit">Query Product Passport DCR</button>
           </form>
         </div>
 
         {% if identity.logged_in %}
         <div class="card">
-          <h2>Create Product Passport Control Record</h2>
-          <p>Publish the initial OpenETR control record for a Product Passport document.</p>
+          <h2>Create Product Passport Anchor</h2>
+          <p>Publish the first signed OpenETR record concerning a Product Passport Digital Artifact. The Anchor begins its candidate DCR.</p>
           <form action="/digital-product-passports/create" method="post" enctype="multipart/form-data" data-dpp-form>
             <input type="file" name="file" required data-dpp-file>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -382,15 +382,15 @@
             </label>
             <label style="display:flex; grid-template-columns:auto 1fr; align-items:center; gap:0.55rem; font-weight:700;">
               <input type="checkbox" name="force" value="true">
-              Publish even if this profile already created a control record for this Product Passport digest
+              Publish even if this Acting Profile already created an Anchor Record for this Product Passport digest
             </label>
-            <button type="submit">Create Control Record</button>
+            <button type="submit">Create Anchor Record</button>
           </form>
         </div>
         {% else %}
         <div class="card">
-          <h2>Create Product Passport Control Record</h2>
-          <p>Log in with a profile signer to publish the initial OpenETR control record for a Product Passport document.</p>
+          <h2>Create Product Passport Anchor</h2>
+          <p>Log in and select an Acting Profile to publish the Anchor Record for a Product Passport Digital Artifact.</p>
           <p><a href="/login">Login</a></p>
         </div>
         {% endif %}
@@ -399,9 +399,9 @@
       <section class="panel">
         <h2>Domain Starting Points</h2>
         <ul class="action-list">
-          <li><strong>Product Passport file</strong>: a PDF, image, JSON document, or other canonical Product Passport artifact becomes the Controlled Object.</li>
-          <li><strong>Initial control record</strong>: identifies the Product Passport digest and can carry product metadata such as product id, manufacturer, and batch.</li>
-          <li><strong>Control graph</strong>: later events can model attestations, ownership/control changes, recalls, repairs, recycling, compliance checks, or registry recognition.</li>
+          <li><strong>Digital Artifact</strong>: a PDF, image, JSON document, or other canonical Product Passport content is identified by digest.</li>
+          <li><strong>Anchor Record</strong>: begins the candidate DCR and can carry product event data such as product id, manufacturer, and batch.</li>
+          <li><strong>Digital Controllable Record</strong>: the Anchor and later signed records can evidence attestations, control changes, recalls, repairs, recycling, compliance checks, or registry interactions.</li>
         </ul>
       </section>
     </main>
