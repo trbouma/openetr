@@ -225,7 +225,7 @@ def event_to_view(evt: Event) -> dict[str, Any]:
     subject_hex = transfer_party_from_p_tag(evt)
     action = control_action(evt)
     if evt.kind == DEFAULT_KIND:
-        action_label = "origin issue" if action == "issue" else "origin event"
+        action_label = "anchor issue" if action == "issue" else "anchor record"
         action_marker = "++"
         participant_label = None
         event_role = "origin"
@@ -346,13 +346,13 @@ async def build_query_etr_result(
                 "code": "multiple_origin_events",
                 "severity": "warning",
                 "message": (
-                    "Multiple OpenETR origin events were found for this object digest. "
-                    "A verifier should distinguish these records by origin event id and issuer policy."
+                    "Multiple OpenETR Anchor Records were found for this object digest. "
+                    "A verifier should distinguish these records by Anchor Record ID and issuer policy."
                 ),
                 "origin_event_count": len(all_events),
                 "event_ids": [evt.id for evt in all_events],
                 "selected_initial_event_id": all_events[0].id,
-                "selection_basis": "earliest origin event by created_at/id",
+                "selection_basis": "earliest Anchor Record by created_at/id",
             }
         )
 
@@ -382,7 +382,7 @@ async def build_query_etr_result(
                 "steps": [
                     {
                         "marker": "++",
-                        "label": f"origin/{format_event_date_compact(initial_event.created_at)}:"
+                        "label": f"anchor/{format_event_date_compact(initial_event.created_at)}:"
                         f"{profile_chain_label(initial_event.pub_key, initial_profile)}",
                     }
                 ],
@@ -390,13 +390,13 @@ async def build_query_etr_result(
         ]
         result["current_controller"] = {
             "npub": format_pubkey(initial_event.pub_key),
-            "basis": "origin issuer",
+            "basis": "Anchor signer",
             "profile": current_controller_profile,
             "picture_url": profile_picture_url(current_controller_profile),
             "is_current_profile": author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex,
         }
         result["lifecycle_state"] = "active"
-        result["lifecycle_basis"] = "origin event"
+        result["lifecycle_basis"] = "Anchor Record"
         return result
 
     async def encumbrance_item(encumber_event: Event, discharge_events: list[Event]) -> dict[str, Any]:
@@ -477,7 +477,7 @@ async def build_query_etr_result(
 
         root_paths = await chain_paths_from_event(root_evt)
         for path_index, event_path in enumerate(root_paths, start=1):
-            steps = [{"marker": "++", "label": f"origin/{origin_date}:{issuer_label}"}]
+            steps = [{"marker": "++", "label": f"anchor/{origin_date}:{issuer_label}"}]
             previous_event = initial_event
             previous_controller_pubkey_hex = initial_event.pub_key
             for evt in event_path:
@@ -504,7 +504,7 @@ async def build_query_etr_result(
         current_controller_profile = compact_profile(initial_profile)
         result["current_controller"] = {
             "npub": format_pubkey(initial_event.pub_key),
-            "basis": "origin issuer",
+            "basis": "Anchor signer",
             "profile": current_controller_profile,
             "picture_url": profile_picture_url(current_controller_profile),
             "is_current_profile": author_pubkey_hex is not None and initial_event.pub_key == author_pubkey_hex,
@@ -556,5 +556,5 @@ async def build_query_etr_result(
         result["lifecycle_basis"] = "latest lifecycle event is transfer initiate"
     else:
         result["lifecycle_state"] = "active"
-        result["lifecycle_basis"] = "origin event"
+        result["lifecycle_basis"] = "Anchor Record"
     return result

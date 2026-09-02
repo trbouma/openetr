@@ -151,6 +151,12 @@ In the current model, `e` should reference:
 
 This is the primary chain-traversal link.
 
+No separate `origin` or `anchor` tag is required. A verifier identifies the
+Anchor Event by following the signed `e` references backward until the chain
+terminates at a valid `kind 1415` event carrying the same `o` value. An
+implementation may encounter an `origin` tag on early OpenETR events, but it
+is non-normative and should not be relied upon for graph reconstruction.
+
 ### `p`
 
 `p` identifies another participant relevant to the event.
@@ -431,6 +437,10 @@ The `e` tag follows the Nostr convention for event references. In OpenETR, it is
 - for later control-transition events, `e` should point to the immediately prior control-relevant event being extended
 - for attestations, `e` should point to the specific event being attested
 - for discharges, `enc` identifies the encumbrance being discharged, while `e` links the discharge into the current control chain
+
+The chain therefore needs no separate root-pointer tag. A verifier recovers
+the candidate Anchor Event by traversing `e` references to `kind 1415` and
+must not substitute an unverified `origin` or `anchor` tag for that traversal.
 
 This produces a DCR: an independently verifiable sequence of signed statements
 about the same Digital Artifact. A verifier can reject events with invalid

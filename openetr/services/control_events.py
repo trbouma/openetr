@@ -450,12 +450,11 @@ async def publish_auxiliary_control_event(
 
     resolved_comment = comment or (
         f"{action}; object={format_object_identifier(object_digest_for_event)}; "
-        f"prior_event={referenced_event.id}; origin_event={resolved_origin.id}; signer={format_pubkey(author_pubkey_hex)}"
+        f"prior_event={referenced_event.id}; anchor_event={resolved_origin.id}; signer={format_pubkey(author_pubkey_hex)}"
     )
     tags = [
         ["o", object_digest_for_event],
         ["e", referenced_event.id],
-        ["origin", resolved_origin.id],
         ["action", action],
     ]
     if participant_pubkey_hex is not None:
@@ -539,7 +538,7 @@ async def publish_transfer_initiate_event(
     resolved_comment = comment or (
         "transfer initiate; "
         f"object={format_object_identifier(object_digest_for_event)}; prior_event={referenced_event.id}; "
-        f"origin_event={resolved_origin.id}; transferee={format_pubkey(transferee_pubkey_hex)}; "
+        f"anchor_event={resolved_origin.id}; transferee={format_pubkey(transferee_pubkey_hex)}; "
         f"initiator={format_pubkey(author_pubkey_hex)}"
     )
     event = Event(
@@ -549,7 +548,6 @@ async def publish_transfer_initiate_event(
         tags=[
             ["o", object_digest_for_event],
             ["e", referenced_event.id],
-            ["origin", resolved_origin.id],
             ["p", transferee_pubkey_hex],
             ["action", ACTION_INITIATE],
         ],
@@ -631,7 +629,7 @@ async def publish_transfer_accept_event(
     resolved_comment = comment or (
         "transfer accept; "
         f"object={format_object_identifier(object_digest)}; prior_event={initiate_event.id}; "
-        f"origin_event={resolved_origin.id}; acceptor={format_pubkey(author_pubkey_hex)}"
+        f"anchor_event={resolved_origin.id}; acceptor={format_pubkey(author_pubkey_hex)}"
     )
     event = Event(
         kind=CONTROL_EVENT_KIND,
@@ -640,7 +638,6 @@ async def publish_transfer_accept_event(
         tags=[
             ["o", object_digest],
             ["e", initiate_event.id],
-            ["origin", resolved_origin.id],
             ["action", ACTION_ACCEPT],
         ],
     )
