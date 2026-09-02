@@ -61,6 +61,7 @@ nav:
   - Home: index.md
   - OpenETR:
       - Overview: openetr/index.md
+      - Axioms: openetr/axioms.md
       - Control Layer: openetr/control-layer.md
       - Consequential State: openetr/consequential-state.md
       - Digital Controllable Record: https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md

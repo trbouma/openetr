@@ -3,6 +3,10 @@
 OpenETR is a protocol for deriving consequential state from end-verifiable
 evidence concerning durable electronic records.
 
+The model is summarized in the [OpenETR Axioms](axioms.md): ten foundational
+propositions and five short maxims connecting artifact identity, signed
+evidence, derived state, and external recognition.
+
 If this is your first encounter with OpenETR, start with one practical
 question: **how can another party determine what happened to a digital record
 without having to trust the application displaying it?** OpenETR answers by

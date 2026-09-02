@@ -156,6 +156,7 @@ other legal or commercial effect.
 
 | Area | Purpose |
 | --- | --- |
+| [OpenETR Axioms](openetr/axioms.md) | Start with the ten foundational propositions and five maxims that define the OpenETR model and its boundaries. |
 | [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, DCR evidence, protocol rules, consequential state, and Digital Originals fit together. |
 | [Digital Originality](policy-briefs/digital-originality.md) | Explore consequential state and the model through detailed examples. |
 | [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
