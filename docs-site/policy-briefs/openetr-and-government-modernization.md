@@ -215,8 +215,8 @@ It is that consequential public-sector actions increasingly occur across systems
 OpenETR is useful in that setting because it offers a modest architectural principle:
 
 ```text
-Consequential state should be derived from end-verifiable evidence,
-not merely asserted by applications.
+Consequential state should be derived from end-verifiable evidence according
+to defined rules, not merely asserted by applications, databases or blockchains.
 ```
 
 That principle fits the report's central message: modernization should focus on delivery, trust, coordination, and practical institutional capability.

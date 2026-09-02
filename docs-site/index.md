@@ -4,13 +4,14 @@
 
 OpenETR provides a simple protocol model for digital things people need to rely
 on. It separates the thing itself, the evidence of actions concerning it, and
-the state that follows from those actions under defined rules.
+the state that follows from those actions under defined rules. On that basis,
+an individual, community, institution, authority, or applicable law can
+determine whether the digital thing should be recognized and what effect it
+should have.
 
 For example, the digital thing might be a government-issued document, an
 electronic trade document, or a digitized cultural artifact. OpenETR can
-establish it as a Digital Original that can be independently verified, while
-the relevant authority, institution, or law determines whether the digital
-thing should be recognized and what real-world effect it should have.
+establish it as a Digital Original that can be independently verified.
 
 ## Three Primitives. One Core Concept.
 
@@ -74,8 +75,9 @@ The final question sits outside the protocol: **so what?** People,
 institutions, systems, and law recognize consequential state and determine what
 effect it receives.
 
-> Consequential state should be derived from end-verifiable evidence, not
-> merely asserted by applications, databases or blockchains.
+> Consequential state should be derived from end-verifiable evidence according
+> to defined rules, not merely asserted by applications, databases or
+> blockchains.
 
 ## Three Primitives And One Core Concept
 

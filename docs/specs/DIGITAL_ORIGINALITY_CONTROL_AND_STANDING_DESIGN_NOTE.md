@@ -8,9 +8,9 @@ Draft design note.
 
 This note captures a core design decision for OpenETR and related applications:
 a Digital Artifact becomes a Digital Original, in the OpenETR technical sense,
-when its DCR is validated under an applicable policy and that validation
-establishes consequential state. Recognition accepts that result for a stated
-purpose and determines external effect.
+when defined rules derive consequential state from its validated DCR evidence.
+Recognition accepts that result for a stated purpose and determines external
+effect.
 
 The central distinction is:
 
@@ -47,8 +47,8 @@ This gives five separate layers:
 | Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
 | Effect | What consequence follows from recognized state? | Treated as an authoritative copy, transferable record, official record, or evidentiary record. |
 
-Policy validation of the DCR can establish consequential state. It cannot
-compel external recognition or effect.
+Defined rules can derive consequential state from validated DCR evidence. They
+cannot compel external recognition or effect.
 
 ## Definitions
 
@@ -98,14 +98,14 @@ The important question is not only whether an object was anchored or signed. The
 
 ### Standing
 
-Standing may be asserted in a DCR, derived by validation, or accepted through
-recognition. A validation policy may produce a standing-related state, but
+Standing may be asserted in a DCR, derived under defined rules, or accepted
+through recognition. Profile rules may derive a standing-related state, but
 **recognized standing** exists only when a recognition context accepts that
 state for a purpose.
 Examples include official copy, evidentiary copy, transferable record, retired
 record, cancelled record, or non-authoritative copy.
 
-Policy validation of DCR evidence can establish consequential state.
+Defined rules derive consequential state from validated DCR evidence.
 Recognition determines whether a relying party accepts that state and what
 effect follows.
 
@@ -213,8 +213,8 @@ Anchor creates the first candidate DCR record for a Digital Artifact. It
 provides a technical reference point and a starting point for the control
 graph.
 
-When the one-record DCR is validated under an applicable policy, it may produce
-initial consequential state for a candidate control graph. It may therefore
+When the one-record DCR evidence is valid, defined rules may derive initial
+consequential state for a candidate control graph. It may therefore
 bring the identified Digital Artifact into the Digital Original model.
 It does not establish that its candidate graph is uniquely authoritative,
 recognized, or legally effective. Earlier terminology such as Original Event
@@ -336,9 +336,9 @@ particular file instance becoming uniquely original.
 
 They do not, by themselves, establish OpenETR consequential state for the scan.
 
-The scan becomes a Digital Original in the technical OpenETR sense when its DCR
-is validated under an applicable policy and produces consequential state. It becomes a recognized
-Digital Original for a licensing purpose only if a competent licensing
+The scan becomes a Digital Original in the technical OpenETR sense when defined
+rules derive consequential state from its validated DCR evidence. It becomes a
+recognized Digital Original for a licensing purpose only if a competent licensing
 authority or relevant recognition regime accepts the actor, graph, object, and
 derived state for that purpose.
 
@@ -451,12 +451,12 @@ consequential state, independent of any particular technical binding.
 that determines whether a proposed state transition is valid.
 
 **Digital Original:** A Digital Artifact for which consequential state has
-been established by validating its DCR under an applicable policy.
+been established through a Digital Controllable Record.
 
-**Consequential State:** The result of validating end-verifiable DCR evidence
-under an identified policy. The result is capable of affecting control,
+**Consequential State:** State that follows from consequential actions
+according to defined protocol rules. It is capable of affecting control,
 authority, rights, obligations, restrictions, standing, or permitted actions
-when it is recognized for a stated purpose.
+when recognized for a stated purpose.
 
 **Recognition:** The acceptance of an actor, assertion, object, or control state by a relying party, institution, community, or legal regime for a particular purpose.
 

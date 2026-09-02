@@ -2,8 +2,9 @@
 
 OpenETR is designed around one governing principle:
 
-> Consequential state should be derived from end-verifiable evidence, not
-> merely asserted by applications, databases or blockchains.
+> Consequential state should be derived from end-verifiable evidence according
+> to defined rules, not merely asserted by applications, databases or
+> blockchains.
 
 ## Digital Artifact, Digital Controllable Record, And Digital Original
 

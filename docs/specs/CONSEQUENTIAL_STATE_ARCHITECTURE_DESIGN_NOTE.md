@@ -9,19 +9,20 @@ events, projections, and application boundaries.
 
 ## Core Principle
 
-> Consequential state should result from validating end-verifiable DCR
-> evidence under an identified policy, not be asserted solely by applications.
+> Consequential state should be derived from end-verifiable evidence according
+> to defined rules, not merely asserted by applications, databases or
+> blockchains.
 
 **Consequential State Architecture (CSA)** is an architectural approach in
 which signed, independently verifiable records form a DCR spanning an
-artifact's evidenced lifecycle. Validation of that DCR under an identified
-policy produces state affecting control, authority, rights, obligations,
+artifact's evidenced lifecycle. Validation checks that evidence, and defined
+rules derive state affecting control, authority, rights, obligations,
 restrictions, standing, or permitted actions.
 
 Applications may maintain projections of consequential state, but they are not
 its sole authority:
 
-> Applications interpret consequential state; they do not own it.
+> Applications derive consequential state; they do not own it.
 
 ## Digital Artifacts, Controllable Records, And Digital Originals
 
@@ -109,9 +110,9 @@ A DCR may consist of:
 - a directed graph of control, transfer, encumbrance, discharge, provenance,
   delegation, termination, or related events.
 
-The graph is evidence. Current consequential state is the result of validating
-the DCR graph as a whole under an applicable policy and applying defined state
-transition rules. The DCR therefore spans the signed evidence lifecycle between
+The graph is evidence. Validation checks the DCR graph as a whole, and defined
+state transition rules derive current consequential state from the valid
+evidence. The DCR therefore spans the signed evidence lifecycle between
 content identity and state evaluation; it must not be used as a synonym for the
 Digital Artifact itself.
 
@@ -248,9 +249,9 @@ or applicable rule for a stated purpose.
 acted upon.
 
 ```text
-DCR OR DCR GRAPH + IDENTIFIED POLICY
+DCR OR DCR GRAPH + DEFINED RULES
   |
-  | validation
+  | validate evidence and derive state
   v
 CONSEQUENTIAL STATE (result)
   |
@@ -261,8 +262,8 @@ RECOGNITION
 EFFECT
 ```
 
-OpenETR can produce end-verifiable consequential state through policy
-validation of DCR evidence without claiming that
+OpenETR can derive consequential state from end-verifiable DCR evidence
+according to defined rules without claiming that
 every external party or jurisdiction must recognize it or give it a particular
 legal, institutional, contractual, community, or operational effect.
 

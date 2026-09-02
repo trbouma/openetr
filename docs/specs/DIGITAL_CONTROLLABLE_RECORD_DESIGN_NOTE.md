@@ -37,9 +37,9 @@ The canonical definitions are:
 
 - A **Digital Artifact** is persistent digital content with a unique content
   identity, normally established by a cryptographic digest.
-- A **Digital Controllable Record** is the signed evidence structure that is
-  validated under an applicable policy to establish and transition
-  consequential state concerning a Digital Artifact.
+- A **Digital Controllable Record** is the signed evidence structure from which
+  defined rules derive consequential state concerning a Digital Artifact after
+  the evidence is validated.
 - A **Digital Original** is a Digital Artifact with consequential state.
 
 > Content makes an artifact identifiable. Consequential state makes it an
@@ -137,7 +137,7 @@ Implementations should separate:
 ```text
 ARTIFACT         digest + content
 DCR              signed end-verifiable records or graph
-STATE PROJECTION result of validating the DCR under an identified policy
+STATE PROJECTION state derived from validated DCR evidence under defined rules
 ```
 
 The state projection should be produced through one versioned derivation
@@ -162,9 +162,10 @@ reproduce consequential state.
 
 ## Governing Rules
 
-- Consequential state should result from validation of end-verifiable DCR
-  evidence under an identified policy, not be asserted by applications.
-- Applications interpret consequential state; they do not own it.
+- Consequential state should be derived from end-verifiable evidence according
+  to defined rules, not merely asserted by applications, databases or
+  blockchains.
+- Applications derive consequential state; they do not own it.
 - Recognition determines the effect given to consequential state.
 - System failure need not become state failure.
 - Digital Originals should outlive applications.
