@@ -7,6 +7,11 @@ The model is summarized in the [OpenETR Axioms](axioms.md): ten foundational
 propositions and five short maxims connecting artifact identity, signed
 evidence, derived state, and external recognition.
 
+The [OpenETR committee draft](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DRAFT_NATIONAL_STANDARD.md)
+consolidates the model into a standards-style specification with conformance
+requirements and a normative Nostr profile. It is a project draft and is not
+an approved National Standard of Canada.
+
 If this is your first encounter with OpenETR, start with one practical
 question: **how can another party determine what happened to a digital record
 without having to trust the application displaying it?** OpenETR answers by

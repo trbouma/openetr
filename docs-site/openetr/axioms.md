@@ -83,6 +83,7 @@ state receives outside the protocol.
 
 ## Related Reading
 
+- [OpenETR committee draft](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DRAFT_NATIONAL_STANDARD.md)
 - [OpenETR Overview](index.md)
 - [Control Layer](control-layer.md)
 - [Consequential State](consequential-state.md)
