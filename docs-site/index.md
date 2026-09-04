@@ -83,6 +83,22 @@ Applications may maintain projections of consequential state, but those
 projections are not the authority. Applications derive consequential state;
 they do not own it.
 
+## Concrete Examples
+
+Once the problem is understood as consequential state rather than copy
+prevention, familiar examples become simple.
+
+**Health records.** The problem is not whether a lab report can be copied. It
+is whether this exact report is current, who signed it, and what verified
+history shows that it was corrected, superseded, or withdrawn.
+
+**Warehouse receipts.** The problem is not whether the receipt PDF can be
+copied. It is whether the receipt remains active, who controls it, and whether
+it has been transferred, encumbered, redeemed, or terminated.
+
+> A copy reproduces content. It does not reproduce or change consequential
+> state.
+
 ## Four Questions
 
 These questions extend, in spirit, the [Law Commission of England and Wales's
