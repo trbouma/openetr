@@ -57,6 +57,10 @@ For a complete worked example, see the [English Gutenberg reconstruction in
 the Digital Originality
 brief](../policy-briefs/digital-originality.md#concrete-example-an-english-gutenberg-reconstruction).
 
+For the conceptual basis of treating exact copies as the same artifact while
+deriving a singular consequential state from signed evidence, see the
+[Records-First Authenticity And Digital Originality Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md).
+
 ## How The Implementation Fits
 
 ```text
@@ -132,6 +136,7 @@ property, not a universal property of the open event network.
 
 - [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md)
 - [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Records-First Authenticity And Digital Originality](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md)
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
