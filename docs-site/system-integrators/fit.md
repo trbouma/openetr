@@ -4,6 +4,10 @@ OpenETR fits between domain systems.
 
 It is not the system of record for every business fact. It is the signed evidence layer for a controlled record.
 
+It can be used before an operation, to provide current DCR state to a host
+policy decision, and after an operation, to publish portable evidence of the
+result. The host remains responsible for controlling the operation itself.
+
 ## The Integration Shape
 
 Most integrations can be understood as four layers:
@@ -25,6 +29,45 @@ Recognition layer
 The domain system remains the place where users work.
 
 OpenETR records the evidence that a verifier may need later, including outside the original system.
+
+## Proposal, Commitment, And Evidence
+
+An integration should distinguish what was requested, what was permitted, what
+was committed, what was executed, and what evidence was published. These may
+occur in one transaction, but they are not the same fact.
+
+For a consequential operation, a strong integration pattern is:
+
+```text
+host receives a proposal
+  -> authenticates the human, service, or agent
+  -> evaluates domain policy and current authoritative inputs
+  -> queries and verifies the relevant OpenETR DCR
+  -> rechecks material conditions at the protected operation
+  -> commits or refuses the operation
+  -> publishes signed OpenETR evidence of the outcome
+  -> independently verifies the resulting DCR state
+```
+
+The protected operation might be signing an Anchor, updating a registry,
+releasing goods, accepting a transfer, or invoking another system. Each
+integration must identify the operation it actually controls.
+
+OpenETR does not claim that publishing an event controls every external path.
+It can support that assurance when the host protects its signer or execution
+boundary and prevents equivalent ungoverned operations within the declared
+scope. The claim should remain bounded to that scope.
+
+## Three Boundaries
+
+| Boundary | Meaning | Primary Responsibility |
+| --- | --- | --- |
+| Evidence commitment | A key signs an immutable OpenETR statement. | OpenETR signer and wire implementation |
+| Protocol consequence | A verifier evaluates DCR evidence and derives consequential state under stated rules. | OpenETR verifier policy |
+| Operational or legal effect | A system acts on the state, or a rule book recognizes it. | Host system, registry, institution, contract, or applicable law |
+
+Relay storage sits between publication and retrieval. It does not collapse
+these boundaries or make the relay an authority.
 
 ## Object-Centric Evidence
 

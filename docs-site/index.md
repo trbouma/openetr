@@ -217,6 +217,21 @@ and derives consequential state according to defined protocol rules.
 Recognition outside the protocol determines what legal, institutional,
 commercial, or operational effect that state receives.
 
+The same boundary applies to execution. A signed record is attributable
+evidence of a statement concerning the Digital Artifact; it is not automatic
+proof that an outside operation was authorized or performed. An integrating
+system can place OpenETR verification before a protected signing or execution
+operation, refuse an ineligible action, and publish evidence of the outcome.
+OpenETR makes that evidence portable and the resulting state independently
+derivable; the integrating system controls the operation within its own scope.
+
+```text
+signing commits evidence
+protocol rules derive consequential state
+integrating systems control operations
+recognition frameworks determine effect
+```
+
 ## Documentation Tracks
 
 | Track | Audience | Starting Point |

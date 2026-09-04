@@ -11,7 +11,7 @@ The host system should keep the responsibilities it already understands. OpenETR
 | user login and account recovery | signed event construction |
 | KYC, onboarding, and legal identity binding | profile-backed event attribution |
 | document storage and rendering | object digest and event links |
-| domain workflow and permissions | origin, control, and linked evidence events |
+| domain workflow and permissions | Anchor, control, and linked evidence records |
 | business policy and approvals | verifier-policy inputs and warnings |
 | registry, bank, or platform rulebook | portable evidence for recognition decisions |
 | operational audit logs | independently verifiable object graph |
@@ -35,6 +35,31 @@ OpenETR does not:
 - guarantee that physical goods exist
 
 OpenETR can link to evidence from those systems. It should not pretend to be those systems.
+
+## Execution Boundary
+
+An OpenETR signature proves that a key made a particular statement about a
+Digital Artifact. It does not alone prove that the statement was authorized by
+an organization, that the requested operation was executed, or that no other
+execution path existed.
+
+The host system should identify the consequential operation it controls and
+place its checks at that boundary. Depending on the domain, that may be:
+
+- access to a Commitment Profile signing key
+- creation or acceptance of a transfer
+- release of warehouse goods
+- update of a recognized registry
+- presentation or redemption of a record
+- invocation of a downstream operational system
+
+Where stronger assurance is required, the host should re-evaluate current DCR
+state, approvals, authority, target, and other material conditions immediately
+before the operation. It should then preserve evidence of success, refusal,
+failure, or later compensation as the domain requires.
+
+OpenETR can make that evidence portable and replayable. The host makes the
+operation non-bypassable within the scope it actually controls.
 
 ## Reliable Systems And Correctness Protocol
 

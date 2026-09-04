@@ -58,6 +58,25 @@ Outside the protocol  recognition by law, contracts, registries, and institution
 
 OpenETR sits in the middle. It turns domain actions, document identities, control assertions, and evidence links into signed protocol evidence without forcing every domain to share the same user interface, vocabulary, statute, or business process.
 
+The host system remains responsible for the path from request to real-world
+operation: authenticating its users, applying permissions, obtaining approvals,
+and controlling whatever execution boundary it owns. OpenETR records
+attributable evidence concerning the Digital Artifact and derives protocol
+state from the resulting DCR. A recognition layer then determines whether that
+state is accepted for a particular operational, institutional, commercial, or
+legal purpose.
+
+```text
+host system       proposal -> authorization -> protected operation
+OpenETR           signed evidence -> DCR validation -> consequential state
+outside protocol  recognition -> operational or legal effect
+```
+
+A signature commits a statement to the evidence graph. It does not, by itself,
+prove that the statement was authorized, that an external operation occurred,
+or that every alternative path was controlled. Relay acceptance distributes
+evidence; it does not provide global ordering, consensus, or legal effect.
+
 ## What OpenETR Provides
 
 OpenETR defines:
@@ -84,11 +103,20 @@ OpenETR does not, by itself, decide:
 - KYC status;
 - registry recognition;
 - statutory effect;
-- priority among competing claims.
+- priority among competing claims;
+- whether a host system executed a signed action;
+- whether every effective action path was mediated;
+- whether a signer had current institutional authority; or
+- a globally authoritative ordering for concurrent events.
 
 Those are recognition questions. OpenETR preserves durable signed evidence and
 derives consequential state according to defined protocol rules. Recognition
 outside the protocol determines the effect given to that state.
+
+A host application can make a stronger, bounded claim when it places OpenETR
+verification before a protected signing or execution operation and prevents
+equivalent ungoverned paths within its own scope. That is an integration
+property, not a universal property of the open event network.
 
 ## Source Specs
 

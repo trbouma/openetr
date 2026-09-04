@@ -24,6 +24,13 @@ records, credentials, linked evidence, Product Passports, health records,
 Apostille documents, and authority-recognized records. See the [Controllable
 Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md).
 
+This gives OpenETR a precise position in a larger system. A host application
+may propose actions, authenticate users, evaluate permissions, obtain
+approvals, and control execution. OpenETR makes the resulting statements
+portable and independently verifiable, then derives candidate state from that
+evidence under explicit rules. A relying party separately decides whether to
+recognize the state and act on it.
+
 ## The Problem
 
 Digital records are easy to copy.
@@ -71,6 +78,45 @@ At the recognition layer, another system asks:
 This separation is the central rationale of the project.
 
 OpenETR preserves durable signed evidence. Recognition frameworks decide what effect to give that evidence.
+
+## From Action To Consequence
+
+A consequential action passes through several logically different stages:
+
+```text
+proposal -> authorization -> commitment -> execution -> evidence -> derived state
+```
+
+One system may combine several stages, but they should remain distinguishable.
+A request to transfer a receipt is not the transfer. Permission to make the
+transfer is not proof that it was made. A signed OpenETR record is durable
+evidence of the statement made by its signer; it is not automatic proof of an
+external operation, universal authority, or legal effect.
+
+OpenETR therefore distinguishes three boundaries:
+
+1. **Evidence commitment:** a signer creates an immutable, attributable record.
+2. **Protocol consequence:** a verifier evaluates that record in its DCR and
+   derives consequential state under stated rules.
+3. **Operational or legal effect:** a host system, registry, institution,
+   counterparty, or applicable law decides whether to act on or recognize that
+   state.
+
+Relay acceptance means that an event was stored or forwarded. It is not, by
+itself, authorization, execution, consensus, or recognition.
+
+This boundary also makes OpenETR useful inside strongly controlled systems. A
+host can evaluate the current DCR immediately before a protected signing or
+execution operation, refuse an ineligible action, and publish evidence of the
+result. The host supplies the controlled path to execution; OpenETR supplies
+portable evidence and independently derivable state. Other systems can later
+verify the evidence without depending on the original application runtime.
+
+OpenETR remains useful where no single system controls the whole path. It can
+preserve conflicting or policy-inconsistent statements rather than making
+authentic signed evidence disappear. A verifier can warn, reject a candidate
+transition, or select among branches according to its rule book. Preservation
+of evidence and permission to execute are separate concerns.
 
 ## Why The Model Extends Beyond Transferable Records
 
@@ -160,6 +206,10 @@ The same OpenETR graph can be evaluated by:
 
 Each may apply a different rulebook. The signed evidence remains portable.
 
+Those rulebooks may also reach different conclusions. Signatures and event
+links make the evidence attributable and tamper-evident; they do not make one
+verifier's policy globally authoritative.
+
 ## Why A Behind-The-Scenes Fabric
 
 OpenETR is designed to be embedded, wrapped, or hidden inside existing systems.
@@ -228,6 +278,9 @@ OpenETR is not:
 - a universal title registry
 - a legal recognition engine
 - a KYC system
+- a complete business workflow or approval engine
+- a universal authorization or execution gate
+- a global ordering, transaction, or consensus service
 - a document storage platform
 - a closed trade network
 - a wallet-only credential model
@@ -235,7 +288,11 @@ OpenETR is not:
 
 It may interoperate with any of those systems.
 
-Its narrower job is to preserve and verify signed control evidence for digest-identified records.
+Its narrower job is to preserve and verify signed control evidence for
+digest-identified records and to derive consequential state under explicit
+rules. An integrated system may enforce stronger operational controls, but
+that claim belongs to the defined integration boundary, not to the existence
+of a signed event alone.
 
 ## Policy Value
 
@@ -249,15 +306,19 @@ The project supports:
 - domain neutrality across record types
 - infrastructure portability across relays and archives
 - independent verification of signed evidence
+- actor neutrality across human, organizational, service, and agent signers
+- replayable state derivation from attributable event history
+- clean integration with protected authorization and execution boundaries
 - policy-specific recognition without protocol fragmentation
 - gradual adoption by existing registries and institutions
 
 That is the reason for OpenETR:
 
 ```text
-Open evidence first.
-Recognition by policy.
-Domain workflows on top.
+Portable evidence.
+Consequential state derived by rule.
+Execution controlled by the integrating system.
+Recognition and effect determined in context.
 ```
 
 ## Source Specifications
