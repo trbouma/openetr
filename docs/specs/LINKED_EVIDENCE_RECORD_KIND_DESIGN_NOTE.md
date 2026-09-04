@@ -2,7 +2,12 @@
 
 This note considers introducing a distinct OpenETR event kind for **linked evidence records**.
 
-The motivating use case is Digital Product Passports. A Product Passport may need to reference later documents such as repair reports, refurbishment certificates, recall notices, recycling records, laboratory reports, inspection records, audit certificates, or end-of-life documents. Those documents are important evidence, but they do not necessarily transfer control of the original passport record.
+The motivating use case was Digital Product Passports, but the requirement is
+generic. A control graph may need to reference authorization decisions,
+execution receipts, temporal proofs, identity or role credentials, reliable-
+system assessments, repair reports, inspection records, audit certificates,
+or other evidence. Those items may inform verification or recognition without
+themselves transferring control of the primary artifact.
 
 ## Proposed Event Kind
 
@@ -61,6 +66,25 @@ Optional tags:
 - `ref`: URL, registry identifier, storage pointer, or external reference;
 - `profile`: domain or policy profile identifier;
 - `subject`: optional product id, batch id, serial number, component id, or other domain subject.
+
+Candidate generic `evidence_type` families include:
+
+- `authorization`: mandate, approval, grant, or policy-decision evidence;
+- `execution`: evidence that an authorized operation was attempted or completed;
+- `temporal`: an external timestamp or ledger-based Temporal Proof;
+- `identity`: identity, role, accreditation, or authority evidence;
+- `system_reliability`: audit, certification, operational-rule, or assurance evidence;
+- `domain`: evidence whose detailed meaning is defined by a Domain Adapter.
+
+The evidence record should identify the claimed relationship without implying
+that the evidence is valid, sufficient, or recognized. Those conclusions
+belong to the applicable evidence verifier and recognition policy.
+
+Where authorization and execution evidence are linked, implementations should
+distinguish a stable intent reference from an execution-attempt reference. A
+retry of the same instruction may retain the same intent identity while each
+attempt receives a distinct identifier. OpenETR should define this distinction
+at the conceptual interface before adopting any external receipt schema.
 
 ## Product Passport Example
 
@@ -144,10 +168,13 @@ If the linked evidence document is stored by digest, the verifier may separately
 
 ## Current Recommendation
 
-Treat `1417` as a proposed event kind and do not implement it until the Product Passport mapping review clarifies the needed evidence relationships.
+Treat `1417` as a proposed generic associated-evidence kind and do not
+implement it until the cross-domain evidence relationships, privacy model, and
+minimum verification interface are specified.
 
 The design direction is promising because it preserves the core distinction:
 
 - `1415` creates the original object graph;
 - `1416` records control-relevant actions;
-- `1417` links supporting evidence without implying transfer of control.
+- `1417` links supporting evidence without implying transfer of control or
+  recognition of the evidence claim.

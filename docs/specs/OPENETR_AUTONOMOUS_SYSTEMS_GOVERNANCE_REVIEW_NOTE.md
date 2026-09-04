@@ -429,6 +429,32 @@ Before a profile signs a consequential OpenETR event, the system should verify c
 - target participant
 - object identity
 
+### Reference Authorization And Execution Evidence
+
+An OpenETR control event should be able to reference independently verifiable
+authorization or execution evidence without importing an autonomous-agent
+authorization framework into the control grammar.
+
+A generic associated-evidence interface may identify:
+
+- the principal or policy source;
+- a stable intent reference;
+- an authorization decision or mandate;
+- a distinct execution-attempt reference;
+- committed inputs or outputs where disclosure is inappropriate;
+- the observation or enforcement boundary; and
+- the evidence format and verification procedure.
+
+The stable intent reference answers whether two attempts concern the same
+instruction. The execution-attempt reference distinguishes retries and
+individual outcomes. Neither reference independently proves that execution
+occurred, that the signer was recognized, or that every possible execution
+path was observed.
+
+The Vaara Receipt Internet-Draft is a useful monitored example of this
+pattern, but OpenETR should not adopt its current schema as a normative
+dependency while it remains an individual draft.
+
 ### Design For Refusal
 
 Refusal should be first-class.
@@ -461,6 +487,9 @@ cryptographic validity:
 
 control graph validity:
   does the graph reconstruct a candidate state?
+
+evidence coverage:
+  what actions and repositories were actually observable?
 
 governance sufficiency:
   were organizational controls satisfied?

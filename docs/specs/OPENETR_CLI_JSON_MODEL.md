@@ -203,6 +203,72 @@ Important `result` fields include:
 
 The query result is deliberately evidentiary. It should not be treated as a final legal conclusion by itself.
 
+## Verification Results
+
+Machine-readable verification should expose independent result dimensions
+rather than a universal `valid` field.
+
+Recommended status values are:
+
+- `valid`
+- `invalid`
+- `unverifiable`
+- `absent`
+- `not_evaluated`
+- `not_applicable`
+
+An implementation may initially expose only the dimensions it evaluates, but
+it should not use omission to imply success. Each evaluated dimension should
+identify its status, basis, and relevant evidence identifiers.
+
+Example:
+
+```json
+{
+  "verification_results": {
+    "artifact_integrity": {"status": "valid", "algorithm": "sha256"},
+    "event_authenticity": {"status": "valid", "event_ids": ["<event-id>"]},
+    "graph_continuity": {"status": "valid"},
+    "transition_validity": {"status": "valid", "policy": "openetr-baseline@1"},
+    "retrieval_coverage": {"status": "unverifiable"},
+    "temporal_proof": {"status": "absent"},
+    "actor_recognition": {"status": "not_evaluated"},
+    "system_reliability": {"status": "not_evaluated"}
+  }
+}
+```
+
+The top-level `ok` field continues to describe command execution. It does not
+mean that every verification dimension is valid or that the resulting state
+has external legal effect.
+
+### Retrieval Observations
+
+Where relay clients expose retrieval information, JSON output should preserve
+observations per relay or repository. A useful shape is:
+
+```json
+{
+  "retrieval": {
+    "status": "unknown_completeness",
+    "sources": [
+      {
+        "source": "wss://relay.example",
+        "status": "authentication_required",
+        "events_returned": 4,
+        "protocol_hints": ["auth"]
+      }
+    ]
+  }
+}
+```
+
+Recommended retrieval statuses include `complete_for_source`,
+`more_available`, `authentication_required`, and `unknown_completeness`.
+`complete_for_source` is scoped to the matching stored records reported by
+that source. It is not a claim that the global OpenETR evidence set is
+complete.
+
 ## Event Views
 
 Where the JSON response includes an event view, the current model includes:

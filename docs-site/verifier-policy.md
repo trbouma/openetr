@@ -20,6 +20,32 @@ The generic verifier should inspect:
 
 When a transition breaks a rule, the generic verifier should report a warning rather than erase the event or raise an unrecoverable error.
 
+## Separate Results
+
+A verifier should not reduce every question to one `valid` result. Where
+applicable, it should report separately:
+
+- artifact integrity;
+- event authenticity and structural validity;
+- graph continuity;
+- transition validity;
+- consequential state;
+- retrieval coverage;
+- evidence sufficiency;
+- optional Temporal Proof;
+- actor and authority recognition;
+- reliable-system evidence; and
+- external recognition and effect.
+
+Useful status values include `valid`, `invalid`, `unverifiable`, `absent`,
+`not_evaluated`, and `not_applicable`.
+
+Retrieval coverage is source-specific. A relay saying that it returned all
+matching records it stores does not prove that no additional record exists on
+another relay, in an archive, or outside the observed evidence boundary.
+
+> Each proof proves only what it proves.
+
 ## Domain Verifiers
 
 An MLWR verifier can add domain-specific policy:
@@ -54,4 +80,4 @@ This is similar to TCP/IP supporting applications without enforcing application-
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [OpenETR TRQP Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_TRQP_INTEGRATION_NOTE.md)
 - [OpenETR Nostr Web Of Trust Integration Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md)
-
+- [OpenETR Roadmap](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_ROADMAP.md)

@@ -415,6 +415,35 @@ The reference `openetr query` command currently derives and displays:
 
 The web app query result uses the same query service and should therefore expose the same derived object-state view.
 
+### Retrieval Coverage And EOSE Hints
+
+Relay query completion is not equivalent to global evidence completeness.
+
+Where a relay implements optional NIP-67 EOSE completeness hints, an OpenETR
+client should preserve the relay's observations:
+
+| NIP-67 hint | OpenETR retrieval observation |
+| --- | --- |
+| `finish` | `complete_for_source` |
+| `more` | `more_available` |
+| `auth` | `authentication_required` |
+| no conclusive hint | `unknown_completeness` |
+
+`finish` means only that the relay reports having supplied every matching
+stored event for that subscription. It does not prove that another relay,
+archive, private repository, or unpublished source contains no additional or
+conflicting event.
+
+A client receiving `more` should paginate. A client receiving `auth` may use
+NIP-42 authentication where appropriate and authorized. A client that cannot
+complete pagination or authentication should preserve the events already
+retrieved and report the retrieval limitation instead of silently treating
+the result as complete.
+
+OpenETR interoperable DCR evidence should continue to use dedicated event
+kinds and semantics. Generic NIP-78 application-data kinds are not a substitute
+for kinds `1415`, `1416`, or a future adopted linked-evidence kind.
+
 ## Cryptographic Control Chain Verification
 
 The OpenETR control chain is not database state maintained by a single application. It is a graph of signed Nostr events that any verifier can retrieve and independently evaluate.
@@ -573,6 +602,11 @@ Related documents include:
 - [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [OPENETR_IMPLEMENTATION_ALIGNMENT_NOTE.md](./OPENETR_IMPLEMENTATION_ALIGNMENT_NOTE.md)
 - [TITLE_TRANSFER_AUTHORITY_REPLACEABLE_EVENT_SPEC.md](./TITLE_TRANSFER_AUTHORITY_REPLACEABLE_EVENT_SPEC.md)
+
+External Nostr inputs relevant to retrieval and private application data:
+
+- [NIP-67: EOSE Completeness Hint](https://github.com/nostr-protocol/nips/blob/master/67.md)
+- [NIP-78: Arbitrary custom app data](https://github.com/nostr-protocol/nips/blob/master/78.md)
 
 ## Summary
 

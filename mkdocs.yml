@@ -62,6 +62,7 @@ nav:
   - OpenETR:
       - Overview: openetr/index.md
       - Axioms: openetr/axioms.md
+      - Roadmap: openetr/roadmap.md
       - Draft Standard: https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DRAFT_NATIONAL_STANDARD.md
       - Control Layer: openetr/control-layer.md
       - Consequential State: openetr/consequential-state.md
@@ -78,6 +79,7 @@ nav:
   - Domains:
       - Warehouse Receipts:
           - Overview: getting-started.md
+          - China Electronic Documents: china-electronic-warehouse-receipts.md
           - Pilot Boundary Notes: warehouse-receipt-pilot.md
           - Creating Control Records: issuing-receipts.md
           - Control Actions: control-actions.md

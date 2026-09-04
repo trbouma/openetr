@@ -3,6 +3,10 @@
 OpenETR is a protocol for deriving consequential state from end-verifiable
 evidence concerning durable electronic records.
 
+Its governing verification discipline is simple:
+
+> Each proof proves only what it proves.
+
 The model is summarized in the [OpenETR Axioms](axioms.md): ten foundational
 propositions and five short maxims connecting artifact identity, signed
 evidence, derived state, and external recognition.
@@ -42,6 +46,12 @@ Artifact for which consequential state has been established through a DCR is a
 
 The DCR is not the file, and the word “controllable” does not automatically
 give it legal status. Legal recognition remains a separate question.
+
+A verifier should therefore report artifact integrity, event authenticity,
+graph continuity, transition validity, consequential state, retrieval
+coverage, evidence sufficiency, temporal assurance, actor recognition, system
+reliability, and external effect as separate dimensions where applicable. It
+should not compress them into one universal `valid` result.
 
 For a complete worked example, see the [English Gutenberg reconstruction in
 the Digital Originality

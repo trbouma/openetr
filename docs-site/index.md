@@ -16,6 +16,37 @@ be independently verified. This provides a basis for it to be recognized and,
 where appropriate, given the same effect as the originally issued document or
 corresponding real-world object.
 
+## Building on a Core Insight
+
+OpenETR builds on a simple insight: consequential digital records should be
+**independently verifiable records**. Any party relying on a record should be
+able to verify the evidence needed to understand it, rather than trusting it
+only because a particular application displays it. A signed event should carry
+enough cryptographic evidence for another implementation to verify who signed
+it, confirm that it has not changed, and determine which artifact and prior
+event it concerns.
+
+A cryptographic digest gives the Digital Artifact a stable content identity.
+The same bytes produce the same identifier wherever they are stored, while any
+change produces a different artifact. Signed events can then record
+consequential actions concerning that exact artifact. When those events are
+linked and evaluated under identified rules, consequential state can be
+derived rather than merely asserted by the system currently presenting it.
+
+This means that no database, app, service, or platform should exclusively own
+the authoritative ability to determine the artifact's consequential state.
+Systems may store the artifact, preserve events, enforce permissions, and
+cache useful state projections. But another conforming implementation with the
+same signed evidence and rules should be able to verify the evidence and
+derive the same protocol state without depending on the original system being
+available.
+
+In OpenETR, the Digital Controllable Record is the protocol structure that
+makes this independent verification possible.
+
+> Applications can present and project consequential state. They should not
+> be its exclusive source of authority.
+
 ## Three Primitives. One Core Concept.
 
 The OpenETR model is deliberately simple. The diagram below shows how three
@@ -81,6 +112,8 @@ effect it receives.
 > Consequential state should be derived from end-verifiable evidence according
 > to defined rules, not merely asserted by applications, databases or
 > blockchains.
+
+> Each proof proves only what it proves.
 
 ## Three Primitives And One Core Concept
 
@@ -160,6 +193,7 @@ other legal or commercial effect.
 | [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, DCR evidence, protocol rules, consequential state, and Digital Originals fit together. |
 | [Digital Originality](policy-briefs/digital-originality.md) | Explore consequential state and the model through detailed examples. |
 | [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
+| [OpenETR Roadmap](openetr/roadmap.md) | See the prioritized work for verifier results, retrieval coverage, associated evidence, recognition adapters, and domain pilots. |
 | [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over OpenETR DCR evidence and state transition rules. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
 | [Health Records](health-records.md) | Placeholder for future health-record control graph workflows, with privacy and consent concerns called out early. |

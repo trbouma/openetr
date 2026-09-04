@@ -259,6 +259,57 @@ This behavior is deliberately exploratory and evidentiary. It does not ask the r
 
 Instead, the component gives the verifier a structured view of the available signed evidence.
 
+## Verifier Result Dimensions
+
+A mature verifier should not collapse every conclusion into one `valid`
+Boolean. It should report independent dimensions so that each conclusion says
+only what its evidence supports.
+
+At minimum, a verifier result model should be able to report:
+
+| Dimension | Question |
+| --- | --- |
+| artifact integrity | Do the supplied bytes match the declared artifact digest? |
+| event authenticity | Are event ids and signatures valid? |
+| structural validity | Do events satisfy the required event shapes? |
+| graph continuity | Do required `e` references resolve to the exact prior events? |
+| transition validity | Do candidate transitions satisfy the selected state-transition rules? |
+| consequential state | What state can be derived from the accepted candidate chain? |
+| retrieval coverage | What did each queried evidence source report returning or withholding? |
+| evidence sufficiency | Does the selected policy consider the available evidence adequate for its conclusion? |
+| temporal proof | Does optional external evidence establish a temporal bound? |
+| actor recognition | Is a signer recognized for the relevant role or purpose? |
+| system reliability | Is sufficient evidence available for an applicable reliable-system assessment? |
+| recognition and effect | What effect does the selected external rule book give the result? |
+
+Recommended outcome values are:
+
+- `valid`: the applicable check succeeded;
+- `invalid`: available evidence contradicts or fails the applicable check;
+- `unverifiable`: the verifier lacks evidence or capability needed to decide;
+- `absent`: the optional evidence type was not supplied or found;
+- `not_evaluated`: the verifier did not perform the check; and
+- `not_applicable`: the check does not apply in the selected context.
+
+These values are dimension-specific. An unavailable optional Temporal Proof
+does not make an otherwise valid DCR invalid. An authentic credential does not
+establish that its issuer is recognized for a purpose. A recognized actor does
+not cure a broken graph link.
+
+### Three Completeness Questions
+
+The word `complete` should be qualified. A verifier should distinguish:
+
+1. **retrieval coverage**: whether a particular relay or repository reported
+   that it returned all matching records it stores;
+2. **graph continuity**: whether every explicit prior-event link needed for a
+   candidate chain resolves; and
+3. **policy sufficiency**: whether the selected verifier policy considers the
+   collected evidence sufficient for its conclusion.
+
+None of these, by itself, proves that no conflicting event exists anywhere.
+Absence from a query result shall not be represented as global non-existence.
+
 ## Hard Verification Errors
 
 Some failures prevent a verifier from treating an event as usable OpenETR evidence.

@@ -204,7 +204,21 @@ Both modes should return structured success, warning, confirmation-required, and
 
 OpenETR deliberately separates protocol-level control evidence from application-level recognition policy.
 
-The base protocol can show that a particular `npub` signed a particular origin or control event for a particular object digest. It can also expose profile metadata, known-entity records, attestations, relay evidence, and control-graph traversal.
+The base protocol can show that a particular `npub` signed a particular Anchor
+or control event for a particular object digest. It can also expose profile
+metadata, known-entity records, attestations, relay evidence, and control-graph
+traversal.
+
+An integration should also keep distinct the evidence dimensions surrounding
+that graph. Artifact integrity, event authenticity, transition validity,
+retrieval coverage, actor recognition, reliable-system assurance, and legal
+effect are related but different determinations. A positive result in one
+dimension does not silently satisfy another.
+
+In particular, a relay reporting that it returned all matching records it
+stores does not prove global evidence completeness. Integrators should record
+retrieval observations per source, preserve unresolved graph links, and let
+the selected policy decide whether the collected evidence is sufficient.
 
 It does not, by itself, decide whether that `npub` satisfies a particular system's KYC, AML, sanctions, customer onboarding, registry, licensing, contractual, or jurisdictional requirements.
 

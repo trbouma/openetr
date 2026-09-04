@@ -606,6 +606,44 @@ Given the same evidence set, policy identifier, policy version, and evaluation
 parameters, conforming verifiers should produce equivalent structural findings
 and Consequential State.
 
+### 9.6 Verification result dimensions
+
+A Core Verifier shall not represent all verification and recognition concerns
+as one undifferentiated validity result.
+
+Where applicable, verifier output shall distinguish:
+
+a) artifact integrity;
+
+b) event authenticity;
+
+c) structural validity;
+
+d) graph continuity;
+
+e) transition validity;
+
+f) derived Consequential State;
+
+g) retrieval coverage;
+
+h) evidence sufficiency under the identified policy;
+
+i) optional temporal assurance;
+
+j) actor or authority recognition;
+
+k) system reliability assessment; and
+
+l) external recognition and effect.
+
+An evaluated dimension should use a defined outcome vocabulary that can
+distinguish `valid`, `invalid`, `unverifiable`, `absent`, `not_evaluated`, and
+`not_applicable` where those outcomes are meaningful.
+
+An outcome for one dimension shall not be silently treated as an outcome for
+another dimension.
+
 ## 10 Consequential State
 
 ### 10.1 Derivation
@@ -934,6 +972,23 @@ An implementation may store non-secret configuration as signed relay-backed
 records. Bootstrap relay locations and root private-key material may remain
 local or be protected by a host account or custody system.
 
+### 15.6 Retrieval coverage
+
+A verifier shall distinguish repository-specific retrieval completion from
+global evidence completeness.
+
+Where a repository or transport reports that all matching stored records have
+been returned, the verifier may report completion for that source and query.
+It shall not infer that no additional or conflicting record exists in another
+repository or outside the observed evidence boundary.
+
+A verifier should report whether additional records are known to be available,
+authentication is required, pagination is incomplete, or retrieval
+completeness is unknown.
+
+Graph continuity and policy sufficiency shall be evaluated separately from
+repository retrieval coverage.
+
 ## 16 Integration surfaces
 
 ### 16.1 General
@@ -970,6 +1025,11 @@ d) avoid requiring parsing of human console prose;
 e) preserve access to raw signed evidence where appropriate; and
 
 f) exclude private keys and secret recovery material.
+
+A machine-readable verifier result should identify each evaluated dimension,
+its status, its evidence basis, and the policy or verification procedure used.
+Command execution success shall not be represented as equivalent to protocol
+validity, recognition, system reliability, or legal effect.
 
 ### 16.3 Human interfaces
 
@@ -1034,6 +1094,15 @@ used.
 
 A signed event timestamp shall not be treated as independently trusted time
 unless supported by an accepted timestamping or other time-assurance source.
+
+The term **Anchor Event** is reserved in this document for the initial OpenETR
+record that begins a candidate DCR. External timestamp, transparency-log, or
+ledger evidence should be described as a **Temporal Proof** or another term
+that does not imply that it creates OpenETR Consequential State.
+
+Failure to obtain or verify optional Temporal Proof evidence shall not, by
+itself, invalidate an otherwise valid DCR. The verifier shall report the
+temporal-proof outcome separately.
 
 ### 17.6 Post-quantum considerations
 

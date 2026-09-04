@@ -33,24 +33,22 @@ OpenETR does not replace legal or institutional frameworks. It provides a techni
 
 ## Core Model
 
-OpenETR reduces the system to three primitives:
+OpenETR organizes the system around three primitives and one derived concept:
 
 * Digital Artifacts — persistent content identified by digest
 * Digital Controllable Records — one end-verifiable record or a graph of related records concerning an artifact
-* Controllers (Keys) — actors whose control may be derived from a valid, complete, and unambiguous graph
+* Consequential State — state derived by applying defined rules to the available DCR evidence
+* Digital Originals — Digital Artifacts for which consequential state has been established through a DCR
 
 These terms are intentionally separate. A warehouse receipt, bill of lading,
 certificate, or credential is a Digital Artifact. Signed events concerning it
 form its candidate Digital Controllable Record. OpenETR validates that evidence
 and derives consequential state; recognition of the result remains external.
 
-From these, OpenETR enables three fundamental operations:
-* Transfer — movement of control from one controller to another
-* Endorsement — assignment of meaning, recognition, or delegation
-* Enforcement — recognition of control with binding effect
-
-Together, these form a minimal fabric where:
-control persists, records travel, and meaning accumulates
+OpenETR control actions can transfer control, record encumbrances and
+discharges, support redemption, and end a record lifecycle. Attestations and
+external recognition evidence can inform how a relying party evaluates the
+result without becoming control merely because they were published.
 
 ## Consequential State Architecture
 
@@ -119,15 +117,18 @@ Transferable records require shared understanding and independent verification. 
 * Community-driven evolution
 
 ## Vision
-OpenETR establishes a foundation where:
+OpenETR is an open protocol for deriving consequential state from
+end-verifiable evidence concerning exact Digital Artifacts, independently of
+the applications, organizations, and legal regimes that use or recognize that
+state.
 
+The governing discipline is:
 
-* Records are not confined to systems
-* Control is durable and transferable
-* Authority can be exercised and verified anywhere
+> Each proof proves only what it proves.
 
-A world where:
-* records stand on their own, and control moves with them
+OpenETR establishes a foundation where records are not confined to systems,
+control evidence remains portable, and another implementation can reproduce a
+state determination from the signed evidence and identified rules.
 
 ## Nostr Implementation (Initial)
 
@@ -137,7 +138,10 @@ Nostr provides a simple model of signed events + relay distribution + independen
 
 ## CLI Example
 
-The current CLI can create an initial control record, transfer, encumber, discharge, redeem, terminate, and query OpenETR control graphs using the Nostr `31415` / `31416` event-family model.
+The current CLI can create an initial control record, transfer, encumber,
+discharge, redeem, terminate, and query OpenETR control graphs using regular
+Nostr event kinds `1415` and `1416`. Kinds `31415` and `31416` are deprecated
+prototype kinds.
 
 For a focused spec-to-implementation walkthrough, see [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
 
