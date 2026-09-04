@@ -107,3 +107,4 @@ recognize legal effect through domain policy, law, registries, and institutions
 ## Related Design Note
 
 - [OpenETR And Open Trust Layer Review Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_AND_OPEN_TRUST_LAYER_REVIEW_NOTE.md)
+- [Nostr, DIDs, And Independent Verification](./nostr-dids-and-independent-verification.md)

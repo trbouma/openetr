@@ -440,6 +440,7 @@ OTL can make OpenETR interactions easier and more secure. OpenETR can give OTL-l
 
 ## Related Documents
 
+- [OpenETR, W3C DIDs, Nostr, And did:webvh Analysis Note](./OPENETR_DIDS_NOSTR_AND_DID_WEBVH_ANALYSIS_NOTE.md)
 - [OpenETR Organizational Reference Layer Design Note](./OPENETR_ORGANIZATIONAL_REFERENCE_LAYER_DESIGN_NOTE.md)
 - [OpenETR, LEI, And Verifiable Trade Policy Brief](../../docs-site/policy-briefs/openetr-lei-and-verifiable-trade.md)
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
