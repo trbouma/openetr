@@ -60,12 +60,12 @@ remaining outside the protocol.
   </figcaption>
 </figure>
 
-## The Problem And The Insight
+## The Problem, Restated
 
-The central insight is that the problem is not how to prevent copies. Digital
-content can be copied perfectly, and that is often useful. The harder problem
-is determining what constitutes the Digital Original and what verifiable
-evidence establishes its consequential state.
+**Copies Are Not the Problem.** Digital content can be copied perfectly, and
+that is often useful. The harder problem is determining what constitutes the
+Digital Original and what verifiable evidence establishes its consequential
+state.
 
 The file alone cannot tell us who made a consequential statement about it,
 what has happened to it, or which state should now be relied upon.
