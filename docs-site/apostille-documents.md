@@ -20,7 +20,8 @@ That package might include:
 - revocation, correction, or replacement references;
 - supporting notarial or certification material.
 
-The digest of that package becomes the OpenETR object identity. OpenETR can then record a control graph around the object.
+The digest of that package becomes the OpenETR object identity. OpenETR can
+then preserve an Evidence Graph concerning the object.
 
 ## Competent Authorities As Recognized Attesters
 
@@ -44,11 +45,11 @@ This separates technical verification from legal recognition:
 
 This lets OpenETR represent the evidence graph without overclaiming. OpenETR can verify signatures, preserve digest-linked evidence, link to official authority sources, and show the chain of control. The legal effect still depends on the relevant Convention rules, Competent Authority practice, registry evidence, and relying-party policy.
 
-## Candidate Control Records
+## Candidate DCR Records
 
 An Apostille Documents domain profile could define control records such as:
 
-| Control Record | Purpose |
+| DCR Record | Purpose |
 | --- | --- |
 | Origin control record | First OpenETR record for the apostilled document bundle. |
 | Authority attestation | Signed statement by, or linked to, a Competent Authority or recognized registry source. |
@@ -65,7 +66,7 @@ OpenETR could make Apostille document workflows more portable by giving every ap
 - a durable digest-based identifier;
 - a QR code and durable link;
 - a retrievable original record, if stored;
-- an inspectable control graph;
+- an inspectable Evidence Graph;
 - independent signature and event verification;
 - links to official Competent Authority or registry verification sources.
 
@@ -93,7 +94,7 @@ Legal recognition remains with the relevant authority, law, treaty framework, re
 | --- | --- |
 | Digital Artifact | Apostilled document bundle, e-Apostille package, notarized/certified document package, or related verification artifact. |
 | Origin control record | Initial OpenETR record for the package digest. |
-| Control graph | Linked evidence about authority, provenance, registry references, verification, replacement, or warnings. |
+| Evidence Graph | Linked evidence about authority, provenance, registry references, verification, replacement, or warnings. |
 | Recognition layer | Apostille Convention rules, Competent Authority practice, e-Register checks, local law, court or agency policy, and relying-party verification rules. |
 
 More to come.

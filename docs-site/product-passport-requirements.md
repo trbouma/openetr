@@ -14,7 +14,7 @@ The mapping distinguishes between:
 | --- | --- |
 | Protocol evidence | OpenETR provides digest identity, signed control records, retrieval, or verification evidence relevant to the requirement. |
 | Supported by domain adapter | The Product Passports workspace can present DPP-specific language, fields, and workflows over the generic OpenETR model. |
-| Registry / integration dependency | The requirement needs registry, discovery, API, identity, storage, or access-control integration outside the base control graph. |
+| Registry / integration dependency | The requirement needs registry, discovery, API, identity, storage, or access-control integration outside the base OpenETR protocol. |
 | Recognition / compliance effect | OpenETR can provide evidence, but legal, regulatory, or operational effect depends on policy, delegated acts, authorities, or relying parties. |
 | Gap / design note | More design work is needed before the requirement can be treated as supported. |
 
@@ -25,7 +25,7 @@ The current strongest coverage is around:
 - product passport artifact identity by digest;
 - initial Product Passport control-record evidence;
 - linked evidence records for lifecycle documents;
-- durable link and QR-code access to the control graph;
+- durable link and QR-code access to the Evidence Graph;
 - optional retrieval of the Digital Artifact where storage is configured;
 - basic domain metadata for product name, product id, manufacturer, batch or lot, and description;
 - recognition-boundary documentation.

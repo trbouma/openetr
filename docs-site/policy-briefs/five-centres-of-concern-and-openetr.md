@@ -104,7 +104,8 @@ They are not the whole vocabulary.
 
 ## OpenETR's Place In The Model
 
-OpenETR is primarily concerned with **control** and **evidence**.
+OpenETR is primarily concerned with **evidence** and the derivation of
+**Consequential State**, including control state.
 
 It asks:
 
@@ -121,13 +122,17 @@ OpenETR does not try to be the whole digital trust stack.
 
 It does not replace identity wallets, registries, trust frameworks, competent authorities, legal rulebooks, enterprise account systems, or domain platforms.
 
-Instead, it supplies a connective control fabric: Digital Artifact digests,
+Instead, it supplies a connective evidence and state-derivation model: Digital Artifact digests,
 signed DCR evidence, linked evidence, derived state, and verifier outputs that
 can be used by other systems.
 
 That is exactly why OpenETR should remain narrow.
 
-It should not absorb identity, intent, and recognition into itself just because they are adjacent concerns. It should make the control and evidence questions clearer, then allow other systems to answer the other questions with their own appropriate methods.
+It should not absorb identity, intent, and recognition into itself just because
+they are adjacent concerns. The five centres remain lines of inquiry, not five
+required OpenETR protocol layers. OpenETR should make the evidence and
+state-derivation questions clearer, then allow other systems to answer the
+other questions with their own appropriate methods.
 
 ## Mapping The Five Centres To OpenETR
 
@@ -135,7 +140,7 @@ It should not absorb identity, intent, and recognition into itself just because 
 | --- | --- |
 | Identity | OpenETR profile keys sign events. Profiles may be linked to NIP-05 identifiers, published profiles, known entities, credentials, registries, or trust-framework signals. OpenETR can show which key signed, but external policy decides whether that identity is recognized. |
 | Intent | OpenETR events can carry actions, tags, comments, references, and domain metadata that express what the signer intended to do. Domain adapters and workflow systems provide the user-facing intent capture. |
-| Control | OpenETR's central contribution is artifact-centric control evidence. It derives candidate controller and lifecycle state from the DCR graph concerning a digest-identified Digital Artifact. |
+| Control | OpenETR derives candidate controller and lifecycle state from validated DCR evidence concerning a digest-identified Digital Artifact. Control records form the Control Graph within the broader Evidence Graph. |
 | Evidence | OpenETR creates cryptographically self-contained signed events. Event ids, signatures, object digests, graph links, relay results, and linked evidence records can be independently inspected. |
 | Recognition | OpenETR does not decide final effect. Laws, contracts, registries, courts, competent authorities, trust frameworks, verifier policies, and relying parties decide what the evidence means. |
 
@@ -194,11 +199,15 @@ Existing systems may already handle parts of the model well:
 
 OpenETR can work underneath those systems.
 
-It can generate self-contained object identifiers and signed control events that survive outside any one application database. Those events can be stored on relays, in archives, in registries, in local files, in private databases, or in other repositories.
+It can generate content-derived object identifiers and preserve signed DCR
+events that survive outside any one application database. Those events can be
+stored on relays, in archives, in registries, in local files, in private
+databases, or in other repositories.
 
 The goal is not to force everyone into one OpenETR application.
 
-The goal is to let many systems produce and consume the same kind of portable control evidence.
+The goal is to let many systems produce and consume the same kind of portable
+DCR evidence.
 
 ## Policy Implication
 
@@ -214,7 +223,11 @@ Smart contracts are not enough by themselves.
 
 Each can be useful, but each answers only part of the larger digital trust problem.
 
-OpenETR's policy value is that it gives the control and evidence centres a clean, inspectable form. That makes it easier for identity systems, intent-capture workflows, registries, competent authorities, trust frameworks, and relying parties to do their own jobs without needing one platform to answer every question.
+OpenETR's policy value is that it gives artifact-centric evidence and
+Consequential State a clean, inspectable form. That makes it easier for
+identity systems, intent-capture workflows, registries, competent authorities,
+trust frameworks, and relying parties to do their own jobs without needing one
+platform to answer every question.
 
 This is also why OpenETR should not be presented as the one protocol that will win.
 

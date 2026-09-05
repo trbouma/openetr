@@ -1291,18 +1291,18 @@ recognition of an event.
 1. The digest identifies the artifact.
 2. A signature attributes a statement.
 3. An Anchor begins a candidate record.
-4. Links create the control graph.
+4. Links construct the Evidence Graph.
 5. Events are evidence; state is derived.
 6. Invalid claims remain visible.
 7. A Digital Original has Consequential State.
 8. Verification is separate from recognition.
 9. Identity is actor-neutral and contextual.
-10. Control is portable across systems and domains.
+10. DCR evidence is portable across systems and domains.
 
 ## B.2 Five maxims
 
-> **Digests identify. Signatures attribute. Links order. Policies interpret.
-> Recognition gives effect.**
+> **Digests identify. Signatures attribute. Links order. Rules determine what
+> follows. Recognition gives effect.**
 
 # Annex C (informative) - Integration model
 

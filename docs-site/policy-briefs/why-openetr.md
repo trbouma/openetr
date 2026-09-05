@@ -8,18 +8,17 @@ OpenETR exists because many important records are becoming digital, but the digi
 
 Those questions are related, but they should not be collapsed into one application, one database, one wallet, one registry, or one legal rulebook.
 
-OpenETR is designed as a thin, open protocol for durable electronic records.
-Its control layer identifies a Digital Artifact by cryptographic digest and
-records signed lifecycle evidence about that artifact as a Digital
-Controllable Record. Validation checks the DCR evidence, and protocol rules
-derive consequential state; many different domain systems can then interpret
-and recognize that state.
+OpenETR provides a protocol model for attaching portable, end-verifiable
+evidence to a Digital Artifact and deriving Consequential State from that
+evidence according to defined rules. The signed evidence forms a Digital
+Controllable Record. Different domain systems can then determine whether to
+recognize that state and what effect to give it.
 
 The OpenETR protocol construct is the **Digital Controllable Record**: one
 signed end-verifiable record or graph concerning a Digital Artifact. Protocol
 rules derive consequential state from validated DCR evidence; the recognition context determines
 accepted effect. Electronic transferable records are one important
-subclass, but the same control-layer pattern can also support non-transferable
+subclass, but the same DCR evidence and state-derivation pattern can also support non-transferable
 records, credentials, linked evidence, Product Passports, health records,
 Apostille documents, and authority-recognized records. See the [Controllable
 Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md).
@@ -48,21 +47,30 @@ Examples include:
 - permits
 - other electronic transferable records
 
-Many existing systems solve this by making the platform itself the source of truth. A database, registry, wallet provider, document platform, or trade network decides what exists and who can act on it.
+Many existing systems solve this by making the platform the exclusive
+authority for current state. A database, registry, wallet provider, document
+platform, or trade network decides what exists and who can act on it.
 
 That can work inside one closed environment. It becomes harder when records need to move across organizations, jurisdictions, industries, relays, archives, and recognition frameworks.
 
-OpenETR is not intended to compete with or replace existing electronic transferable record systems, warehouse receipt platforms, registries, document services, or trade networks. Its role is more modest and more infrastructural: it can work behind the scenes as a connective control fabric. Existing systems can keep their user interfaces, account models, databases, document formats, and rulebooks while using OpenETR events as cryptographically self-contained evidence that can move between them.
+OpenETR is not intended to compete with or replace existing electronic
+transferable record systems, warehouse receipt platforms, registries, document
+services, or trade networks. Its role is more modest and more infrastructural:
+it can work behind the scenes as a connective evidence and state-derivation
+layer. Existing systems can keep their user interfaces, account models,
+databases, document formats, and rulebooks while using OpenETR events as
+cryptographically self-contained evidence that can move between them.
 
 ## The OpenETR Approach
 
 OpenETR separates the control problem from the recognition problem.
 
-At the control layer, OpenETR asks:
+At the protocol layer, OpenETR asks:
 
 - What Digital Artifact is the subject of the record?
 - Which signed Anchor record began the candidate DCR?
-- Which signed records changed or annotated its candidate state?
+- Which signed records form the Evidence Graph?
+- Which records contribute to Consequential State under the defined rules?
 - Who is the current controller under a selected policy?
 - What evidence supports that conclusion?
 

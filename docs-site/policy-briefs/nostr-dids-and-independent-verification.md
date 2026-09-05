@@ -50,7 +50,7 @@ available.
 
 > OpenETR selected Nostr as its initial protocol because its key-native,
 > independently verifiable, relay-replicable event model provides a small and
-> durable foundation for a records-first control layer.
+> durable foundation for a records-first evidence and state-derivation model.
 
 DIDs remain useful optional inputs wherever an integration needs persistent
 subject identity, key rotation, multiple verification methods, credentials,

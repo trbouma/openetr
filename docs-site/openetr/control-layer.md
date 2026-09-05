@@ -1,8 +1,10 @@
 # Control Layer
 
-The OpenETR control layer assembles signed Nostr records into a DCR concerning
-a Digital Artifact. Cryptographic and structural checks validate that evidence;
-state transition rules determine what consequential state follows.
+The OpenETR **Control Layer** is the part of the broader protocol model that
+evaluates control and control-transition evidence concerning a Digital
+Artifact. Signed Nostr records form a DCR; cryptographic and structural checks
+validate that evidence; defined rules determine what Consequential State
+follows.
 
 ## Digital Artifact And Digital Controllable Record
 
@@ -60,7 +62,7 @@ Current actions include:
 
 ## Graph Reconstruction
 
-The control graph is reconstructed from signed events:
+The Evidence Graph is reconstructed from signed events:
 
 - `o` identifies the Digital Artifact by digest;
 - `e` links to a prior event;
@@ -68,15 +70,19 @@ The control graph is reconstructed from signed events:
 - `action` identifies the control-event subtype;
 - action-specific tags such as `enc`, `type`, and `ref` add structured context.
 
-The graph is portable evidence. Cryptographic and structural checks validate
-the DCR as a whole, and state transition rules determine what consequential
-state follows.
+The Control Graph is the portion of that Evidence Graph concerned specifically
+with control transitions. The graph is portable evidence. Cryptographic and
+structural checks validate the DCR as a whole, and defined rules determine what
+Consequential State follows.
 Recognition separately decides whether to accept that result for a purpose and
 what effect to give it.
 
 ```text
-DCR + applicable policy -> state transition rules -> consequential state -> recognition -> effect
+validated DCR evidence -> defined rules -> Consequential State
+Consequential State -> recognition -> effect
 ```
+
+Nostr carries the events. OpenETR determines their consequences.
 
 Applications may cache and display a projection of the state, but they do not
 own it. See [Consequential State](./consequential-state.md).

@@ -300,7 +300,7 @@ wallet or credential system
 
 OpenETR
   records the signed action concerning the Digital Artifact
-  and derives its DCR state
+  and derives Consequential State from its DCR
 
 relying party
   evaluates both under its policy
@@ -371,8 +371,8 @@ The report's delivery findings are highly relevant to OpenETR as a project.
 
 Technology should follow a clear use case, process boundary, data model, and
 integration plan. OpenETR's warehouse-operator workflow is therefore a sound
-starting point: issue a receipt artifact, create its Anchor, and establish its
-initial DCR state.
+starting point: issue a receipt artifact, create its Anchor, and establish
+initial Consequential State under defined rules.
 
 ### 9.2 Identity is not the whole integration
 
@@ -547,4 +547,3 @@ integration boundaries around the identity systems OpenETR will encounter.
 - [Nostr Web Of Trust Integration Note](./OPENETR_NOSTR_WEB_OF_TRUST_INTEGRATION_NOTE.md)
 - [Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [System Integration Considerations](./SYSTEM_INTEGRATION_CONSIDERATIONS.md)
-

@@ -1,7 +1,8 @@
 # Recognition Boundary
 
-OpenETR is focused on control-layer evidence and the consequential state that
-can be derived from it under defined transition rules.
+OpenETR is focused on end-verifiable DCR evidence and the Consequential State
+that can be derived from it under defined protocol rules. Control is one
+important class of Consequential State, but not the only one.
 
 Recognition frameworks decide what effect to give that evidence.
 
@@ -13,11 +14,14 @@ real-world object, product, document, or record
   -> digest
   -> signed Anchor record
   -> signed control records or linked evidence records
-  -> verifier, registry, authority, or relying party decides effect
+  -> evidence validation and defined protocol rules
+  -> Consequential State
+  -> verifier, registry, authority, or relying party recognizes the state
+  -> effect
 ```
 
-OpenETR does not decide effect. Its control layer preserves DCR evidence and
-derives consequential state that a recognition layer can evaluate.
+OpenETR preserves DCR evidence and derives Consequential State that a
+recognition layer can evaluate. OpenETR does not decide external effect.
 
 Ownership is a legal effect, not a cryptographic primitive. A legal regime may
 recognize OpenETR control state and give it property-law consequences, but
@@ -32,7 +36,7 @@ OpenETR can answer questions such as:
 - which signed events reference the same object?
 - how do control events link through `e` references?
 - which profile key signed each event?
-- what consequential state can be derived from the graph under the selected policy?
+- what Consequential State can be derived from the Evidence Graph under the defined rules?
 - which linked evidence records point back to the object?
 
 ## Recognition Questions
@@ -63,9 +67,12 @@ Recognition may depend on:
 
 ## Verifier Rule Books
 
-Because OpenETR is an open signed-event system, any organization can write a verifier rule book on top of the same graph.
+Because OpenETR is an open signed-event system, any organization can write a
+verifier rule book that evaluates the same Evidence Graph.
 
-A generic verifier should expose warnings rather than pretending invalid or unrecognized transitions do not exist.
+A generic verifier should expose warnings rather than pretending invalid,
+conflicting, or unrecognized events do not exist. Those events remain
+inspectable evidence even when they do not contribute to Consequential State.
 
 A domain verifier can add stronger rules, safeguards, or exemptions.
 

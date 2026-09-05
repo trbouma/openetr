@@ -9,7 +9,10 @@ The warehouse receipt system is the reliable system.
 OpenETR is the correctness protocol between systems.
 ```
 
-OpenETR should provide portable signed control evidence. It should not replace the account system, KYC process, warehouse management system, registry, federation arrangement, or recognition policy.
+OpenETR should provide portable signed DCR evidence and derive Consequential
+State under defined rules. It should not replace the account system, KYC
+process, warehouse management system, registry, federation arrangement, or
+recognition policy.
 
 ## Reliable System Boundary
 
@@ -29,7 +32,7 @@ That includes:
 - business workflow
 - audit and compliance records
 
-OpenETR is responsible for the signed control evidence:
+OpenETR is responsible for the signed DCR evidence and state derivation:
 
 - receipt digest
 - Anchor Event
@@ -37,7 +40,7 @@ OpenETR is responsible for the signed control evidence:
 - control events
 - prior-event links
 - attestations and linked evidence
-- control graph reconstruction
+- Evidence Graph reconstruction
 - verifier warnings
 
 ## KYC And Accounts
@@ -55,7 +58,7 @@ legal identity
   -> OpenETR root/admin identity
   -> operational profile key
   -> signed OpenETR event
-  -> warehouse receipt control graph
+  -> warehouse receipt Evidence Graph
 ```
 
 OpenETR can show that a profile key signed an event. The host system must evidence why that key was associated with a legal account and allowed to act.
@@ -81,7 +84,8 @@ OpenETR records which key signed. The host system records why that key was autho
 
 Federation is an arrangement between system operators.
 
-OpenETR makes the control graph portable. It does not make other systems recognize the graph automatically.
+OpenETR makes the Evidence Graph portable. It does not make other systems
+recognize the graph or its derived state automatically.
 
 Federation rules may need to cover:
 

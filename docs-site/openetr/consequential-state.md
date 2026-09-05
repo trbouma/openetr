@@ -33,7 +33,7 @@ Digital Artifact
   -> Digital Original
 ```
 
-## Why This Matters
+## Architectural Consequence
 
 Most applications keep important state in a database: who controls a record,
 whether a restriction applies, or whether a lifecycle has ended. When the

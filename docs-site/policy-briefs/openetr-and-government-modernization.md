@@ -100,7 +100,7 @@ OpenETR can help a receiving system answer:
 
 That does not remove the need for government authority. It makes the evidence easier to inspect, preserve, and reuse.
 
-## Why This Matters For Delivery
+## Delivery Implications
 
 The report stresses that modernization depends on delivery capacity, coordination, and trust.
 

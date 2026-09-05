@@ -141,7 +141,8 @@ employee account and authentication
   -> recognition under MLWR, local law, registry rules, or contract
 ```
 
-OpenETR handles the object-specific signed evidence and DCR state. It does not
+OpenETR handles the object-specific signed DCR evidence and derives
+Consequential State. It does not
 perform employee onboarding, license the warehouse, or decide the legal effect
 of the receipt.
 
@@ -191,4 +192,3 @@ credential status, privacy, matching, and recognition.
 - [Actor-Neutral Identity Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md)
 - [EUDI Wallet And OpenETR](./eudi-wallet-and-openetr.md)
 - [OpenETR, Trust Frameworks, And Registries](./openetr-trust-frameworks-and-registries.md)
-

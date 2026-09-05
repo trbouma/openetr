@@ -4,7 +4,8 @@ Bills of Lading are a major candidate OpenETR domain because they sit close to t
 
 The goal is not to turn OpenETR into a full carrier platform, maritime data system, or legal recognition engine.
 
-The goal is to support an electronic bill of lading (`eBL`) domain adapter over the general OpenETR control layer.
+The goal is to support an electronic bill of lading (`eBL`) domain adapter over
+the general OpenETR protocol model.
 
 ## Bill Of Lading Use Case
 

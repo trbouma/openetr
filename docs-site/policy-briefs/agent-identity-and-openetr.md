@@ -108,15 +108,16 @@ These concerns complement one another:
 Agent identity and governance:
   who or what is acting, for whom, under what authority and safeguards
 
-OpenETR control layer:
+OpenETR protocol model:
   what DCR evidence exists for which digest-identified artifact,
-  and what consequential state results under the identified validation policy
+  and what Consequential State results under the defined rules
 
 Recognition policy:
   whether that actor and action should be accepted in context
 ```
 
-This boundary lets OpenETR support both people and agents without making the control protocol dependent on a single model of agency, identity, or regulation.
+This boundary lets OpenETR support both people and agents without making the
+protocol dependent on a single model of agency, identity, or regulation.
 
 ## Source And Detailed Design
 

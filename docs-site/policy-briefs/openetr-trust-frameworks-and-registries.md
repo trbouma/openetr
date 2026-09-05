@@ -57,7 +57,7 @@ That distinction is important.
 
 OpenETR preserves durable signed evidence about a record.
 
-At the control layer, OpenETR makes it possible to inspect:
+At the protocol layer, OpenETR makes it possible to inspect:
 
 - the digest of the Digital Artifact;
 - the signed Anchor record;
@@ -72,7 +72,8 @@ This evidence can then be evaluated by a trust framework, registry, authority, c
 
 OpenETR does not decide the final recognition outcome.
 
-It supplies the signed control evidence needed for that decision.
+It supplies signed DCR evidence and derived Consequential State for that
+decision.
 
 ## The Under-Appreciated Layer
 
@@ -96,13 +97,15 @@ OpenETR makes the DCR history and derived state independently inspectable.
 
 That is the underpinning: not trust by assertion alone, but trust supported by durable signed evidence.
 
-## Fragmentation As A Missing Control Layer
+## Fragmentation As A Missing Evidence Layer
 
 A recent OpenCanada article, **Canada Is Measuring Digital Government Against the Wrong Model**, argues that Canada should not measure digital government only by what appears online. The harder question is whether a federation can make services, data, and responsibilities work across departments, programs, institutions, and jurisdictions.
 
 That diagnosis points to an architectural gap.
 
-Fragmentation is not only a coordination failure. It is also what happens when systems lack a shared control layer for durable records.
+Fragmentation is not only a coordination failure. It is also what happens when
+systems lack shared DCR evidence and reproducible state derivation for durable
+records.
 
 Without that layer, each institution tends to ask the same questions again:
 
@@ -241,7 +244,7 @@ But durable electronic records also need evidence that can survive outside a sin
 
 OpenETR gives policymakers a way to separate:
 
-- the control layer: what DCR evidence exists and what state derives from it;
+- the protocol evidence layer: what DCR evidence exists and what Consequential State derives from it;
 - the trust framework: what behavior and assurance rules apply;
 - the registry: which actors, authorities, statuses, or records are recognized;
 - the verifier: what effect to give the evidence in context.

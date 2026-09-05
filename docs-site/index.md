@@ -75,7 +75,7 @@ product passports, health records, photographs, and many other records that
 people and institutions act upon.
 
 OpenETR addresses the problem without making one application, database,
-registry, or wallet the permanent source of truth. It identifies the exact
+registry, or wallet the exclusive authority for state. It identifies the exact
 content, preserves end-verifiable evidence concerning it, and applies defined
 protocol rules so another conforming system can derive the same state.
 
@@ -212,7 +212,7 @@ other legal or commercial effect.
 | [OpenETR Roadmap](openetr/roadmap.md) | See the prioritized work for verifier results, retrieval coverage, associated evidence, recognition adapters, and domain pilots. |
 | [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over OpenETR DCR evidence and state transition rules. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
-| [Health Records](health-records.md) | Placeholder for future health-record control graph workflows, with privacy and consent concerns called out early. |
+| [Health Records](health-records.md) | Placeholder for future health-record Evidence Graph workflows, with privacy and consent concerns called out early. |
 | [Apostille Documents](apostille-documents.md) | Placeholder for future apostille and legalization document verification workflows. |
 
 ## Live App

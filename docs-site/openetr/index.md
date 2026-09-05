@@ -103,7 +103,7 @@ OpenETR defines:
 - linked evidence records for supporting documents and lifecycle evidence;
 - profile-backed signing;
 - object-centric relay queries;
-- control graph traversal;
+- Evidence Graph and Control Graph traversal;
 - verifier policy warnings;
 - CLI, JSON, Python component, and webapp integration surfaces.
 

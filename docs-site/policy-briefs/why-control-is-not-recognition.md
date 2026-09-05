@@ -7,11 +7,10 @@ OpenETR separates two questions that digital-record systems often collapse:
 
 Those questions are related, but they are not the same.
 
-OpenETR provides a control layer for deriving consequential state from
-end-verifiable evidence concerning durable electronic records. It identifies a
-record by digest and preserves signed evidence about the record's lifecycle.
-Recognition frameworks decide what legal, regulatory, commercial, or
-operational effect to give that evidence.
+OpenETR provides end-verifiable DCR evidence and defined rules for deriving
+Consequential State concerning durable electronic records. Control is one
+important class of that state. Recognition frameworks decide what legal,
+regulatory, commercial, or operational effect to give the result.
 
 ## The Control Question
 
@@ -62,8 +61,9 @@ It can make the technical operator appear to decide legal effect. It can hide po
 OpenETR takes a different approach:
 
 ```text
-Publish signed control evidence.
-Verify the graph.
+Preserve signed DCR evidence.
+Verify the Evidence Graph.
+Apply defined rules to derive Consequential State.
 Apply recognition policy separately.
 ```
 
@@ -165,7 +165,7 @@ They can:
 - adopt durable electronic records without requiring one central platform;
 - preserve independently verifiable signed evidence;
 - let registries and authorities apply domain-specific rules;
-- allow different sectors to reuse the same control layer;
+- allow different sectors to reuse the same DCR evidence and state-derivation model;
 - support policy-specific recognition without fragmenting the protocol;
 - make disputes easier to inspect because the evidence remains visible.
 

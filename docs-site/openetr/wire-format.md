@@ -1,8 +1,16 @@
 # Nostr Wire Format
 
-The Nostr wire format is the OpenETR interoperability boundary.
+The Nostr wire format is OpenETR's initial interoperability binding.
 
-It defines how OpenETR control evidence is represented as signed Nostr events, event kinds, and tags.
+It defines how OpenETR DCR evidence is represented as signed Nostr events,
+event kinds, and tags. Nostr supplies event representation, signatures,
+references, relay transport, and discovery. OpenETR supplies DCR semantics,
+validation rules, graph relationships, and Consequential State derivation.
+
+> Nostr carries the events. OpenETR determines their consequences.
+
+The OpenETR model permits future non-Nostr bindings that preserve equivalent
+evidence and state-derivation semantics.
 
 ## Event Kinds
 

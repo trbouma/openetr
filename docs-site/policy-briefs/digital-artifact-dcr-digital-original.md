@@ -179,14 +179,14 @@ Keeping recognition separate is deliberate. It allows different communities
 and institutions to evaluate the same portable evidence under their own
 rulebooks without changing the underlying artifact or DCR.
 
-## Why The Model Matters
+## Significance Of The Model
 
 The model restores something that paper often provided implicitly: a practical
 distinction between the information on a document and the consequential record
 that people and institutions act upon.
 
 It does so without pretending that digital files cannot be copied and without
-requiring one permanent platform to be the sole source of truth.
+making one permanent platform the exclusive authority for state.
 
 The three primitives and the core concept therefore have distinct jobs:
 

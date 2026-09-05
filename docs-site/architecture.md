@@ -1,6 +1,7 @@
 # Warehouse Receipts Architecture
 
-The Warehouse Receipts workspace is a domain adapter over the general OpenETR control layer.
+The Warehouse Receipts workspace is a domain adapter over the general OpenETR
+protocol model.
 
 ## Layer Model
 
@@ -37,12 +38,17 @@ It works with:
 - digests;
 - Anchor Events;
 - control events;
+- linked-evidence events;
 - Nostr pubkeys;
 - action tags;
 - relay-backed publication and query;
+- defined state-transition rules;
+- Consequential State derivation;
 - verifier warnings.
 
-This lets other domains, including Product Passports, reuse the same control layer without inheriting MLWR-specific terminology.
+This lets other domains, including Product Passports, reuse the same DCR
+evidence and state-derivation model without inheriting MLWR-specific
+terminology.
 
 ## Wire Format
 

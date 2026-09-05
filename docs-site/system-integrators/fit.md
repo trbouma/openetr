@@ -2,9 +2,11 @@
 
 OpenETR fits between domain systems.
 
-It is not the system of record for every business fact. It is the signed evidence layer for a controlled record.
+It is not the system of record for every business fact. It provides a protocol
+model for portable DCR evidence and Consequential State derivation.
 
-It can be used before an operation, to provide current DCR state to a host
+It can be used before an operation, to provide current Consequential State
+derived from a DCR to a host
 policy decision, and after an operation, to publish portable evidence of the
 result. The host remains responsible for controlling the operation itself.
 
@@ -19,8 +21,8 @@ Domain system
 Domain adapter
   maps domain actions into OpenETR event semantics
 
-OpenETR control layer
-  artifact digest, Anchor record, control records, linked evidence, graph
+OpenETR protocol model
+  artifact digest, DCR evidence, Evidence Graph, defined rules, Consequential State
 
 Recognition layer
   legal, registry, institutional, contractual, or verifier decision
@@ -46,7 +48,7 @@ host receives a proposal
   -> rechecks material conditions at the protected operation
   -> commits or refuses the operation
   -> publishes signed OpenETR evidence of the outcome
-  -> independently verifies the resulting DCR state
+  -> independently verifies the resulting DCR and derives Consequential State
 ```
 
 The protected operation might be signing an Anchor, updating a registry,
@@ -95,7 +97,8 @@ Signed events then attach to that object:
 - termination
 - linked evidence
 
-This produces a control graph that can be reconstructed from signed events.
+This produces an Evidence Graph that can be reconstructed from signed events.
+Its control-transition subset is the Control Graph.
 
 The graph is portable because the evidence is tied to the object digest and event signatures, not only to a row in one application database.
 

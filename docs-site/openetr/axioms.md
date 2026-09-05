@@ -24,17 +24,18 @@ An **Anchor Record** establishes the starting point of a candidate **Digital
 Controllable Record (DCR)**. It does not, by itself, establish uniqueness,
 validity, or recognition.
 
-## 4. Links Create The Control Graph
+## 4. Links Construct The Evidence Graph
 
-Later control records reference prior records. Shared artifact identifiers and
-cryptographic event references allow the DCR to be reconstructed and verified
-independently.
+DCR records reference prior records and related evidence through cryptographic
+identifiers. These links construct an **Evidence Graph** from which protocol
+rules can derive Consequential State. The portion concerned specifically with
+control transitions forms the **Control Graph**. Links establish relationships;
+they do not, by themselves, establish validity or state.
 
 ## 5. Events Are Evidence; State Is Derived
 
 Events are not overwritten to represent current state. **Consequential State**
-is derived by evaluating signed DCR evidence according to defined protocol and
-verifier rules.
+is derived by evaluating signed DCR evidence according to defined rules.
 
 ## 6. Invalid Claims Remain Visible
 
@@ -63,7 +64,7 @@ An `npub` identifies a signing key. Whether it represents a person,
 organization, service, or autonomous agent, and whether that actor is trusted
 or authorized, is determined outside the protocol.
 
-## 10. Control Is Portable Across Systems And Domains
+## 10. DCR Evidence Is Portable Across Systems And Domains
 
 Signed records do not belong to one application, relay, operator, or
 jurisdiction. Domain adapters translate business actions into the general
@@ -74,12 +75,12 @@ resulting DCR.
 
 The same model can be expressed in five short statements:
 
-> **Digests identify. Signatures attribute. Links order. Policies interpret.
-> Recognition gives effect.**
+> **Digests identify. Signatures attribute. Links order. Rules determine what
+> follows. Recognition gives effect.**
 
-The first three describe the portable cryptographic evidence. Policy derives
-what follows from that evidence. Recognition determines what consequence that
-state receives outside the protocol.
+The first three describe the portable cryptographic evidence. Defined rules
+determine what follows from that evidence. Recognition determines what
+consequence that state receives outside the protocol.
 
 ## Related Reading
 

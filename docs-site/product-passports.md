@@ -1,6 +1,7 @@
 # Product Passports
 
-The **Product Passports** workspace is a domain adapter over the general OpenETR control layer.
+The **Product Passports** workspace is a domain adapter over the general
+OpenETR protocol model.
 
 It is for product data artifacts, compliance evidence, manufacturing metadata, lifecycle attestations, and related product records. It is not about personal identity passports.
 
@@ -10,7 +11,7 @@ In this domain:
 
 - the Product Passport file or data artifact is the **Digital Artifact**;
 - the Product Passport digest is the stable object identity;
-- each signed OpenETR Anchor or control event is a **control record** for that Product Passport;
+- each signed OpenETR Anchor, control, or linked-evidence event is a record in the Product Passport **DCR**;
 - later lifecycle documents can be attached as **linked evidence records**;
 - the linked set of Anchor and control records is the Product Passport **control graph**;
 - the broader linked set of Anchor, control, and evidence records is the Product Passport **evidence graph**.
@@ -78,4 +79,5 @@ Product Passports and Warehouse Receipts should use the same underlying OpenETR 
 | Evidence graph | Receipt control and evidence history | Product Passport control and lifecycle evidence history |
 | Recognition layer | MLWR law, registry rules, warehouse policy | Product regulation, compliance policy, registry rules, marketplace policy |
 
-This is the domain-adapter pattern: each workspace speaks its own language, but the signed control layer stays general.
+This is the domain-adapter pattern: each workspace speaks its own language,
+but the DCR evidence and state-derivation model stay general.
