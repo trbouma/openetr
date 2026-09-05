@@ -12,6 +12,18 @@ validation rules, graph relationships, and Consequential State derivation.
 The OpenETR model permits future non-Nostr bindings that preserve equivalent
 evidence and state-derivation semantics.
 
+## Key-Based Identifiers
+
+A **Key-Based Identifier (KBI)** identifies public-key verification material
+used to verify attributable signed evidence. It does not, by itself, establish
+the identity, actor type, authority, role, or recognition of the actor
+associated with that key.
+
+In the Nostr binding, the 32-byte public key is the KBI. Its 64-character
+lowercase hexadecimal representation is the canonical wire encoding used in
+events and relay filters. `npub` is the NIP-19 human-readable encoding of the
+same KBI.
+
 ## Event Kinds
 
 The current regular-event model uses:

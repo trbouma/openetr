@@ -60,9 +60,15 @@ determine recognition and effect.
 
 ## 9. Identity Is Actor-Neutral And Contextual
 
-An `npub` identifies a signing key. Whether it represents a person,
-organization, service, or autonomous agent, and whether that actor is trusted
-or authorized, is determined outside the protocol.
+A **Key-Based Identifier (KBI)** identifies public-key verification material
+used to attribute signed evidence. It does not identify an actor as a matter of
+protocol. Whether a KBI is associated with a person, organization, service,
+device, or autonomous agent, and whether that actor is recognized or
+authorized for a particular purpose, is determined by the applicable context.
+
+In the Nostr binding, the 32-byte public key is the KBI. Its hexadecimal form
+is the canonical wire encoding, while `npub` is the human-readable encoding of
+the same key.
 
 ## 10. DCR Evidence Is Portable Across Systems And Domains
 

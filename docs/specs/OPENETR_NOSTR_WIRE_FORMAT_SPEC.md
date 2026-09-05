@@ -2,7 +2,7 @@
 
 This document defines the current OpenETR Nostr wire format.
 
-Its purpose is to express the OpenETR control model as concrete Nostr events, kinds, and tags so that implementations can:
+Its purpose is to express the OpenETR protocol model as concrete Nostr events, kinds, and tags so that implementations can:
 
 - publish interoperable OpenETR events
 - query and traverse OpenETR control history
@@ -38,6 +38,18 @@ Those remain outside the wire format and are determined by the applicable OpenET
 Nostr carries the events. OpenETR determines their consequences. Relays
 transport and preserve signed evidence; they do not determine OpenETR
 consequential state.
+
+## Key-Based Identifier Mapping
+
+A **Key-Based Identifier (KBI)** is an identifier whose canonical value is
+public-key verification material or a deterministic encoding of that material.
+A KBI identifies a signing key; it does not, by itself, establish actor
+identity, authority, role, or recognition.
+
+In this binding, the 32-byte Nostr public key is the KBI. Its 64-character
+lowercase hexadecimal representation is the canonical wire encoding used in
+NIP-01 events and relay filters. `npub` is the NIP-19 human-readable encoding
+of the same KBI.
 
 ## Event Families
 

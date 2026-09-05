@@ -260,33 +260,44 @@ will sign or publish a proposed event
 Note 1 to entry: A guard policy cannot prevent another implementation from
 publishing a competing signed event.
 
-### 3.20 recognized state
+### 3.20 Key-Based Identifier
+
+KBI
+
+identifier whose canonical value is public-key verification material or a
+deterministic encoding of that material
+
+Note 1 to entry: A KBI identifies the signing key used to verify attributable
+signed evidence. It does not, by itself, establish the identity, actor type,
+authority, role, or recognition of the actor associated with that key.
+
+### 3.21 recognized state
 
 Consequential State accepted under an identified external recognition policy
 for a stated purpose
 
-### 3.21 recognition
+### 3.22 recognition
 
 determination by a relying party, institution, registry, trust framework,
 contract, or law that evidence or derived state is acceptable for a stated
 purpose
 
-### 3.22 Reference
+### 3.23 Reference
 
 external authority, registry, assessor, attestor, trust service, or other
 source that can supply recognition or assurance context
 
-### 3.23 relying party
+### 3.24 relying party
 
 person, organization, system, or authority that evaluates OpenETR evidence or
 acts upon resulting state
 
-### 3.24 verifier policy
+### 3.25 verifier policy
 
 identified and versioned rule book used to validate DCR evidence, enumerate
 candidate chains, issue findings, and derive Consequential State
 
-### 3.25 warning
+### 3.26 warning
 
 structured finding that identifies a policy or evidence concern without
 making otherwise authentic signed evidence disappear
@@ -299,6 +310,7 @@ making otherwise authentic signed evidence disappear
 **DCR** Digital Controllable Record  
 **ETR** electronic transferable record  
 **JSON** JavaScript Object Notation  
+**KBI** Key-Based Identifier<br>
 **KYC** know your customer  
 **MLWR** Model Law on Warehouse Receipts  
 **NIP** Nostr Implementation Possibility  
@@ -1182,6 +1194,11 @@ messages in accordance with NIP-01.
 Human-facing bech32 encodings should conform to NIP-19. Canonical event fields
 and filters shall use the hexadecimal forms required by NIP-01.
 
+In this binding, the 32-byte Nostr public key is the KBI. Its 64-character
+lowercase hexadecimal representation is the canonical wire encoding. `npub`
+is the NIP-19 human-readable encoding of the same KBI and shall not replace the
+hexadecimal value in NIP-01 event fields or relay filters.
+
 ## A.2 Event kinds
 
 The profile defines:
@@ -1296,7 +1313,9 @@ recognition of an event.
 6. Invalid claims remain visible.
 7. A Digital Original has Consequential State.
 8. Verification is separate from recognition.
-9. Identity is actor-neutral and contextual.
+9. Identity is actor-neutral and contextual: a KBI identifies cryptographic
+   verification material, while actor identity, authority, and recognition
+   remain contextual.
 10. DCR evidence is portable across systems and domains.
 
 ## B.2 Five maxims
