@@ -213,6 +213,7 @@ Recommended status values are:
 - `valid`
 - `invalid`
 - `unverifiable`
+- `conflicting`
 - `absent`
 - `not_evaluated`
 - `not_applicable`
@@ -229,9 +230,13 @@ Example:
     "artifact_integrity": {"status": "valid", "algorithm": "sha256"},
     "event_authenticity": {"status": "valid", "event_ids": ["<event-id>"]},
     "graph_continuity": {"status": "valid"},
+    "history_continuity": {"status": "not_evaluated"},
+    "source_consistency": {"status": "unverifiable"},
     "transition_validity": {"status": "valid", "policy": "openetr-baseline@1"},
     "retrieval_coverage": {"status": "unverifiable"},
     "temporal_proof": {"status": "absent"},
+    "observation_attestation": {"status": "absent"},
+    "monitoring_status": {"status": "not_evaluated"},
     "actor_recognition": {"status": "not_evaluated"},
     "system_reliability": {"status": "not_evaluated"}
   }
@@ -268,6 +273,31 @@ Recommended retrieval statuses include `complete_for_source`,
 `complete_for_source` is scoped to the matching stored records reported by
 that source. It is not a claim that the global OpenETR evidence set is
 complete.
+
+### Historical State Results
+
+Where a command or API supports historical state derivation, the JSON result
+should identify the exact evidence and rules used. A useful shape is:
+
+```json
+{
+  "historical_state": {
+    "terminal_event_id": "<event-id>",
+    "basis_event_ids": ["<anchor-id>", "<event-id>"],
+    "policy": "openetr-baseline@1",
+    "evidence_sources": ["wss://relay.example"],
+    "retrieval_scope": "declared_sources",
+    "competing_event_ids": [],
+    "completeness": "unknown_completeness",
+    "state": {"controller": "<npub>", "lifecycle": "active"},
+    "warnings": []
+  }
+}
+```
+
+This result is evidence-set-relative, rule-set-relative, and path-relative. It
+must not be interpreted as globally authoritative state at the event's
+declared timestamp unless separate accepted evidence supports that conclusion.
 
 ## Event Views
 

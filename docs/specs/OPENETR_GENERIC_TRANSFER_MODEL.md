@@ -147,6 +147,22 @@ Examples include:
 
 Attestations do not change the Current Controller.
 
+An attestation may provide evidence about an event, a graph observation, an
+audit procedure, a witness statement, or external evidence. The attestor does
+not thereby become:
+
+- the controller;
+- the author of the underlying event;
+- the source of Consequential State;
+- a canonical registry; or
+- a recognition authority.
+
+An attestation should identify the specific event, graph commitment, evidence
+bundle, or observation to which it applies and describe the claim or procedure
+being attested. Its signature proves attribution of that assertion. Defined
+rules determine what the attestation contributes to Consequential State, and
+an external recognition context determines what effect it receives.
+
 ### ENCUMBER
 
 Records an authenticated declaration of an encumbrance affecting the Digital Artifact.
@@ -266,6 +282,12 @@ As the model scales outward, parties may increasingly require attestation in ord
 In some settings, attestation may additionally be required for legal effect, institutional acceptance, or official recognition.
 
 OpenETR should therefore be understood as supporting a spectrum from simplified local recognition, to selective event-level attestation, to fuller attested models designed for broader reliance and recognition.
+
+Independent witnesses and auditors may strengthen evidence about an event or
+observed history without becoming controllers or protocol authorities. A
+profile may require such attestations, source comparison, or monitoring. The
+generic OpenETR action model does not require a transparency log, auditor
+network, or monitoring service.
 
 The same generic model applies regardless of whether the Digital Artifact represents:
 

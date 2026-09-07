@@ -78,7 +78,8 @@ a) identifying a Digital Artifact by cryptographic digest;
 
 b) constructing a DCR from signed, end-verifiable records;
 
-c) anchoring and extending a candidate control graph;
+c) anchoring and extending a candidate Evidence Graph, including any Control
+Graph subset;
 
 d) verifying record integrity, signer attribution, object consistency, and
 graph links;
@@ -566,15 +567,41 @@ d) the claimed relationship type.
 Linked evidence shall not be interpreted as changing controller state unless
 the selected policy explicitly assigns that consequence.
 
+### 8.7 Attestations
+
+An attestation should identify the specific event, graph commitment, evidence
+bundle, observation, or procedure to which it applies.
+
+A valid attestation signature shall establish attribution of the attestation.
+It shall not, by itself, establish that the attestor is:
+
+a) the controller of the Digital Artifact;
+
+b) the author of the underlying event;
+
+c) the source of Consequential State;
+
+d) a canonical registry; or
+
+e) a recognition authority.
+
+Defined rules shall determine what an attestation contributes to Consequential
+State. An external recognition context shall determine what effect, if any, to
+give the attestation or attestor.
+
 ## 9 Graph reconstruction and verification
 
 ### 9.1 Retrieval
 
-A Core Verifier shall be capable of retrieving or accepting all available
-candidate records for a supplied artifact identifier.
+A Core Verifier shall be capable of retrieving or accepting candidate records
+for a supplied artifact identifier from one or more identified evidence
+sources.
 
 The verifier should avoid assuming that the first record returned by one
 repository is authoritative.
+
+The verifier shall not represent records returned by declared evidence sources
+as proving that no additional or conflicting record exists elsewhere.
 
 ### 9.2 Structural verification
 
@@ -633,21 +660,29 @@ c) structural validity;
 
 d) graph continuity;
 
-e) transition validity;
+e) historical continuity, where evaluated;
 
-f) derived Consequential State;
+f) source consistency or divergence, where observations can be compared;
 
-g) retrieval coverage;
+g) transition validity;
 
-h) evidence sufficiency under the identified policy;
+h) derived Consequential State;
 
-i) optional temporal assurance;
+i) retrieval coverage;
 
-j) actor or authority recognition;
+j) evidence sufficiency under the identified policy;
 
-k) system reliability assessment; and
+k) optional temporal assurance;
 
-l) external recognition and effect.
+l) observation, witness, or audit attestation status;
+
+m) monitoring status, where applicable;
+
+n) actor or authority recognition;
+
+o) system reliability assessment; and
+
+p) external recognition and effect.
 
 An evaluated dimension should use a defined outcome vocabulary that can
 distinguish `valid`, `invalid`, `unverifiable`, `absent`, `not_evaluated`, and
@@ -655,6 +690,20 @@ distinguish `valid`, `invalid`, `unverifiable`, `absent`, `not_evaluated`, and
 
 An outcome for one dimension shall not be silently treated as an outcome for
 another dimension.
+
+### 9.7 Divergent observations and equivocation
+
+Valid signatures shall not be represented as proving that every observer has
+received a single globally consistent Evidence Graph.
+
+Where observations from multiple evidence sources can be compared, a verifier
+should report stale, incomplete, incompatible, or divergent evidence sets.
+If the available evidence and rules do not support a unique state, the
+verifier shall preserve the competing evidence and report the state as
+ambiguous, conflicting, insufficiently evidenced, or otherwise unresolved.
+
+The result shall identify the evidence sources, retrieval scope, rules, and
+evaluation parameters on which the conclusion depends.
 
 ## 10 Consequential State
 
@@ -698,6 +747,33 @@ or an application database row establishes a Digital Original.
 
 Whether the Digital Original and its state are recognized as authoritative
 for a particular purpose is determined under Clause 13.
+
+### 10.5 Historical state derivation
+
+Where sufficient evidence is available, a Core Verifier should be capable of
+deriving Consequential State for a candidate DCR path ending at a specified
+event.
+
+A historical-state result shall identify:
+
+a) the terminal event or graph cut;
+
+b) the ancestor evidence used;
+
+c) the evidence sources and retrieval scope;
+
+d) the verifier policy identifier and version;
+
+e) competing evidence present in the supplied evidence set;
+
+f) unresolved links or completeness limitations; and
+
+g) the resulting Consequential State and findings.
+
+The result shall be represented as evidence-set-relative, rule-set-relative,
+and path-relative. It shall not be represented as globally authoritative state
+at the event's declared timestamp unless separate accepted evidence supports
+that conclusion.
 
 ## 11 Verifier policy
 
@@ -832,7 +908,22 @@ to the canonical public-key representation required by its wire binding.
 
 Identifier resolution shall not be represented as recognition.
 
-### 12.7 Key protection
+### 12.7 External key-history evidence
+
+An implementation may consume or link evidence concerning historical or
+current bindings between an actor identifier and a signing key. Such evidence
+may come from a Key Transparency system, PKI, DID method, credential system,
+trust registry, or another external mechanism.
+
+Where later historical verification depends on external evidence, the
+implementation should preserve or reference the evidence used at evaluation
+time. A current directory response shall not be represented as proof of a
+historical key binding.
+
+External key-history evidence shall be evaluated under its own verification
+and recognition rules. OpenETR shall not require one key-history mechanism.
+
+### 12.8 Key protection
 
 Private keys shall not be published in OpenETR events, logs, API responses, or
 machine-readable command output.
@@ -1067,7 +1158,7 @@ b) unauthorized use of a valid signer;
 
 c) conflicting or deceptive records;
 
-d) incomplete relay or repository results;
+d) divergent, stale, or selectively withheld evidence-source results;
 
 e) digest substitution or canonicalization errors;
 
@@ -1078,6 +1169,10 @@ g) metadata correlation and privacy leakage;
 h) denial of service; and
 
 i) dependency or verifier compromise.
+
+An implementation should also consider unauthorized or unexpected use of a
+cryptographically valid signing key. Signature validity does not establish
+actor intent.
 
 ### 17.2 Open publication
 
@@ -1116,7 +1211,20 @@ Failure to obtain or verify optional Temporal Proof evidence shall not, by
 itself, invalidate an otherwise valid DCR. The verifier shall report the
 temporal-proof outcome separately.
 
-### 17.6 Post-quantum considerations
+### 17.6 Auditing and monitoring
+
+An implementation may use independent witnesses, auditors, source comparison,
+or monitoring services to strengthen evidence about observation and historical
+continuity.
+
+Auditing and monitoring shall not be represented as establishing controller
+status, actor intent, recognition, or legal effect unless separate defined
+rules and recognition inputs support those conclusions.
+
+The OpenETR core shall not require a transparency log, globally consistent
+event order, auditor network, or monitoring service.
+
+### 17.7 Post-quantum considerations
 
 The current Nostr profile is not post-quantum secure. Long-lived deployments
 should preserve algorithm identifiers and migration evidence sufficient to
@@ -1160,9 +1268,13 @@ g) competing branches;
 
 h) policy-valid and policy-questionable transitions;
 
-i) reproducible state derivation; and
+i) reproducible state derivation;
 
-j) preservation and reporting of authentic but unrecognized evidence.
+j) historical state derivation at an identified event;
+
+k) divergent or incomplete evidence-source results; and
+
+l) preservation and reporting of authentic but unrecognized evidence.
 
 ### 18.3 Domain Adapter tests
 

@@ -4,7 +4,9 @@ This note documents the generic verifier policy used by the current OpenETR comp
 
 The core rule is:
 
-> A verifier policy enumerates the control graph according to its rules. A policy violation should normally produce a warning or non-recognition annotation, not make the signed event disappear.
+> A verifier policy enumerates the Evidence Graph according to its rules. A
+> policy violation should normally produce a warning or non-recognition
+> annotation, not make the signed event disappear.
 
 OpenETR is an open signed-event system. Parties may publish events that are structurally valid but policy-questionable. The generic verifier should therefore distinguish between:
 
@@ -50,6 +52,23 @@ A domain policy may add:
 - alternative treatment of a warning within that domain
 
 A domain policy should not replace the baseline enumeration behavior. Even where a domain policy refuses recognition, the verifier should still show the signed evidence and explain the policy reason.
+
+## Creation, Verification, Auditing, Monitoring, And Recognition
+
+The generic policy should distinguish five related functions:
+
+| Function | Result |
+| --- | --- |
+| Creation | Signed evidence is produced. |
+| Verification | Supplied evidence is evaluated under identified cryptographic, structural, and transition rules. |
+| Auditing | Evidence about the consistency of an evidence source or observed history is evaluated. |
+| Monitoring | Later observations are compared with prior observations or stated expectations. |
+| Recognition | An external rule book determines what significance or effect to give the evidence or derived state. |
+
+One implementation may perform several functions. Their results shall remain
+separate. Verification does not establish population-wide observation;
+auditing does not establish actor intent; monitoring does not determine legal
+effect; and recognition does not alter the signed evidence.
 
 ## Known Entity Baseline Warning
 
@@ -259,6 +278,34 @@ This behavior is deliberately exploratory and evidentiary. It does not ask the r
 
 Instead, the component gives the verifier a structured view of the available signed evidence.
 
+## Historical State Derivation
+
+Where sufficient evidence is available, a verifier should be capable of
+deriving Consequential State at an identified point in a candidate DCR path.
+The conceptual operations are:
+
+```text
+derive_state(evidence_set, rule_set)
+derive_state(evidence_set, rule_set, at_event=E)
+```
+
+An `at_event` result is relative to the supplied evidence set, identified
+rules, and candidate path ending at `E`. It shall not be represented as a
+globally authoritative state at the event's declared timestamp.
+
+A historical-state result should identify:
+
+- the terminal event or graph cut;
+- the ancestor evidence used;
+- the evidence sources and retrieval scope;
+- the rule identifier and version;
+- competing evidence present in the supplied evidence set;
+- unresolved links and completeness limitations; and
+- the derived state and warnings.
+
+Signed timestamps do not create a trusted total order. Accepted Temporal
+Proofs may add time assurance as a separate verifier dimension.
+
 ## Verifier Result Dimensions
 
 A mature verifier should not collapse every conclusion into one `valid`
@@ -273,11 +320,15 @@ At minimum, a verifier result model should be able to report:
 | event authenticity | Are event ids and signatures valid? |
 | structural validity | Do events satisfy the required event shapes? |
 | graph continuity | Do required `e` references resolve to the exact prior events? |
+| historical continuity | Does later observed evidence extend an identified prior observation under the applicable proof procedure? |
+| source consistency | Did queried evidence sources present compatible views for the stated scope? |
 | transition validity | Do candidate transitions satisfy the selected state-transition rules? |
 | consequential state | What state can be derived from the accepted candidate chain? |
 | retrieval coverage | What did each queried evidence source report returning or withholding? |
 | evidence sufficiency | Does the selected policy consider the available evidence adequate for its conclusion? |
 | temporal proof | Does optional external evidence establish a temporal bound? |
+| observation or attestation | What event, history, or procedure did an identified witness or auditor attest? |
+| monitoring status | Was later evidence compared with prior observations or stated expectations? |
 | actor recognition | Is a signer recognized for the relevant role or purpose? |
 | system reliability | Is sufficient evidence available for an applicable reliable-system assessment? |
 | recognition and effect | What effect does the selected external rule book give the result? |
@@ -287,6 +338,7 @@ Recommended outcome values are:
 - `valid`: the applicable check succeeded;
 - `invalid`: available evidence contradicts or fails the applicable check;
 - `unverifiable`: the verifier lacks evidence or capability needed to decide;
+- `conflicting`: authentic or otherwise usable evidence supports incompatible candidate results;
 - `absent`: the optional evidence type was not supplied or found;
 - `not_evaluated`: the verifier did not perform the check; and
 - `not_applicable`: the check does not apply in the selected context.
@@ -309,6 +361,25 @@ The word `complete` should be qualified. A verifier should distinguish:
 
 None of these, by itself, proves that no conflicting event exists anywhere.
 Absence from a query result shall not be represented as global non-existence.
+
+### Equivocation And Divergent Observations
+
+Valid signatures do not establish that all observers received one globally
+consistent Evidence Graph. Evidence sources may return stale, incomplete, or
+different event sets. Authentic signed events may also form competing paths.
+
+The verifier should compare source observations where that information is
+available and report findings such as:
+
+- conflicting evidence;
+- insufficient evidence;
+- history divergence;
+- unresolved candidate states; or
+- evidence completeness unknown.
+
+If the evidence and rules do not support a unique result, the verifier shall
+not manufacture one. The result should identify the evidence sources,
+retrieval scope, rules, and evaluation parameters on which it depends.
 
 ## Hard Verification Errors
 
@@ -360,7 +431,9 @@ For that reason, the generic policy should not erase the event or treat the whol
 
 A warning means:
 
-> This event or transition is visible in the signed control graph, but the selected verifier policy has not accepted it as cleanly effective.
+> This event or transition is visible in the signed Evidence Graph, but the
+> selected verifier policy has not accepted it as contributing cleanly to
+> Consequential State.
 
 A warning should include, where practical:
 
@@ -431,10 +504,10 @@ The verifier should first enumerate the available graph before applying recognit
 
 The sequence is:
 
-1. retrieve candidate origin and control events for the object using the object query anchor, currently `#o`
+1. retrieve candidate Anchor, control, and linked-evidence records for the object using the object query anchor, currently `#o`
 2. verify structural and cryptographic requirements
 3. index retrieved events by event id
-4. use `e` references to reconstruct candidate chains inside the object graph
+4. use `e` references to reconstruct candidate paths inside the Evidence Graph
 5. inspect `action` and action-specific tags to interpret graph nodes
 6. apply the selected verifier policy to those chains
 7. annotate policy breaks as warnings
@@ -447,7 +520,8 @@ In compact form:
 o = find the graph
 e = walk the graph
 action = understand each node
-policy = decide effect
+rules = determine what follows
+recognition = decide effect
 ```
 
 This lets the verifier answer two separate questions:
@@ -466,8 +540,8 @@ The current generic policy is intentionally minimal.
 
 It treats the graph as object-centric evidence and derives practical state for demonstration and integration purposes:
 
-- the first origin event is used as the initial origin basis
-- multiple origin events are reported as a warning condition
+- the first candidate Anchor event is used as the initial basis
+- multiple candidate Anchor events are reported as a warning condition
 - control events are grouped and summarized through `e` references
 - controller state is derived from controller-changing actions
 - lifecycle state is derived from lifecycle-changing actions
@@ -502,7 +576,8 @@ OpenETR should provide:
 - cryptographic evidence that an event was signed by a key;
 - graph evidence about where the event sits in relation to the controlled object;
 - guard evidence about whether a baseline or custom component policy would allow the transition;
-- verifier-policy evidence about what effect the relying party gives to the transition.
+- state-derivation output showing what follows under the identified rules; and
+- recognition evidence showing what effect a relying party gives to the result.
 
 The verifier should not collapse those into a single Boolean.
 
@@ -553,6 +628,7 @@ This supports the OpenETR principle:
 This note complements:
 
 - [OPENETR_NOSTR_WIRE_FORMAT_SPEC.md](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [OPENETR_KEY_TRANSPARENCY_LESSONS_DESIGN_NOTE.md](./OPENETR_KEY_TRANSPARENCY_LESSONS_DESIGN_NOTE.md)
 - [CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md](./CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
 - [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [OPENETR_LAYERED_ARCHITECTURE_NOTE.md](./OPENETR_LAYERED_ARCHITECTURE_NOTE.md)

@@ -214,6 +214,36 @@ its ultimate source of authority.
 A projection must be reproducible or auditable from the DCR evidence and the
 identified policy version used for validation.
 
+### Historical State
+
+Historical state derivation is a first-class verification capability. Where
+sufficient evidence is available, an implementation **SHOULD** be able to
+derive Consequential State for a candidate DCR path ending at an identified
+event.
+
+The result is relative to:
+
+- the supplied evidence set;
+- the candidate path or graph cut ending at the identified event;
+- the applicable rule identifier and version; and
+- the evaluation parameters and retrieval scope.
+
+It is not automatically a statement about globally authoritative state at the
+event's declared timestamp. Signed event timestamps do not create a trusted
+total order. The verifier should disclose competing evidence, unresolved
+links, source divergence, and completeness limitations known from the supplied
+evidence set.
+
+Conceptually:
+
+```text
+derive_state(DCR evidence, rules)
+derive_state(DCR evidence, rules, at_event=E)
+```
+
+The evidence basis and rules used for either result should be exportable so
+another implementation can reproduce the derivation.
+
 ## Conflicts And Candidate State
 
 End-verifiability does not eliminate conflicting events or incomplete event
@@ -228,10 +258,20 @@ sets. OpenETR must specify how a verifier handles:
 - terminated graphs; and
 - events observed in different orders.
 
+Valid signatures do not establish that all observers received one globally
+consistent Evidence Graph. Relays, repositories, archives, or other evidence
+sources may return stale, incomplete, or divergent event sets. Source
+agreement also does not establish that a signed action was intended by an
+actor whose key may have been compromised.
+
 Chronology alone is not authority. Until protocol rules and any applicable
 recognition policy resolve a conflict, a verifier should preserve candidate
 graphs and describe the state as ambiguous, incomplete, or disputed rather
 than silently selecting one.
+
+Where observations can be compared, verifier findings should distinguish
+conflicting evidence, insufficient evidence, history divergence, unresolved
+candidate state, and unknown evidence completeness.
 
 ## Recognition And Effect
 
