@@ -5,12 +5,15 @@ services:
       dockerfile: app/Dockerfile
       args:
         OPENETR_GIT_COMMIT: ${OPENETR_GIT_COMMIT:-unknown}
-    image: openetr-web
+    image: ${OPENETR_IMAGE:-openetr-web:local}
+    restart: unless-stopped
+    init: true
     ports:
-      - "8000:8000"
+      - "${OPENETR_BIND_ADDRESS:-127.0.0.1}:${OPENETR_PORT:-8000}:8000"
     environment:
-      OPENETR_APP_SESSION_SECRET: ${OPENETR_APP_SESSION_SECRET:-openetr-demo-session-secret}
+      OPENETR_APP_SESSION_SECRET: "${OPENETR_APP_SESSION_SECRET:-}"
       OPENETR_APP_SESSION_SECRET_FILE: ${OPENETR_APP_SESSION_SECRET_FILE:-}
+      OPENETR_REQUIRE_SESSION_SECRET: "true"
       OPENETR_ROOT_NSEC: ${OPENETR_ROOT_NSEC:-}
       OPENETR_ROOT_NSEC_FILE: ${OPENETR_ROOT_NSEC_FILE:-}
       OPENETR_HOME_RELAYS: ${OPENETR_HOME_RELAYS:-}
@@ -27,3 +30,16 @@ services:
       - uvicorn.workers.UvicornWorker
       - --bind
       - 0.0.0.0:8000
+    volumes:
+      - openetr-data:/home/openetr/.openetr
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+
+volumes:
+  openetr-data:

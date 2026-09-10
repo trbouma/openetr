@@ -1,27 +1,47 @@
-FROM python:3.10-slim
+FROM python:3.11-slim-bookworm AS builder
 
-ARG OPENETR_GIT_COMMIT=unknown
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PIP_NO_CACHE_DIR=1
-ENV OPENETR_APP_SESSION_SECRET=openetr-demo-session-secret
-ENV OPENETR_GIT_COMMIT=${OPENETR_GIT_COMMIT}
-
-WORKDIR /app
+ENV PIP_NO_CACHE_DIR=1 \
+    PATH=/opt/venv/bin:$PATH
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m venv /opt/venv
 
-COPY pyproject.toml README.md /app/
-COPY openetr /app/openetr
+WORKDIR /build
+
+COPY pyproject.toml README.md /build/
+COPY openetr /build/openetr
+COPY app/requirements.txt /build/app/requirements.txt
+
+RUN pip install . \
+    && pip install -r app/requirements.txt
+
+FROM python:3.11-slim-bookworm AS runtime
+
+ARG OPENETR_GIT_COMMIT=unknown
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH=/opt/venv/bin:$PATH \
+    OPENETR_GIT_COMMIT=${OPENETR_GIT_COMMIT}
+
+RUN groupadd --gid 10001 openetr \
+    && useradd --uid 10001 --gid 10001 --create-home openetr \
+    && mkdir -p /home/openetr/.openetr \
+    && chown openetr:openetr /home/openetr/.openetr
+
+WORKDIR /app
+
+COPY --from=builder /opt/venv /opt/venv
 COPY app /app/app
 COPY assets /app/assets
 
-RUN pip install .
-RUN pip install -r app/requirements.txt
+USER openetr
 
 EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import json, urllib.request; response = json.load(urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)); assert response.get('status') == 'ok'"
 
 CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]

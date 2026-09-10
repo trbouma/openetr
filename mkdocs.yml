@@ -123,6 +123,6 @@ nav:
   - Demo Apps:
       - Live Control Desk: https://openetr.org
   - Repo Links:
-      - Installation And Local Development: installation.md
+      - Installation And Deployment: installation.md
       - GitHub Repository: https://github.com/trbouma/openetr
       - Specification Index: https://github.com/trbouma/openetr/blob/main/docs/specs/INDEX.md

@@ -201,6 +201,19 @@ the signers and resulting state. OpenETR preserves the evidence and derives
 protocol state; it does not claim that cryptography alone creates ownership or
 other legal or commercial effect.
 
+## Relationship To Mainstay
+
+OpenETR is an adjacent member of the Mainstay product family, not a service in
+the default Mainstay runtime bundle. Mainstay applications can preserve and
+present artifacts and evidence; OpenETR defines how consequential state is
+derived from qualifying evidence. Operators, institutions, communities, and
+recognition frameworks remain responsible for policy and effect.
+
+The shared emphasis is practical continuity with clear boundaries: records and
+evidence remain understandable across applications and changing conditions,
+while cooperation does not require every participant to surrender local
+stewardship.
+
 ## Start Here
 
 | Area | Purpose |

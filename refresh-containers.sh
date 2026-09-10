@@ -5,8 +5,16 @@ set -eu
 repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$repo_dir"
 
-printf '%s\n' 'Pulling the latest changes...'
-git pull
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    printf '%s\n' 'Tracked working-tree changes are present; commit or stash them before refreshing.' >&2
+    exit 1
+fi
+
+printf '%s\n' 'Pulling fast-forward changes...'
+git pull --ff-only
+
+printf '%s\n' 'Validating Docker Compose configuration...'
+docker compose config --quiet
 
 printf '%s\n' 'Building OpenETR container image...'
 docker compose build
@@ -27,6 +35,7 @@ do
     if [ "$attempt" -ge "$max_attempts" ]; then
         printf '%s\n' 'OpenETR health check failed after 60 seconds.' >&2
         docker compose ps >&2
+        docker compose logs --tail 50 web >&2
         exit 1
     fi
     attempt=$((attempt + 1))

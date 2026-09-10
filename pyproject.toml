@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "openetr"
 version = "0.1.0"
-description = "openetr - durable control portable records"
+description = "Derive consequential state from end-verifiable evidence concerning durable electronic records"
 authors = ["trbouma <trbouma@gmail.com>"]
 license = "MIT License"
 readme = "README.md"

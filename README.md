@@ -1,177 +1,134 @@
-# OpenETR — Durable Control. Portable Records.
-Transfer, endorsement, and enforcement—without dependence on systems.
+# OpenETR
+
+End-verifiable evidence. Consequential state.
 
 ![OpenETR logo](./assets/images/openetr-readme.png)
 
-## Overview
+OpenETR is a protocol for deriving consequential state from end-verifiable
+evidence concerning durable electronic records.
 
-OpenETR is an open source project to define and implement a minimal, interoperable layer for electronic transferable records—records whose control can be exercised, proven, and transferred without reliance on any single institution, platform, or registry.
-At its core, OpenETR treats control as the operative fact and records as its visible surface. Rather than binding authority to systems, OpenETR binds it to verifiable control structures that can persist, move, and be independently validated across environments.
-The result is a portable, durable foundation for digital instruments such as bills of lading, warehouse receipts, promissory notes, certificates, and other records that must carry authority and change hands.
+It gives applications, institutions, and relying parties a shared way to
+identify an exact digital artifact, inspect signed evidence concerning it, and
+reproduce the state that follows under defined protocol rules. Recognition of
+that state, and the legal, commercial, or operational effect it receives,
+remain with the relevant community, institution, contract, registry, or law.
 
-## Problem
+## The core model
 
-Digital records today are typically:
+OpenETR separates four ideas that conventional applications often combine:
 
-* System-bound — tied to specific platforms, vendors, or registries
-* Non-transferable by design — movement requires intermediaries or reissuance
-* Difficult to verify independently — validation depends on the originating system
-* Fragile over time — persistence depends on institutional continuity
+- **Digital Artifact**: persistent digital content identified by digest.
+- **Digital Controllable Record (DCR)**: one end-verifiable record or a graph
+  of related records containing evidence of consequential actions concerning
+  an artifact.
+- **Consequential State**: state derived by applying defined rules to valid DCR
+  evidence.
+- **Digital Original**: a Digital Artifact for which consequential state has
+  been established through a DCR.
 
-This creates friction for any record that must function like a thing that can be held, transferred, and relied upon.
+```text
+Digital Artifact -> DCR evidence -> Consequential State -> Digital Original
 
-## Proposal
-
-OpenETR introduces a simple model for records that are:
-
-* Durable — persist independently of any single system
-* Portable — transferable without loss of meaning or authority
-* Verifiable — independently provable through cryptographic control
-* Composable — usable across applications, jurisdictions, and infrastructures
-
-OpenETR does not replace legal or institutional frameworks. It provides a technical substrate upon which they can operate more directly and with less dependency.
-
-## Core Model
-
-OpenETR organizes the system around three primitives and one derived concept:
-
-* Digital Artifacts — persistent content identified by digest
-* Digital Controllable Records — one end-verifiable record or a graph of related records concerning an artifact
-* Consequential State — state derived by applying defined rules to the available DCR evidence
-* Digital Originals — Digital Artifacts for which consequential state has been established through a DCR
-
-These terms are intentionally separate. A warehouse receipt, bill of lading,
-certificate, or credential is a Digital Artifact. Signed events concerning it
-form its candidate Digital Controllable Record. OpenETR validates that evidence
-and derives consequential state; recognition of the result remains external.
-
-OpenETR control actions can transfer control, record encumbrances and
-discharges, support redemption, and end a record lifecycle. Attestations and
-external recognition evidence can inform how a relying party evaluates the
-result without becoming control merely because they were published.
-
-## Consequential State Architecture
-
-OpenETR follows a simple governing principle:
-
-> Consequential state should be derived from end-verifiable events, not
-> asserted solely by applications.
-
-A Digital Artifact has uniquely identifiable persistent content, normally
-bound to a cryptographic digest. A Digital Controllable Record establishes and
-transitions consequential state concerning it. It becomes a Digital Original
-when consequential state can be derived by applying OpenETR rules to the valid
-DCR evidence.
-Applications may cache and display projections of that state, but they are not
-its sole authority.
-
-Recognition and effect remain separate. OpenETR can establish portable,
-independently reconstructable protocol state without claiming that every
-institution, community, contract, or jurisdiction must recognize it.
-
-See the
-[Consequential State Architecture Design Note](docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md).
-
-## Design Principles
-
-Control over ownership — ownership is derived; control is observable
-
-* Independence by design — no reliance on centralized registries or authorities
-* Cryptographic verifiability — proofs are portable and machine-checkable
-* Protocol simplicity — minimal primitives, maximal composability
-* Interoperability — compatible with existing legal and technical frameworks
-
-## Scope
-The OpenETR project will deliver:
-
-* A reference specification for transferable records
-* A canonical data model for objects, controllers, and events
-* Open APIs and SDKs for creating and transferring records
-
-Reference implementations (e.g., Python, TypeScript)
-
-Integration patterns for systems such as decentralized networks and traditional registries
-
-## Specifications
-
-Draft specifications and supporting documents live in [docs/specs/INDEX.md](docs/specs/INDEX.md).
-
-## Posts
-
-Long-form project writing and essay-style articles live in [docs/posts/index.md](docs/posts/index.md).
-
-## Use Cases
-
-* Electronic bills of lading and trade documents
-* Warehouse receipts and inventory claims
-* Promissory notes and financial instruments
-* Digital certificates and credentials with transfer semantics
-* Cross-border record portability and verification
-
-## Why Open Source
-Transferable records require shared understanding and independent verification. An open source approach ensures:
-
-* Transparency of rules and behavior
-* Broad interoperability across ecosystems
-* Avoidance of vendor lock-in
-* Community-driven evolution
-
-## Vision
-OpenETR is an open protocol for deriving consequential state from
-end-verifiable evidence concerning exact Digital Artifacts, independently of
-the applications, organizations, and legal regimes that use or recognize that
-state.
-
-The governing discipline is:
-
-> Each proof proves only what it proves.
-
-OpenETR establishes a foundation where records are not confined to systems,
-control evidence remains portable, and another implementation can reproduce a
-state determination from the signed evidence and identified rules.
-
-## Nostr Implementation (Initial)
-
-OpenETR includes an initial implementation on Nostr to demonstrate durable control and portable records using existing open infrastructure.
-
-Nostr provides a simple model of signed events + relay distribution + independent verification. OpenETR is best understood as a scheme built on the Nostr protocol, defining how those events become control records linked into an object-centric control graph.
-
-## CLI Example
-
-The current CLI can create an initial control record, transfer, encumber,
-discharge, redeem, terminate, and query OpenETR control graphs using regular
-Nostr event kinds `1415` and `1416`. Kinds `31415` and `31416` are deprecated
-prototype kinds.
-
-For a focused spec-to-implementation walkthrough, see [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
-
-A minimal flow looks like:
-
-```bash
-openetr profile use warehouse
-openetr issue examples/MLWR001.pdf
-openetr query examples/MLWR001.pdf
+Consequential State -> Recognition -> Effect
 ```
 
-Transfer control to another profile:
+Applications may store, present, and cache projections of the result. Another
+implementation can still validate the signed evidence and reproduce the state
+determination without treating the originating application as its sole
+authority.
+
+## Where it helps
+
+The same model can support warehouse receipts, bills of lading, product
+passports, certificates, credentials, health-record evidence, and other
+records whose exact content and consequential history matter.
+
+For a warehouse receipt, sending another copy of the PDF does not transfer the
+receipt. The PDF identifies the artifact; valid signed evidence changes the
+consequential state. A warehouse, buyer, bank, registry, or court then decides
+whether to recognize that state and what effect it has.
+
+OpenETR cooperates with existing systems and institutions. It does not try to
+become every domain's registry, legal authority, system of record, or
+compliance engine.
+
+## Relationship to Mainstay
+
+OpenETR is an adjacent member of the Mainstay product family, not a service in
+the default Mainstay runtime bundle. Mainstay applications can preserve and
+present artifacts and evidence; OpenETR defines how consequential state is
+derived from qualifying evidence. Local operators and recognition frameworks
+remain responsible for policy and effect.
+
+Both projects share a practical goal: information and authority should remain
+understandable and usable across applications, operators, and changing
+conditions while preserving clear boundaries for trust and governance.
+
+## Initial implementation
+
+The reference implementation uses ordinary Nostr event kinds `1415` and `1416`
+for linked, signed records. Prototype kinds `31415` and `31416` are deprecated.
+The CLI can issue, query, transfer, encumber, discharge, redeem, and terminate
+records.
 
 ```bash
-openetr transfer initiate examples/MLWR001.pdf --transferee exporter
-openetr profile use exporter
-openetr transfer accept examples/MLWR001.pdf
-openetr query examples/MLWR001.pdf
+poetry install
+poetry run openetr profile use warehouse
+poetry run openetr issue examples/MLWR001.pdf
+poetry run openetr query examples/MLWR001.pdf
 ```
 
-Query output includes the origin event, matching control events, lifecycle state, current controller, profile information where available, and encumbrance summaries.
+Transfer control to another configured profile:
 
-## Get Involved
-OpenETR is an open invitation to developers, legal experts, standards bodies, and institutions to collaborate on a shared layer for transferable records.
-Contributions are welcome across:
+```bash
+poetry run openetr transfer initiate examples/MLWR001.pdf --transferee exporter
+poetry run openetr profile use exporter
+poetry run openetr transfer accept examples/MLWR001.pdf
+poetry run openetr query examples/MLWR001.pdf
+```
 
-* Specification design
-* Reference implementations
-* Legal and regulatory alignment
-* Real-world pilots and integrations
+## Development and deployment
 
+Check the CLI and build the documentation:
 
-OpenETR — Durable Control. Portable Records.
+```bash
+poetry install
+poetry run openetr --help
+poetry run mkdocs build --strict
+```
+
+Run the standalone web application with Docker:
+
+```bash
+cp .env.example .env
+# Set OPENETR_APP_SESSION_SECRET to an independently generated value.
+docker compose up --build --detach
+curl --fail http://127.0.0.1:8000/health
+```
+
+See the [installation and deployment guide](docs-site/installation.md) for the
+complete standalone lifecycle. The live application is at
+[openetr.org](https://openetr.org/).
+
+## Project boundaries
+
+OpenETR proves only what its evidence and rules establish. A valid signature
+establishes attribution to a key; it does not by itself establish a person's
+identity, legal authority, performance of an outside action, ownership, or
+universal recognition.
+
+The project is under active development. Use the current implementation for
+evaluation, integration work, and bounded pilots while verifier results,
+retrieval coverage, policy adapters, and domain profiles continue to mature.
+
+## Documentation
+
+- [Documentation site](https://trbouma.github.io/openetr/)
+- [Specification index](docs/specs/INDEX.md)
+- [Consequential State Architecture](docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
+- [CLI implementation walkthrough](docs/specs/OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md)
+- [Roadmap](docs-site/openetr/roadmap.md)
+
+OpenETR is open-source software released under the MIT License. Contributions
+from implementers, domain experts, institutions, standards bodies, and pilot
+communities are welcome.

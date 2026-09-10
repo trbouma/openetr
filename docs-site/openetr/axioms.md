@@ -7,6 +7,28 @@ the protocol's responsibility ends.
 These axioms are a conceptual guide. The wire-format specification and
 implementation specifications define the normative technical details.
 
+## Canonical Definitions
+
+The core definitions are repeated here for convenience:
+
+- A **Digital Artifact** is persistent digital content with a unique content
+  identity, normally established by a cryptographic digest.
+- A **Digital Controllable Record (DCR)** is the signed evidence structure from
+  which defined rules derive Consequential State concerning a Digital Artifact
+  after the evidence is validated.
+- **Consequential State** is state that follows when validated DCR evidence is
+  evaluated according to defined protocol and verifier rules. It is a derived
+  result, not another event or authoritative database row.
+- A **Digital Original** is a Digital Artifact with Consequential State.
+- A **Key-Based Identifier (KBI)** is an identifier whose canonical value is
+  public-key verification material or a deterministic encoding of that
+  material. It identifies the signing key used to verify attributable signed
+  evidence; it does not, by itself, establish the identity, actor type,
+  authority, role, or recognition of the actor associated with that key.
+
+The complete set of formal terms is maintained in
+[Clause 3 of the OpenETR committee draft](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DRAFT_NATIONAL_STANDARD.md#3-terms-and-definitions).
+
 ## 1. The Digest Identifies The Artifact
 
 A **Digital Artifact** is identified by a cryptographic digest, independently

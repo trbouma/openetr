@@ -40,7 +40,7 @@ from openetr.silent_payments import create_silent_payment_sweep_result, derive_s
 from openetr.trivia import random_openetr_trivia_fact
 
 
-APP_TITLE = "OpenETR Demo App"
+APP_TITLE = "OpenETR"
 CONTROL_TRANSFER_KIND = CONTROL_EVENT_KIND
 NOBJ_PREFIX = "nobj"
 SESSION_ROOT_NSEC_KEY = "openetr_root_nsec"
@@ -75,7 +75,16 @@ def read_runtime_value(name: str, default: str | None = None) -> str | None:
     return default
 
 
-SESSION_SECRET = read_runtime_value("OPENETR_APP_SESSION_SECRET", "openetr-demo-session-secret") or "openetr-demo-session-secret"
+SESSION_SECRET = read_runtime_value("OPENETR_APP_SESSION_SECRET")
+if not SESSION_SECRET:
+    require_session_secret = (
+        read_runtime_value("OPENETR_REQUIRE_SESSION_SECRET", "false") or "false"
+    ).strip().lower()
+    if require_session_secret in {"1", "true", "yes", "on"}:
+        raise RuntimeError(
+            "OPENETR_APP_SESSION_SECRET or OPENETR_APP_SESSION_SECRET_FILE is required"
+        )
+    SESSION_SECRET = secrets.token_hex(32)
 SITE_URL = read_runtime_value("OPENETR_SITE_URL", "https://trbouma.github.io/openetr/") or "https://trbouma.github.io/openetr/"
 GIT_COMMIT = read_runtime_value("OPENETR_GIT_COMMIT", "unknown") or "unknown"
 BLOCKSTREAM_API_BASE = read_runtime_value("OPENETR_BLOCKSTREAM_API_BASE", "https://blockstream.info/api") or "https://blockstream.info/api"
@@ -95,7 +104,7 @@ QR_LOGO_PATH = ASSETS_DIR / "images" / "openetr.png"
 
 app = FastAPI(
     title=APP_TITLE,
-    description="Demonstration FastAPI app kept separate from the installable openetr component.",
+    description="Reference application for deriving consequential state from OpenETR evidence.",
     version="0.1.0",
 )
 app.add_middleware(EncryptedSessionMiddleware, secret_key=SESSION_SECRET)
