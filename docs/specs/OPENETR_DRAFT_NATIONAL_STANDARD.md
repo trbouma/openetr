@@ -6,7 +6,7 @@
 
 **Status:** Draft for discussion and technical review  
 **Edition:** 1  
-**Date:** 2026-09-02  
+**Date:** 2026-09-10
 **Language:** English working draft
 
 > **Important notice:** This document is an OpenETR project draft prepared in
@@ -210,23 +210,25 @@ created by the OpenETR component, not by the underlying signature algorithm.
 
 ### 3.11 Digital Artifact
 
-persistent digital content having a unique content identity, normally
+persistent digital content with a unique content identity, normally
 established by a cryptographic digest
 
 ### 3.12 Digital Controllable Record
 
 DCR
 
-single end-verifiable record or graph of related end-verifiable records from
-which rules can derive Consequential State concerning a Digital Artifact
+signed evidence structure from which defined rules derive Consequential State
+concerning a Digital Artifact after the evidence is validated
+
+Note 1 to entry: A DCR may consist of a single end-verifiable record or a graph
+of related end-verifiable records.
 
 ### 3.13 Digital Original
 
-Digital Artifact for which Consequential State has been established through a
-DCR
+Digital Artifact with Consequential State
 
-Note 1 to entry: A Digital Original has Consequential State. Recognition and
-effect remain external determinations.
+Note 1 to entry: Consequential State is established through a DCR. Recognition
+and effect remain external determinations.
 
 ### 3.14 domain adapter
 
@@ -414,7 +416,7 @@ shall preserve their logical boundaries.
 
 The core model shall not require Nostr where an alternative binding preserves:
 
-a) cryptographically attributable signer identity;
+a) cryptographic attribution to a KBI;
 
 b) stable artifact commitment;
 
@@ -466,8 +468,13 @@ e) how alternate renderings relate to the canonical content.
 Byte-identical copies having the same digest shall be treated as instances of
 the same Digital Artifact.
 
-Copying artifact bytes shall not be interpreted as independently reproducing
-the DCR or its Consequential State.
+Copying artifact bytes or DCR evidence shall not be interpreted as creating a
+separate Digital Artifact, a new DCR history, another controller, or independent
+Consequential State.
+
+A copy of complete DCR evidence may be used by another conforming verifier to
+reconstruct the same candidate graph and derive the same Consequential State
+under the same identified rules.
 
 ### 7.4 Disclosure
 
@@ -567,6 +574,23 @@ d) the claimed relationship type.
 Linked evidence shall not be interpreted as changing controller state unless
 the selected policy explicitly assigns that consequence.
 
+A linked-evidence relationship shall distinguish an evidentiary relationship
+from a relationship to which defined rules assign a state consequence.
+Evidentiary relationships may include `derived_from`, `ingredient_of`, and
+`rendition_of`. These relationships shall not, by themselves, be interpreted as
+meaning that one artifact supersedes or replaces another.
+
+Relationships such as `supersedes` and `replaces` shall affect Consequential
+State only where the selected verifier policy or Domain Adapter defines their
+preconditions and effects.
+
+Where linked evidence depends on an external verification mechanism, verifier
+output should distinguish, where applicable, evidence availability, integrity,
+content binding, signature or credential status, policy sufficiency, and
+recognition. Provenance evidence shall not be represented as proving control,
+supersession, recognition, or effect unless separate defined rules support that
+conclusion.
+
 ### 8.7 Attestations
 
 An attestation should identify the specific event, graph commitment, evidence
@@ -642,7 +666,7 @@ The verifier should report the affected record and reason.
 ### 9.5 Reproducibility
 
 Given the same evidence set, policy identifier, policy version, and evaluation
-parameters, conforming verifiers should produce equivalent structural findings
+parameters, conforming verifiers shall produce equivalent structural findings
 and Consequential State.
 
 ### 9.6 Verification result dimensions
@@ -676,17 +700,20 @@ k) optional temporal assurance;
 
 l) observation, witness, or audit attestation status;
 
-m) monitoring status, where applicable;
+m) linked-evidence and external-verification status, including provenance where
+evaluated;
 
-n) actor or authority recognition;
+n) monitoring status, where applicable;
 
-o) system reliability assessment; and
+o) actor or authority recognition;
 
-p) external recognition and effect.
+p) system reliability assessment; and
+
+q) external recognition and effect.
 
 An evaluated dimension should use a defined outcome vocabulary that can
-distinguish `valid`, `invalid`, `unverifiable`, `absent`, `not_evaluated`, and
-`not_applicable` where those outcomes are meaningful.
+distinguish `valid`, `invalid`, `unverifiable`, `conflicting`, `absent`,
+`not_evaluated`, and `not_applicable` where those outcomes are meaningful.
 
 An outcome for one dimension shall not be silently treated as an outcome for
 another dimension.
@@ -802,6 +829,32 @@ f) produce structured findings; and
 
 g) derive candidate Consequential State.
 
+A verifier policy claiming OpenETR baseline-policy conformance shall publish
+normative transition rules for every action from which it derives
+Consequential State. For each supported action, those rules shall define:
+
+a) permitted parent record kinds and actions;
+
+b) required signer and participant relationships;
+
+c) required structured evidence;
+
+d) state preconditions;
+
+e) state variables created, changed, or cleared;
+
+f) handling of duplicate, competing, missing, or out-of-order evidence;
+
+g) the conditions that produce invalid, conflicting, unverifiable, warning, or
+non-recognition outcomes; and
+
+h) treatment of unknown actions and extensions.
+
+The policy shall also define whether and how an Anchor Record establishes
+initial candidate controller, lifecycle, or other state. Where the applicable
+rules do not define a consequence, a verifier shall not infer one from an
+action label, signer identity, document text, or application state.
+
 ### 11.3 Evidence preservation
 
 A policy violation shall not cause an otherwise authentic signed record to be
@@ -852,9 +905,10 @@ The OpenETR protocol shall treat a signing key independently of whether it is
 operated by a human, organization, service, autonomous agent, hardware device,
 or combined workflow.
 
-A signature shall establish control of the signing key for that event. It
-shall not be represented as proof of actor type, legal identity, mandate,
-licensing, KYC status, or authority.
+A valid signature shall establish that the signed record was produced using the
+private-key capability corresponding to the identified KBI. It shall not be
+represented as proof of key custody, actor intent, actor type, legal identity,
+mandate, licensing, KYC status, or authority.
 
 ### 12.2 Principal, operator, and signer
 
@@ -1145,6 +1199,22 @@ or after a consequential operation as appropriate.
 A web implementation may use a hypermedia-driven architecture. Client-side
 code is not required for protocol conformance.
 
+### 16.5 Automated interpretation and agentic systems
+
+An implementation using automated extraction, interpretation, or inference
+shall distinguish machine-generated conclusions from attributable signed or
+otherwise independently verified evidence.
+
+An inferred conclusion may be retained or linked as evidence where its source,
+method, output, and attribution are identified. Its evidentiary contribution
+shall be determined under the selected verifier policy.
+
+Inference alone shall not be represented as proving issuance, actor identity,
+authority, authorization, control, Consequential State, recognition, or effect.
+Records produced through an autonomous agent or combined human-agent workflow
+shall satisfy the same cryptographic, structural, policy, and recognition
+requirements as records produced through another workflow.
+
 ## 17 Security, privacy, and operational considerations
 
 ### 17.1 Threat model
@@ -1274,13 +1344,23 @@ j) historical state derivation at an identified event;
 
 k) divergent or incomplete evidence-source results; and
 
-l) preservation and reporting of authentic but unrecognized evidence.
+l) preservation and reporting of authentic but unrecognized evidence;
+
+m) distinct reporting of conflicting evidence; and
+
+n) equivalent results from the same evidence set, policy version, and
+evaluation parameters.
 
 ### 18.3 Domain Adapter tests
 
 A Domain Adapter conformance assessment shall confirm the documented mappings
 for artifact scope, roles, actions, structured data, warnings, policy, and
 recognition boundaries.
+
+Where a Domain Adapter uses automated interpretation, the assessment shall
+confirm that inferred values are distinguishable from signed or independently
+verified evidence and are not represented as establishing Consequential State
+without defined rules.
 
 ### 18.4 Interoperability tests
 
@@ -1417,23 +1497,66 @@ recognition of an event.
 
 ## B.1 Ten axioms
 
-1. The digest identifies the artifact.
-2. A signature attributes a statement.
-3. An Anchor begins a candidate record.
-4. Links construct the Evidence Graph.
-5. Events are evidence; state is derived.
-6. Invalid claims remain visible.
-7. A Digital Original has Consequential State.
-8. Verification is separate from recognition.
-9. Identity is actor-neutral and contextual: a KBI identifies cryptographic
-   verification material, while actor identity, authority, and recognition
-   remain contextual.
-10. DCR evidence is portable across systems and domains.
+1. **The digest identifies the artifact.** A Digital Artifact is identified by
+   a cryptographic digest, independently of its filename, location, format, or
+   number of copies.
+2. **A signature attributes a statement.** Every OpenETR event is an immutable,
+   attributable statement by a signing key. A valid signature establishes
+   authorship and integrity; it does not, by itself, establish authority,
+   recognition, or legal effect.
+3. **An Anchor begins a candidate record.** An Anchor Record establishes the
+   starting point of a candidate DCR. It does not, by itself, establish
+   uniqueness, validity, or recognition.
+4. **Links construct the Evidence Graph.** DCR records reference prior records
+   and related evidence through cryptographic identifiers. Links establish
+   claimed relationships; they do not, by themselves, establish validity or
+   state.
+5. **Events are evidence; state is derived.** Events are not overwritten to
+   represent current state. Consequential State is derived by evaluating signed
+   DCR evidence according to defined rules.
+6. **Invalid claims remain visible.** Conflicting, unauthorized, or malformed
+   statements remain part of the available evidence. A verifier warns about or
+   excludes them according to its rule book rather than erasing signed history.
+7. **A Digital Original has Consequential State.** A Digital Original is a
+   Digital Artifact for which Consequential State has been established through
+   a DCR. Identical copies represent the same artifact; copying its bytes does
+   not independently create another consequential history.
+8. **Verification is separate from recognition.** OpenETR verifies digests,
+   signatures, record links, graph structure, and protocol transitions.
+   External systems, policies, institutions, and laws determine recognition and
+   effect.
+9. **Identity is actor-neutral and contextual.** A KBI identifies public-key
+   verification material used to attribute signed evidence. Whether it is
+   associated with a person, organization, service, device, or autonomous agent,
+   and whether that actor is recognized or authorized, is determined by the
+   applicable context.
+10. **DCR evidence is portable across systems and domains.** Signed records do
+    not belong to one application, relay, operator, or jurisdiction. Domain
+    adapters translate business actions into the general OpenETR model, while
+    any conforming system can store, retrieve, and verify the resulting DCR.
 
 ## B.2 Five maxims
 
-> **Digests identify. Signatures attribute. Links order. Rules determine what
-> follows. Recognition gives effect.**
+1. **Digests identify.** A cryptographic digest establishes which exact Digital
+   Artifact the evidence concerns, independently of its filename, location, or
+   number of identical copies.
+2. **Signatures attribute.** A valid signature establishes that a particular
+   signing key made a statement concerning the artifact, without by itself
+   proving the signer's identity, authority, or recognition.
+3. **Links order.** Cryptographic references connect signed records into an
+   Evidence Graph and establish their claimed relationships, without by
+   themselves deciding whether those records are valid or effective.
+4. **Rules determine what follows.** Defined protocol and verifier rules
+   evaluate the available DCR evidence and derive the Consequential State that
+   the evidence supports.
+5. **Recognition gives effect.** A relying party, institution, agreement, or law
+   determines whether to accept the evidence or derived state for a stated
+   purpose and what consequence that acceptance produces.
+
+The first three maxims describe portable cryptographic evidence. The fourth
+describes the derivation of Consequential State. The fifth preserves the
+boundary between what OpenETR can verify and the effect that others choose or
+are required to give the result.
 
 # Annex C (informative) - Integration model
 
@@ -1546,6 +1669,7 @@ deviations: []
 - OpenETR, *OpenETR CLI JSON Model*.
 - OpenETR, *Event Kind Registry*.
 - OpenETR, *Linked Evidence Record Kind Design Note*.
+- OpenETR, *Agentic AI Needs Consequential Evidence*.
 - United Nations Commission on International Trade Law, *Model Law on
   Electronic Transferable Records*.
 - United Nations Commission on International Trade Law and UNIDROIT, *Model
