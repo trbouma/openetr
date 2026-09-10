@@ -1,11 +1,15 @@
 # OpenETR Axioms
 
-OpenETR can be distilled into ten foundational propositions. Together they
-describe what the protocol treats as evidence, how state is derived, and where
-the protocol's responsibility ends.
+The ten axioms are the centre of gravity of this page. They describe what
+OpenETR treats as evidence, how Consequential State is derived, and where the
+protocol's responsibility ends. The Canonical Definitions provide the precise
+vocabulary needed to express those axioms, while the Five Maxims distill what
+follows from them into statements that are easier to remember and apply.
 
-These axioms are a conceptual guide. The wire-format specification and
-implementation specifications define the normative technical details.
+Read the definitions first as a common vocabulary, the axioms as the
+foundational model, and the maxims as its practical summary. The axioms are a
+conceptual guide; the wire-format specification and implementation
+specifications define the normative technical details.
 
 ## Canonical Definitions
 
@@ -29,24 +33,31 @@ The core definitions are repeated here for convenience:
 The complete set of formal terms is maintained in
 [Clause 3 of the OpenETR committee draft](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DRAFT_NATIONAL_STANDARD.md#3-terms-and-definitions).
 
-## 1. The Digest Identifies The Artifact
+## Ten Axioms
+
+The diagram summarizes how the core terms relate before the axioms state the
+model's foundational propositions.
+
+![OpenETR model showing Digital Artifact, Digital Controllable Record, Consequential State, Digital Original, Recognition, and Effect](../assets/images/openetr-model.png)
+
+### 1. The Digest Identifies The Artifact
 
 A **Digital Artifact** is identified by a cryptographic digest, independently
 of its filename, location, format, or number of copies.
 
-## 2. A Signature Attributes A Statement
+### 2. A Signature Attributes A Statement
 
 Every OpenETR event is an immutable, attributable statement by a signing key.
 A valid signature establishes authorship and integrity; it does not, by
 itself, establish authority, recognition, or legal effect.
 
-## 3. An Anchor Begins A Candidate Record
+### 3. An Anchor Begins A Candidate Record
 
 An **Anchor Record** establishes the starting point of a candidate **Digital
 Controllable Record (DCR)**. It does not, by itself, establish uniqueness,
 validity, or recognition.
 
-## 4. Links Construct The Evidence Graph
+### 4. Links Construct The Evidence Graph
 
 DCR records reference prior records and related evidence through cryptographic
 identifiers. These links construct an **Evidence Graph** from which protocol
@@ -54,18 +65,18 @@ rules can derive Consequential State. The portion concerned specifically with
 control transitions forms the **Control Graph**. Links establish relationships;
 they do not, by themselves, establish validity or state.
 
-## 5. Events Are Evidence; State Is Derived
+### 5. Events Are Evidence; State Is Derived
 
 Events are not overwritten to represent current state. **Consequential State**
 is derived by evaluating signed DCR evidence according to defined rules.
 
-## 6. Invalid Claims Remain Visible
+### 6. Invalid Claims Remain Visible
 
 Conflicting, unauthorized, or malformed statements remain part of the
 available evidence. A verifier warns about or excludes them according to its
 rule book rather than erasing signed history.
 
-## 7. A Digital Original Has Consequential State
+### 7. A Digital Original Has Consequential State
 
 A **Digital Original** is a Digital Artifact for which consequential state has
 been established through a DCR. Identical copies represent the same artifact;
@@ -74,13 +85,13 @@ copying its bytes does not independently create another consequential history.
 Whether a person, institution, system, or law recognizes that state as
 authoritative for a particular purpose remains a separate question.
 
-## 8. Verification Is Separate From Recognition
+### 8. Verification Is Separate From Recognition
 
 OpenETR verifies digests, signatures, event links, graph structure, and
 protocol transitions. External systems, policies, institutions, and laws
 determine recognition and effect.
 
-## 9. Identity Is Actor-Neutral And Contextual
+### 9. Identity Is Actor-Neutral And Contextual
 
 A **Key-Based Identifier (KBI)** identifies public-key verification material
 used to attribute signed evidence. It does not identify an actor as a matter of
@@ -92,14 +103,14 @@ In the Nostr binding, the 32-byte public key is the KBI. Its hexadecimal form
 is the canonical wire encoding, while `npub` is the human-readable encoding of
 the same key.
 
-## 10. DCR Evidence Is Portable Across Systems And Domains
+### 10. DCR Evidence Is Portable Across Systems And Domains
 
 Signed records do not belong to one application, relay, operator, or
 jurisdiction. Domain adapters translate business actions into the general
 OpenETR model, while any conforming system can store, retrieve, and verify the
 resulting DCR.
 
-## The Five Maxims
+## Five Maxims
 
 The same model can be expressed in five short statements:
 
