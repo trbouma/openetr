@@ -103,12 +103,26 @@ resulting DCR.
 
 The same model can be expressed in five short statements:
 
-> **Digests identify. Signatures attribute. Links order. Rules determine what
-> follows. Recognition gives effect.**
+1. **Digests identify.** A cryptographic digest establishes which exact Digital
+   Artifact the evidence concerns, independently of its filename, location, or
+   number of identical copies.
+2. **Signatures attribute.** A valid signature establishes that a particular
+   signing key made a statement concerning the artifact, without by itself
+   proving the signer's identity, authority, or recognition.
+3. **Links order.** Cryptographic references connect signed records into an
+   Evidence Graph and establish their claimed relationships, without by
+   themselves deciding whether those records are valid or effective.
+4. **Rules determine what follows.** Defined protocol and verifier rules
+   evaluate the available DCR evidence and derive the Consequential State that
+   the evidence supports.
+5. **Recognition gives effect.** A relying party, institution, agreement, or law
+   determines whether to accept the evidence or derived state for a stated
+   purpose and what consequence that acceptance produces.
 
-The first three describe the portable cryptographic evidence. Defined rules
-determine what follows from that evidence. Recognition determines what
-consequence that state receives outside the protocol.
+The first three maxims describe portable cryptographic evidence. The fourth
+describes the derivation of Consequential State. The fifth preserves the
+boundary between what OpenETR can verify and the effect that others choose or
+are required to give the result.
 
 ## Related Reading
 
