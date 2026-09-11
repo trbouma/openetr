@@ -24,6 +24,29 @@ its sole authority:
 
 > Applications derive consequential state; they do not own it.
 
+The corresponding interoperability objective is:
+
+> Make the evidence and derivation of consequential results portable, while
+> leaving recognition and effect to the applicable context.
+
+This objective is sometimes shortened to **make consequences portable**. The
+short form must not be read as treating Consequential State as a status object
+copied from one authoritative application to another. OpenETR makes the
+digest-identified artifact, signed DCR evidence, graph relationships, and
+identified rules basis available so another conforming verifier can reproduce
+the result.
+
+```text
+portable inputs                  reproduced result       contextual decision
+artifact + DCR + rules basis  -> Consequential State  -> recognition and effect
+```
+
+The identity, delegation, approval, and authorization machinery that produced
+an event may remain within the host system. A relying system introduces that
+additional evidence only when its policy requires it. OpenETR therefore does
+not require two organizations to adopt interoperable internal authority models
+merely to exchange independently verifiable consequential records.
+
 ## Digital Artifacts, Controllable Records, And Digital Originals
 
 A **Digital Artifact** is persistent digital content having a unique content

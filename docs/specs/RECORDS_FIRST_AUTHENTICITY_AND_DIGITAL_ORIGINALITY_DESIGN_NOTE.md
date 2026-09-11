@@ -60,6 +60,70 @@ Identity is therefore important but not foundational in the same way:
   recognition; and
 - law, policy, contract, and institutional rules determine effect.
 
+## What-First Interoperability
+
+The records-first decision also establishes a what-first approach to
+interoperability. A verifier begins with the thing being presented and asks:
+
+```text
+What exact Digital Artifact is this?
+What signed DCR evidence concerns it?
+What Consequential State follows under the identified rules?
+What additional evidence does the proposed use require?
+```
+
+An identity-first or delegation-first exchange may instead require the relying
+party to understand a chain of subjects, roles, relationships, permissions,
+and delegated authority before it can evaluate the transaction. Such machinery
+may be necessary inside the organization that authorizes an action, but it
+does not necessarily need to cross the system boundary with the resulting
+record.
+
+OpenETR therefore adopts this interoperability principle:
+
+> Do not require the upstream authority model to be interoperable when its
+> consequential result can be made independently verifiable.
+
+This principle does not eliminate identity, authorization, or delegation. It
+keeps those concerns where they are established and brings them into
+verification only when the applicable policy requires them. A host system may
+use accounts, passkeys, organizational directories, approval chains, or agent
+delegations to authorize use of a signing key. OpenETR preserves the resulting
+signed evidence concerning the artifact. Another verifier evaluates that
+evidence and introduces only the recognition inputs needed for its purpose.
+
+### Portable Consequences, Precisely Stated
+
+The shorthand **make consequences portable** requires a precise technical
+meaning. OpenETR does not copy an authoritative state value between systems.
+It makes portable the inputs required to reproduce a consequential result:
+
+```text
+digest-identified artifact
+  + signed DCR evidence
+  + identified rules and evaluation parameters
+  -> reproducible Consequential State
+```
+
+Two conforming verifiers using the same sufficient evidence, rules, and
+parameters should derive the same protocol state. They may still reach
+different conclusions about recognition or external effect because those
+conclusions depend on their respective legal, institutional, commercial, or
+operational contexts.
+
+The resulting boundary is:
+
+```text
+portable: artifact identity, signed evidence, graph relationships, rules basis
+derived:  Consequential State
+local:    recognition and effect
+```
+
+This avoids making a private database, API, organizational directory, or
+delegation service the only place from which a consequential answer can be
+known. The upstream bureaucracy can remain upstream; the independently
+verifiable record can travel downstream.
+
 ## The "Cult Of The Original"
 
 The phrase **"cult of the original"** describes a modern tendency to locate
@@ -238,4 +302,5 @@ Related OpenETR documents:
 - [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
+- [Maybe We Have Identity Backwards](https://trbouma.substack.com/p/maybe-we-have-identity-backwards)
 - [OpenETR, W3C DIDs, Nostr, And did:webvh Analysis Note](./OPENETR_DIDS_NOSTR_AND_DID_WEBVH_ANALYSIS_NOTE.md)

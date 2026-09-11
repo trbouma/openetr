@@ -41,6 +41,17 @@ same signed evidence and rules should be able to verify the evidence and
 derive the same protocol state without depending on the original system being
 available.
 
+This is how OpenETR seeks to **make consequences portable**. It does not send
+an application's status field or require another organization to reconstruct
+the identity, role, approval, and delegation machinery that produced an
+action. It makes the exact artifact, attributable evidence, and identified
+rules portable enough for another verifier to reproduce what follows. That
+verifier then applies its own recognition policy before giving the result
+operational, institutional, commercial, or legal effect.
+
+> Do not make every bureaucracy interoperable. Make the evidence needed to
+> reproduce its consequential result portable.
+
 In OpenETR, the Digital Controllable Record is the protocol structure that
 makes this independent verification possible.
 

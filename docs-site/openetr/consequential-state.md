@@ -56,6 +56,39 @@ consequential state.
 
 > Applications derive consequential state; they do not own it.
 
+## Making Consequences Portable
+
+OpenETR can be summarized as an effort to **make consequences portable across
+system boundaries**. That phrase does not mean that consequential state is
+another object to copy or that one system's conclusion must bind every other
+system. Consequential State remains a derived result.
+
+What travels is the basis for reproducing that result:
+
+```text
+artifact identity + signed DCR evidence + identified rules
+  -> reproducible consequential state
+  -> contextual recognition
+  -> external effect
+```
+
+The identity, authorization, approval, and delegation processes that caused an
+organization to issue a consequential record may remain inside that
+organization. A relying party need not reconstruct the entire upstream
+authority model when the resulting record contains the evidence that its own
+rules require.
+
+This is a **what-first** boundary. The verifier begins by asking what artifact
+and DCR are being presented, what state follows under the identified rules,
+and what evidence is required for the proposed use. Actor identity, authority,
+relationships, and other recognition evidence are introduced only to the
+extent required by that use.
+
+The portability claim is therefore precise:
+
+> OpenETR makes the evidence and derivation of a consequential result
+> portable. Recognition and effect remain contextual.
+
 ## End-Verifiable Events
 
 An end-verifiable event carries enough portable evidence for a verifier to
@@ -109,3 +142,6 @@ operator, or user interface.
 
 For the normative design direction, see the
 [Consequential State Architecture Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md).
+
+For the broader records-first argument, see
+[Maybe We Have Identity Backwards](https://trbouma.substack.com/p/maybe-we-have-identity-backwards).

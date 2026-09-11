@@ -87,6 +87,43 @@ This separation is the central rationale of the project.
 
 OpenETR preserves durable signed evidence. Recognition frameworks decide what effect to give that evidence.
 
+## Make Consequences Portable
+
+Cross-system interoperability is often framed as an identity and delegation
+problem: establish who everyone is, make organizational roles and authority
+chains interoperable, and then decide whether an action may have effect.
+OpenETR starts from the other direction.
+
+It asks first:
+
+- What Digital Artifact or DCR is being presented?
+- What consequential action is evidenced?
+- What state follows under the identified rules?
+- What additional actor, authority, or relationship evidence does this use
+  actually require?
+
+An organization may need extensive internal identity, delegation, approval,
+and governance machinery before it commits an action. Those controls remain
+important, but another organization does not necessarily need to reconstruct
+them. It needs a consequential record it can verify under its own accepted
+rules.
+
+This gives the project a compact interoperability position:
+
+> Do not make the authority model interoperable. Make its consequences
+> portable.
+
+For OpenETR, that means making the artifact identity, signed DCR evidence, and
+identified derivation rules portable. Consequential State is then reproduced,
+not accepted as a status assertion from the originating application. The
+receiving system remains free to decide whether it recognizes the signer,
+evidence, rules, and resulting state for the proposed purpose.
+
+This what-first approach can also reduce unnecessary disclosure. Identity,
+delegation, and relationship evidence should be requested because a particular
+consequence requires it, not because the architecture assumes that every
+upstream relationship must travel with every record.
+
 ## From Action To Consequence
 
 A consequential action passes through several logically different stages:
@@ -336,3 +373,8 @@ Recognition and effect determined in context.
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [OpenETR Nostr Wire Format](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+
+## Further Reading
+
+- [Maybe We Have Identity Backwards](https://trbouma.substack.com/p/maybe-we-have-identity-backwards)
+- [Records-First Authenticity And Digital Originality Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md)
