@@ -11,3 +11,6 @@ attestations, and verification.
 This domain will need careful privacy, consent, governance, retention, and jurisdiction-specific policy design. OpenETR can provide digest-linked signed evidence, but health-record access rights and clinical/legal effect must be handled by the appropriate health information systems, laws, consent frameworks, and verifier policies.
 
 More to come.
+
+For the policy framing and proposed domain boundaries, see
+[Health Records Need Consequential State](policy-briefs/health-records-need-consequential-state.md).

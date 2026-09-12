@@ -1,7 +1,11 @@
 # OpenETR
 
+<div class="landing-paths" markdown>
 [Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md){ .md-button }
 [Human Rights](policy-briefs/human-rights-need-consequential-state.md){ .md-button }
+[Health Records](policy-briefs/health-records-need-consequential-state.md){ .md-button }
+[Academic Records](policy-briefs/academic-records-need-consequential-state.md){ .md-button }
+</div>
 
 ## Digital Things You Can Rely On
 
