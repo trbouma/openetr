@@ -98,3 +98,6 @@ Legal recognition remains with the relevant authority, law, treaty framework, re
 | Recognition layer | Apostille Convention rules, Competent Authority practice, e-Register checks, local law, court or agency policy, and relying-party verification rules. |
 
 More to come.
+
+For the policy framing and proposed consequential-state boundaries, see
+[Apostille Records Need Consequential State](policy-briefs/apostille-records-need-consequential-state.md).
