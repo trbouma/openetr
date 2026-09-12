@@ -145,3 +145,5 @@ For the normative design direction, see the
 
 For the broader records-first argument, see
 [Maybe We Have Identity Backwards](https://trbouma.substack.com/p/maybe-we-have-identity-backwards).
+For its public-policy implications, see
+[Human Rights Need Consequential State](../policy-briefs/human-rights-need-consequential-state.md).

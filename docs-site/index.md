@@ -1,5 +1,8 @@
 # OpenETR
 
+[Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md){ .md-button }
+[Human Rights](policy-briefs/human-rights-need-consequential-state.md){ .md-button }
+
 ## Digital Things You Can Rely On
 
 OpenETR provides a simple protocol model for digital things people need to rely
