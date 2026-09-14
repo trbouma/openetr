@@ -1,12 +1,11 @@
 # OpenETR
 
-<div class="landing-paths" markdown>
-[Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md){ .md-button }
-[Human Rights](policy-briefs/human-rights-need-consequential-state.md){ .md-button }
-[Health Records](policy-briefs/health-records-need-consequential-state.md){ .md-button }
-[Academic Records](policy-briefs/academic-records-need-consequential-state.md){ .md-button }
-[Apostille Records](policy-briefs/apostille-records-need-consequential-state.md){ .md-button }
-</div>
+Explore the possibilities in your domain:
+[Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md) |
+[Human Rights](policy-briefs/human-rights-need-consequential-state.md) |
+[Health Records](policy-briefs/health-records-need-consequential-state.md) |
+[Academic Records](policy-briefs/academic-records-need-consequential-state.md) |
+[Apostille Records](policy-briefs/apostille-records-need-consequential-state.md)
 
 ## Digital Things You Can Rely On
 
