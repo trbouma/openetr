@@ -1,5 +1,39 @@
 # OpenETR
 
+## Everything Digital Needs Consequential State
+
+Not every digital file needs consequential state. But whenever people,
+institutions, or machines rely on something digital to determine what may or
+must happen next, its state becomes consequential.
+
+A warehouse receipt may be active, transferred, encumbered, redeemed, or
+terminated. A health record may be final, corrected, superseded, or withdrawn.
+An academic record may be issued and later amended. An Apostille may have been
+verified against an official register at a particular time. In each case, the
+content matters because something follows from it.
+
+OpenETR provides a general way for any digest-identifiable **Digital Artifact**
+to become a **Digital Original**. Signed, linked records concerning the
+artifact form a **Digital Controllable Record (DCR)**. When that evidence is
+validated and evaluated under defined rules, it produces **Consequential
+State**.
+
+```text
+Digital Artifact
+  + Digital Controllable Record
+  + Defined Rules
+  -> Consequential State
+  -> Digital Original
+```
+
+The transformation does not make the file uncopyable. It makes the artifact's
+consequential history independently verifiable. Identical copies remain the
+same digest-identified artifact; copying the bytes does not independently copy
+or change its Consequential State.
+
+> Content makes an artifact identifiable. Consequential State makes it an
+> original.
+
 Explore the possibilities in your domain:
 [Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md) |
 [Warehouse Receipts](policy-briefs/warehouse-receipts-need-consequential-state.md) |
@@ -8,63 +42,49 @@ Explore the possibilities in your domain:
 [Academic Records](policy-briefs/academic-records-need-consequential-state.md) |
 [Apostille Records](policy-briefs/apostille-records-need-consequential-state.md)
 
-## Digital Things You Can Rely On
+## The Application Should Show Its Work
 
-OpenETR provides a simple protocol model for digital things people need to rely
-on. It separates the thing itself, the evidence of actions concerning it, and
-the state that follows from those actions under defined rules. On that basis,
-an individual, community, institution, authority, or applicable law can
-determine whether the digital thing should be recognized and what effect it
-should have.
+Most digital systems answer consequential questions with an application
+assertion: the website says who controls the record, the registry says which
+status is current, or the platform says that an obligation has been discharged.
+The assertion may be correct, but the application rarely exposes the evidence
+and rules that produced it.
 
-For example, the digital thing might be a government-issued document, an
-electronic trade document, or a digitized cultural artifact. OpenETR can
-establish it as a Digital Original whose identity and consequential state can
-be independently verified. This provides a basis for it to be recognized and,
-where appropriate, given the same effect as the originally issued document or
-corresponding real-world object.
+OpenETR changes that relationship:
 
-## Building on a Core Insight
+```text
+Artifact + Portable Evidence + Defined Rules
+  -> independently reproducible Consequential State
+  -> application projection
+```
 
-OpenETR builds on a simple insight: consequential digital records should be
-**independently verifiable records**. Any party relying on a record should be
-able to verify the evidence needed to understand it, rather than trusting it
-only because a particular application displays it. A signed event should carry
-enough cryptographic evidence for another implementation to verify who signed
-it, confirm that it has not changed, and determine which artifact and prior
-event it concerns.
+Applications and databases remain useful. They can store records, authenticate
+users, enforce permissions, coordinate workflows, index evidence, and present
+the resulting state. They should not have to be the exclusive reason that
+state is believed.
 
-A cryptographic digest gives the Digital Artifact a stable content identity.
-The same bytes produce the same identifier wherever they are stored, while any
-change produces a different artifact. Signed events can then record
-consequential actions concerning that exact artifact. When those events are
-linked and evaluated under identified rules, consequential state can be
-derived rather than merely asserted by the system currently presenting it.
+An end-verifiable signed record carries enough evidence for another
+implementation to verify its attribution and integrity and determine which
+artifact and prior records it concerns. Given the same sufficient DCR evidence,
+rules, and evaluation parameters, another conforming implementation should be
+able to reproduce the same protocol state without depending on the original
+website, service, or database.
 
-This means that no database, app, service, or platform should exclusively own
-the authoritative ability to determine the artifact's consequential state.
-Systems may store the artifact, preserve events, enforce permissions, and
-cache useful state projections. But another conforming implementation with the
-same signed evidence and rules should be able to verify the evidence and
-derive the same protocol state without depending on the original system being
-available.
+This is how OpenETR seeks to **make consequences portable**. It turns
+Consequential State from an application assertion into an independently
+reproducible result.
 
-This is how OpenETR seeks to **make consequences portable**. It does not send
-an application's status field or require another organization to reconstruct
-the identity, role, approval, and delegation machinery that produced an
-action. It makes the exact artifact, attributable evidence, and identified
-rules portable enough for another verifier to reproduce what follows. That
-verifier then applies its own recognition policy before giving the result
-operational, institutional, commercial, or legal effect.
+The protocol result does not compel universal agreement. A person,
+institution, community, contract, authority, or applicable law still decides
+whether to recognize the evidence and state for a particular purpose and what
+effect to give them.
 
-> Do not make every bureaucracy interoperable. Make the evidence needed to
-> reproduce its consequential result portable.
+```text
+Consequential State -> Recognition -> Effect
+```
 
-In OpenETR, the Digital Controllable Record is the protocol structure that
-makes this independent verification possible.
-
-> Applications can present and project consequential state. They should not
-> be its exclusive source of authority.
+> Let the application display the answer. Let the artifact, evidence, and rules
+> explain why that answer follows.
 
 ## Three Primitives. One Core Concept.
 
