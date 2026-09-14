@@ -1,16 +1,26 @@
 # OpenETR
 
+Explore the possibilities in your domain:
+[**Digital Trade**](policy-briefs/digital-trade-needs-consequential-state.md) |
+[**Warehouse Receipts**](policy-briefs/warehouse-receipts-need-consequential-state.md) |
+[**Human Rights**](policy-briefs/human-rights-need-consequential-state.md) |
+[**Health Records**](policy-briefs/health-records-need-consequential-state.md) |
+[**Academic Records**](policy-briefs/academic-records-need-consequential-state.md) |
+[**Apostille Records**](policy-briefs/apostille-records-need-consequential-state.md)
+
 ## Everything Digital Needs Consequential State
 
-Not every digital file needs consequential state. But whenever people,
-institutions, or machines rely on something digital to determine what may or
-must happen next, its state becomes consequential.
+Digital records increasingly do more than store information. People,
+institutions, and machines rely on them to decide what may or must happen next.
 
 A warehouse receipt may be active, transferred, encumbered, redeemed, or
 terminated. A health record may be final, corrected, superseded, or withdrawn.
 An academic record may be issued and later amended. An Apostille may have been
-verified against an official register at a particular time. In each case, the
-content matters because something follows from it.
+verified against an official register at a particular time.
+
+In each case, the condition of the record affects a decision, right,
+obligation, status, or action. OpenETR calls that condition **Consequential
+State**.
 
 OpenETR provides a general way for any digest-identifiable **Digital Artifact**
 to become a **Digital Original**. Signed, linked records concerning the
@@ -33,14 +43,6 @@ or change its Consequential State.
 
 > Content makes an artifact identifiable. Consequential State makes it an
 > original.
-
-Explore the possibilities in your domain:
-[Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md) |
-[Warehouse Receipts](policy-briefs/warehouse-receipts-need-consequential-state.md) |
-[Human Rights](policy-briefs/human-rights-need-consequential-state.md) |
-[Health Records](policy-briefs/health-records-need-consequential-state.md) |
-[Academic Records](policy-briefs/academic-records-need-consequential-state.md) |
-[Apostille Records](policy-briefs/apostille-records-need-consequential-state.md)
 
 ## The Application Should Show Its Work
 
@@ -99,7 +101,7 @@ remaining outside the protocol.
   </figcaption>
 </figure>
 
-## The Problem, Restated
+## The Deeper Problem: What Follows
 
 **Copies Are Not the Problem.** Digital content can be copied perfectly, and
 that is often useful. The harder problem is determining what constitutes the
