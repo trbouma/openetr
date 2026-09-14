@@ -1,6 +1,6 @@
 # Academic Records Need Consequential State
 
-## Executive Proposition
+## Policy Proposition
 
 **Academic records need consequential state.**
 
@@ -255,4 +255,3 @@ education systems identical.
 - [Graduated Disclosure](graduated-disclosure.md)
 - [Human Rights Need Consequential State](human-rights-need-consequential-state.md)
 - [Apostille Documents](../apostille-documents.md)
-

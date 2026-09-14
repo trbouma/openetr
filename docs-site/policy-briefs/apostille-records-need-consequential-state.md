@@ -1,6 +1,6 @@
 # Apostille Records Need Consequential State
 
-## Executive Proposition
+## Policy Proposition
 
 **Apostille records need consequential state.**
 
@@ -303,4 +303,3 @@ with it.
 - [Graduated Disclosure](graduated-disclosure.md)
 - [Academic Records Need Consequential State](academic-records-need-consequential-state.md)
 - [Human Rights Need Consequential State](human-rights-need-consequential-state.md)
-

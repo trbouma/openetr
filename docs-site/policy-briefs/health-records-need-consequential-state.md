@@ -1,6 +1,6 @@
 # Health Records Need Consequential State
 
-## Executive Proposition
+## Policy Proposition
 
 **Health records need consequential state.**
 
@@ -235,4 +235,3 @@ privacy, authorization, and patient rights where they belong.
 - [Graduated Disclosure](graduated-disclosure.md)
 - [Human Rights Need Consequential State](human-rights-need-consequential-state.md)
 - [Provenance Is Not Control](provenance-is-not-control.md)
-

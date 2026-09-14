@@ -1,6 +1,6 @@
 # Human Rights Need Consequential State
 
-## Executive Proposition
+## Policy Proposition
 
 **Human rights need consequential state.**
 

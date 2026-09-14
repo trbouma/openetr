@@ -1,6 +1,6 @@
 # Digital Trade Needs Consequential State
 
-## Executive Proposition
+## Policy Proposition
 
 **Digital trade needs consequential state.**
 
@@ -287,6 +287,7 @@ one platform.
 
 ## Related Reading
 
+- [Warehouse Receipts Need Consequential State](warehouse-receipts-need-consequential-state.md)
 - [OpenETR And Paperless Trade](openetr-and-paperless-trade.md)
 - [OpenETR, MLETR, And ETDA](openetr-mletr-and-etda.md)
 - [OpenETR And Global ETR Use Cases](openetr-and-global-etr-use-cases.md)
@@ -294,4 +295,3 @@ one platform.
 - [Warehouse Receipts](../getting-started.md)
 - [Consequential State](../openetr/consequential-state.md)
 - [System Integrator Guidance](../system-integrators/index.md)
-

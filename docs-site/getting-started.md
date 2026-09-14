@@ -8,6 +8,10 @@ https://openetr.org/warehouse-receipts
 
 The workspace lets you work in warehouse receipt language while the underlying OpenETR component publishes, queries, and verifies signed control records for the receipt document digest.
 
+For the policy rationale and relationship to the Model Law on Warehouse
+Receipts, see
+[Warehouse Receipts Need Consequential State](policy-briefs/warehouse-receipts-need-consequential-state.md).
+
 ## What You Can Do
 
 The Warehouse Receipts workspace supports two broad modes.

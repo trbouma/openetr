@@ -2,6 +2,7 @@
 
 Explore the possibilities in your domain:
 [Digital Trade](policy-briefs/digital-trade-needs-consequential-state.md) |
+[Warehouse Receipts](policy-briefs/warehouse-receipts-need-consequential-state.md) |
 [Human Rights](policy-briefs/human-rights-need-consequential-state.md) |
 [Health Records](policy-briefs/health-records-need-consequential-state.md) |
 [Academic Records](policy-briefs/academic-records-need-consequential-state.md) |
