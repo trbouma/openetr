@@ -6,6 +6,10 @@ The mapping is intentionally about **recognition and effect**. Those questions a
 
 OpenETR can show what was identified, signed, linked, retrieved, updated, attested, or queried. Product regulation, delegated acts, registry rules, access-control policy, market-surveillance practice, marketplaces, and relying parties decide what legal, regulatory, or operational effect follows.
 
+For the current EU legal framework, Registry implementation, harmonized
+standards, product rollout, and OpenETR analysis, see [EU Digital Product
+Passports And OpenETR](policy-briefs/eu-digital-product-passports-and-openetr.md).
+
 ## How To Read The Mapping
 
 The mapping distinguishes between:
@@ -48,4 +52,5 @@ The detailed table uses stable review identifiers:
 Related overview:
 
 - [Product Passports Overview](product-passports.md)
+- [EU Digital Product Passports And OpenETR](policy-briefs/eu-digital-product-passports-and-openetr.md)
 - [Linked Evidence Record Kind Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)

@@ -5,6 +5,25 @@ OpenETR protocol model.
 
 It is for product data artifacts, compliance evidence, manufacturing metadata, lifecycle attestations, and related product records. It is not about personal identity passports.
 
+## EU Regulatory Context
+
+The European Union is introducing Digital Product Passports progressively
+through the Ecodesign for Sustainable Products Regulation and sector-specific
+legislation. The EU DPP Registry became operational on 20 July 2026, and the
+first mandatory deadline applies to specified batteries from 18 February 2027.
+
+The EU model combines a central Registry for identifiers, registration,
+semantics, and enforcement with decentralized passport data maintained by the
+responsible economic operator or a DPP service provider.
+
+OpenETR does not replace the Registry, product-specific delegated acts,
+harmonized standards, economic-operator responsibilities, or
+market-surveillance decisions. It can preserve exact passport versions and
+signed lifecycle evidence as an independently verifiable DCR.
+
+- [EU Digital Product Passports And OpenETR](policy-briefs/eu-digital-product-passports-and-openetr.md)
+- [Detailed EU Regulatory Analysis](https://github.com/trbouma/openetr/blob/main/docs/specs/EU_DIGITAL_PRODUCT_PASSPORT_REGULATORY_ANALYSIS_NOTE.md)
+
 ## What A Product Passport Is In OpenETR
 
 In this domain:

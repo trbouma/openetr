@@ -4,6 +4,12 @@ This document is a working recognition and effect traceability matrix for Digita
 
 It is based on a project-oriented interpretation of Digital Product Passport requirements supplied for review. It is not a restatement of legislation and does not assert that OpenETR satisfies any EU Digital Product Passport obligation by itself.
 
+For the current EU legal and implementation context, including Regulation (EU)
+2024/1781, Implementing Regulation (EU) 2026/1778, the EU DPP Registry,
+harmonized standards, and the sector rollout, see [EU Digital Product Passports
+And OpenETR Regulatory Analysis
+Note](./EU_DIGITAL_PRODUCT_PASSPORT_REGULATORY_ANALYSIS_NOTE.md).
+
 The matrix is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they can be closely mapped to protocol evidence.
 
 OpenETR should be treated as a signed evidence, digest identity, retrieval, and control-graph layer. It can show what was identified, signed, linked, retrieved, updated, attested, or queried. Product regulation, delegated acts, registry rules, access-control policy, market-surveillance practice, and relying-party decisions decide what legal, regulatory, or operational effect follows.

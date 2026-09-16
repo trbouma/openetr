@@ -91,6 +91,7 @@ nav:
           - Overview: bills-of-lading.md
       - Product Passports:
           - Overview: product-passports.md
+          - EU Regulation And OpenETR: policy-briefs/eu-digital-product-passports-and-openetr.md
           - Requirements Mapping: product-passport-requirements.md
       - Health Records:
           - Overview: health-records.md
@@ -104,6 +105,7 @@ nav:
       - Health Records Need Consequential State: policy-briefs/health-records-need-consequential-state.md
       - Academic Records Need Consequential State: policy-briefs/academic-records-need-consequential-state.md
       - Apostille Records Need Consequential State: policy-briefs/apostille-records-need-consequential-state.md
+      - EU Digital Product Passports And OpenETR: policy-briefs/eu-digital-product-passports-and-openetr.md
       - The Core Model: policy-briefs/digital-artifact-dcr-digital-original.md
       - Digital Originality: policy-briefs/digital-originality.md
       - Graduated Disclosure: policy-briefs/graduated-disclosure.md
