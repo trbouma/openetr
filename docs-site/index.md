@@ -9,10 +9,18 @@ Explore the possibilities in your domain:
 [**Academic Records**](policy-briefs/academic-records-need-consequential-state.md) |
 [**Apostille Records**](policy-briefs/apostille-records-need-consequential-state.md)
 
-## Everything Digital Needs Consequential State
+## Digital Records Should Function Like the Originals They Replace
 
 Digital records increasingly do more than store information. People,
 institutions, and machines rely on them to decide what may or must happen next.
+
+This is a question of function, not merely format. In digital trade, the
+functional-equivalence approach reflected in
+[MLETR](policy-briefs/openetr-mletr-and-etda.md) asks how an electronic record can
+perform the legally relevant functions of its paper counterpart without
+reproducing paper mechanically. The same practical challenge appears more
+broadly when a record replaces a physical original, and when an authoritative
+record is born digital.
 
 A warehouse receipt may be active, transferred, encumbered, redeemed, or
 terminated. A health record may be final, corrected, superseded, or withdrawn.
