@@ -10,7 +10,7 @@ Draft design decision.
 
 ## Decision
 
-OpenETR does not distinguish between human actors and agent actors in its core identity or control-event model.
+OpenETR does not distinguish between human actors and agent actors in its core identity or evidence-event model.
 
 At the protocol layer, an actor is represented by a public key. A valid event signature proves that the corresponding private key authorized the event. It does not prove whether the key was operated by:
 
@@ -50,7 +50,7 @@ Those are authorization, governance, attribution, and recognition questions.
 
 ## Why Actor Type Is Not A Core Field
 
-OpenETR should not require an `actor_type=human` or `actor_type=agent` field in control events.
+OpenETR should not require an `actor_type=human` or `actor_type=agent` field in evidence events.
 
 There are several reasons:
 
@@ -142,7 +142,7 @@ Examples include claims that:
 - a human approval was obtained before signing;
 - an incident-response endpoint is available.
 
-Such claims should identify their issuer and, where appropriate, their validity period, scope, and revocation or supersession mechanism. Sensitive details should normally remain outside public control events, with OpenETR carrying a digest or reference to the evidence.
+Such claims should identify their issuer and, where appropriate, their validity period, scope, and revocation or supersession mechanism. Sensitive details should normally remain outside public evidence events, with OpenETR carrying a digest or reference to the evidence.
 
 ## Verifier Policy
 

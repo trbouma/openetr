@@ -16,7 +16,7 @@ regulatory, commercial, or operational effect to give the result.
 
 Control is a state-derivation question grounded in evidence.
 
-At the control layer, OpenETR can ask:
+At the protocol layer, OpenETR can ask:
 
 - What Digital Artifact digest is being referenced?
 - Which signed Anchor record begins the candidate DCR?

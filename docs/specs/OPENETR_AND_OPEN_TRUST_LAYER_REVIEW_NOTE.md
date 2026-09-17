@@ -19,7 +19,7 @@ Open Trust Layer and OpenETR are complementary protocols, but they solve differe
 
 OTL is participant-centric. It is concerned with identity, secure communication, counterparty validation, payment-session establishment, payment flows, compliance messaging, address proofs, and optional credential presentation.
 
-OpenETR is object-centric. It is concerned with controlled records, signed origin events, control events, linked evidence, dependency edges, verifier-policy output, and recognition boundaries for electronic transferable records and other controllable records.
+OpenETR is object-centric. It is concerned with controlled records, signed Anchor Events, evidence events, linked evidence, dependency edges, verifier-policy output, and recognition boundaries for electronic transferable records and other controllable records.
 
 The compact distinction is:
 
@@ -77,7 +77,7 @@ Its core concern is:
 ```text
 record artifact or canonical package
   -> digest
-  -> signed origin event
+  -> signed Anchor Event
   -> signed control and evidence events
   -> control graph
   -> verifier-policy output
@@ -107,13 +107,13 @@ It preserves portable signed evidence that those systems can evaluate.
 | Who is this participant? | Resolve `did:webvh`, inspect keys, endpoints, and credentials | Resolve OpenETR profile/root references and linked identity evidence |
 | What organization is behind the participant? | LEI, KYC, licensing, and other Verifiable Credentials | Recognition policy may consult LEI, proto-LEI, registries, credentials, or platform accounts |
 | How do participants communicate? | DIDComm, REST, OOB URLs, QR/deep links, HTTP 402 payment flows | Transport-neutral; events can move over Nostr relays, APIs, bundles, files, or other channels |
-| What is the operative object? | Usually a payment request, session, address proof, or compliance message | A digest-identified Controlled Object |
-| What changes state? | Application flow messages and payment/settlement events | Signed control events linked into a control graph |
+| What is the operative object? | Usually a payment request, session, address proof, or compliance message | A digest-identified Digital Artifact |
+| What changes state? | Application flow messages and payment/settlement events | Signed evidence events linked into a control graph |
 | Who decides trust? | Each participant's local trust perimeter | Each verifier's policy and domain recognition context |
 | What is private? | PII carried over encrypted peer-to-peer channels | Controlled content may stay external; OpenETR can expose hashes, event metadata, and selective linked evidence |
-| What is durable? | DID logs, signed requests, message records, payment receipts, credential presentations | Object digest, origin event, control events, linked evidence, dependency edges, verifier output |
+| What is durable? | DID logs, signed requests, message records, payment receipts, credential presentations | Object digest, Anchor Event, evidence events, linked evidence, dependency edges, verifier output |
 
-The most important difference is that OTL is optimized around participants and sessions, while OpenETR is optimized around controlled objects and lifecycle evidence.
+The most important difference is that OTL is optimized around participants and sessions, while OpenETR is optimized around digital artifacts and lifecycle evidence.
 
 ## Complementarity
 
@@ -132,8 +132,8 @@ OTL session and transport layer
   OOB envelope, DIDComm, REST, payment-request flow,
   compliance and settlement messages
 
-OpenETR object-control layer
-  controlled object digest, origin event, control events,
+OpenETR object-protocol layer
+  digital artifact digest, Anchor Event, evidence events,
   linked evidence, dependency edges, verifier-policy output
 
 Domain adapter
@@ -181,11 +181,11 @@ For a warehouse receipt pilot, OTL could provide useful surrounding infrastructu
 - carry KYC or compliance material outside shared infrastructure
 - carry payment, fee, pledge, release, or settlement coordination messages
 
-OpenETR would remain responsible for the record-control layer:
+OpenETR would remain responsible for the record-protocol layer:
 
-- create the warehouse receipt Controlled Object
+- create the warehouse receipt Digital Artifact
 - bind the receipt to a digest
-- record the warehouse operator's origin event
+- record the warehouse operator's Anchor Event
 - record transfer, pledge, release, redemption, termination, or replacement events
 - link inspection, inventory, customs, insurance, registry, or financing evidence
 - derive current control and warnings under verifier policy
@@ -292,7 +292,7 @@ OTL helps with secure delivery. OpenETR helps with durable control state.
 
 ## Payment Boundary
 
-OTL's payment-request, push-payment, payment-channel, wallet-attribution, and mint/burn flows are adjacent to OpenETR but should not be confused with OpenETR control events.
+OTL's payment-request, push-payment, payment-channel, wallet-attribution, and mint/burn flows are adjacent to OpenETR but should not be confused with OpenETR evidence events.
 
 A payment may be evidence for a domain-specific action.
 
@@ -305,7 +305,7 @@ Examples:
 
 But payment is not automatically transfer of control.
 
-OpenETR should model payment-related facts as linked evidence unless the domain adapter and recognition policy say that a payment event also triggers a control event.
+OpenETR should model payment-related facts as linked evidence unless the domain adapter and recognition policy say that a payment event also triggers an evidence event.
 
 ## Compliance Boundary
 
@@ -352,7 +352,7 @@ OTL:
   trust in participants and communication flows
 
 OpenETR:
-  trust in the lifecycle evidence of a controlled object
+  trust in the lifecycle evidence of a digital artifact
 ```
 
 ## Risks And Cautions
@@ -369,7 +369,7 @@ An OTL address proof can show that a participant controls or is associated with 
 
 It does not prove control over an ETR.
 
-Control over an ETR should be represented in OpenETR through signed control events and verifier-policy derivation.
+Control over an ETR should be represented in OpenETR through signed evidence events and verifier-policy derivation.
 
 ### Do Not Treat KYC As Recognition
 

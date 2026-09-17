@@ -171,7 +171,7 @@ OpenETR does not treat endorsement or indorsement as a standalone universal prot
 
 Instead, where relevant, OpenETR expresses endorsement or indorsement as an attestation associated with an underlying OpenETR event, with its legal or commercial characterization determined by the applicable recognition framework.
 
-At the Control Layer, the relevant questions are:
+At the Protocol Layer, the relevant questions are:
 
 - who signed
 - what was declared
@@ -267,8 +267,8 @@ Instead, it arises from evaluation of the signed evidence chain.
 
 That evidence chain may include:
 
-- the origin event
-- later control events
+- the Anchor Event
+- later evidence events
 - any accept or terminate events
 - any event-level or chain-level attestations
 - any actor legitimacy attestations relevant to the participants
@@ -360,7 +360,7 @@ Examples may include:
 
 ### Consequence
 
-Recognition of a control event may therefore depend not only on the event chain itself, but also on whether the relevant signers have been independently attested as legitimate actors for the roles they claim to perform.
+Recognition of an evidence event may therefore depend not only on the event chain itself, but also on whether the relevant signers have been independently attested as legitimate actors for the roles they claim to perform.
 
 ### Working Interpretation
 
@@ -473,12 +473,12 @@ The working registry for these assignments is maintained in [EVENT_KIND_REGISTRY
 
 Working allocation:
 
-- `31415` = origin event
-- `31416` = control-event family
+- `1415` = Anchor Event
+- `1416` = evidence-event family
 
-### Origin Event
+### Anchor Event
 
-The origin event is the event by which an object first enters the OpenETR scheme.
+The Anchor Event is the event by which an object first enters the OpenETR scheme.
 
 It is intended to represent:
 
@@ -486,13 +486,15 @@ It is intended to represent:
 - initial declaration of the object within the scheme
 - the first effective control-relevant state for that object
 
-In the current working model, origin events are published as:
+In the current working model, Anchor Events are published as:
 
-- `kind = 31415`
+- `kind = 1415`
 
-### Control Event Family
+### Evidence Event Family
 
-The control-event family is the event family for later control-relevant actions after origin.
+The Evidence Event family carries signed evidence of later actions after the
+Anchor Event. Some actions are control-relevant; others contribute different
+evidence to the DCR.
 
 It is intended to represent:
 
@@ -500,13 +502,14 @@ It is intended to represent:
 - later control transitions in the object lifecycle
 - later control-relevant assertions, limitations, discharges, and presentation actions
 
-In the current working model, control events are published as:
+In the current working model, evidence events are published as:
 
-- `kind = 31416`
+- `kind = 1416`
 
-### Working `31416` Action Family
+### Working `1416` Action Family
 
-Within the current working model, `kind 31416` is treated as a control-event family rather than as a single undifferentiated action.
+Within the current working model, `kind 1416` is treated as an Evidence Event
+family rather than as a single undifferentiated action.
 
 The action distinction is currently expressed through the `action` tag:
 
@@ -528,7 +531,7 @@ This means that:
 - discharge
 - redemption
 
-are presently modeled as distinct actions within the same `31416` event family rather than as separate event kinds.
+are presently modeled as distinct actions within the same `1416` event family rather than as separate event kinds.
 
 The current reference implementation exposes these actions through the CLI commands documented in [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md). The minimum event shapes are specified in [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md), and the wire-level tag grammar is specified in [OPENETR_NOSTR_WIRE_FORMAT_SPEC.md](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md).
 
@@ -536,39 +539,16 @@ This is a working design choice, not yet a final registry decision.
 
 ### Working Tag Conventions
 
-The current reference implementation also uses a working split between:
+The current regular-event model uses:
 
-- `o` as the object identifier carried forward across the full object history
-- `d` as the replaceable slot identifier for the specific action being expressed
+- `o` as the Digital Artifact identifier carried across the DCR;
+- `e` as the exact prior-event link for graph traversal;
+- `action` as the semantic subtype for a `1416` Evidence Event; and
+- action-specific tags such as `p`, `enc`, `type`, and `ref` where required.
 
-Current working examples:
-
-- origin event:
-  - `d = <object_hex>`
-  - `o = <object_hex>`
-- transfer initiate:
-  - `d = <object_hex>:initiate`
-  - `o = <object_hex>`
-- transfer accept:
-  - `d = <object_hex>:accept`
-  - `o = <object_hex>`
-- terminate:
-  - `d = <object_hex>:terminate`
-  - `o = <object_hex>`
-- attest:
-  - `d = <object_hex>:attest`
-  - `o = <object_hex>`
-- encumber:
-  - `d = <object_hex>:encumber`
-  - `o = <object_hex>`
-- discharge:
-  - `d = <object_hex>:discharge`
-  - `o = <object_hex>`
-- redeem:
-  - `d = <object_hex>:redeem`
-  - `o = <object_hex>`
-
-This keeps the full chain object-centric while allowing replaceable slots to distinguish action types for the same object.
+The `d` tag may appear on legacy `31415` and `31416` prototype events. It is
+not required for new regular graph events and shall not be used as the basis for
+current graph reconstruction.
 
 ### Event Kind Split Rationale
 
@@ -590,10 +570,10 @@ It also allows an implementation to identify the initial OpenETR record without 
 
 This specification currently treats the following as the working minimum:
 
-- issue/origin mapped to `31415`
-- control-relevant actions mapped to `31416` and distinguished by `action`
+- anchoring or issuance mapped to `1415`
+- later consequential actions mapped to `1416` and distinguished by `action`
 
-Substitution, cancellation, and revocation may later receive their own event kinds or remain subtyped within broader event families depending on implementation experience. Attestation, termination, encumbrance, discharge, and redemption are currently implemented as subtyped `31416` actions.
+Substitution, cancellation, and revocation may later receive their own event kinds or remain subtyped within broader event families depending on implementation experience. Attestation, termination, encumbrance, discharge, and redemption are currently implemented as subtyped `1416` actions.
 
 This allocation should therefore be treated as:
 
@@ -604,22 +584,22 @@ This allocation should therefore be treated as:
 
 Under this split-kind model:
 
-- initial-record discovery should query origin events
-- control-history traversal should query control events
+- initial-record discovery should query Anchor Events
+- control-history traversal should query evidence events
 - full object-state evaluation will typically need both event families
 
 In practice that means an implementation may need to:
 
-1. query the object's origin event using `kind = 31415`
-2. query subsequent control events using `kind = 31416`
-3. evaluate the attested action chain across both families
+1. query the object's Anchor Event using `kind = 1415`
+2. query subsequent evidence events using `kind = 1416`
+3. validate the DCR graph and apply defined state transition rules
 
 In the current reference flow, object-history evaluation is therefore object-centric first.
 
 That is, implementations commonly:
 
 1. determine the object identifier
-2. query origin and control events by the object's `o` tag
+2. query Anchor Events and later Evidence Events by the object's `o` tag
 3. derive candidate control chains from linked `e` references
 4. apply local policy to determine which chain, if any, is recognized
 
@@ -1060,13 +1040,13 @@ A transfer is declared and accepted in the ordinary way.
 
 Later, an `ATTEST` event is associated with the relevant underlying event and carries additional meaning or instruction, such as presenter-entitled redemption or another endorsement-like instruction.
 
-In this example, the endorsement or indorsement is not a standalone control-event primitive.
+In this example, the endorsement or indorsement is not a standalone evidence-event primitive.
 
 Instead, it is expressed as an attestation associated with the underlying OpenETR event, with its legal or commercial characterization determined by the applicable recognition framework.
 
 ### 4. Encumbrance Without Change of Controller
 
-The current controller declares that the Controlled Object is subject to a security interest in favor of another party.
+The current controller declares that the Digital Artifact is subject to a security interest in favor of another party.
 
 That declaration is attested under the applicable policy.
 
@@ -1080,11 +1060,11 @@ A warehouse operator issues a negotiable warehouse receipt covering stored goods
 
 Under an MLWR-style dual receipt system, a related pledge bond is granted to a lender and gives that lender a security right in the goods covered by the warehouse receipt.
 
-In OpenETR terms, the warehouse receipt remains the Controlled Object, while the pledge-related claim may be expressed through an `ENCUMBER` action set associated with that receipt and identifying the secured party or pledge bond holder.
+In OpenETR terms, the warehouse receipt remains the Digital Artifact, while the pledge-related claim may be expressed through an `ENCUMBER` action set associated with that receipt and identifying the secured party or pledge bond holder.
 
 If the stronger canonical model is used, the encumbrance is declared, accepted, and attested as the basis for recognized encumbrance effect.
 
-Later, once the secured obligation is satisfied or the pledge bond is otherwise released, a corresponding `DISCHARGE` action set may be recorded against the same Controlled Object.
+Later, once the secured obligation is satisfied or the pledge bond is otherwise released, a corresponding `DISCHARGE` action set may be recorded against the same Digital Artifact.
 
 In this example, OpenETR does not itself create the pledge or determine its legal validity, perfection, priority, or enforceability.
 
@@ -1092,7 +1072,7 @@ It provides the signed evidence structure through which an MLWR-style security r
 
 ### 6. Bearer-Style Presentation Profile
 
-A PDF is issued into OpenETR as a Controlled Object.
+A PDF is issued into OpenETR as a Digital Artifact.
 
 An attestation is associated with the object or a relevant event stating, under the applicable recognition framework, that redemption is available to a valid presenter of the recognized evidence chain.
 
@@ -1104,7 +1084,7 @@ In this example, OpenETR supplies the evidence structure for a bearer-like or pr
 
 An exporter holds electronic warehouse receipts issued by multiple warehouse operators covering goods that must be assembled for an impending export shipment.
 
-Each receipt exists as a PDF or similar electronic record and has been issued into OpenETR as a Controlled Object with its own object id and control history.
+Each receipt exists as a PDF or similar electronic record and has been issued into OpenETR as a Digital Artifact with its own object id and control history.
 
 To prepare the shipment, the exporter sends the relevant receipt PDFs to the warehouse operators by email and requests redemption or release of the goods for export.
 
@@ -1124,7 +1104,7 @@ In this example, OpenETR allows multiple warehouse receipts from different issue
 
 ### 8. Non-Transferable Club Membership
 
-A club issues a digital membership record as a Controlled Object.
+A club issues a digital membership record as a Digital Artifact.
 
 The membership is intended to be personal to the named member and not transferable to others.
 

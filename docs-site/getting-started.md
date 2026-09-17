@@ -6,7 +6,7 @@ The fastest way to use the Warehouse Receipts workspace is the live application:
 https://openetr.org/warehouse-receipts
 ```
 
-The workspace lets you work in warehouse receipt language while the underlying OpenETR component publishes, queries, and verifies signed control records for the receipt document digest.
+The workspace lets you work in warehouse receipt language while the underlying OpenETR component publishes, queries, and verifies signed evidence records for the receipt document digest.
 
 For the policy rationale and relationship to the Model Law on Warehouse
 Receipts, see
@@ -19,7 +19,7 @@ The Warehouse Receipts workspace supports two broad modes.
 | Mode | What You Can Do |
 | --- | --- |
 | Read-only | Query a receipt document by uploading the file and recomputing its digest. |
-| Signed in | Select an acting profile, create initial receipt control records, and publish later control records. |
+| Signed in | Select an acting profile, create initial receipt evidence records, and publish later evidence records. |
 
 Read-only users can inspect whether a receipt artifact has an OpenETR record.
 
@@ -33,25 +33,25 @@ Signed-in users can operate the workspace with profiles and signer keys.
 | Control Desk Key | The root/admin key used for recovery and profile management. |
 | Commitment Profile | A profile organized by the Control Desk Key that can sign commitments. |
 | Acting Profile | The selected Commitment Profile currently used to sign warehouse receipt actions. |
-| Receipt Control Record | A signed OpenETR Anchor or control record. |
+| Receipt Evidence Record | A signed OpenETR Anchor or evidence record. |
 | Docs | Link back to this documentation site. |
 
-The **Acting Profile** is the selected Commitment Profile that signs operational actions such as creating the initial control record, transferring, encumbering, discharging, redeeming, or terminating receipt control.
+The **Acting Profile** is the selected Commitment Profile that signs operational actions such as creating the initial evidence record, transferring, encumbering, discharging, redeeming, or terminating receipt control.
 
 ## Query A Receipt
 
-Use **Query Control Record** when you have a warehouse receipt file and want to inspect its OpenETR state.
+Use **Query Evidence Record** when you have a warehouse receipt file and want to inspect its OpenETR state.
 
 1. Open the Warehouse Receipts workspace.
 2. Upload the warehouse receipt file.
 3. Confirm or adjust the relay field.
-4. Select **Query Control Record**.
+4. Select **Query Evidence Record**.
 
-The app computes the file digest locally in the request flow, queries the configured relays, and shows candidate Anchor records, current controller, lifecycle state, control events, and outstanding encumbrances where available.
+The app computes the file digest locally in the request flow, queries the configured relays, and shows candidate Anchor records, current controller, lifecycle state, evidence events, and outstanding encumbrances where available.
 
 ## Sign In And Select An Acting Profile
 
-To create or control receipt control records, sign in with a Control Desk Key or session key.
+To create or control receipt evidence records, sign in with a Control Desk Key or session key.
 
 When signed in, the workspace shows:
 
@@ -85,9 +85,9 @@ Profile metadata may include:
 
 The profile editor publishes an updated Nostr profile event for the acting signer.
 
-## Create A Receipt Control Record
+## Create A Receipt Evidence Record
 
-Use **Create Control Record** when the warehouse operator or issuer profile wants to publish the first OpenETR Anchor record for an already-issued warehouse receipt artifact.
+Use **Create Evidence Record** when the warehouse operator or issuer profile wants to publish the first OpenETR Anchor record for an already-issued warehouse receipt artifact.
 
 The app:
 

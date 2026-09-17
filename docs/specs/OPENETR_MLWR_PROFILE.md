@@ -8,7 +8,7 @@ It is a starting design note, not a final legal or implementation specification.
 
 Draft.
 
-This note reflects the current OpenETR generalized Control Layer, Nostr wire format, and CLI behavior.
+This note reflects the current OpenETR generalized Protocol Layer, Nostr wire format, and CLI behavior.
 
 ## Purpose
 
@@ -16,9 +16,9 @@ The purpose of this profile is to connect OpenETR's generic control model to war
 
 The MLWR profile should answer:
 
-- how a warehouse receipt is represented as a Controlled Object
+- how a warehouse receipt is represented as a Digital Artifact
 - which warehouse receipt roles map to OpenETR participants and profiles
-- which OpenETR control records correspond to receipt issuance evidence, transfer, encumbrance, discharge, redemption, and termination
+- which OpenETR evidence records correspond to receipt issuance evidence, transfer, encumbrance, discharge, redemption, and termination
 - what evidence OpenETR can provide to a recognition framework
 - which questions remain outside OpenETR and must be answered by MLWR-style law, local enactment, contract, registry rules, or institutional policy
 
@@ -28,9 +28,9 @@ That use case deliberately treats the warehouse receipt as an opaque artifact. O
 
 Terminology matters here because the warehouse receipt may itself be a record. In this profile:
 
-- the **warehouse receipt document** is the Controlled Object;
-- an **OpenETR control record** is a signed origin or control event about that object;
-- the **OpenETR control graph** is the linked set of control records for that object.
+- the **warehouse receipt document** is the Digital Artifact;
+- an **OpenETR evidence record** is a signed Anchor Event or Evidence Event about that object;
+- the **OpenETR control graph** is the linked set of evidence records for that object.
 
 OpenETR does not replace the MLWR or any local warehouse receipt law.
 
@@ -38,7 +38,7 @@ OpenETR provides a signed, inspectable, protocol-neutral evidence layer that an 
 
 ## Legal And Architectural Boundary
 
-OpenETR belongs to the Control Layer.
+OpenETR belongs to the Protocol Layer.
 
 It records authenticated control facts and control-relevant assertions.
 
@@ -71,7 +71,7 @@ In this profile, the Recognition Layer may include:
 
 This profile is intended to support electronic warehouse receipt workflows including:
 
-- creation of an initial OpenETR control record for a warehouse receipt
+- creation of an initial OpenETR evidence record for a warehouse receipt
 - identification of the warehouse operator and initial depositor or holder
 - transfer of control over the receipt
 - declaration of pledges, liens, restrictions, or other encumbrances
@@ -81,7 +81,7 @@ This profile is intended to support electronic warehouse receipt workflows inclu
 
 It is not intended to define a complete warehouse receipt data schema.
 
-The receipt document itself may be a PDF, JSON document, signed document bundle, verifiable credential, or another canonical representation. OpenETR identifies it by digest and carries the control-event history around that digest.
+The receipt document itself may be a PDF, JSON document, signed document bundle, verifiable credential, or another canonical representation. OpenETR identifies it by digest and carries the evidence-event history around that digest.
 
 ## Roles
 
@@ -118,7 +118,8 @@ This role is evidence-relevant, but OpenETR does not by itself decide whether th
 
 The transferee is the participant to whom control is being transferred.
 
-In OpenETR, transfer is represented by a control-event chain involving `initiate` and, where the profile requires it, `accept`.
+In OpenETR, transfer is represented by an Evidence Event chain involving
+`initiate` and, where the profile requires it, `accept`.
 
 ### Secured Party Or Pledgee
 
@@ -146,44 +147,44 @@ It supplies evidence that may be required for recognition under a particular MLW
 
 The current OpenETR implementation uses:
 
-- `kind 31415` for origin events
-- `kind 31416` for control-relevant events
+- `kind 1415` for Anchor Events
+- `kind 1416` for control-relevant events
 
 The MLWR profile maps warehouse receipt actions onto that event family as follows.
 
 | Warehouse receipt action | OpenETR event | Current CLI surface | Control effect |
 | --- | --- | --- | --- |
-| Create initial control record for receipt | `kind 31415` origin | `openetr issue-etr <receipt-file>` | establishes origin and initial controller evidence for the receipt digest |
-| Initiate transfer | `31416`, `action=initiate` | `openetr transfer initiate <receipt-file> --transferee <profile>` | candidate transfer toward transferee |
-| Accept transfer | `31416`, `action=accept` | `openetr transfer accept <receipt-file>` | acceptance evidence; recognition depends on policy |
-| Attest fact or event | `31416`, `action=attest` | `openetr attest <receipt-file>` | no controller change |
-| Declare pledge, lien, or restriction | `31416`, `action=encumber` | `openetr encumber <receipt-file> --beneficiary <profile>` | no controller change |
-| Release pledge, lien, or restriction | `31416`, `action=discharge` | `openetr discharge <receipt-file> --encumbrance-event <event>` | no controller change |
-| Present for delivery | `31416`, `action=redeem` | `openetr redeem <receipt-file> --obligor <profile>` | redemption-pending state |
-| End lifecycle | `31416`, `action=terminate` | `openetr terminate-etr <receipt-file>` | terminated lifecycle state |
+| Create initial evidence record for receipt | `kind 1415` origin | `openetr issue-etr <receipt-file>` | establishes origin and initial controller evidence for the receipt digest |
+| Initiate transfer | `1416`, `action=initiate` | `openetr transfer initiate <receipt-file> --transferee <profile>` | candidate transfer toward transferee |
+| Accept transfer | `1416`, `action=accept` | `openetr transfer accept <receipt-file>` | acceptance evidence; recognition depends on policy |
+| Attest fact or event | `1416`, `action=attest` | `openetr attest <receipt-file>` | no controller change |
+| Declare pledge, lien, or restriction | `1416`, `action=encumber` | `openetr encumber <receipt-file> --beneficiary <profile>` | no controller change |
+| Release pledge, lien, or restriction | `1416`, `action=discharge` | `openetr discharge <receipt-file> --encumbrance-event <event>` | no controller change |
+| Present for delivery | `1416`, `action=redeem` | `openetr redeem <receipt-file> --obligor <profile>` | redemption-pending state |
+| End lifecycle | `1416`, `action=terminate` | `openetr terminate-etr <receipt-file>` | terminated lifecycle state |
 
-## Initial Control Record
+## Initial Evidence Record
 
-The warehouse receipt may be issued by an external warehouse system, document system, or legal process. OpenETR begins when a profile publishes an origin control record for the receipt document digest.
+The warehouse receipt may be issued by an external warehouse system, document system, or legal process. OpenETR begins when a profile publishes an Anchor Record for the receipt document digest.
 
 The receipt document is hashed, and the resulting digest is used as the OpenETR object identifier.
 
 Minimum current wire shape:
 
-- `kind = 31415`
+- `kind = 1415`
 - `d = <object_hex>`
 - `o = <object_hex>`
 - author = issuing profile signer
 
 In an MLWR profile, policy should specify:
 
-- whether the warehouse operator must be the signer of the initial control record
+- whether the warehouse operator must be the signer of the initial evidence record
 - whether the initial controller is the warehouse operator, depositor, or another party
 - whether the receipt must include structured warehouse receipt fields
 - whether a warehouse operator profile must include a legal name, address, license, registry id, or other credentials
 - whether receipt issuance or control-record creation requires an attestation by a registry, platform, or public authority
 
-OpenETR can prove that a particular profile signed the origin control record for a particular receipt digest. It cannot by itself prove that the signer was legally authorized to issue warehouse receipts, or that the receipt itself was validly issued under applicable law.
+OpenETR can prove that a particular profile signed the Anchor Record for a particular receipt digest. It cannot by itself prove that the signer was legally authorized to issue warehouse receipts, or that the receipt itself was validly issued under applicable law.
 
 ## Transfer Of Control
 
@@ -191,7 +192,7 @@ Transfer is represented by the current OpenETR transfer action family.
 
 The initiating party publishes:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = initiate`
 - `p = <transferee_pubkey_hex>`
 - `o = <object_hex>`
@@ -199,7 +200,7 @@ The initiating party publishes:
 
 The transferee may then publish:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = accept`
 - `o = <object_hex>`
 - `e = <initiate_event_id_or_prior_event_id>`
@@ -225,7 +226,7 @@ The MLWR profile should treat pledge, lien, and security-right evidence as first
 
 An encumbrance event currently uses:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = encumber`
 - `p = <beneficiary_or_secured_party_pubkey_hex>`
 - optional `type`, such as `pledge`, `lien`, or `restriction`
@@ -251,7 +252,7 @@ Discharge records release or satisfaction of a particular encumbrance.
 
 The discharge event should identify the encumbrance being discharged:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = discharge`
 - `enc = <encumbrance_event_id_hex>`
 - optional `p = <releasing_party_pubkey_hex>`
@@ -273,7 +274,7 @@ Redemption represents presentation of the warehouse receipt for delivery of good
 
 The current event shape is:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = redeem`
 - `p = <obligor_pubkey_hex>`
 - optional `ref = <presentation_or_claim_reference>`
@@ -305,7 +306,7 @@ In an MLWR profile, termination may correspond to:
 
 The current event shape is:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = terminate`
 - `o = <object_hex>`
 - `e = <prior_event_id>`
@@ -335,7 +336,7 @@ Possible attestations include:
 
 The current attestation shape is:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = attest`
 - `e = <specific_event_id_being_attested>`
 - optional `type = <attestation_type>`
@@ -384,7 +385,7 @@ One MLWR-style lifecycle may look like:
 
 1. Warehouse operator creates a profile.
 2. Warehouse operator publishes a profile with legal name, address, and optional registry identifiers.
-3. Warehouse operator creates the initial OpenETR control record for the already-issued receipt:
+3. Warehouse operator creates the initial OpenETR evidence record for the already-issued receipt:
 
    ```bash
    openetr issue-etr examples/MLWR001.pdf
@@ -435,7 +436,7 @@ One MLWR-style lifecycle may look like:
    openetr query-etr examples/MLWR001.pdf
    ```
 
-The query result should show the origin control record, later control records, lifecycle state, current controller, profile metadata, and outstanding encumbrance state.
+The query result should show the Anchor Record, later evidence records, lifecycle state, current controller, profile metadata, and outstanding encumbrance state.
 
 ## Open Questions
 

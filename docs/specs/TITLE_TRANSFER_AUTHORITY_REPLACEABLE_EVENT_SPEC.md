@@ -2,7 +2,7 @@
 
 > Status: Legacy / specialized recognition-pattern note.
 >
-> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. The current OpenETR model has evolved toward a broader Control Layer with `31415` origin events, `31416` control events, relay-backed profiles, and separate Recognition Layer policy.
+> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. The current OpenETR model has evolved toward a broader Protocol Layer with `31415` Anchor Events, `31416` evidence events, relay-backed profiles, and separate Recognition Layer policy.
 >
 > The note remains useful as a specialized pattern for registry-style or attestor-led recognition, and as background for trust-anchor design. It should not be read as the primary current OpenETR model.
 
@@ -276,7 +276,7 @@ can be assigned a stable digest and then bound to an authoritative title record 
 In that design, the artifact itself remains an ordinary file, but the authoritative title state for that artifact is externalized into a signed replaceable event keyed by digest. The transferable quality does not come from the file format itself. It comes from the combination of:
 
 - a unique object identifier
-- an authoritative control record
+- an authoritative evidence record
 - a transfer process governed by the Title Transfer Authority
 - a way to determine the current holder of title from the latest valid attestation
 

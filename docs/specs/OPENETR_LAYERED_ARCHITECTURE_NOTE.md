@@ -3,7 +3,7 @@
 This note describes the relationship between:
 
 - the Nostr wire format
-- OpenETR's control layer for DCR evidence and consequential state
+- OpenETR's protocol layer for DCR evidence and consequential state
 - domain adapters such as the MLWR warehouse receipts surface
 - recognition frameworks that give legal or operational effect to the evidence
 
@@ -24,7 +24,7 @@ The Nostr wire format is the publication and retrieval substrate.
 
 At this layer, OpenETR defines:
 
-- event kinds such as `1415` for Anchor Events and `1416` for control events
+- event kinds such as `1415` for Anchor Events and `1416` for evidence events
 - core query and traversal tags such as `o`, `e`, and `p`
 - signed named tags for structured event data such as `name`, `size_bytes`, `domain`, `document_type`, `record_reference`, or `record_description`
 - readable event `content` for narrative context rather than machine parsing
@@ -40,16 +40,16 @@ This layer answers questions such as:
 
 It does not decide whether a warehouse receipt is legally valid, whether a transfer is protected, whether goods exist, or whether a registry must recognize an event.
 
-## OpenETR Control Layer
+## OpenETR Protocol Layer
 
-The OpenETR control layer sits above the wire format.
+The OpenETR protocol layer sits above the wire format.
 
 It interprets signed events as a DCR concerning a Digital Artifact.
 
 A **Digital Controllable Record (DCR)** is one end-verifiable record or a graph
 of related records concerning a digest-identified Digital Artifact. It is the
 protocol evidence structure, not the artifact itself. A linked set of Anchor
-and Control Events is a candidate DCR graph.
+and Evidence Events is a candidate DCR graph.
 
 This is distinct from a **Digital Original**, which is a Digital Artifact for
 which validation of its DCR under an applicable policy establishes
@@ -63,14 +63,14 @@ At this layer, OpenETR defines:
 - Digital Artifacts identified by cryptographic digest
 - DCRs formed from signed end-verifiable records
 - Anchor records that begin candidate DCRs for Digital Artifacts
-- later control records for transfer, encumbrance, discharge, redemption, termination, and attestation
+- later evidence records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
-- current-controller derivation from Anchor and control-event chains
+- current-controller derivation from Anchor Event and later Evidence Event chains
 - state transition rules and validation policies that evaluate the DCR as a whole and produce
   consequential state
 - guardrails against ambiguous or duplicate actions where appropriate
 
-The control layer is domain-neutral.
+The protocol layer is domain-neutral.
 
 It should not need to know whether an object is a warehouse receipt, bill of
 lading, certificate, credential, or another transferable record. It provides
@@ -81,7 +81,7 @@ In implementation terms, this is the role of the `openetr` Python component, CLI
 
 ## Domain Adapters
 
-Domain adapters sit above the OpenETR control layer.
+Domain adapters sit above the OpenETR protocol layer.
 
 A domain adapter presents a workflow in the vocabulary of a particular legal, commercial, or operational setting, then translates those actions into the general OpenETR control model.
 
@@ -89,7 +89,7 @@ The MLWR warehouse receipts webapp is the current example.
 
 It speaks in terms of:
 
-- create receipt control record
+- create receipt evidence record
 - query receipt control status
 - current holder / controller
 - transfer receipt
@@ -100,12 +100,12 @@ It speaks in terms of:
 
 Under the surface, those actions map to general OpenETR operations:
 
-- create receipt control record -> Anchor record
-- transfer receipt -> transfer initiate / accept control events
-- pledge or restriction -> encumber control event
-- release encumbrance -> discharge control event
-- present for delivery -> redeem control event
-- complete delivery -> terminate control event
+- create receipt evidence record -> Anchor record
+- transfer receipt -> transfer initiate / accept evidence events
+- pledge or restriction -> encumber evidence event
+- release encumbrance -> discharge evidence event
+- present for delivery -> redeem evidence event
+- complete delivery -> terminate evidence event
 
 The adapter may add domain-specific signed tags, such as:
 
@@ -153,7 +153,7 @@ OpenETR is focused on control evidence:
 - what object exists;
 - which Anchor Event began the candidate DCR;
 - which signed events reference the object;
-- how control events link through exact `e` references;
+- how evidence events link through exact `e` references;
 - which profile key signed each event;
 - what candidate state can be derived from the graph.
 
@@ -218,7 +218,7 @@ This layering keeps the project flexible.
 
 The Nostr wire format can remain small and interoperable.
 
-The OpenETR control layer can remain general.
+The OpenETR protocol layer can remain general.
 
 Domain adapters can feel natural to users working in a specific area.
 
@@ -233,7 +233,7 @@ Current implementation artifacts roughly map as follows:
 | Layer | Implementation artifacts |
 | --- | --- |
 | Nostr wire format | `OPENETR_NOSTR_WIRE_FORMAT_SPEC.md`, event kinds `1415` and `1416`, event tags, relay queries |
-| OpenETR control layer | `openetr` Python package, CLI commands, `openetr.services.issue_etr`, `openetr.services.control_events`, `openetr.services.query_etr` |
+| OpenETR protocol layer | `openetr` Python package, CLI commands, `openetr.services.issue_etr`, `openetr.services.control_events`, `openetr.services.query_etr` |
 | Domain adapters | MLWR Control Desk routes and templates, `MLWR_WEBAPP_DOMAIN_ADAPTER_DESIGN_NOTE.md`, `OPENETR_MLWR_PROFILE.md` |
 | Recognition layer | generic verifier policy, MLWR article mapping, policy profiles, attestations, TRQP, WoT, legal or institutional rules outside the base protocol |
 

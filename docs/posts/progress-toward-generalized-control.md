@@ -2,10 +2,10 @@
 title: Progress Toward Generalized Control
 date: 2026-07-09
 eyebrow: Project Update
-description: A progress update on the OpenETR protocol, CLI, web app, and the move toward a generalized control layer for multiple legal frameworks.
+description: A progress update on the OpenETR protocol, CLI, web app, and the move toward a generalized protocol layer for multiple legal frameworks.
 ---
 
-OpenETR has moved from a narrow proof of concept toward a more general protocol shape: a control layer for electronic records that can be interpreted under different legal and institutional frameworks.
+OpenETR has moved from a narrow proof of concept toward a more general protocol shape: a protocol layer for electronic records that can be interpreted under different legal and institutional frameworks.
 
 That distinction matters. OpenETR is not trying to be a statute, registry, court, or private rulebook. It is trying to provide the signed, inspectable evidence from which those systems can decide whether a record, transfer, encumbrance, discharge, or presentation should be recognized.
 
@@ -19,10 +19,10 @@ The current reference implementation now has a working event family for the core
 
 At the wire level, the model is built around two Nostr event families:
 
-- `kind 31415` for the origin or issue event
-- `kind 31416` for later control-relevant events
+- `kind 1415` for the origin or issue event
+- `kind 1416` for later control-relevant events
 
-The `31416` family is no longer treated as only a transfer event. It is now a broader control-event family with explicit action subtypes:
+The `1416` family is no longer treated as only a transfer event. It is now a broader evidence-event family with explicit action subtypes:
 
 - `initiate`
 - `accept`
@@ -77,7 +77,7 @@ openetr discharge examples/MLWR001.pdf \
   --ref discharge-MLWR001-001
 ```
 
-The query surface has also become more useful. `openetr query-etr` now shows the origin event, matching control events, lifecycle state, current controller, profile information where available, and an encumbrance summary.
+The query surface has also become more useful. `openetr query-etr` now shows the Anchor Event, matching evidence events, lifecycle state, current controller, profile information where available, and an encumbrance summary.
 
 That means a user can ask a practical question such as:
 
@@ -111,12 +111,12 @@ The root may also be a profile, but root and profile are roles rather than diffe
 
 The most important design progress is not just that more commands exist. It is that the model has been generalized.
 
-OpenETR is now framed as a Control Layer rather than a single-purpose legal instrument.
+OpenETR is now framed as a Protocol Layer rather than a single-purpose legal instrument.
 
-The Control Layer answers questions such as:
+The Protocol Layer answers questions such as:
 
-- What is the controlled object?
-- Who signed the origin event?
+- What is the digital artifact?
+- Who signed the Anchor Event?
 - Who is the current controller under the evaluated chain?
 - What transfer, attestation, encumbrance, discharge, redemption, or termination events exist?
 - Which events are linked to which prior events?
@@ -153,7 +153,7 @@ But they all need reliable evidence about electronic records and control-relevan
 The generalized model lets an implementation say:
 
 - here is the record identifier
-- here is the signed origin event
+- here is the signed Anchor Event
 - here is the signed control history
 - here are the parties who acted
 - here are the encumbrances and discharges asserted against the record
@@ -166,7 +166,7 @@ That keeps the protocol modest but useful. It avoids collapsing technical public
 
 ## Current Event Family Significance
 
-The move from a narrow transfer event to a broader `31416` control-event family is a practical part of that generalization.
+The move from a narrow transfer event to a broader `1416` evidence-event family is a practical part of that generalization.
 
 A transferable record is rarely only transferred. It may be inspected, pledged, restricted, released, presented, redeemed, or terminated. Some of those actions change control. Some do not. Some may matter only under a particular policy or legal regime.
 
@@ -180,7 +180,7 @@ That is enough structure for a reference implementation to publish and query mea
 
 The current work gives OpenETR a clearer bridge between specs and implementation:
 
-- a Nostr wire format for origin and control events
+- a Nostr wire format for Anchor Events and later Evidence Events
 - a minimum shape for implemented control actions
 - a CLI walkthrough that maps commands to event shapes
 - a root/profile model for operational identities

@@ -40,7 +40,7 @@ is trying to do, without forcing them to learn protocol vocabulary first.
 | **Check** | The artifact remains private; the verifier checks digest-bound signed evidence, status, and recognized signer information | Evidence-only verification |
 | **Present** | The exact artifact is made available temporarily so the verifier can inspect it and compare its digest with the signed evidence | Presentation verification |
 | **Share** | The verifier receives the exact artifact and may retain it under an appropriate authority, agreement, or policy | Deep verification |
-| **Surrender** | Control is transferred, discharged, redeemed, cancelled, revoked, or given into another authority's custody | Control event, termination event, redemption event, revocation event, or domain-specific recognition act |
+| **Surrender** | Control is transferred, discharged, redeemed, cancelled, revoked, or given into another authority's custody | Evidence Event for termination, redemption, revocation, or another consequential action, or a domain-specific recognition act |
 
 Some records may also be intentionally public. In that case, anyone can inspect
 the artifact and compare it with the signed evidence. Public records still fit
@@ -66,7 +66,7 @@ Different records and decisions can stop at different stages.
 | **Public artifact** | The artifact or an authorized representation is openly retrievable | Anyone can calculate the digest and compare it with signed evidence |
 | **Presentation verification** | The exact artifact is made temporarily available for inspection without routine retention | Visual inspection, exact digest comparison, Control History, and recognition policy |
 | **Deep verification** | The verifier receives and may retain the exact artifact under an appropriate authority or agreement | Native-format validation, metadata or forensic analysis, signed evidence, recognition inputs, and verifier-specific policy |
-| **Surrender of control** | The holder gives up control or the record's operative status changes under the domain rulebook | Transfer, redemption, discharge, cancellation, revocation, seizure, or custodial control event |
+| **Surrender of control** | The holder gives up control or the record's operative status changes under the domain rulebook | Transfer, redemption, discharge, cancellation, revocation, seizure, or custodial evidence event |
 
 This is an escalation model. Most routine decisions should not require the
 most consequential stage.
@@ -136,7 +136,7 @@ For a sensitive document, an authorized notary or issuer may publish only:
 - a narrowly scoped signed statement;
 - the signing key or resolvable organizational profile;
 - the relevant time and event relationships; and
-- later revocation, replacement, attestation, or control events.
+- later revocation, replacement, attestation, or evidence events.
 
 The artifact can remain in the holder's safekeeping environment. When it is
 presented, a verifier calculates the digest over the exact presented bytes and
@@ -198,7 +198,7 @@ environment and may then:
 
 Receiving a copy for verification does **not** transfer control, ownership, or
 legal title. OpenETR control changes require the appropriate separately
-authorized and signed control events. A digital copy can reproduce evidence;
+authorized and signed evidence events. A digital copy can reproduce evidence;
 it cannot copy control merely by existing.
 
 In the plain-language model, this is **Share**. The holder or responsible
@@ -224,7 +224,7 @@ Examples include:
   commercial transaction.
 
 OpenETR fits this model well because surrender can be represented as a signed
-control event, redemption event, discharge event, termination event, or
+evidence event, redemption event, discharge event, termination event, or
 domain-specific event interpreted by a domain adapter and recognition policy.
 
 The concerning case is different. Some situations may require a person to
@@ -282,7 +282,7 @@ forensic checks.
 A recognized origin proves that a key made a signed statement about an exact
 artifact. It does not by itself prove that the presenter is the rightful
 holder. Holder binding may require a photograph comparison, a component-key
-challenge, a control event, or another domain-appropriate method.
+challenge, an evidence event, or another domain-appropriate method.
 
 Surrender changes the risk profile. A border or administrative process may
 require a person to give up custody or control of a passport. That may be

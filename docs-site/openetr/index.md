@@ -99,7 +99,7 @@ OpenETR defines:
 - Digital Controllable Records made of signed end-verifiable events;
 - state transition rules for deriving state from DCR evidence;
 - Anchor records that begin candidate DCRs;
-- control events for transfer, encumbrance, discharge, redemption, termination, and attestation;
+- evidence events for transfer, encumbrance, discharge, redemption, termination, and attestation;
 - linked evidence records for supporting documents and lifecycle evidence;
 - profile-backed signing;
 - object-centric relay queries;

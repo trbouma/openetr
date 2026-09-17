@@ -57,7 +57,7 @@ Examples include:
 - what exact file was recorded
 - what digest identifies that file
 - which signer created an Anchor Event
-- what control events or linked evidence records reference that object
+- what evidence events or linked evidence records reference that object
 - whether the same file can later be recomputed to the same digest
 - what candidate control or evidence graphs exist for that object
 - which consequential state follows from each valid graph under the applicable
@@ -196,7 +196,7 @@ The sequence is:
 4. Sign the C2PA manifest.
 5. Finalize the file package.
 6. Compute the OpenETR digest over the final artifact bytes.
-7. Publish or preserve an OpenETR Anchor Event, control event, or linked evidence record for that digest.
+7. Publish or preserve an OpenETR Anchor Event, evidence event, or linked evidence record for that digest.
 
 The important ordering rule is:
 
@@ -209,11 +209,11 @@ If the file changes after the OpenETR digest is recorded, the digest should no l
 
 ## Possible Event Usage
 
-OpenETR can use different event patterns depending on whether the C2PA-enabled file is itself the controlled object or supporting evidence for another controlled object.
+OpenETR can use different event patterns depending on whether the C2PA-enabled file is itself the digital artifact or supporting evidence for another digital artifact.
 
-### C2PA File As Controlled Object
+### C2PA File As Digital Artifact
 
-If the C2PA-enabled artifact is the primary record, the artifact digest may be used directly as the OpenETR Controlled Object identifier.
+If the C2PA-enabled artifact is the primary record, the artifact digest may be used directly as the OpenETR Digital Artifact identifier.
 
 Example:
 
@@ -228,13 +228,13 @@ This is appropriate where the artifact itself is the record being issued, transf
 
 ### C2PA File As Linked Evidence
 
-If the C2PA-enabled artifact supports another controlled object, it should be modeled as linked evidence.
+If the C2PA-enabled artifact supports another digital artifact, it should be modeled as linked evidence.
 
 Example:
 
 ```text
 warehouse-receipt.pdf
-  -> controlled object digest
+  -> digital artifact digest
   -> OpenETR control graph
 
 inspection-photo-with-c2pa.jpg
@@ -390,4 +390,4 @@ Further design work should decide:
 
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
 - [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
-- [Digital Originality, Control, And Standing Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
+- [Digital Originality, Control, Recognition, And Effect Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)

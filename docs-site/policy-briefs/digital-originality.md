@@ -396,5 +396,5 @@ The architectural objective is simple:
 
 - [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
-- [Digital Originality, Control, And Standing](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
+- [Digital Originality, Control, Recognition, And Effect](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
 - [Records-First Authenticity And Digital Originality](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md)

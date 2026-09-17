@@ -13,7 +13,7 @@ real-world object, product, document, or record
   -> canonical file or data artifact
   -> digest
   -> signed Anchor record
-  -> signed control records or linked evidence records
+  -> signed evidence records or linked evidence records
   -> evidence validation and defined protocol rules
   -> Consequential State
   -> verifier, registry, authority, or relying party recognizes the state
@@ -34,7 +34,7 @@ OpenETR can answer questions such as:
 - what object digest is being referenced?
 - which Anchor record began the candidate DCR?
 - which signed events reference the same object?
-- how do control events link through `e` references?
+- how do evidence events link through `e` references?
 - which profile key signed each event?
 - what Consequential State can be derived from the Evidence Graph under the defined rules?
 - which linked evidence records point back to the object?

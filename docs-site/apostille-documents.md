@@ -47,11 +47,11 @@ This lets OpenETR represent the evidence graph without overclaiming. OpenETR can
 
 ## Candidate DCR Records
 
-An Apostille Documents domain profile could define control records such as:
+An Apostille Documents domain profile could define evidence records such as:
 
 | DCR Record | Purpose |
 | --- | --- |
-| Origin control record | First OpenETR record for the apostilled document bundle. |
+| Anchor Record | First OpenETR record for the apostilled document bundle. |
 | Authority attestation | Signed statement by, or linked to, a Competent Authority or recognized registry source. |
 | Registry reference | Link to an official e-Register or verification endpoint. |
 | Verification event | Evidence that a verifier checked the Apostille at a particular time. |
@@ -93,7 +93,7 @@ Legal recognition remains with the relevant authority, law, treaty framework, re
 | OpenETR Concept | Apostille Documents Mapping |
 | --- | --- |
 | Digital Artifact | Apostilled document bundle, e-Apostille package, notarized/certified document package, or related verification artifact. |
-| Origin control record | Initial OpenETR record for the package digest. |
+| Anchor Record | Initial OpenETR record for the package digest. |
 | Evidence Graph | Linked evidence about authority, provenance, registry references, verification, replacement, or warnings. |
 | Recognition layer | Apostille Convention rules, Competent Authority practice, e-Register checks, local law, court or agency policy, and relying-party verification rules. |
 

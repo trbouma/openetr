@@ -82,7 +82,7 @@ The intent is similar to an SSH client warning when connecting to an unknown hos
 
 The known-entity check should be treated as a warning by default, not as a hard verification failure.
 
-For example, if an origin event is signed by an `npub` that is not in the verifier's `known_entities` list, the verifier may emit:
+For example, if an Anchor Event is signed by an `npub` that is not in the verifier's `known_entities` list, the verifier may emit:
 
 ```text
 unknown_entity:
@@ -100,7 +100,7 @@ It means the verifier should make the unfamiliar identity visible before the use
 The baseline policy may check:
 
 - origin issuer;
-- control event signer;
+- evidence event signer;
 - transferee or counterparty `p` tags;
 - encumbrance beneficiary or releasing party;
 - attestors;
@@ -219,7 +219,7 @@ The protocol remains the shared evidence substrate:
 
 - signed events
 - object identifiers
-- control-event kinds
+- evidence-event kinds
 - tags
 - relay-backed or locally stored event retrieval
 - chain traversal through `e` links
@@ -264,15 +264,15 @@ The current `openetr` query service is intentionally object-wide.
 
 For a document digest / object id, it:
 
-1. queries origin events using `kind = 1415` and `#o`
-2. queries control events using `kind = 1416` and `#o`
-3. groups candidate control events by `e` references
+1. queries Anchor Events using `kind = 1415` and `#o`
+2. queries evidence events using `kind = 1416` and `#o`
+3. groups candidate evidence events by `e` references
 4. builds summary control chains
 5. derives a candidate lifecycle state
 6. derives a candidate current controller
 7. summarizes encumbrances, discharges, and outstanding encumbrances
 8. includes profile metadata where available
-9. reports warning conditions such as multiple origin events for the same object
+9. reports warning conditions such as multiple Anchor Events for the same object
 
 This behavior is deliberately exploratory and evidentiary. It does not ask the relay or the first application that displays the record to decide final effect.
 
@@ -393,7 +393,7 @@ Examples include:
 - invalid event ids
 - missing required event shape tags
 - events whose required object identity cannot be determined
-- control events that cannot be associated with the queried object
+- evidence events that cannot be associated with the queried object
 
 These are structural or cryptographic problems. A verifier may reject those events from the candidate graph because they do not satisfy the minimum requirements for OpenETR event evidence.
 
@@ -407,8 +407,8 @@ These should generally be represented as warnings or policy annotations.
 
 Examples include:
 
-- more than one origin event exists for the same object digest
-- a control event is signed by someone other than the expected current controller
+- more than one Anchor Event exists for the same object digest
+- an evidence event is signed by someone other than the expected current controller
 - an event would not have passed the baseline publishing guard used by the reference component
 - a transfer initiation has no corresponding acceptance event
 - a transfer acceptance appears without a recognized initiation
@@ -417,7 +417,7 @@ Examples include:
 - a termination appears while an encumbrance remains outstanding
 - multiple candidate chains compete for recognition
 - a prior event referenced by an `e` tag is missing because the event is unavailable from the queried relays or local store
-- an origin event appears to have been replaced after later control events already depended on its event id
+- an Anchor Event appears to have been replaced after later evidence events already depended on its event id
 - a participant profile is missing or does not satisfy the verifier's actor policy
 - an event is structurally valid but lacks an attestation required by the selected policy
 
@@ -462,7 +462,7 @@ The generic verifier should treat broken `e` links as a first-class graph-contin
 
 This is especially important because every OpenETR control transition links to a specific prior event id. New OpenETR graph events use regular event kinds `1415` and `1416`, but earlier prototype events used addressable / replaceable kinds `31415` and `31416` with a `d` slot.
 
-If a legacy origin event is republished by the same author for the same object slot, the replacement event normally has a different event id. A relay may then stop returning the older origin event. Later control events that point to the older origin through `e` still point to that exact older event id, not to the newer replacement event.
+If a legacy Anchor Event is republished by the same author for the same object slot, the replacement event normally has a different event id. A relay may then stop returning the older Anchor Event. Later evidence events that point to the older origin through `e` still point to that exact older event id, not to the newer replacement event.
 
 The verifier should therefore distinguish:
 
@@ -470,13 +470,13 @@ The verifier should therefore distinguish:
 - replacement publication, where the event id changes
 - missing prior-event evidence, where a later event references an event id that cannot be retrieved
 
-The generic policy should not silently repair the graph by treating a newer replacement origin as the parent of older control events.
+The generic policy should not silently repair the graph by treating a newer replacement Anchor Event as the parent of older evidence events.
 
 Instead, it should enumerate the available evidence and emit a warning such as:
 
 ```text
 broken_prior_link:
-  control event references prior event A,
+  evidence event references prior event A,
   but A was not available from the queried evidence sources
 ```
 
@@ -484,8 +484,8 @@ or:
 
 ```text
 origin_replaced_after_control:
-  newer origin event B exists for the same author/kind/d slot,
-  but later control events reference older origin event A
+  newer Anchor Event B exists for the same author/kind/d slot,
+  but later evidence events reference older Anchor Event A
 ```
 
 A domain or organizational rule book can decide the effect of that warning. It may:
@@ -542,7 +542,7 @@ It treats the graph as object-centric evidence and derives practical state for d
 
 - the first candidate Anchor event is used as the initial basis
 - multiple candidate Anchor events are reported as a warning condition
-- control events are grouped and summarized through `e` references
+- evidence events are grouped and summarized through `e` references
 - controller state is derived from controller-changing actions
 - lifecycle state is derived from lifecycle-changing actions
 - encumbrance state is derived by matching `encumber` and `discharge` events
@@ -574,7 +574,7 @@ This separation is intentional.
 OpenETR should provide:
 
 - cryptographic evidence that an event was signed by a key;
-- graph evidence about where the event sits in relation to the controlled object;
+- graph evidence about where the event sits in relation to the digital artifact;
 - guard evidence about whether a baseline or custom component policy would allow the transition;
 - state-derivation output showing what follows under the identified rules; and
 - recognition evidence showing what effect a relying party gives to the result.
@@ -633,4 +633,4 @@ This note complements:
 - [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [OPENETR_LAYERED_ARCHITECTURE_NOTE.md](./OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 
-The wire-format spec defines the event grammar. The control-event policy guards note explains hard and soft guards. This note defines how a generic verifier should enumerate and annotate the control graph under policy.
+The wire-format spec defines the event grammar. The evidence-event policy guards note explains hard and soft guards. This note defines how a generic verifier should enumerate and annotate the control graph under policy.

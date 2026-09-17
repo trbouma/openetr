@@ -23,7 +23,7 @@ The wallet helps answer:
 
 OpenETR helps answer:
 
-> What happened to this digest-identified controlled object?
+> What happened to this digest-identified digital artifact?
 
 ## EUDI Wallet Role
 
@@ -50,8 +50,8 @@ It identifies a record by digest and records signed events about that object.
 
 The OpenETR graph may include:
 
-- an origin control record;
-- transfer or control events;
+- an Anchor Record;
+- transfer or evidence events;
 - attestations;
 - encumbrance and discharge events;
 - redemption and termination events;
@@ -66,7 +66,7 @@ OpenETR is therefore not primarily a holder wallet or credential container. It i
 | Aspect | EUDI Wallet | OpenETR |
 | --- | --- | --- |
 | Primary orientation | Holder-centric and credential-centric. | Object-centric and lifecycle-centric. |
-| Main unit | Wallet Unit and wallet-held credentials. | Controlled Object identified by digest. |
+| Main unit | Wallet Unit and wallet-held credentials. | Digital Artifact identified by digest. |
 | Main interaction | Presenting credentials or attributes to relying parties. | Publishing and querying signed records about an object. |
 | Typical question | What credentials does this holder present? | What signed events exist for this object? |
 | Trust focus | Issuers, wallets, relying parties, trust services, credential formats, and presentation protocols. | Profile keys, event signatures, object digests, control graphs, linked evidence records, and verifier policy. |
@@ -99,7 +99,7 @@ For Digital Product Passports, EUDI Wallet credentials could help an economic op
 OpenETR could then preserve durable signed evidence of:
 
 - the original Product Passport digest;
-- the origin control record for the passport artifact;
+- the Anchor Record for the passport artifact;
 - the organization profile key that issued or updated the graph;
 - linked evidence records for repair, recall, recycling, audit, inspection, or end-of-life documents;
 - durable query links and QR codes;
@@ -116,7 +116,7 @@ For warehouse receipts, EUDI Wallet credentials or wallet-presented attestations
 - a holder is entitled to present a receipt;
 - a regulator, court officer, or other authority has a right to inspect evidence.
 
-OpenETR would still preserve the receipt digest, origin event, transfer path, encumbrances, discharges, redemption, termination, and verifier warnings.
+OpenETR would still preserve the receipt digest, Anchor Event, transfer path, encumbrances, discharges, redemption, termination, and verifier warnings.
 
 The wallet credential may support recognition of the signer or actor. It does not replace the object graph.
 
@@ -153,7 +153,7 @@ Digital wallets should not be treated as the only trust layer for durable electr
 
 Wallets are essential for identity, credentials, authentication, selective disclosure, and user-controlled presentation. But many important records also need an object-centric history that survives outside any one wallet session, application, registry, platform, or presentation flow.
 
-OpenETR can provide that object-centric control layer.
+OpenETR can provide that object-centric protocol layer.
 
 The result is a cleaner architecture:
 

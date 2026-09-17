@@ -16,7 +16,7 @@ OpenETR provides:
 
 - cryptographically signed event evidence;
 - object identity through document or record digests;
-- a control graph of origin and later control events;
+- a control graph of Anchor and later evidence events;
 - relay-backed publication and retrieval;
 - domain adapters such as the MLWR adapter;
 - verifier policies that decide how to recognize candidate graph transitions.
@@ -40,7 +40,8 @@ TRQP belongs in the OpenETR recognition and verifier-policy layer, not in the ba
 OpenETR separates:
 
 1. **Evidence layer**: signed Nostr events, event ids, object digests, tags, and graph links.
-2. **Control layer**: the OpenETR event grammar and graph model.
+2. **Protocol layer**: the OpenETR evidence-event grammar, graph model, defined
+   rules, and derived state.
 3. **Domain adapter layer**: MLWR, bills of lading, transferable records, credentials, or other domain semantics.
 4. **Recognition layer**: verifier policies, rule books, registries, authorities, and legal or operational effect.
 
@@ -79,7 +80,7 @@ In OpenETR terms, this can be used to evaluate whether a signed event should be 
 
 Example recognition question:
 
-> Did the MLWR authority authorize this warehouse profile to issue warehouse receipts at the time this origin event was signed?
+> Did the MLWR authority authorize this warehouse profile to issue warehouse receipts at the time this Anchor Event was signed?
 
 Possible TRQP-style query:
 
@@ -134,8 +135,8 @@ In this pattern, OpenETR provides the portable graph. TRQP helps discover whethe
 A verifier that uses TRQP could follow this sequence:
 
 1. Determine the OpenETR object id from the document digest or supplied object reference.
-2. Retrieve origin events using `kind = 1415` and `#o`.
-3. Retrieve control events using `kind = 1416` and `#o`.
+2. Retrieve Anchor Events using `kind = 1415` and `#o`.
+3. Retrieve evidence events using `kind = 1416` and `#o`.
 4. Verify event ids, signatures, required tags, and `e` links.
 5. Enumerate candidate control chains.
 6. Apply the generic OpenETR verifier policy.
@@ -280,7 +281,7 @@ TRQP is best understood as a standard authority-query interface available to ver
 
 ## Design Principle
 
-OpenETR should remain a portable, signed, event-based control layer.
+OpenETR should remain a portable, signed, event-based protocol layer.
 
 TRQP should be used when a verifier needs a standardized way to ask:
 

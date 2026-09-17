@@ -57,7 +57,7 @@ At the evidence layer, OpenETR can show:
 - the digest of the Digital Artifact;
 - the Anchor record that begins the candidate DCR;
 - the profile key that signed each event;
-- the control records linked to the Digital Artifact;
+- the evidence records linked to the Digital Artifact;
 - the prior-event links between records;
 - transfer, acceptance, encumbrance, discharge, redemption, termination, attestation, or linked-evidence actions;
 - whether the event ids, signatures, tags, and graph shape can be verified.
@@ -90,7 +90,7 @@ They reduce operator error. They make the reference workflow safer. They give im
 
 That is why OpenETR is consolidating baseline guards into a shared component used by both the web app and CLI.
 
-The guard model is not limited to transfers. It applies across the control-event set, including:
+The guard model is not limited to transfers. It applies across the evidence-event set, including:
 
 - `initiate`
 - `accept`
@@ -228,7 +228,7 @@ It lets evidence travel across systems while letting rule books remain accountab
 
 - [Recognition Boundary](../openetr/recognition.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
-- [Control Event Policy Guards Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
+- [Evidence Event Policy Guards Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
 - [Identifier Resolution Rules](https://github.com/trbouma/openetr/blob/main/docs/specs/IDENTIFIER_RESOLUTION_RULES.md)
-- [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [Evidence Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)

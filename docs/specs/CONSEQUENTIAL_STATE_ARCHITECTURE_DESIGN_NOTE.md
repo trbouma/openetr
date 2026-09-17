@@ -79,7 +79,7 @@ Consequential state may concern:
 - discharge;
 - termination;
 - delegation or authority;
-- standing asserted or represented by a protocol profile; or
+- standing or another domain-specific status derived under defined rules; or
 - another protocol-defined condition affecting what may be done with the
   object.
 
@@ -145,13 +145,14 @@ synonymous with a **Controllable Electronic Record (CER)** under UCC Article
 cargo document, or another legally recognized record only where the applicable
 legal requirements are satisfied.
 
-## End-Verifiable Events
+## Evidence Records And Events
 
-A consequential state transition **MUST** be represented by events that can be
-verified independently of the application, platform, registry, or database
-that produced, stored, transmitted, indexed, or displayed them.
+A consequential state transition **MUST** be supported by Evidence Records that
+can be verified independently of the application, platform, registry, or
+database that produced, stored, transmitted, indexed, or displayed them. In an
+event binding, those records are Evidence Events.
 
-An end-verifiable event must provide sufficient cryptographic and referential
+An Evidence Event must provide sufficient cryptographic and referential
 evidence to determine:
 
 1. which key signed the event;
@@ -183,7 +184,7 @@ NEW CONSEQUENTIAL STATE
 ```
 
 A consequential action is an action capable of producing a protocol-defined
-change in consequential state. OpenETR control primitives include:
+change in consequential state. The generic OpenETR action vocabulary includes:
 
 - Anchor;
 - Transfer;
@@ -541,7 +542,7 @@ For every feature, reviewers should also ask:
 
 ## Related Notes
 
-- [Digital Originality, Control, And Standing Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
+- [Digital Originality, Control, Recognition, And Effect Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
 - [OpenETR Nostr Wire Format Specification](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)

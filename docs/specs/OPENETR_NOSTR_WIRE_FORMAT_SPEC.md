@@ -56,7 +56,7 @@ of the same KBI.
 The current OpenETR wire format uses two event families:
 
 - `kind 1415` for the Anchor Event
-- `kind 1416` for later control events
+- `kind 1416` for later Evidence Events
 - legacy prototype `kind 31415` / `kind 31416` events may exist, but new OpenETR graph events use regular kinds `1415` / `1416`
 
 ### `1415` Anchor Event
@@ -83,9 +83,11 @@ or compel recognition, standing, or legal or operational effect.
 
 A single object digest may have more than one Anchor Event. Different issuers, systems, communities, or recognition contexts may anchor the same object. Verifiers should therefore treat each `1415` event as a candidate anchor and apply the relevant recognition profile to decide which anchor, if any, is authoritative for the purpose at hand.
 
-### `1416` Control Event Family
+### `1416` Evidence Event Family
 
-The control-event family extends the DCR with later control-relevant actions concerning the same Digital Artifact.
+The Evidence Event family extends the DCR with signed evidence of later actions
+concerning the same Digital Artifact. Some actions change control; others
+contribute evidence from which different Consequential State may be derived.
 
 In the current working model, `1416` is a shared action family rather than a single semantic event type.
 
@@ -135,8 +137,8 @@ The recommended convention is:
 
 Earlier prototype events used `d` as the addressable / replaceable slot:
 
-- anchor event: `d = <object_hex>`
-- control event: `d = <object_hex>:<action>`
+- Anchor Event: `d = <object_hex>`
+- Evidence Event: `d = <object_hex>:<action>`
 
 Readers may display `d` when inspecting legacy events, but new graph reconstruction should not rely on it.
 
@@ -148,17 +150,17 @@ In the current model:
 
 - `o = <object_hex>`
 
-The `o` tag is the primary object-centric query anchor for both Anchor Events and later control events.
+The `o` tag is the primary object-centric query anchor for both Anchor Events and later Evidence Events.
 
 The `o` tag is a relay-query anchor. It should not be confused with the `1415` Anchor Event, which is a signed event in the control graph.
 
 ### `e`
 
-`e` links a control event to the prior event in the control graph.
+`e` links an Evidence Event to the prior event in the candidate DCR graph.
 
 In the current model, `e` should reference:
 
-- the Anchor Event id for the first later control event
+- the Anchor Event id for the first later Evidence Event
 - the immediately prior control-relevant event for later actions in the chain
 
 This is the primary chain-traversal link.
@@ -185,7 +187,7 @@ The exact semantics of `p` are action-dependent.
 
 ### `action`
 
-`action` distinguishes the semantic subtype within the `1416` control-event family.
+`action` distinguishes the semantic subtype within the `1416` Evidence Event family.
 
 Examples:
 
@@ -348,7 +350,7 @@ Control meaning:
 Control meaning:
 
 - records an authenticated assertion relating to the object or a control-relevant event
-- targets the specific Anchor Event or control event identified by the `e` tag
+- targets the specific Anchor Event or evidence event identified by the `e` tag
 - does not by itself change the Current Controller
 
 ### Encumber Event
@@ -409,7 +411,7 @@ Implementations should generally:
 
 1. determine the object digest
 2. query Anchor Events using `kind = 1415` and `#o`
-3. query control events using `kind = 1416` and `#o`
+3. query evidence events using `kind = 1416` and `#o`
 4. group candidate chains by `e` references
 5. evaluate those chains under local validity and recognition rules
 
@@ -418,7 +420,7 @@ In current practice, the object digest is commonly queried through the `o` tag a
 The reference `openetr query` command currently derives and displays:
 
 - the candidate Anchor Event or events
-- matching `kind 1416` control events
+- matching `kind 1416` evidence events
 - summary control chains from linked `e` references
 - lifecycle state
 - current controller
@@ -463,18 +465,18 @@ The OpenETR control chain is not database state maintained by a single applicati
 For a candidate object history, an implementation should verify:
 
 1. the Anchor Event uses `kind = 1415` and carries the expected object identifier in `o`
-2. each later control event uses `kind = 1416`
+2. each later evidence event uses `kind = 1416`
 3. each event signature is valid for the event author
 4. each event id matches the serialized event data under the Nostr event id rules
 5. each event has the required minimum tags for its event shape
 6. each event in the candidate chain carries the same `o` object identifier
-7. each control event carries an `e` tag that points to the prior event being relied on
+7. each evidence event carries an `e` tag that points to the prior event being relied on
 8. action-specific references such as `p`, `enc`, `type`, and `ref` are present where required by the action or local recognition profile
 9. the linked chain can be replayed in order to derive lifecycle state, current controller, and outstanding control conditions
 
 The `e` tag follows the Nostr convention for event references. In OpenETR, it is the primary cryptographic link between control-relevant events:
 
-- for the first later control event, `e` should point to the Anchor Event
+- for the first later evidence event, `e` should point to the Anchor Event
 - for later control-transition events, `e` should point to the immediately prior control-relevant event being extended
 - for attestations, `e` should point to the specific event being attested
 - for discharges, `enc` identifies the encumbrance being discharged, while `e` links the discharge into the current control chain
@@ -551,7 +553,7 @@ The reason for the migration is important:
 
 - relay persistence alone is not the source of effect
 - graph continuity should be based on exact event ids
-- a verifier should not silently relink old control events to a newer replacement event
+- a verifier should not silently relink old evidence events to a newer replacement event
 - archives, attestations, local event stores, or relay diversity may still matter for evidentiary completeness
 
 This means the wire format should be understood as the event grammar for OpenETR publication and traversal, not as a guarantee of effect by publication alone.
@@ -562,9 +564,9 @@ OpenETR control chains use event ids as graph links.
 
 This creates a tension with Nostr replaceable-event behavior.
 
-If a legacy origin event is merely rebroadcast unchanged, it has the same event id and the control graph remains linked.
+If a legacy Anchor Event is merely rebroadcast unchanged, it has the same event id and the control graph remains linked.
 
-If the same author republishes the origin as a new replaceable event for the same `kind` and `d` coordinate, the new event normally has a different event id because the Nostr event id commits to the serialized event data, including fields such as `created_at`, tags, and content.
+If the same author republishes the Anchor Event as a new replaceable event for the same `kind` and `d` coordinate, the new event normally has a different event id because the Nostr event id commits to the serialized event data, including fields such as `created_at`, tags, and content.
 
 For example:
 
@@ -576,30 +578,30 @@ new created_at or changed tags/content
 => different event id
 ```
 
-Under ordinary replaceable-event relay behavior, the relay may stop returning the older legacy origin event for that author/kind/`d` coordinate and return only the newer replacement.
+Under ordinary replaceable-event relay behavior, the relay may stop returning the older legacy Anchor Event for that author/kind/`d` coordinate and return only the newer replacement.
 
 That can break later control-chain traversal:
 
 ```text
-old origin event id = A
-later control event e tag -> A
-new replacement origin event id = B
+old Anchor Event id = A
+later evidence event e tag -> A
+new replacement Anchor Event id = B
 relay stops returning A
-=> later control event does not extend B
+=> later evidence event does not extend B
 => verifier cannot fully traverse the chain unless A is available from another source
 ```
 
 For this reason, the reference implementation moved origin and control graph events to regular event kinds.
 
-A verifier should not silently relink old control events to the newer origin. The `e` tag points to a specific event id, not merely to the latest replaceable coordinate.
+A verifier should not silently relink old evidence events to the newer Anchor Event. The `e` tag points to a specific event id, not merely to the latest replaceable coordinate.
 
 Recommended policy treatment:
 
 - rebroadcasting the exact same event is safe because the event id is unchanged
-- republishing an Anchor Event after dependent control events exist should produce a strong warning or policy failure
+- republishing an Anchor Event after dependent evidence events exist should produce a strong warning or policy failure
 - missing prior events referenced by `e` should be reported as broken graph continuity
 - archives, attestations, or local event stores may be needed to verify older graph links when relays have replaced earlier events
-- domain policies may require Anchor Event immutability once the first control event is recognized
+- domain policies may require Anchor Event immutability once the first evidence event is recognized
 
 ## Relationship to Other Specifications
 
@@ -625,10 +627,10 @@ External Nostr inputs relevant to retrieval and private application data:
 The current OpenETR Nostr wire format is defined by:
 
 - `1415` for Anchor Events
-- `1416` for later control events
+- `1416` for later evidence events
 - `o` as the object-history anchor
 - `e` as the control-chain link
-- `action` as the semantic subtype within the control-event family
+- `action` as the semantic subtype within the evidence-event family
 - named non-indexed tags as the convention for signed structured metadata
 - `content` as human-readable or unstructured event data
 

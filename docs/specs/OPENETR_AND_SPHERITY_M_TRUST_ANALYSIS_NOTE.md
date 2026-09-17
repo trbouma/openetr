@@ -130,7 +130,7 @@ The architectures focus on different objects.
 | Primary subject | Agent, principal, mandate, service, and requested action | Digest-identified Digital Artifact and its DCR |
 | Primary decision | Is this action currently authorized? | What consequential state follows from valid evidence under defined rules? |
 | Time orientation | Transaction-time and continuously evaluated | Lifecycle evidence and reproducible state derivation |
-| Main evidence | Identity, credentials, delegation, status, runtime assurance, policy decision | Signed Anchor and Control Events, prior-event links, linked evidence |
+| Main evidence | Identity, credentials, delegation, status, runtime assurance, policy decision | Signed Anchor Events and later Evidence Events, prior-event links, linked evidence |
 | Enforcement | PDP, PEP, connector, gateway, or controlled system | Host system and domain adapter gate publication and effect |
 | Durable output | Signed action receipt and audit trail | Digital Controllable Record and derived consequential state |
 | Final authority | Local relying verifier | Recognition remains with the relevant person, community, institution, authority, or law |
@@ -139,7 +139,7 @@ The connecting point is a consequential action concerning a Digital Artifact.
 
 An authorization decision is an input to that action. It is not automatically
 the action itself. An action receipt is evidence of execution. It is not
-automatically an OpenETR Control Event or proof of a particular consequential
+automatically an OpenETR Evidence Event or proof of a particular consequential
 state.
 
 The applicable domain adapter must determine the mapping.
@@ -150,7 +150,7 @@ Spherity uses **control plane** primarily for organizational identity,
 delegation, authorization, policy decision, and enforcement. It asks who may do
 what under current conditions.
 
-OpenETR uses **control layer** for artifact-centric evidence and state
+OpenETR uses **protocol layer** for artifact-centric evidence and state
 transitions. It asks what has happened to a Digital Artifact and what state
 follows under the rules.
 
@@ -160,7 +160,7 @@ These meanings are related but not interchangeable.
 Spherity control plane:
   authority to perform an action
 
-OpenETR control layer:
+OpenETR protocol layer:
   consequential evidence and state concerning an artifact
 ```
 
@@ -168,7 +168,7 @@ Integration documents should qualify the term rather than simply saying
 "control." Useful labels are:
 
 - **authority control plane** for identity, mandate, PDP, and PEP functions;
-- **record control layer** for OpenETR DCR evidence and state derivation.
+- **record protocol layer** for OpenETR DCR evidence and state derivation.
 
 This distinction also protects OpenETR's boundary. OpenETR does not become an
 identity wallet, access-management platform, or universal policy engine merely
@@ -314,10 +314,10 @@ OpenETR should treat the receipt according to its function:
 | --- | --- |
 | Proves why an action was authorized | Linked evidence |
 | Proves execution details without changing artifact state | Linked evidence |
-| Is itself the domain-defined consequential act | Candidate Control Event or payload referenced by one |
+| Is itself the domain-defined consequential act | Candidate Evidence Event or payload referenced by one |
 | Supports later recognition but contains sensitive data | Private evidence with a digest, commitment, or controlled reference in the DCR |
 
-Calling every action receipt a Control Event would overload the state graph.
+Calling every action receipt an Evidence Event would overload the state graph.
 Calling every receipt mere logging would lose the cases where the receipt is
 the authoritative expression of a consequential act. The domain adapter must
 make the distinction explicit.
@@ -506,7 +506,7 @@ The integration does suggest several profile and implementation requirements.
 
 A domain adapter intended for agentic action should define:
 
-1. which proposed actions can produce OpenETR Control Events;
+1. which proposed actions can produce OpenETR Evidence Events;
 2. which authority credentials and mandates are required for each action;
 3. which current graph state must be included in the authorization request;
 4. what constitutes the point of commitment;

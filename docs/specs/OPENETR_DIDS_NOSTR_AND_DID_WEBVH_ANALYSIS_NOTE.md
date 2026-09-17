@@ -134,7 +134,7 @@ This produced the following design decision:
 
 > OpenETR uses Nostr as its initial protocol because a key-native,
 > independently verifiable, relay-replicable event model is the smallest
-> architecture that supports its records-first control layer. DIDs remain
+> architecture that supports its records-first protocol layer. DIDs remain
 > valuable optional inputs for identity, authority, service discovery, and
 > recognition where an integration requires them.
 

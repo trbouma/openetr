@@ -36,7 +36,7 @@ Host application
   accounts, roles, UX, document storage, workflow, domain policy
 
 OpenETR
-  artifact digest, Anchor record, control records, linked evidence,
+  artifact digest, Anchor record, evidence records, linked evidence,
   dependency edges, verifier output
 
 Recognition layer
@@ -65,7 +65,7 @@ Start with:
 Then read the core OpenETR pages:
 
 - [OpenETR Overview](../openetr/index.md)
-- [Control Layer](../openetr/control-layer.md)
+- [Protocol Layer](../openetr/control-layer.md)
 - [Integration Model](../openetr/integration.md)
 - [Recognition Boundary](../openetr/recognition.md)
 - [Component And CLI](../openetr/component-and-cli.md)

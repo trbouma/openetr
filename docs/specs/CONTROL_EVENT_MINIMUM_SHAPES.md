@@ -1,11 +1,15 @@
-# Control Event Minimum Shapes
+# Evidence Event Minimum Shapes
 
-This note defines minimum event shapes for additional OpenETR control events within the current Nostr event family.
+> The filename is retained for link compatibility. **Evidence Event** is the
+> canonical term; earlier drafts called this the **control-event family**.
+
+This note defines minimum event shapes for OpenETR Evidence Events within the
+current Nostr event family.
 
 It is intended to extend the current OpenETR working model in which:
 
 - `kind 1415` represents the Anchor Event
-- `kind 1416` represents the control-event family
+- `kind 1416` represents the Evidence Event family
 
 The Anchor Event forms a one-record candidate DCR. Validation of that DCR under
 an applicable policy may establish initial consequential state and bring the
@@ -26,7 +30,7 @@ The goal is to define a minimal, internally consistent event shape for the curre
 
 These definitions are intentionally minimal. They are not intended to settle the full legal, operational, or attestation semantics of the events. They define only the minimum Nostr event structure required to express them in the current OpenETR model.
 
-## Shared Control-Event Pattern
+## Shared Evidence-Event Pattern
 
 Each of the events in this note is a `kind 1416` event.
 
@@ -36,7 +40,10 @@ They follow the same general pattern:
 - `e` links the event to the current control chain
 - `action` identifies the event type
 
-Unless explicitly stated otherwise, these events do not change the Current Controller.
+An Evidence Event records a signed action concerning the Digital Artifact. It
+does not necessarily change control or Consequential State. Defined rules
+determine what consequence follows. Unless explicitly stated otherwise, the
+events in this note do not change the Current Controller.
 
 The reference implementation centralizes these actions and labels in `openetr/control.py`.
 
@@ -118,7 +125,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 ### Control Effect
 
 - terminates the active lifecycle if recognized as effective
-- later control events should not be treated as effective after recognized termination
+- later evidence events should not be treated as effective after recognized termination
 
 ## ATTEST
 
@@ -128,7 +135,7 @@ The event identifies the intended transferee but does not, by itself, settle eve
 
 The attestation should reference the specific prior event being attested.
 
-That means the `e` tag should point to the concrete Anchor Event or control event whose declaration, occurrence, or effect is being attested, rather than merely to the latest event in the chain in general.
+That means the `e` tag should point to the concrete Anchor Event or evidence event whose declaration, occurrence, or effect is being attested, rather than merely to the latest event in the chain in general.
 
 Examples may include:
 
@@ -274,4 +281,5 @@ The minimum required tags for each event are:
 - `REDEEM`
   - `o`, `e`, `action`, `p`
 
-These definitions provide a minimum event grammar for extending the OpenETR regular-event control family.
+These definitions provide a minimum event grammar for extending the OpenETR
+regular Evidence Event family.

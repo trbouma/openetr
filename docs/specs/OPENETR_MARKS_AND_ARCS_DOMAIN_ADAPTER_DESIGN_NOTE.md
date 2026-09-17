@@ -4,7 +4,7 @@ This note describes a potential OpenETR domain adapter for systems that model wo
 
 The design question is:
 
-> How can a Marks-and-Arcs system use OpenETR control events and control graphs without collapsing collaboration semantics, workflow views, and legal control into one overloaded model?
+> How can a Marks-and-Arcs system use OpenETR evidence events and control graphs without collapsing collaboration semantics, workflow views, and legal control into one overloaded model?
 
 ## Status
 
@@ -40,10 +40,10 @@ Marks-and-Arcs problem:
   how to structure and navigate the meaning of work
 
 OpenETR problem:
-  how to identify controlled objects and verify their control history
+  how to identify digital artifacts and verify their control history
 
 Adapter problem:
-  how to decide which Marks become evidence, which become Control Events,
+  how to decide which Marks become evidence, which become Evidence Events,
   and which Arcs become object-specific Control Graphs
 ```
 
@@ -77,11 +77,11 @@ Over time:
 - access controls may prevent later verifiers from reconstructing the original setting
 - the practical meaning of a decision may be diluted as it is copied across tools
 
-This is acceptable for ordinary collaboration history. It is much less acceptable when the question is whether a controlled object was issued, transferred, encumbered, discharged, redeemed, or terminated.
+This is acceptable for ordinary collaboration history. It is much less acceptable when the question is whether a digital artifact was issued, transferred, encumbered, discharged, redeemed, or terminated.
 
 The Marks-and-Arcs adapter should therefore treat channel context as evidence, not as the durable source of control state.
 
-OpenETR gives the adapter a way to lift the control-relevant part of the interaction out of the ephemeral channel. A Mark may still record that an instruction was received through email or chat, but the control-relevant action should be represented as an explicitly signed event linked to the affected Controlled Object. The Arc may still show the originating conversation, but the Control Graph should exist as an object-specific graph that can be verified without depending on the continued existence, naming, ordering, or accessibility of the original channel.
+OpenETR gives the adapter a way to lift the control-relevant part of the interaction out of the ephemeral channel. A Mark may still record that an instruction was received through email or chat, but the control-relevant action should be represented as an explicitly signed event linked to the affected Digital Artifact. The Arc may still show the originating conversation, but the Control Graph should exist as an object-specific graph that can be verified without depending on the continued existence, naming, ordering, or accessibility of the original channel.
 
 The distinction is:
 
@@ -106,13 +106,13 @@ The compact mapping is:
 ```text
 Mark = signed event atom
 Arc = selected graph projection over marks
-Control Event = mark with control, lifecycle, or authorization semantics
+Evidence Event = mark with control, lifecycle, or authorization semantics
 Control Graph = object-specific arc used to verify and replay control state
 ```
 
 This mapping is useful, but it should be bounded carefully.
 
-All control events can be represented as Marks. Not all Marks should be treated as control events.
+All evidence events can be represented as Marks. Not all Marks should be treated as evidence events.
 
 All control graphs can be viewed as Arcs. Not all Arcs should be treated as control graphs.
 
@@ -129,14 +129,14 @@ OpenETR can make Marks verifiable. It does not make every Mark legally recognize
 
 ## Architectural Boundary
 
-The Marks-and-Arcs adapter sits above the OpenETR control layer.
+The Marks-and-Arcs adapter sits above the OpenETR protocol layer.
 
 ```text
 Marks-and-Arcs domain adapter
   marks, arcs, views, workflow vocabulary, collaboration semantics
 
-OpenETR control layer
-  Controlled Objects, signed events, linked evidence, control graphs,
+OpenETR protocol layer
+  Digital Artifacts, signed events, linked evidence, control graphs,
   graph traversal, candidate control state, verifier warnings
 
 Wire format
@@ -204,13 +204,13 @@ In OpenETR, an Arc is best understood as a graph projection. It selects events a
 
 Some Arcs are merely useful views. Others have control significance.
 
-## Controlled Object Strategy
+## Digital Artifact Strategy
 
 The adapter should support three object strategies.
 
 ### Artifact Object
 
-A concrete artifact is the Controlled Object.
+A concrete artifact is the Digital Artifact.
 
 Examples:
 
@@ -225,16 +225,16 @@ The artifact is canonicalized or finalized, hashed, and identified by digest.
 ```text
 artifact bytes
   -> digest
-  -> OpenETR origin event
+  -> OpenETR Anchor Event
   -> control and evidence events
   -> object-specific control graph
 ```
 
-This is the safest starting point because the controlled object is clear.
+This is the safest starting point because the digital artifact is clear.
 
 ### Workflow Object
 
-A workflow instance is the Controlled Object.
+A workflow instance is the Digital Artifact.
 
 Examples:
 
@@ -250,7 +250,7 @@ This model is useful where the record of control concerns a process rather than 
 
 ### Domain Record Object
 
-A structured domain record is the Controlled Object.
+A structured domain record is the Digital Artifact.
 
 Examples:
 
@@ -260,7 +260,7 @@ Examples:
 - a Product Passport record
 - a permit or certificate package
 
-The Marks-and-Arcs adapter may be used as a collaboration layer around another domain adapter. In that case, the domain record adapter defines the Controlled Object, while the Marks-and-Arcs adapter contributes event capture, commentary, evidence, and view construction.
+The Marks-and-Arcs adapter may be used as a collaboration layer around another domain adapter. In that case, the domain record adapter defines the Digital Artifact, while the Marks-and-Arcs adapter contributes event capture, commentary, evidence, and view construction.
 
 ## Mark To OpenETR Mapping
 
@@ -287,26 +287,26 @@ The adapter should classify Marks before deciding how they map to OpenETR.
 | Mark Category | OpenETR Treatment |
 | --- | --- |
 | Informational Mark | Signed evidence event or local-only event |
-| Document Mark | Linked evidence, artifact registration, or origin event |
+| Document Mark | Linked evidence, artifact registration, or Anchor Event |
 | Decision Mark | Attestation event, policy annotation, or linked evidence |
-| Approval Mark | Attestation event or control event, depending on domain semantics |
+| Approval Mark | Attestation event or evidence event, depending on domain semantics |
 | AI Insight Mark | Derived evidence with provenance and model metadata |
 | System Mark | Integration evidence, timestamp evidence, or relay/archive evidence |
-| Control Mark | Control Event such as `ISSUE`, `TRANSFER`, `ENCUMBER`, `DISCHARGE`, `REDEEM`, or `TERMINATE` |
+| Control Mark | Evidence Event such as `ISSUE`, `TRANSFER`, `ENCUMBER`, `DISCHARGE`, `REDEEM`, or `TERMINATE` |
 
-The adapter should not automatically promote every signed Mark into a Control Event.
+The adapter should not automatically promote every signed Mark into an Evidence Event.
 
-A Mark should become a Control Event only when it satisfies the domain adapter's control-action rules.
+A Mark should become an Evidence Event only when it satisfies the domain adapter's control-action rules.
 
-## Control Event Mapping
+## Evidence Event Mapping
 
-The adapter should define which Mark types may produce OpenETR control events.
+The adapter should define which Mark types may produce OpenETR evidence events.
 
 Suggested starting mapping:
 
 | Mark Type | OpenETR Operation | Notes |
 | --- | --- | --- |
-| Create controlled record | `ISSUE` | Creates the origin or first control event for a Controlled Object. |
+| Create controlled record | `ISSUE` | Creates the origin or first evidence event for a Digital Artifact. |
 | Assign controller | `TRANSFER` | Transfers control to another recognized participant. |
 | Accept control | `ACCEPT` or domain acceptance evidence | May be required by verifier policy. |
 | Add restriction | `ENCUMBER` | Records a pledge, lock, reservation, lien, hold, or other constraint. |
@@ -338,7 +338,7 @@ A Control Graph is the subset of the event graph that is:
 
 - object-specific
 - signed
-- linked to a Controlled Object
+- linked to a Digital Artifact
 - ordered or causally related by prior-event references
 - interpretable under OpenETR control semantics
 - evaluated under a selected verifier policy
@@ -406,7 +406,7 @@ Checks whether the Mark or OpenETR event is cryptographically valid:
 
 ### Control Validation
 
-Checks whether a control-relevant Mark can produce or participate in a Control Event:
+Checks whether a control-relevant Mark can produce or participate in an Evidence Event:
 
 - the Mark type is mapped to a control operation
 - the actor is permitted to perform the operation under the selected policy
@@ -492,7 +492,7 @@ An AI-generated Mark should include:
 - confidence or limitation metadata where useful
 - relationship links to the Marks or artifacts it analyzed
 
-An AI-generated Mark should not become a Control Event unless a domain profile explicitly permits that action and identifies the responsible signer.
+An AI-generated Mark should not become an Evidence Event unless a domain profile explicitly permits that action and identifies the responsible signer.
 
 In many cases, the legally meaningful event is not:
 
@@ -524,10 +524,10 @@ The Marks-and-Arcs adapter should not:
 1. Define a minimal Mark schema for OpenETR export.
 2. Define required relationship types for graph construction.
 3. Define a mapping from Mark categories to OpenETR event treatment.
-4. Define an explicit list of Mark types that may become Control Events.
-5. Implement object-specific Arc construction for Controlled Objects.
+4. Define an explicit list of Mark types that may become Evidence Events.
+5. Implement object-specific Arc construction for Digital Artifacts.
 6. Implement Control Graph replay for those object-specific Arcs.
-7. Add verifier-policy warnings for Marks that look control-relevant but are not authorized control events.
+7. Add verifier-policy warnings for Marks that look control-relevant but are not authorized evidence events.
 8. Add privacy profiles for public, private, and encrypted Mark publication.
 9. Add optional support for AI-generated derived evidence Marks.
 
@@ -546,7 +546,7 @@ The Marks-and-Arcs adapter should not:
 
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
 - [OpenETR Generic Transfer Model](./OPENETR_GENERIC_TRANSFER_MODEL.md)
-- [Control Event Minimum Shapes](./CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [Evidence Event Minimum Shapes](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [Linked Evidence Record Kind Design Note](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
 - [OpenETR Dependency Integrity Design Note](./OPENETR_DEPENDENCY_INTEGRITY_DESIGN_NOTE.md)

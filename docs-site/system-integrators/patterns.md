@@ -4,7 +4,7 @@ OpenETR can be integrated gradually.
 
 An integrator does not need to adopt every surface at once.
 
-## Pattern 1: Behind-The-Scenes Control Layer
+## Pattern 1: Behind-The-Scenes Protocol Layer
 
 The host application keeps its existing interface and workflow.
 
@@ -58,7 +58,7 @@ A bundle may include:
 
 - object digest
 - Anchor Event
-- relevant control events
+- relevant evidence events
 - linked evidence records
 - signer/profile metadata
 - verifier-policy output
@@ -81,7 +81,7 @@ Read:
 
 ## Pattern 6: Domain Adapter
 
-A domain adapter translates business actions into OpenETR control events.
+A domain adapter translates business actions into OpenETR evidence events.
 
 For example:
 

@@ -2,7 +2,7 @@
 
 The European Digital Identity Wallet and OpenETR solve related but different problems.
 
-The EUDI Wallet is centered on identity, credentials, user control, selective disclosure, authentication, and presentation to relying parties. OpenETR is centered on durable electronic records, control events, linked evidence, and recognition of effect under domain policy.
+The EUDI Wallet is centered on identity, credentials, user control, selective disclosure, authentication, and presentation to relying parties. OpenETR is centered on durable electronic records, evidence events, linked evidence, and recognition of effect under domain policy.
 
 They should be seen as complementary layers, not competing architectures.
 
@@ -40,7 +40,7 @@ derive consequential state.
 The graph may include:
 
 - an Anchor record;
-- transfer or control events;
+- transfer or evidence events;
 - attestations;
 - encumbrance and discharge events;
 - redemption and termination events;
@@ -72,7 +72,7 @@ OpenETR helps answer the object-history question.
 
 | Function | EUDI Wallet | OpenETR |
 | --- | --- | --- |
-| Primary focus | Identity, credentials, authentication, selective disclosure, presentation. | Durable records, control records, linked evidence, object history, recognition inputs. |
+| Primary focus | Identity, credentials, authentication, selective disclosure, presentation. | Durable records, evidence records, linked evidence, object history, recognition inputs. |
 | Main unit | Wallet holder and wallet-held credentials. | Digital Artifact identified by digest. |
 | Main question | What credentials does this person or organization present? | What signed events exist for this object? |
 | Technical center | Wallet, issuer, verifier, service provider interactions. | Digital Artifact, DCR, derived state, verifier policy. |

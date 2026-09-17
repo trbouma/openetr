@@ -193,7 +193,7 @@ Use Verifiable.Trade-style trust and state-transition thinking to guide interope
 Keep recognition decisions explicit and domain-specific.
 ```
 
-That composition avoids a common mistake in digital trade architecture: expecting one system to be identity layer, control layer, registry, legal engine, document platform, and business application all at once.
+That composition avoids a common mistake in digital trade architecture: expecting one system to be identity layer, protocol layer, registry, legal engine, document platform, and business application all at once.
 
 OpenETR is strongest when it remains the portable evidence fabric.
 

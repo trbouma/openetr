@@ -20,7 +20,7 @@ flowchart TB
 
 The workspace speaks warehouse receipt language:
 
-- create receipt control record;
+- create receipt evidence record;
 - current holder/controller;
 - pledge or lien;
 - release;
@@ -37,7 +37,7 @@ It works with:
 
 - digests;
 - Anchor Events;
-- control events;
+- evidence events;
 - linked-evidence events;
 - Nostr pubkeys;
 - action tags;

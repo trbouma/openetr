@@ -1,12 +1,12 @@
 # Control Actions
 
-The Warehouse Receipts workspace uses warehouse receipt language, but each action maps to a general OpenETR control record.
+The Warehouse Receipts workspace uses warehouse receipt language, but each action maps to a general OpenETR evidence record.
 
 ## Action Map
 
 | Domain Action | OpenETR Action | Purpose |
 | --- | --- | --- |
-| Create receipt control record | Anchor record | Create the first signed OpenETR control record for the receipt digest. |
+| Create receipt evidence record | Anchor record | Create the first signed OpenETR evidence record for the receipt digest. |
 | Transfer receipt | `transfer_initiate` and `transfer_accept` | Move control from one holder/controller to another. |
 | Record pledge or lien | `encumber` | Record a control-relevant restriction, pledge, lien, or secured-party interest. |
 | Release pledge or lien | `discharge` | Discharge a specific encumbrance event. |
@@ -15,9 +15,11 @@ The Warehouse Receipts workspace uses warehouse receipt language, but each actio
 
 ## Control Graph
 
-Each control record refers to the same receipt object through the `o` tag.
+Each evidence record refers to the same receipt object through the `o` tag.
 
-Control records can also link to prior records through the `e` tag. This makes the control chain inspectable and cryptographically verifiable.
+Evidence records can also link to prior records through the `e` tag. This makes
+the relevant evidence and any derived control chain inspectable and
+cryptographically verifiable.
 
 ```mermaid
 flowchart LR
@@ -41,4 +43,4 @@ Legal or business effect is determined by a verifier policy or recognition frame
 
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_VERIFIER_POLICY.md)
-- [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [Evidence Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)

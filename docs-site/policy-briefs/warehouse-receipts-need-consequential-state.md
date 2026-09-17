@@ -79,7 +79,7 @@ OpenETR separates the receipt artifact from evidence of actions concerning it:
 ```text
 warehouse receipt PDF or canonical data package
   -> Digital Artifact identified by SHA-256 digest
-  -> signed Anchor and control records form the DCR
+  -> signed Anchor Records and later evidence records form the DCR
   -> MLWR-aware and OpenETR rules evaluate the evidence
   -> Consequential State is derived
   -> law, registry, contract, and institutional policy determine effect
@@ -104,7 +104,7 @@ In OpenETR:
 
 - the digest identifies the exact Digital Artifact;
 - the Anchor begins a candidate DCR for that artifact;
-- signed control records preserve attributable consequential actions;
+- signed evidence records preserve attributable consequential actions;
 - graph links establish the claimed transition history;
 - rules derive the current Consequential State; and
 - the Digital Artifact with that state is a Digital Original.
@@ -355,7 +355,7 @@ That is the focused role of OpenETR in an MLWR-aligned warehouse-receipt system.
 - [Warehouse Receipts workspace](../getting-started.md)
 - [MLWR Article Mapping](../mlwr-article-mapping.md)
 - [Warehouse Receipt Pilot Notes](../warehouse-receipt-pilot.md)
-- [Creating Receipt Control Records](../issuing-receipts.md)
+- [Creating Receipt Evidence Records](../issuing-receipts.md)
 - [Receipt Control Actions](../control-actions.md)
 - [OpenETR MLWR Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_MLWR_PROFILE.md)
 - [MLWR Article Requirements Mapping](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)

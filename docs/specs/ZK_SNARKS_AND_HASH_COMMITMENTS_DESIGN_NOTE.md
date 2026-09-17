@@ -8,7 +8,7 @@ Design note.
 
 OpenETR is not currently pursuing ZK-SNARKs as part of the base protocol.
 
-The current position is that SHA-256 object commitments, Nostr signatures, and signed control-event graphs are sufficient for the core OpenETR protocol goals.
+The current position is that SHA-256 object commitments, Nostr signatures, and signed evidence-event graphs are sufficient for the core OpenETR protocol goals.
 
 ZK proofs may still be useful as optional domain-adapter, attestation, or recognition-layer features where privacy-preserving claims about hidden data are required.
 
@@ -16,14 +16,14 @@ ZK proofs may still be useful as optional domain-adapter, attestation, or recogn
 
 The base OpenETR protocol asks:
 
-> Does this object digest have this signed origin event and this signed control history?
+> Does this object digest have this signed Anchor Event and this signed control history?
 
 The core primitives are:
 
 - SHA-256 object digest;
 - Nostr event signatures;
-- `o` tags linking events to the controlled object digest;
-- `e` tags linking control events into a graph;
+- `o` tags linking events to the digital artifact digest;
+- `e` tags linking evidence events into a graph;
 - verifier policy that decides recognition effect.
 
 In short:
@@ -39,18 +39,18 @@ For that purpose, ZK-SNARKs do not add much to the base protocol.
 
 ## What SHA-256 Provides
 
-OpenETR currently identifies the controlled object by digest.
+OpenETR currently identifies the digital artifact by digest.
 
 For a file-backed record:
 
 ```text
-document/file -> sha256 digest -> signed OpenETR origin event
+document/file -> sha256 digest -> signed OpenETR Anchor Event
 ```
 
 The digest lets a verifier confirm that:
 
-- the presented file matches the object referenced by the OpenETR origin event;
-- later control events refer to the same object through the `o` tag;
+- the presented file matches the object referenced by the OpenETR Anchor Event;
+- later evidence events refer to the same object through the `o` tag;
 - the object identity can be queried and reconstructed across relays or local event stores;
 - a different file cannot feasibly be substituted for the same digest.
 
@@ -72,7 +72,7 @@ OpenETR uses signed Nostr events for that.
 
 The event signature lets a verifier confirm that:
 
-- a particular public key signed the origin or control event;
+- a particular public key signed the Anchor Event or Evidence Event;
 - the event id is bound to the event content and tags;
 - the object digest, action tags, participant tags, and graph links are part of the signed statement.
 
@@ -89,8 +89,8 @@ That is not the normal OpenETR base-protocol problem.
 For the base protocol, the relevant questions are usually:
 
 - Does this file hash to the object digest?
-- Did this issuer sign the origin event?
-- Did this controller sign the control event?
+- Did this issuer sign the Anchor Event?
+- Did this controller sign the evidence event?
 - Does this event refer to the same object through `o`?
 - Does this event link to the prior event through `e`?
 - What candidate control graph can be reconstructed?

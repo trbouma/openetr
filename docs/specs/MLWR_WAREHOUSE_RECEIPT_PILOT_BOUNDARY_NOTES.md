@@ -26,7 +26,7 @@ Reliable system:
   operational controls, user experience, federation agreements
 
 OpenETR correctness protocol:
-  digest-identified objects, signed origin/control events,
+  digest-identified objects, signed Anchor Events and later Evidence Events,
   profile keys, control graphs, linked evidence, verifier output
 
 Recognition layer:
@@ -60,13 +60,13 @@ It may include:
 
 OpenETR is narrower.
 
-It provides a correctness protocol for signed evidence about a controlled object.
+It provides a correctness protocol for signed evidence about a digital artifact.
 
 It can answer:
 
 - Which receipt artifact or package is identified by digest?
-- Which profile key signed the origin event?
-- Which control events refer to the same object?
+- Which profile key signed the Anchor Event?
+- Which evidence events refer to the same object?
 - Which prior events are linked into the control graph?
 - Which participant keys are named?
 - Which attestations or linked evidence exist?
@@ -110,7 +110,7 @@ account identity:
   who the system says the user or organization is
 
 OpenETR key identity:
-  which key signed the control event
+  which key signed the evidence event
 
 recognition policy:
   whether the account-to-key binding and system controls are sufficient
@@ -286,7 +286,7 @@ The pilot should classify responsibilities this way.
 | Legal identity binding | yes | no | evaluates sufficiency |
 | Root/profile key generation context | yes | stores/signs through keys | evaluates controls |
 | Receipt document creation | yes | hashes artifact | evaluates content |
-| Origin event | authorizes action | signs/publishes event | evaluates signer authority |
+| Anchor Event | authorizes action | signs/publishes event | evaluates signer authority |
 | Transfer event | authorizes workflow | signs/publishes event | evaluates legal effect |
 | Encumbrance/discharge | authorizes workflow | signs/publishes event | evaluates priority/effect |
 | Attestation | requires and obtains | records signed evidence | evaluates sufficiency |
@@ -358,8 +358,8 @@ warehouse receipt system
   -> account and KYC layer
   -> account-managed OpenETR root/profile keys
   -> receipt artifact or package
-  -> OpenETR origin event
-  -> OpenETR control events
+  -> OpenETR Anchor Event
+  -> OpenETR evidence events
   -> optional attestations and linked evidence
   -> verifier policy for pilot recognition
 ```
@@ -369,8 +369,8 @@ The first pilot does not need to solve every federation or recognition question.
 It should demonstrate that:
 
 - a warehouse receipt artifact can be digest-identified
-- an account-authorized profile can sign an origin event
-- later control events can link to the same object
+- an account-authorized profile can sign an Anchor Event
+- later evidence events can link to the same object
 - account-to-key accountability can be evidenced by the host system
 - required attestations can attach to the graph
 - another verifier can inspect the graph without being inside the original system

@@ -110,7 +110,7 @@ Recommended behavior:
 
 Warnings mean the command completed but discovered information a verifier or policy should inspect.
 
-For example, `query --json` may return `ok: true` while also reporting multiple origin events in `warnings`.
+For example, `query --json` may return `ok: true` while also reporting multiple Anchor Events in `warnings`.
 
 ## Structured Guard Responses
 
@@ -135,7 +135,7 @@ Example duplicate origin guard:
     "latest_event_id": "e8f9858243640ece19fb346de346d30ed1d8e6c835a04a20a480f7e295f69a73",
     "latest_issuer_npub": "npub1..."
   },
-  "hint": "Re-run with --force to publish another origin event for this object."
+  "hint": "Re-run with --force to publish another Anchor Event for this object."
 }
 ```
 
@@ -185,15 +185,15 @@ Important `result` fields include:
 
 | Field | Meaning |
 | --- | --- |
-| `origin_kind` | Origin event kind, currently `1415`. |
-| `control_event_kind` | Control event kind, currently `1416`. |
-| `relay_filter` | Origin event query filter. |
-| `transfer_filter` | Control event query filter. |
-| `count` | Number of origin events returned for the object query. |
-| `origin_event_count` | Explicit count of origin events found. |
-| `initial_event` | Selected origin event used as the initial event for the displayed candidate state. |
-| `origin_events` | All origin events returned for the object. |
-| `transfer_groups` | Control event groups linked by `e` references. |
+| `origin_kind` | Compatibility field name for the Anchor Event kind, currently `1415`. |
+| `control_event_kind` | Compatibility field name for the Evidence Event kind, currently `1416`. |
+| `relay_filter` | Anchor Event query filter. |
+| `transfer_filter` | Evidence Event query filter. |
+| `count` | Number of Anchor Events returned for the object query. |
+| `origin_event_count` | Explicit count of Anchor Events found. |
+| `initial_event` | Selected Anchor Event used as the initial event for the displayed candidate state. |
+| `origin_events` | All Anchor Events returned for the object. |
+| `transfer_groups` | Evidence Event groups linked by `e` references. |
 | `summary_control_chains` | Human-readable chain summaries for compact display. |
 | `lifecycle_state` | Candidate lifecycle state derived by the reference component. |
 | `current_controller` | Candidate current controller derived by the reference component. |
@@ -349,7 +349,7 @@ Example:
     "c70f3d7b8b3d3283b423e68d88fba49750c8795bfd13bd084ec31370e7de8e46"
   ],
   "selected_initial_event_id": "e8f9858243640ece19fb346de346d30ed1d8e6c835a04a20a480f7e295f69a73",
-  "selection_basis": "earliest origin event by created_at/id"
+  "selection_basis": "earliest Anchor Event by created_at/id"
 }
 ```
 
@@ -375,7 +375,7 @@ For example, a downstream verifier may decide that `multiple_origin_events` is:
 - acceptable but logged
 - warning-only
 - a reason to require human review
-- a reason to select a newer origin event
+- a reason to select a newer Anchor Event
 - a reason to refuse recognition
 - resolved by an external registry, trust framework, or domain rule
 

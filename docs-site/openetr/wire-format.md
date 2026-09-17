@@ -31,7 +31,7 @@ The current regular-event model uses:
 | Kind | Use |
 | --- | --- |
 | `1415` | Anchor Event |
-| `1416` | Control event family |
+| `1416` | Evidence Event family |
 
 Legacy prototype events using `31415` and `31416` may exist, but new graph events use regular kinds `1415` and `1416`.
 
@@ -42,7 +42,7 @@ Legacy prototype events using `31415` and `31416` may exist, but new graph event
 | `o` | Digital Artifact digest. Primary artifact-centric query anchor. |
 | `e` | Prior event link for graph traversal. |
 | `p` | Action-specific participant. |
-| `action` | Control event subtype. |
+| `action` | Evidence Event subtype. |
 | `enc` | Encumbrance event referenced by a discharge. |
 | `type` | Action-specific subtype. |
 | `ref` | External reference or business reference. |

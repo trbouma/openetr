@@ -7,10 +7,10 @@ description: How OpenETR keeps the control graph separate from recognition input
 
 One of the most important design boundaries in OpenETR is the line between **control** and **recognition**.
 
-OpenETR is focused on control evidence. It creates a signed, inspectable graph of events around a controlled object. A verifier can ask:
+OpenETR is focused on control evidence. It creates a signed, inspectable graph of events around a digital artifact. A verifier can ask:
 
 - what object is this about?
-- which event created the origin record?
+- which event created the Anchor Record?
 - which signed events reference the object?
 - how do the events link through exact prior-event references?
 - which profile signed each event?
@@ -22,14 +22,14 @@ The fact that a key signed an event does not, by itself, answer every legal, ins
 
 Those are recognition questions.
 
-## The Control Layer
+## The Protocol Layer
 
 At the OpenETR layer, the primary job is to produce portable evidence.
 
 The current Nostr wire format uses regular event kinds:
 
-- `1415` for origin events
-- `1416` for control events
+- `1415` for Anchor Events
+- `1416` for evidence events
 
 The graph is object-centric:
 
@@ -109,7 +109,7 @@ This is not the same as formal authority. A high Web of Trust score does not pro
 But WoT can be useful for:
 
 - warning about unfamiliar signers
-- ranking competing origin events
+- ranking competing Anchor Events
 - selecting trusted assertion providers
 - surfacing known attestors
 - reducing spam in open publication environments
@@ -137,7 +137,7 @@ The verifier should not hide structurally valid evidence just because recognitio
 
 This boundary lets OpenETR stay general.
 
-The control layer does not need to become a warehouse registry, court, bank, trade platform, Web of Trust provider, or trust registry. It only needs to provide a durable, portable, verifiable event graph.
+The protocol layer does not need to become a warehouse registry, court, bank, trade platform, Web of Trust provider, or trust registry. It only needs to provide a durable, portable, verifiable event graph.
 
 Recognition systems can then compete, specialize, and evolve:
 
@@ -151,4 +151,3 @@ Recognition systems can then compete, specialize, and evolve:
 All of them can work from the same underlying OpenETR evidence.
 
 That is the point of the boundary: OpenETR keeps control portable, while recognition remains flexible enough for real legal, commercial, and institutional diversity.
-

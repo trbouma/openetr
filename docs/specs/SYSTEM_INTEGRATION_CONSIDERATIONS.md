@@ -59,7 +59,7 @@ OpenETR should not force those users to speak in protocol terms. Instead, the do
 
 - Digital Artifact digest and object id;
 - Anchor Event;
-- control event;
+- evidence event;
 - control graph;
 - Commitment Profile;
 - Acting Profile;
@@ -67,11 +67,11 @@ OpenETR should not force those users to speak in protocol terms. Instead, the do
 - reference;
 - verifier policy.
 
-This mapping is an explicit integration artifact. It helps users understand what the control layer is doing without confusing the domain document, legal terminology, account model, and protocol event model.
+This mapping is an explicit integration artifact. It helps users understand what the protocol layer is doing without confusing the domain document, legal terminology, account model, and protocol event model.
 
 ### 2. Separate Control From Document Movement
 
-The next milestone is to understand how the control layer can be accessed independently of how documents actually move.
+The next milestone is to understand how the protocol layer can be accessed independently of how documents actually move.
 
 OpenETR does not require the PDF, warehouse receipt, bill of lading, registry entry, document package, or system record to move through an OpenETR-hosted document service.
 
@@ -123,7 +123,7 @@ The host system may hide root keys, bootstrap relay details, signing services, a
 
 The host system, domain adapter, trust framework, registry, KYC provider, verifier policy, or jurisdiction-specific rulebook is responsible for deciding whether a user or signer is recognized for a particular role.
 
-OpenETR can authenticate the signed control event: which key signed which event for which object and how that event relates to the graph.
+OpenETR can authenticate the signed evidence event: which key signed which event for which object and how that event relates to the graph.
 
 OpenETR does not, by itself, decide:
 
@@ -133,7 +133,7 @@ OpenETR does not, by itself, decide:
 - whether a particular jurisdiction recognizes the event as having a legal effect;
 - whether a particular exception or domain-specific rule should override a baseline warning.
 
-Those are recognition and policy concerns. They complement OpenETR's control layer but do not belong inside the generic protocol requirement.
+Those are recognition and policy concerns. They complement OpenETR's protocol layer but do not belong inside the generic protocol requirement.
 
 ### 5. Choose The Integration Surface
 
@@ -205,7 +205,7 @@ Both modes should return structured success, warning, confirmation-required, and
 OpenETR deliberately separates protocol-level control evidence from application-level recognition policy.
 
 The base protocol can show that a particular `npub` signed a particular Anchor
-or control event for a particular object digest. It can also expose profile
+or evidence event for a particular object digest. It can also expose profile
 metadata, known-entity records, attestations, relay evidence, and control-graph
 traversal.
 
@@ -236,7 +236,7 @@ An integrating system may still use OpenETR evidence to support KYC-aware workfl
 
 In this model:
 
-- OpenETR authenticates control events.
+- OpenETR authenticates evidence events.
 - KYC systems recognize actors.
 - Verifier policy decides whether recognition is sufficient.
 
@@ -250,7 +250,7 @@ The core philosophy is that an OpenETR user should not be required to rely on so
 
 OpenETR depends on cryptographically signed events, not on a particular live application service.
 
-In the common networked case, those events can be served by a publicly available relay pool. A relying party may retrieve the relevant Anchor Events, control events, profile records, and configuration records from relays, verify signatures, traverse event links, and apply its own recognition policy.
+In the common networked case, those events can be served by a publicly available relay pool. A relying party may retrieve the relevant Anchor Events, evidence events, profile records, and configuration records from relays, verify signatures, traverse event links, and apply its own recognition policy.
 
 But public relay availability is a distribution convenience, not the trust anchor.
 
@@ -258,7 +258,7 @@ The trust anchor is the signed event data:
 
 - each event is cryptographically attributable to its signer;
 - each event has a content-derived event id;
-- the controlled object is identified by digest;
+- the digital artifact is identified by digest;
 - event relationships are expressed through signed tags such as `o`, `d`, `e`, `p`, `action`, `enc`, `type`, and `ref`;
 - verification can be performed independently by any implementation that understands the OpenETR wire format.
 
@@ -297,7 +297,7 @@ Relay-backed configuration currently includes or is converging toward:
 OpenETR record evidence is also relay-backed:
 
 - `kind 1415` Anchor Events;
-- `kind 1416` control events;
+- `kind 1416` evidence events;
 - object identity through `o` tags;
 - action semantics through `action` tags;
 - chain linkage through `e` tags;
@@ -327,7 +327,7 @@ OpenETR-specific state can remain reconstructable from signed events and relay-b
 - encrypted or managed signer records where supported;
 - aliases, contacts, references, and known-entity records;
 - Anchor Events;
-- control events;
+- evidence events;
 - graph traversal links and verifier annotations.
 
 This separation is important. OpenETR should not require the host application's runtime database to be the source of truth for control evidence. The host application can make the experience usable, enforce local permissions, and cache data for performance, while the OpenETR graph remains independently verifiable from signed events.
@@ -351,7 +351,7 @@ The platform may store the root key in:
 - a user-controlled wallet or key agent;
 - an external custody provider.
 
-In that pattern, the platform account is the user's familiar login surface, while OpenETR remains the portable evidence and control layer underneath.
+In that pattern, the platform account is the user's familiar login surface, while OpenETR remains the portable evidence and protocol layer underneath.
 
 The platform should still preserve the OpenETR separation between:
 
@@ -399,7 +399,7 @@ The cryptographic model remains unchanged:
 - signed events remain independently verifiable;
 - recognition policy decides the effect of those events.
 
-The passkey-style model is especially useful for systems that already have their own account, permissions, audit, and recovery flows. OpenETR can sit underneath that product surface as a signed control layer.
+The passkey-style model is especially useful for systems that already have their own account, permissions, audit, and recovery flows. OpenETR can sit underneath that product surface as a signed protocol layer.
 
 ## Boundary Between Host Application And OpenETR
 
@@ -407,7 +407,7 @@ The integration boundary should be explicit.
 
 | Host application owns | OpenETR owns |
 | --- | --- |
-| User login, account recovery, and product permissions | Signed origin and control event construction |
+| User login, account recovery, and product permissions | Signed Anchor and Evidence Event construction |
 | Tenant, organization, facility, and workflow data | Object ids, event ids, signatures, and graph links |
 | Document storage and document-content validation | Digest-addressed object identity |
 | User-facing role names and domain workflow | Commitment Profile-backed operational attribution |
@@ -499,7 +499,7 @@ The `openetr` component handles OpenETR-specific behavior:
 - relay publication;
 - relay query;
 - query result derivation;
-- control-event traversal and summaries.
+- evidence-event traversal and summaries.
 
 This is the most direct integration path for systems that want OpenETR inside their own Python service boundary.
 
@@ -613,8 +613,8 @@ This is possible because the OpenETR event families and tag conventions are spec
 A protocol-level integrator should implement:
 
 - object digest calculation;
-- `kind 1415` origin-event publication;
-- `kind 1416` control-event publication;
+- `kind 1415` Anchor Event publication;
+- `kind 1416` evidence-event publication;
 - `d`, `o`, `e`, `p`, `action`, `enc`, `type`, and `ref` tag conventions;
 - relay publication and query behavior;
 - object-centric traversal by `o` and `e` references;
@@ -778,11 +778,11 @@ flowchart TB
     ProtocolClient["Protocol Client<br/>direct Nostr event publishing"]
   end
 
-  subgraph OpenETR["OpenETR Control Layer"]
+  subgraph OpenETR["OpenETR Protocol Layer"]
     Bootstrap["Root Key + Bootstrap Relays<br/>hidden behind account systems if desired"]
     Profiles["Operational Profiles<br/>warehouse, exporter, bank, carrier, attestor"]
-    Origin["Origin Events<br/>kind 1415"]
-    Control["Control Events<br/>kind 1416 actions"]
+    Origin["Anchor Events<br/>kind 1415"]
+    Control["Evidence Events<br/>kind 1416 actions"]
     Query["Query + Traversal<br/>current controller, lifecycle, encumbrances"]
   end
 

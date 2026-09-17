@@ -83,7 +83,7 @@ An eBL workspace could map domain actions to OpenETR operations as follows.
 OpenETR can show:
 
 - which eBL artifact was identified by digest
-- who signed the Anchor and control events
+- who signed the Anchor Events and later evidence events
 - how transfer or presentation events are linked
 - whether there are competing graph branches or policy warnings
 - whether linked evidence points to the same object

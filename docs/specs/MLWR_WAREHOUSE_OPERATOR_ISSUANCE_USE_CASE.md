@@ -4,7 +4,7 @@ This note documents the focused warehouse operator use case for OpenETR in an ML
 
 The goal is to make the first warehouse receipt workflow as simple as possible:
 
-> A warehouse operator issues a warehouse receipt, OpenETR commits to that receipt by digest, and OpenETR control records track later control-relevant actions.
+> A warehouse operator issues a warehouse receipt, OpenETR commits to that receipt by digest, and OpenETR evidence records track later control-relevant actions.
 
 ## Status
 
@@ -19,8 +19,8 @@ The primary user is a warehouse operator.
 The primary job is:
 
 1. create or obtain a warehouse receipt document;
-2. issue an OpenETR origin event for that receipt;
-3. create later control records when control-relevant actions occur;
+2. issue an OpenETR Anchor Event for that receipt;
+3. create later evidence records when control-relevant actions occur;
 4. let verifiers inspect the signed event graph and apply their own recognition policy.
 
 The receipt may be:
@@ -36,22 +36,22 @@ OpenETR does not need to parse the receipt contents for this core use case.
 
 ## Thin-Waist Model
 
-The warehouse operator profile should use OpenETR as a thin control layer:
+The warehouse operator profile should use OpenETR as a thin protocol layer:
 
 ```text
 warehouse receipt document
   -> SHA-256 digest
-  -> OpenETR origin event signed by warehouse operator profile
-  -> later OpenETR control events
+  -> OpenETR Anchor Event signed by warehouse operator profile
+  -> later OpenETR evidence events
   -> verifier policy / recognition layer
 ```
 
 The important protocol facts are:
 
 - which digest identifies the receipt;
-- which profile signed the origin event;
-- which control events refer to the same digest through `o`;
-- how control events link through `e`;
+- which profile signed the Anchor Event;
+- which evidence events refer to the same digest through `o`;
+- how evidence events link through `e`;
 - which participants are named in action-specific tags such as `p`;
 - which verifier policy recognizes the resulting graph.
 
@@ -80,12 +80,12 @@ OpenETR's base responsibility is narrower:
 
 > Bind the warehouse receipt artifact to a digest and make the control history signed, retrievable, and inspectable.
 
-## In Scope: Digest And Control Records
+## In Scope: Digest And Evidence Records
 
 The minimum OpenETR issuance evidence is:
 
 - receipt digest;
-- origin event id;
+- Anchor Event id;
 - issuer profile public key;
 - event signature;
 - object tag `o`;
@@ -94,7 +94,7 @@ The minimum OpenETR issuance evidence is:
 
 The minimum control evidence is:
 
-- control event id;
+- evidence event id;
 - event kind;
 - signer public key;
 - object tag `o`;
@@ -164,7 +164,7 @@ The settled vocabulary is:
 | Profile | Operational profile signer identity the desk can act as |
 | Contact | External party the desk can address or transact with |
 | Reference | External recognition, assurance, registry, KYC, assessment, audit, attestation, or policy source |
-| Receipt control record | Signed OpenETR origin or control event |
+| Receipt evidence record | Signed OpenETR Anchor Event or Evidence Event |
 
 These categories answer different questions:
 
@@ -192,7 +192,7 @@ Control Desk Key = root/admin identity for the workspace
 Profile = identity the desk can act as
 Contact = external party the desk can address
 Reference = external source the desk or verifier may rely on
-Receipt Control Record = signed OpenETR event
+Receipt Evidence Record = signed OpenETR event
 ```
 
 ## Issuance Workflow
@@ -215,17 +215,17 @@ openetr query examples/mlwr-20260713.pdf --json
 Expected behavior:
 
 - `issue` hashes the receipt file;
-- the active warehouse profile signs an origin event;
-- the origin event carries the object digest in `o`;
-- the query command reconstructs the object view from origin and control events;
+- the active warehouse profile signs an Anchor Event;
+- the Anchor Event carries the object digest in `o`;
+- the query command reconstructs the object view from Anchor Events and later Evidence Events;
 - the result exposes candidate lifecycle and controller state;
-- warnings are emitted for policy-relevant issues such as duplicate origin events.
+- warnings are emitted for policy-relevant issues such as duplicate Anchor Events.
 
 The command should not require OpenETR to read or validate the receipt body.
 
-## Control Record Workflow
+## Evidence Record Workflow
 
-After issuance, the warehouse operator or other recognized participants may publish control records.
+After issuance, the warehouse operator or other recognized participants may publish evidence records.
 
 Common actions include:
 
@@ -237,7 +237,7 @@ Common actions include:
 | Present for delivery | `redeem` | `openetr redeem <receipt-file> --obligor <profile>` |
 | Complete delivery or cancel lifecycle | `terminate` | `openetr terminate-etr <receipt-file>` |
 
-These commands create control records about the same digest.
+These commands create evidence records about the same digest.
 
 They do not need to parse the warehouse receipt contents.
 
@@ -291,7 +291,7 @@ OpenETR adds a narrow capability:
 - digest the receipt artifact;
 - sign issuance;
 - publish retrievable control evidence;
-- allow later control records to attach to the same object;
+- allow later evidence records to attach to the same object;
 - expose the graph to verifiers and integrating systems.
 
 That narrow capability is enough to demonstrate electronic control without turning OpenETR into a warehouse receipt content management system.
@@ -307,7 +307,7 @@ Use OpenETR events to record issuance and control history.
 Leave receipt content validation and legal recognition to domain systems and verifier policies.
 ```
 
-This keeps the first product path simple, testable, and aligned with the generalized OpenETR control layer.
+This keeps the first product path simple, testable, and aligned with the generalized OpenETR protocol layer.
 
 ## Related Documents
 

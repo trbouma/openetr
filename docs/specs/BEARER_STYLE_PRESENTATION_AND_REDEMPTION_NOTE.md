@@ -1,6 +1,6 @@
 # Bearer-Style Presentation and Redemption Note
 
-This note describes a possible OpenETR recognition profile in which a Controlled Object may be treated in a bearer-like or presenter-entitled manner.
+This note describes a possible OpenETR recognition profile in which a Digital Artifact may be treated in a bearer-like or presenter-entitled manner.
 
 It is intentionally short and exploratory.
 
@@ -12,7 +12,7 @@ Draft.
 
 OpenETR is capable of recording:
 
-- a Controlled Object
+- a Digital Artifact
 - the control history of that object
 - attestations associated with the object or specific lifecycle events
 
@@ -26,7 +26,7 @@ It says only that OpenETR can carry the evidence from which a recognition framew
 
 A party could:
 
-1. issue a PDF or other electronic record into OpenETR as a Controlled Object
+1. issue a PDF or other electronic record into OpenETR as a Digital Artifact
 2. associate an attestation with that object or a relevant event
 3. have that attestation carry additional instruction or endorsement-like meaning
 4. rely on a recognition framework that treats the object as redeemable by a valid presenter
@@ -35,14 +35,14 @@ In that model, the practical basis for redemption is not merely possession of a 
 
 It is presentation of:
 
-- the Controlled Object
+- the Digital Artifact
 - the relevant OpenETR event chain
 - the associated attestation or indorsement-like instruction
 - any other evidence required by the relying party's policy
 
 ## Relationship to Endorsement and Indorsement
 
-Under the revised OpenETR model, endorsement or indorsement is not a standalone control-event primitive.
+Under the revised OpenETR model, endorsement or indorsement is not a standalone evidence-event primitive.
 
 Instead, where relevant, it may be expressed as an attestation associated with an underlying OpenETR event.
 
@@ -61,7 +61,7 @@ In this profile, redemption would be recognized based on presentation of a valid
 That evidence set may include:
 
 - the object identifier
-- the origin event
+- the Anchor Event
 - the relevant control history
 - any associated attestation carrying bearer-style or presenter-entitled meaning
 - any redeem event

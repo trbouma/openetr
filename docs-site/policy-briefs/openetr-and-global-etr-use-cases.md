@@ -28,7 +28,7 @@ Trade ecosystem:
   customs systems, corridor arrangements, and financing contracts
 
 OpenETR:
-  digest-identified records, signed origin and control events,
+  digest-identified records, signed Anchor Events and later Evidence Events,
   linked evidence, dependency edges, and verifier-policy output
 
 Recognition layer:

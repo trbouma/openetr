@@ -55,7 +55,7 @@ available.
 DIDs remain useful optional inputs wherever an integration needs persistent
 subject identity, key rotation, multiple verification methods, credentials,
 or service discovery. OpenETR can use that evidence without making it a
-prerequisite for validating every control event.
+prerequisite for validating every evidence event.
 
 ## Two Different Starting Points
 

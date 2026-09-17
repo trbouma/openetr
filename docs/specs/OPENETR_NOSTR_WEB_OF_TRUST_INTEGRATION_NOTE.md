@@ -62,7 +62,8 @@ The key lesson for OpenETR is:
 OpenETR separates:
 
 1. **Evidence layer**: signed Nostr events, event ids, object digests, tags, and graph links.
-2. **Control layer**: the OpenETR event grammar and object control graph.
+2. **Protocol layer**: the OpenETR evidence-event grammar, defined rules, and
+   derived state, including an object Control Graph where applicable.
 3. **Domain adapter layer**: MLWR, bills of lading, transferable records, credentials, or other domain semantics.
 4. **Recognition layer**: verifier policies, rule books, registries, authorities, reputation, and legal or operational effect.
 
@@ -168,7 +169,7 @@ WoT can help select or prioritize evidence sources:
 - prefer relays used by trusted profiles;
 - warn when evidence appears only on relays outside the verifier's trust graph;
 - use trusted relay operators as discovery hints;
-- prioritize profiles' relay hints when looking for related profile or control events.
+- prioritize profiles' relay hints when looking for related profile or evidence events.
 
 This is a retrieval policy, not the source of truth. The source of truth remains the signed event data and verifier policy.
 
@@ -274,7 +275,7 @@ A verifier that uses WoT could follow this sequence:
 
 1. Determine the OpenETR object id from the document digest or supplied object reference.
 2. Retrieve Anchor Events using `kind = 1415` and `#o`.
-3. Retrieve control events using `kind = 1416` and `#o`.
+3. Retrieve evidence events using `kind = 1416` and `#o`.
 4. Verify event ids, signatures, required tags, and `e` links.
 5. Enumerate candidate control chains.
 6. Apply the generic OpenETR verifier policy.
@@ -425,7 +426,7 @@ WoT is best understood as a viewpoint-dependent recognition, filtering, and conf
 
 ## Design Principle
 
-OpenETR should remain a portable, signed, event-based control layer.
+OpenETR should remain a portable, signed, event-based protocol layer.
 
 Nostr Web of Trust should be used when a verifier needs a decentralized way to ask:
 

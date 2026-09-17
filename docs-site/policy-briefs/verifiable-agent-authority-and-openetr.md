@@ -151,10 +151,10 @@ timestamp.
 
 For OpenETR, that receipt may play one of three roles:
 
-1. It may be linked evidence explaining why a Control Event was authorized.
+1. It may be linked evidence explaining why an Evidence Event was authorized.
 2. It may be operational evidence that does not change the artifact's state.
 3. In a domain that defines the receipt itself as the consequential act, it may
-   become or be referenced by a Control Event.
+   become or be referenced by an Evidence Event.
 
 The domain adapter must make that distinction. Otherwise, systems may either
 clutter the state graph with ordinary authorization logs or fail to record an

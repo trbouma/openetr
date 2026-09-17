@@ -19,7 +19,7 @@ This would sit beside the current working event kinds:
 
 | Kind | Purpose |
 | --- | --- |
-| `1415` | Origin record for a Controlled Object. |
+| `1415` | Anchor Record for a Digital Artifact. |
 | `1416` | Control/action record that may affect control state or lifecycle state. |
 | `1417` | Linked evidence record that associates supporting evidence with the graph. |
 
@@ -120,7 +120,7 @@ There are two possible designs:
 
 | Option | Description | Tradeoff |
 | --- | --- | --- |
-| Keep linked evidence as `1416 action=attest` | Treat evidence links as a subtype of the existing control event family. | Simpler event registry, but risks mixing control-relevant actions with non-control evidence attachments. |
+| Keep linked evidence as `1416 action=attest` | Treat evidence links as a subtype of the existing evidence event family. | Simpler event registry, but risks mixing control-relevant actions with non-control evidence attachments. |
 | Introduce `1417` | Give linked evidence its own event kind and query path. | Cleaner domain semantics, especially for Product Passports, but adds a new event kind and implementation surface. |
 
 The reason to consider `1417` is clarity. Product Passport lifecycle evidence is often not a control action. A distinct kind lets clients query evidence attachments without interpreting them as possible control transitions.
@@ -151,7 +151,7 @@ Those conclusions belong to the relevant Product Passport profile, delegated act
 
 A verifier interested in an OpenETR object would likely query:
 
-1. `kind = 1415` events by `#o` for origin records;
+1. `kind = 1415` events by `#o` for Anchor Records;
 2. `kind = 1416` events by `#o` for control and lifecycle actions;
 3. `kind = 1417` events by `#o` for linked evidence records.
 

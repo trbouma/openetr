@@ -6,7 +6,7 @@ His answer is not that the technology is missing.
 
 The deeper problem is confidence: confidence that electronic trade documents will be legally effective, that different systems will interoperate, that banks, insurers, carriers, customs authorities, and traders will recognize the result, and that cross-border private law will respond predictably when something goes wrong.
 
-OpenETR cannot create that confidence by itself. It can, however, provide a practical control layer around which legal statements, reliable-system assessments, domain standards, and recognition policies can converge.
+OpenETR cannot create that confidence by itself. It can, however, provide a practical protocol layer around which legal statements, reliable-system assessments, domain standards, and recognition policies can converge.
 
 ## The Speech's Thesis
 
@@ -43,9 +43,9 @@ OpenETR is designed around the same functional questions:
 | --- | --- |
 | Identify the operative record | SHA-256 Digital Artifact identifier |
 | Detect alteration | Recalculation of the digest over the exact artifact or canonical data package |
-| Evidence control | Signed origin and control events linked in an object-specific graph |
+| Evidence control | Signed Anchor Events and later Evidence Events linked in an object-specific graph |
 | Demonstrate current control | Reconstructable candidate controller state under a stated verifier policy |
-| Evidence transfer | Signed transition linked to the prior control event |
+| Evidence transfer | Signed transition linked to the prior evidence event |
 | Deprive the previous controller | Policy-derived state that no longer recognizes the transferor as current controller |
 
 This mapping is useful, but it must not be overstated. OpenETR provides inspectable evidence. Whether an implementation is a reliable system under applicable law depends on the complete operational arrangement, including identity, authorization, key custody, security, availability, governance, error handling, and recognition policy.
@@ -61,7 +61,7 @@ It is not a universal centralized ledger, and it is not a blockchain smart-contr
 ```text
 existing trade platform
   -> digest of the operative record
-  -> signed OpenETR control events
+  -> signed OpenETR evidence events
   -> portable Digital Controllable Record
   -> state transition rules produce consequential state
   -> independent verifier applies its rule book
@@ -110,7 +110,7 @@ OpenETR does not require:
 
 A payment system may be linked as evidence or used as a workflow condition, but payment is not part of the core control protocol.
 
-This lets parties improve the document and control layer without waiting for a separate transformation of money.
+This lets parties improve the document and protocol layer without waiting for a separate transformation of money.
 
 ## Control, Transfer, And Tokenisation
 
@@ -187,10 +187,10 @@ This is smaller than solving all of paperless trade. That is precisely what make
 
 The speech supports a clear OpenETR policy position:
 
-- proceed with electronic control records without waiting for digital currency;
+- proceed with electronic evidence records without waiting for digital currency;
 - preserve technology neutrality across centralized, distributed, and relay-backed systems;
 - treat legal certainty and interoperability as adoption infrastructure;
-- keep trade data standards separate from the control-event grammar;
+- keep trade data standards separate from the evidence-event grammar;
 - describe OpenETR as evidence for reliable-system evaluation, not proof of legal compliance by itself;
 - make control evidence portable so platforms do not have to share one runtime or custodian;
 - use domain and jurisdictional verifier policies to make recognition assumptions explicit;
@@ -200,7 +200,7 @@ The speech supports a clear OpenETR policy position:
 
 The speech argues that the transition away from paper no longer depends primarily on invention. It depends on coordination, confidence, legal clarity, and practical interoperability.
 
-OpenETR is relevant because it does not ask the market to adopt one universal trade platform or one digital currency. It offers a smaller common layer: digest-identified records, signed control events, portable graph reconstruction, and explicit policy-based recognition.
+OpenETR is relevant because it does not ask the market to adopt one universal trade platform or one digital currency. It offers a smaller common layer: digest-identified records, signed evidence events, portable graph reconstruction, and explicit policy-based recognition.
 
 That does not finish the work of paperless trade.
 

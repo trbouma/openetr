@@ -6,7 +6,7 @@ It is intended to explain the implementation boundary created by the new MLWR Co
 
 - the webapp speaks warehouse receipt language
 - the OpenETR component remains generic
-- domain actions are translated into general OpenETR issue, query, and control-event service calls
+- domain actions are translated into general OpenETR issue, query, and evidence-event service calls
 
 ## Status
 
@@ -39,7 +39,7 @@ In that metaphor:
 - **Profiles** are identities the desk can act as.
 - **Contacts** are external parties the desk can address or transact with.
 - **References** are external sources the desk or verifier may consult for recognition, assurance, registry, KYC, assessment, audit, attestation, or policy context.
-- **Receipt Control Records** are signed OpenETR origin or control events.
+- **Receipt Evidence Records** are signed OpenETR Anchor Event or Evidence Events.
 
 Operational receipt events are signed by the selected profile signer, not by the control desk as an abstract workspace.
 
@@ -80,7 +80,7 @@ Current services include:
 - `publish_transfer_accept_event`
 - `publish_auxiliary_control_event`
 
-The control-event publishing functions live in:
+The evidence-event publishing functions live in:
 
 ```text
 openetr/services/control_events.py
@@ -90,8 +90,8 @@ The service layer works in terms of:
 
 - object digests
 - Nostr pubkeys
-- origin events
-- control events
+- Anchor Events
+- evidence events
 - action tags
 - participant tags
 - relay publication and verification
@@ -102,11 +102,11 @@ It should not depend on warehouse receipt terminology.
 
 The services publish and query the generalized OpenETR Nostr wire format:
 
-- `kind 31415` for origin events
-- `kind 31416` for control-relevant events
-- named structured tags such as `name`, `digest_generated_at`, and `size_bytes` for origin-event metadata
+- `kind 1415` for Anchor Events
+- `kind 1416` for control-relevant events
+- named structured tags such as `name`, `digest_generated_at`, and `size_bytes` for Anchor Event metadata
 - MLWR domain interpretation of generic tags such as `domain=mlwr`, `document_type=warehouse_receipt`, `record_reference`, and `record_description`
-- `action` tags for control-event subtype
+- `action` tags for evidence-event subtype
 - `o` for object identity
 - `d` for replaceable action slot
 - `e` for prior event linkage
@@ -213,8 +213,8 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31415`
-- origin event
+- `kind = 1415`
+- Anchor Event
 - object digest from uploaded receipt file
 - signed by selected profile
 
@@ -232,7 +232,7 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = initiate`
 - `p = transferee_pubkey`
 
@@ -250,7 +250,7 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = accept`
 - references pending initiate event
 
@@ -270,7 +270,7 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = encumber`
 - `p = secured_party_pubkey`
 - optional `type`
@@ -292,7 +292,7 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = discharge`
 - `enc = encumbrance_event_id`
 - optional `p = releasing_party_pubkey`
@@ -312,7 +312,7 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = redeem`
 - `p = warehouse_operator_or_obligor_pubkey`
 - optional `ref`
@@ -332,7 +332,7 @@ Domain language:
 
 OpenETR mapping:
 
-- `kind = 31416`
+- `kind = 1416`
 - `action = terminate`
 - optional signed `ref` tag
 
@@ -342,18 +342,18 @@ Current service:
 publish_auxiliary_control_event(action=terminate)
 ```
 
-## Control Event Service
+## Evidence Event Service
 
-The new `openetr.services.control_events` module extracts reusable control-event publishing behavior out of the webapp.
+The new `openetr.services.control_events` module extracts reusable evidence-event publishing behavior out of the webapp.
 
 Its responsibilities include:
 
-- finding origin events for an object
-- finding control events for an object
+- finding Anchor Events for an object
+- finding evidence events for an object
 - resolving an active chain
 - resolving a pending transfer initiation
-- resolving a prior event back to an origin event
-- building `kind 31416` control events
+- resolving a prior event back to an Anchor Event
+- building `kind 1416` evidence events
 - signing with the provided signer key
 - publishing to configured relays
 - verifying publication by exact event id or replaceable slot
@@ -375,7 +375,7 @@ build_query_etr_result
 
 The result is rendered into warehouse receipt terms:
 
-- origin event -> warehouse receipt origin / issuance
+- Anchor Event -> warehouse receipt origin / issuance
 - current controller -> current holder / controller
 - encumbrance summary -> pledges, liens, and restrictions
 - redeem event -> presentation for delivery
@@ -440,7 +440,7 @@ Profile selection is therefore part of the domain workflow because a user may ne
 
 ### Query After Publish
 
-After a domain action publishes a control event, the webapp refreshes the receipt state using the same query service.
+After a domain action publishes an evidence event, the webapp refreshes the receipt state using the same query service.
 
 This makes the result page evidence-oriented rather than merely showing a form submission success.
 
@@ -451,11 +451,11 @@ The current implementation is intentionally practical and early.
 Known limitations include:
 
 - the warehouse receipt data model is still document-format neutral
-- action forms operate from a known object digest and signed origin-event tags rather than a full structured receipt schema
+- action forms operate from a known object digest and signed Anchor Event tags rather than a full structured receipt schema
 - attestation forms are not yet exposed directly on the MLWR page
 - amendment, cancellation, split receipts, partial delivery, substitution, and bulk goods are not yet modeled as first-class domain actions
 - recognition profiles are not yet machine-enforced beyond current OpenETR chain and action checks
-- the CLI still contains some older inline control-event publishing logic that should eventually call the same service layer
+- the CLI still contains some older inline evidence-event publishing logic that should eventually call the same service layer
 
 ## Next Steps
 

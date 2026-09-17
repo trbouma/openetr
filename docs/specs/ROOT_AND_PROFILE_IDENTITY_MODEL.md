@@ -29,7 +29,7 @@ The root-and-profile model is therefore role-based, not key-type-based.
 
 ## Actor Neutrality
 
-OpenETR does not distinguish between human actors and agent actors in the root/profile model or in signed control events.
+OpenETR does not distinguish between human actors and agent actors in the root/profile model or in signed evidence events.
 
 A root or profile `npub` identifies a cryptographic signer. A valid signature proves control of the corresponding private key for that event. It does not prove whether the key was operated by:
 
@@ -194,7 +194,7 @@ This term is intended to make the root/profile model easier to understand in the
 - the Acting Profile is the selected Commitment Profile for the current action;
 - contacts are external parties the desk can address or transact with;
 - references are external recognition, assurance, registry, KYC, assessment, audit, attestation, or policy sources;
-- receipt control records are signed by the selected operational profile.
+- receipt evidence records are signed by the selected operational profile.
 
 The term does not change the cryptographic model.
 

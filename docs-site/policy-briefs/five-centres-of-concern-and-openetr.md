@@ -140,7 +140,7 @@ other questions with their own appropriate methods.
 | --- | --- |
 | Identity | OpenETR profile keys sign events. Profiles may be linked to NIP-05 identifiers, published profiles, known entities, credentials, registries, or trust-framework signals. OpenETR can show which key signed, but external policy decides whether that identity is recognized. |
 | Intent | OpenETR events can carry actions, tags, comments, references, and domain metadata that express what the signer intended to do. Domain adapters and workflow systems provide the user-facing intent capture. |
-| Control | OpenETR derives candidate controller and lifecycle state from validated DCR evidence concerning a digest-identified Digital Artifact. Control records form the Control Graph within the broader Evidence Graph. |
+| Control | OpenETR derives candidate controller and lifecycle state from validated DCR evidence concerning a digest-identified Digital Artifact. Evidence records to which defined rules assign control consequences form the Control Graph within the broader Evidence Graph. |
 | Evidence | OpenETR creates cryptographically self-contained signed events. Event ids, signatures, object digests, graph links, relay results, and linked evidence records can be independently inspected. |
 | Recognition | OpenETR does not decide final effect. Laws, contracts, registries, courts, competent authorities, trust frameworks, verifier policies, and relying parties decide what the evidence means. |
 

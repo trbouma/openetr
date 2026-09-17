@@ -266,7 +266,7 @@ stewardship.
 | [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
 | [OpenETR Roadmap](openetr/roadmap.md) | See the prioritized work for verifier results, retrieval coverage, associated evidence, recognition adapters, and domain pilots. |
 | [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over OpenETR DCR evidence and state transition rules. |
-| [Product Passports](product-passports.md) | Start modelling Product Passport control records for product data, compliance evidence, and lifecycle attestations. |
+| [Product Passports](product-passports.md) | Start modelling Product Passport evidence records for product data, compliance evidence, and lifecycle attestations. |
 | [Health Records](health-records.md) | Placeholder for future health-record Evidence Graph workflows, with privacy and consent concerns called out early. |
 | [Apostille Documents](apostille-documents.md) | Placeholder for future apostille and legalization document verification workflows. |
 
@@ -287,9 +287,9 @@ stewardship.
 | Digital Artifact | Persistent digital content with a unique content identity, normally established by a cryptographic digest. |
 | Digital Controllable Record | A single end-verifiable record or graph of related end-verifiable records containing evidence of consequential actions concerning a Digital Artifact. |
 | Consequential State | State that follows from consequential actions according to defined protocol rules. |
-| Control Record | A signed OpenETR lifecycle record within a DCR. |
+| Evidence Record | A signed OpenETR lifecycle record within a DCR. |
 | Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Digital Artifact without necessarily transferring control. |
-| Control Graph | The linked control-event portion of a DCR. |
+| Control Graph | The linked evidence-event portion of a DCR. |
 | Evidence Graph | The broader DCR graph, including Anchor, control, and linked-evidence records. |
 | Digital Original | A Digital Artifact for which consequential state has been established through a Digital Controllable Record. |
 | Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR DCR evidence and state transition rules underneath. |
@@ -306,7 +306,7 @@ derived:
 real-world object, product, document, or record
   -> canonical file or data artifact
   -> Digital Artifact identified by digest
-  -> Digital Controllable Record containing an Anchor and later records
+  -> Digital Controllable Record containing an Anchor Record and later records
   -> evidence is validated and protocol rules derive consequential state
   -> Digital Original
   -> durable query link and QR code

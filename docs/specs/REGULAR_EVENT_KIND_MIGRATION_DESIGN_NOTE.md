@@ -17,7 +17,7 @@ The reference OpenETR component and CLI now publish new origin/control graph eve
 The earlier OpenETR prototype used:
 
 - `kind 31415` for origin / issue events
-- `kind 31416` for later control events
+- `kind 31416` for later evidence events
 
 Under NIP-01, event kinds in the `30000 <= kind < 40000` range are addressable by:
 
@@ -34,7 +34,7 @@ origin:
   ["d", "<object_digest>"]
   ["o", "<object_digest>"]
 
-control event:
+evidence event:
   ["d", "<object_digest>:<action>"]
   ["o", "<object_digest>"]
   ["action", "<action>"]
@@ -46,24 +46,24 @@ This worked well for early experimentation because it gave each author/object/ac
 
 The OpenETR control graph is event-id based.
 
-Later control events use `e` tags to reference the exact prior event id being extended or attested.
+Later evidence events use `e` tags to reference the exact prior event id being extended or attested.
 
 That creates tension with addressable / replaceable event behavior.
 
-If an origin event is merely rebroadcast unchanged, its event id remains the same and the graph remains linked.
+If an Anchor Event is merely rebroadcast unchanged, its event id remains the same and the graph remains linked.
 
-If an origin event is republished as a new addressable event for the same `kind + pubkey + d` coordinate, the new event normally has a different event id because Nostr event ids commit to the serialized event data, including `created_at`, tags, and content.
+If an Anchor Event is republished as a new addressable event for the same `kind + pubkey + d` coordinate, the new event normally has a different event id because Nostr event ids commit to the serialized event data, including `created_at`, tags, and content.
 
-Under ordinary addressable-event relay behavior, the relay may stop returning the older origin event.
+Under ordinary addressable-event relay behavior, the relay may stop returning the older Anchor Event.
 
-That can orphan later control events:
+That can orphan later evidence events:
 
 ```text
-old origin event id = A
-later control event e tag -> A
-new replacement origin event id = B
+old Anchor Event id = A
+later evidence event e tag -> A
+new replacement Anchor Event id = B
 relay stops returning A
-=> later control event does not extend B
+=> later evidence event does not extend B
 => verifier cannot fully traverse the graph unless A is available elsewhere
 ```
 
@@ -80,7 +80,7 @@ Current experimental regular kinds:
 | Kind | Purpose | NIP-01 behavior |
 | --- | --- | --- |
 | `1415` | OpenETR origin / issue event | regular event |
-| `1416` | OpenETR control event family | regular event |
+| `1416` | OpenETR evidence event family | regular event |
 
 These are in the NIP-01 regular-event range:
 
@@ -94,8 +94,8 @@ The old prototype assignments would become legacy:
 
 | Kind | Status | Notes |
 | --- | --- | --- |
-| `31415` | legacy prototype | addressable origin event |
-| `31416` | legacy prototype | addressable control event family |
+| `31415` | legacy prototype | addressable Anchor Event |
+| `31416` | legacy prototype | addressable evidence event family |
 
 ## Tag Model After Migration
 
@@ -105,7 +105,7 @@ Recommended core tags:
 
 | Tag | Purpose | Relay indexing expectation |
 | --- | --- | --- |
-| `o` | controlled object digest / object-wide query anchor | indexed |
+| `o` | digital artifact digest / object-wide query anchor | indexed |
 | `e` | prior event id / graph edge | indexed |
 | `p` | participant pubkey where participant lookup matters | indexed |
 | `action` | semantic action within the event family | not assumed indexed |
@@ -167,7 +167,7 @@ policy = decide effect
 The verifier flow is therefore:
 
 1. query regular OpenETR event kinds by `#o`
-2. collect all candidate origin and control events for the object
+2. collect all candidate Anchor Events and later Evidence Events for the object
 3. verify event ids and signatures
 4. index retrieved events by event id
 5. identify origin candidates
@@ -179,7 +179,7 @@ This means `d` is not required to reconstruct the control graph if every graph e
 
 ## Role Of The `d` Tag
 
-If origin and control events become regular events, the `d` tag is no longer needed for core graph semantics.
+If Anchor Events and later Evidence Events become regular events, the `d` tag is no longer needed for core graph semantics.
 
 In the prototype, `d` meant:
 
@@ -205,12 +205,12 @@ Therefore `d` can be removed from new origin/control graph events, or emitted on
 The preferred end state is:
 
 ```text
-origin event:
+Anchor Event:
   kind 1415
   ["o", "<object_digest>"]
   ["action", "issue"]
 
-control event:
+evidence event:
   kind 1416
   ["o", "<object_digest>"]
   ["e", "<prior_event_id>"]
@@ -313,8 +313,8 @@ Recommended implementation plan:
    - legacy constants for `31415` and `31416`
 
 2. Update event builders:
-   - publish new origin events as `1415`
-   - publish new control events as `1416`
+   - publish new Anchor Events as `1415`
+   - publish new evidence events as `1416`
    - emit `o`, `e`, `p`, `action`, and action-specific tags
    - stop relying on `d` for graph semantics
 
@@ -332,7 +332,7 @@ Recommended implementation plan:
 5. Update docs:
    - wire-format spec
    - event kind registry
-   - control event minimum shapes
+   - evidence event minimum shapes
    - CLI walkthrough
    - MLWR profile and webapp domain adapter notes
    - system integration considerations
@@ -375,9 +375,9 @@ The user-facing default kind should move from `31415` to `1415`.
 
 Any profile/config field named generically as `kind` should be reviewed. If it only means origin kind, either document that clearly or rename internally to `origin_kind` where practical.
 
-### Phase 2: Update Origin Event Publishing
+### Phase 2: Update Anchor Event Publishing
 
-Update origin / issue publishing so new origin events are regular events.
+Update origin / issue publishing so new Anchor Events are regular events.
 
 Expected behavior:
 
@@ -389,7 +389,7 @@ Expected behavior:
 
 Open question for implementation:
 
-- either remove `d` immediately from new origin events
+- either remove `d` immediately from new Anchor Events
 - or emit `d` temporarily as a legacy display aid while ensuring no query or graph logic depends on it
 
 Preferred end state:
@@ -400,7 +400,7 @@ kind 1415
 ["action", "issue"]
 ```
 
-### Phase 3: Update Control Event Publishing
+### Phase 3: Update Evidence Event Publishing
 
 Update transfer, encumbrance, discharge, redeem, terminate, and attest publishing to use `kind = 1416`.
 
@@ -538,8 +538,8 @@ Minimum verification after implementation:
 
 The final query should demonstrate:
 
-- origin event kind `1415`
-- control event kind `1416`
+- Anchor Event kind `1415`
+- evidence event kind `1416`
 - graph retrieval by `#o`
 - chain reconstruction by `e`
 - action interpretation by `action`
@@ -583,7 +583,7 @@ Adopt regular event kinds for the OpenETR control graph:
 
 ```text
 1415 = origin / issue
-1416 = control event family
+1416 = evidence event family
 ```
 
 Use:

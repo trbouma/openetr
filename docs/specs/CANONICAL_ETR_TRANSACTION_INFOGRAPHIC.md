@@ -27,7 +27,7 @@ Key idea:
 
 ```mermaid
 flowchart TD
-    O["Controlled Object"] --> I["Issue"]
+    O["Digital Artifact"] --> I["Issue"]
     O --> T["Transfer"]
     O --> E["Encumber"]
     O --> D["Discharge"]
@@ -105,11 +105,11 @@ Key idea:
 - attestation is not itself a lifecycle state transition, even though lifecycle events may be attested
 - termination ends the active lifecycle
 
-## 6. Control Layer vs Recognition Layer
+## 6. Protocol Layer vs Recognition Layer
 
 ```mermaid
 flowchart LR
-    A["OpenETR Control Layer<br>signed events and control history"] --> B["Recognition Layer<br>law, contract, policy, attestation"]
+    A["OpenETR Protocol Layer<br>signed events and control history"] --> B["Recognition Layer<br>law, contract, policy, attestation"]
     B --> C["Recognized effect"]
 ```
 

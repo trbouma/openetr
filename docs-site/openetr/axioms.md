@@ -139,7 +139,7 @@ are required to give the result.
 
 - [OpenETR committee draft](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_DRAFT_NATIONAL_STANDARD.md)
 - [OpenETR Overview](index.md)
-- [Control Layer](control-layer.md)
+- [Protocol Layer](control-layer.md)
 - [Consequential State](consequential-state.md)
 - [Recognition Boundary](recognition.md)
 - [Nostr Wire Format](wire-format.md)

@@ -14,15 +14,15 @@ The current CLI implements the Nostr wire model described in [OPENETR_NOSTR_WIRE
 
 At a high level:
 
-- `openetr issue` publishes a `kind 31415` origin event
-- `openetr transfer initiate` publishes a `kind 31416` event with `action=initiate`
-- `openetr transfer accept` publishes a `kind 31416` event with `action=accept`
-- `openetr terminate-etr` publishes a `kind 31416` event with `action=terminate`
-- `openetr attest` publishes a `kind 31416` event with `action=attest`
-- `openetr encumber` publishes a `kind 31416` event with `action=encumber`
-- `openetr discharge` publishes a `kind 31416` event with `action=discharge`
-- `openetr redeem` publishes a `kind 31416` event with `action=redeem`
-- `openetr query` queries the origin and control-event families and derives the current object state
+- `openetr issue` publishes a `kind 1415` Anchor Event
+- `openetr transfer initiate` publishes a `kind 1416` event with `action=initiate`
+- `openetr transfer accept` publishes a `kind 1416` event with `action=accept`
+- `openetr terminate-etr` publishes a `kind 1416` event with `action=terminate`
+- `openetr attest` publishes a `kind 1416` event with `action=attest`
+- `openetr encumber` publishes a `kind 1416` event with `action=encumber`
+- `openetr discharge` publishes a `kind 1416` event with `action=discharge`
+- `openetr redeem` publishes a `kind 1416` event with `action=redeem`
+- `openetr query` queries the Anchor Event and Evidence Event families and derives the current object state
 
 The older `openetr issue-etr` and `openetr query-etr` command names remain available as compatibility aliases for ETR-focused workflows and existing scripts.
 
@@ -37,7 +37,7 @@ Create or update a profile with relay and query defaults:
 ```bash
 openetr profile set warehouse \
   --relays wss://relay.openetr.org \
-  --kind 31415 \
+  --kind 1415 \
   --query-timeout 10 \
   --publish-wait 2.0 \
   --limit 20 \
@@ -71,7 +71,7 @@ openetr root
 
 ## Issue An Object
 
-Issue a controlled object from a local file:
+Issue a digital artifact from a local file:
 
 ```bash
 openetr issue examples/MLWR001.pdf
@@ -79,7 +79,7 @@ openetr issue examples/MLWR001.pdf
 
 Implementation mapping:
 
-- event kind: `31415`
+- event kind: `1415`
 - `d` tag: object digest hex
 - `o` tag: object digest hex
 - signer: active profile signer unless overridden
@@ -101,15 +101,15 @@ openetr query examples/MLWR001.pdf
 
 The query command resolves:
 
-- the initial origin event
-- matching `kind 31416` control events
-- control-event chains linked by `e` tags
+- the initial Anchor Event
+- matching `kind 1416` evidence events
+- evidence-event chains linked by `e` tags
 - lifecycle state, including active, redemption-pending, or terminated
 - current controller
 - profiles for relevant signers and participants where available
 - encumbrance summary, including outstanding and discharged encumbrances
 
-This is the main CLI surface for verifying the effect of the event shapes described in the wire-format and control-event specs.
+This is the main CLI surface for verifying the effect of the event shapes described in the wire-format and evidence-event specs.
 
 ## Transfer Control
 
@@ -121,11 +121,11 @@ openetr transfer initiate examples/MLWR001.pdf --transferee exporter
 
 Implementation mapping:
 
-- event kind: `31416`
+- event kind: `1416`
 - `action`: `initiate`
 - `d`: `<object_hex>:initiate`
 - `o`: `<object_hex>`
-- `e`: prior origin or control event id
+- `e`: prior Anchor Event or Evidence Event id
 - `p`: transferee pubkey
 
 The transferee accepts after switching profiles:
@@ -137,11 +137,11 @@ openetr transfer accept examples/MLWR001.pdf
 
 Implementation mapping:
 
-- event kind: `31416`
+- event kind: `1416`
 - `action`: `accept`
 - `d`: `<object_hex>:accept`
 - `o`: `<object_hex>`
-- `e`: transfer initiate event id or prior control event id selected by the implementation
+- `e`: transfer initiate event id or prior evidence event id selected by the implementation
 
 The query output should then show the exporter as the current controller if the local recognition logic accepts the transfer chain.
 
@@ -158,11 +158,11 @@ openetr encumber examples/MLWR001.pdf \
 
 Implementation mapping:
 
-- event kind: `31416`
+- event kind: `1416`
 - `action`: `encumber`
 - `d`: `<object_hex>:encumber`
 - `o`: `<object_hex>`
-- `e`: prior origin or control event id
+- `e`: prior Anchor Event or Evidence Event id
 - `p`: beneficiary or secured-party pubkey
 - optional `type`: encumbrance subtype, such as `pledge`
 - optional `ref`: external reference
@@ -178,11 +178,11 @@ openetr discharge examples/MLWR001.pdf \
 
 Implementation mapping:
 
-- event kind: `31416`
+- event kind: `1416`
 - `action`: `discharge`
 - `d`: `<object_hex>:discharge`
 - `o`: `<object_hex>`
-- `e`: prior origin or control event id
+- `e`: prior Anchor Event or Evidence Event id
 - `enc`: encumbrance event id being discharged
 - optional `p`: beneficiary or releasing-party pubkey
 - optional `ref`: external reference
@@ -206,11 +206,11 @@ openetr redeem examples/MLWR001.pdf \
 
 Implementation mapping:
 
-- event kind: `31416`
+- event kind: `1416`
 - `action`: `redeem`
 - `d`: `<object_hex>:redeem`
 - `o`: `<object_hex>`
-- `e`: prior origin or control event id
+- `e`: prior Anchor Event or Evidence Event id
 - `p`: obligor pubkey
 - optional `ref`: external reference
 
@@ -224,11 +224,11 @@ openetr terminate-etr examples/MLWR001.pdf
 
 Implementation mapping:
 
-- event kind: `31416`
+- event kind: `1416`
 - `action`: `terminate`
 - `d`: `<object_hex>:terminate`
 - `o`: `<object_hex>`
-- `e`: prior origin or control event id
+- `e`: prior Anchor Event or Evidence Event id
 
 The reference query logic treats terminate as ending the active lifecycle when recognized.
 
@@ -238,8 +238,8 @@ The web app uses the same query service as the CLI for object-state evaluation.
 
 When a user uploads or queries a document, the result page should expose the same derived state as `openetr query-etr`, including:
 
-- origin event
-- matching control events
+- Anchor Event
+- matching evidence events
 - summary control chains
 - lifecycle state
 - current controller

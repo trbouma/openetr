@@ -180,7 +180,7 @@ general protocol model:
 
 ```text
 warehouse receipt PDF or data package -> Digital Artifact
-issuance and control records          -> DCR evidence
+issuance and evidence records          -> DCR evidence
 transfer, encumbrance, discharge,
 redemption, termination               -> consequential actions
 MLWR and local law                    -> recognition and effect

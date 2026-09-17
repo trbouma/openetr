@@ -170,7 +170,7 @@ The roadmap does not call for OpenETR to:
 - turn optional Temporal Proof into a condition of DCR validity;
 - claim global evidence completeness from one relay result;
 - make KYC or one credential format part of the base protocol;
-- import an autonomous-agent authorization framework into control events;
+- import an autonomous-agent authorization framework into evidence events;
 - make system-reliability or legal-effect determinations without an identified
   policy and supporting evidence; or
 - replace host-system authentication, authorization, document storage, or

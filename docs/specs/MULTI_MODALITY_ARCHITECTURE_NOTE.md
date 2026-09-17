@@ -307,7 +307,7 @@ Examples include:
 - query results
 - publish results
 - guard results
-- control-event validation results
+- evidence-event validation results
 - profile publish results
 
 These may initially be dictionaries.

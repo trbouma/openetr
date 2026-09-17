@@ -53,7 +53,7 @@ OpenETR provides:
 
 - digest-based Digital Artifact identity
 - signed Anchor records
-- signed control events
+- signed evidence events
 - linked evidence records
 - artifact-centric DCR retrieval
 - profile-backed attribution

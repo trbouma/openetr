@@ -1,10 +1,10 @@
-# Control Layer
+# Evidence And State
 
-The OpenETR **Control Layer** is the part of the broader protocol model that
-evaluates control and control-transition evidence concerning a Digital
-Artifact. Signed Nostr records form a DCR; cryptographic and structural checks
+The OpenETR protocol layer evaluates end-verifiable evidence concerning a
+Digital Artifact. Signed records form a DCR; cryptographic and structural checks
 validate that evidence; defined rules determine what Consequential State
-follows.
+follows. Control is one possible subject of that state, not the name for every
+event or every consequence.
 
 ## Digital Artifact And Digital Controllable Record
 
@@ -44,9 +44,11 @@ It binds:
 - event signature;
 - structured metadata tags.
 
-## Control Events
+## Evidence Events
 
-Control events express later control-relevant actions concerning the same object.
+Evidence Events express later signed actions concerning the same Digital
+Artifact. Some actions change control, while attestations and other evidence may
+support different state or no state change at all.
 
 Current actions include:
 
@@ -67,7 +69,7 @@ The Evidence Graph is reconstructed from signed events:
 - `o` identifies the Digital Artifact by digest;
 - `e` links to a prior event;
 - `p` identifies an action-specific participant;
-- `action` identifies the control-event subtype;
+- `action` identifies the Evidence Event subtype;
 - action-specific tags such as `enc`, `type`, and `ref` add structured context.
 
 The Control Graph is the portion of that Evidence Graph concerned specifically
@@ -90,7 +92,7 @@ own it. See [Consequential State](./consequential-state.md).
 ## Source Specs
 
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
-- [Control Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [Evidence Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [State Transition Note](https://github.com/trbouma/openetr/blob/main/docs/specs/STATE-TRANSITION.md)
 - [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)

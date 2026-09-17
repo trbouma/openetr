@@ -59,7 +59,7 @@ ETR ecosystem:
   customs systems, and financing arrangements
 
 OpenETR:
-  digest-identified records, signed origin and control events,
+  digest-identified records, signed Anchor Events and later Evidence Events,
   linked evidence, control graphs, verifier-policy output
 
 Recognition layer:
@@ -72,7 +72,7 @@ OpenETR can help answer questions that recur across the paper's seven cases:
 - Which exact record or package is being relied on?
 - Who issued or originated it?
 - Which signed events assert transfer, acceptance, endorsement, surrender, pledge, discharge, redemption, or termination?
-- Which prior event does a new control event depend on?
+- Which prior event does a new evidence event depend on?
 - Does the graph show one recognized current controller under the selected policy?
 - Which linked evidence supports identity, authority, custody, financing, or recognition?
 - Can another platform or verifier inspect the graph without joining the original system?
@@ -92,7 +92,7 @@ The OpenETR lesson is that control evidence should not be locked inside a single
 OpenETR can support this pattern by providing:
 
 - digest identity for the operative eBL artifact or package
-- signed origin event by the issuing profile
+- signed Anchor Event by the issuing profile
 - transfer and surrender events linked to the eBL object
 - linked evidence for ship, signer, or authority credentials
 - verifier output that separates cryptographic validity from recognition under the applicable legal framework
@@ -113,7 +113,7 @@ OpenETR is relevant to this kind of corridor because it can make evidence portab
 
 Potential OpenETR role:
 
-- represent the eBL as a Controlled Object
+- represent the eBL as a Digital Artifact
 - link payment, banking, and document-presentation evidence to the object
 - record transfer events and presentation events
 - preserve references to corridor rulebooks, government cooperation instruments, or verifier policies
@@ -154,10 +154,10 @@ The paper frames interoperability as a transition from isolated digital systems 
 OpenETR can support the same architectural need by:
 
 - treating the eBL as a digest-identified object
-- recording each transfer as a signed event linked to the prior control event
+- recording each transfer as a signed event linked to the prior evidence event
 - exposing a current-controller derivation under verifier policy
 - separating platform user experience from portable control evidence
-- allowing domain adapters to translate eBL platform actions into common control-event semantics
+- allowing domain adapters to translate eBL platform actions into common evidence-event semantics
 
 The distinction is:
 
@@ -222,12 +222,12 @@ This is the strongest fit for OpenETR's warehouse receipt work.
 
 OpenETR can model:
 
-- the eBL as one Controlled Object
+- the eBL as one Digital Artifact
 - the delivery order as another controlled or linked evidence object
-- the eWR as a warehouse receipt Controlled Object
+- the eWR as a warehouse receipt Digital Artifact
 - customs approval as linked evidence or attestation
 - pledge financing as an encumbrance or linked financing evidence
-- discharge or release as a later control event
+- discharge or release as a later evidence event
 - cross-object dependency edges among logistics, warehouse, customs, and financing records
 
 This case demonstrates why ETRs become financial infrastructure, not merely document-exchange infrastructure.
@@ -390,8 +390,8 @@ The interoperability cases suggest a need for portable proof bundles.
 
 An OpenETR proof bundle could include:
 
-- Controlled Object digest
-- relevant origin and control events
+- Digital Artifact digest
+- relevant Anchor Events and later Evidence Events
 - linked evidence events
 - dependency edges
 - participant profile metadata

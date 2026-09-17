@@ -2,7 +2,7 @@
 
 The Product Passport requirements mapping tracks how OpenETR evidence could be recognized under, or given effect by, Digital Product Passport requirements.
 
-The mapping is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they are closely mapped to protocol evidence such as product artifact digests, signed control records, durable links, QR-code retrieval, original-record storage, attestations, and verifier policy output.
+The mapping is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they are closely mapped to protocol evidence such as product artifact digests, signed evidence records, durable links, QR-code retrieval, original-record storage, attestations, and verifier policy output.
 
 OpenETR can show what was identified, signed, linked, retrieved, updated, attested, or queried. Product regulation, delegated acts, registry rules, access-control policy, market-surveillance practice, marketplaces, and relying parties decide what legal, regulatory, or operational effect follows.
 
@@ -16,7 +16,7 @@ The mapping distinguishes between:
 
 | Category | Meaning |
 | --- | --- |
-| Protocol evidence | OpenETR provides digest identity, signed control records, retrieval, or verification evidence relevant to the requirement. |
+| Protocol evidence | OpenETR provides digest identity, signed evidence records, retrieval, or verification evidence relevant to the requirement. |
 | Supported by domain adapter | The Product Passports workspace can present DPP-specific language, fields, and workflows over the generic OpenETR model. |
 | Registry / integration dependency | The requirement needs registry, discovery, API, identity, storage, or access-control integration outside the base OpenETR protocol. |
 | Recognition / compliance effect | OpenETR can provide evidence, but legal, regulatory, or operational effect depends on policy, delegated acts, authorities, or relying parties. |

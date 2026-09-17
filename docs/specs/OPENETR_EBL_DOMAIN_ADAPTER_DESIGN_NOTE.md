@@ -6,16 +6,16 @@ It is informed by the design position that a serious eBL is not merely a PDF rep
 
 The OpenETR design question is:
 
-> Which parts belong in a bill-of-lading domain adapter, and which parts belong in the generic OpenETR control layer?
+> Which parts belong in a bill-of-lading domain adapter, and which parts belong in the generic OpenETR protocol layer?
 
 ## Summary
 
-OpenETR should treat an electronic bill of lading as a domain-specific Controlled Object.
+OpenETR should treat an electronic bill of lading as a domain-specific Digital Artifact.
 
 The OpenETR core should provide:
 
 - digest-based object identity
-- signed origin and control events
+- signed Anchor Events and later Evidence Events
 - control graph traversal
 - transfer, acceptance, encumbrance, discharge, redemption, termination, and attestation primitives
 - linked evidence records
@@ -41,7 +41,7 @@ eBL domain adapter:
 maritime meaning, validation, roles, statuses, and workflows
 
 OpenETR core:
-digest identity, signed control events, graph traversal, and portable evidence
+digest identity, signed evidence events, graph traversal, and portable evidence
 
 Recognition layer:
 legal, registry, carrier, bank, contractual, or institutional effect
@@ -88,18 +88,18 @@ An eBL implementation should keep five layers distinct.
 
 The OpenETR core provides the common control substrate. The eBL adapter supplies the maritime rulebook and vocabulary.
 
-## Controlled Object Model
+## Digital Artifact Model
 
 There are at least two possible object models.
 
-### Final Artifact As Controlled Object
+### Final Artifact As Digital Artifact
 
-The simplest model treats the finalized bill-of-lading artifact as the Controlled Object.
+The simplest model treats the finalized bill-of-lading artifact as the Digital Artifact.
 
 ```text
 final eBL artifact
   -> SHA-256 digest
-  -> OpenETR origin event
+  -> OpenETR Anchor Event
   -> control graph
 ```
 
@@ -116,15 +116,15 @@ The artifact may be:
 
 In this model, the eBL data system remains the master data system. OpenETR records control evidence for the finalized artifact.
 
-### Structured Record As Controlled Object
+### Structured Record As Digital Artifact
 
-A more integrated model treats a canonical structured record as the Controlled Object.
+A more integrated model treats a canonical structured record as the Digital Artifact.
 
 ```text
 canonical eBL data package
   -> canonicalization
   -> SHA-256 digest
-  -> OpenETR origin event
+  -> OpenETR Anchor Event
   -> generated human-readable representations
 ```
 
@@ -281,7 +281,7 @@ Examples include:
 - responsible user and organization
 - generated representation history
 
-OpenETR can preserve signed control events, but the domain adapter should decide how those events are displayed in bill-of-lading terms.
+OpenETR can preserve signed evidence events, but the domain adapter should decide how those events are displayed in bill-of-lading terms.
 
 ## Status Dimensions
 
@@ -342,7 +342,7 @@ The eBL adapter should expose business actions, not generic database mutations.
 | Create draft | Domain-system action outside OpenETR |
 | Validate document | Domain validation / possible attestation |
 | Generate representation | Domain-system action, possibly linked evidence |
-| Issue bill of lading | OpenETR `ISSUE` / origin event |
+| Issue bill of lading | OpenETR `ISSUE` / Anchor Event |
 | Request amendment | Domain workflow / possible attestation |
 | Approve amendment | Domain workflow / possible `ATTEST` |
 | Supersede version | Domain versioning plus new object or linked evidence |
@@ -464,7 +464,7 @@ OpenETR has two possible implementation patterns.
 
 ### New Object Per Material Version
 
-If an amendment changes the artifact bytes or canonical structured record, the amended version may become a new Controlled Object with its own digest.
+If an amendment changes the artifact bytes or canonical structured record, the amended version may become a new Digital Artifact with its own digest.
 
 The relationship between versions can be recorded through linked evidence or attestation events.
 
@@ -486,7 +486,7 @@ OpenETR should not infer these rules from digest equality alone.
 
 ## Representation Boundary
 
-The PDF or human-readable view should be treated as a representation unless the profile explicitly defines it as the Controlled Object.
+The PDF or human-readable view should be treated as a representation unless the profile explicitly defines it as the Digital Artifact.
 
 A generated representation should identify:
 
@@ -543,7 +543,7 @@ Those matters belong in domain profiles, applications, standards mappings, recog
 
 A practical OpenETR eBL roadmap should proceed in stages.
 
-1. Treat the finalized eBL artifact as an opaque digest-identified Controlled Object.
+1. Treat the finalized eBL artifact as an opaque digest-identified Digital Artifact.
 2. Define an eBL domain adapter that maps issue, transfer, presentation, surrender, cancellation, and amendment language onto OpenETR events.
 3. Add structured domain tags for document type, bill-of-lading number, carrier profile, vessel/voyage references, and version identifiers.
 4. Add linked evidence support for structured maritime data packages, DCSA messages, carrier records, inspection evidence, and regulatory responses.
@@ -562,7 +562,7 @@ OpenETR should own the portable control graph:
 
 ```text
 digest-identified object
-  -> signed origin event
+  -> signed Anchor Event
   -> signed control and evidence events
   -> verifier-derived candidate state
   -> recognition policy decides effect

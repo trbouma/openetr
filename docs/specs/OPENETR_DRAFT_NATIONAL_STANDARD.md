@@ -139,7 +139,7 @@ revision or commit used.
 - Nostr NIP-01, *Basic protocol flow description*.
 - Nostr NIP-19, *bech32-encoded entities*.
 - OpenETR, *OpenETR Nostr Wire Format Specification*.
-- OpenETR, *Control Event Minimum Shapes*.
+- OpenETR, *Evidence Event Minimum Shapes*.
 
 ## 3 Terms and definitions
 
@@ -191,13 +191,17 @@ recognition.
 
 ### 3.8 control graph
 
-directed graph formed by an Anchor Record and cryptographically linked control
-records concerning the same Digital Artifact
+subset of an Evidence Graph formed by the records to which defined rules assign
+controller or control-transition consequences concerning the same Digital
+Artifact
 
-### 3.9 control record
+### 3.9 evidence record
 
-signed record that makes a consequential statement concerning a Digital
-Artifact and participates in a DCR
+signed, end-verifiable record that provides evidence of an action, assertion,
+or relationship concerning a Digital Artifact and participates in a DCR
+
+Note 1 to entry: An evidence record does not necessarily change control or
+Consequential State. Defined rules determine what consequence, if any, follows.
 
 ### 3.10 Control Desk Key
 
@@ -250,12 +254,23 @@ requiring the application that created or displayed the evidence to be running
 cryptographically signed data structure containing an identifier, signer,
 timestamp, type, tags, content, and signature
 
-### 3.18 evidence graph
+### 3.18 Evidence Event
 
-DCR graph including Anchor Records, control records, and any linked evidence
-records
+cryptographically signed event that serves as an evidence record in a DCR
 
-### 3.19 guard policy
+Note 1 to entry: In the OpenETR Nostr binding, a kind `1415` Anchor Event and a
+kind `1416` event are Evidence Events. The Anchor Event begins a candidate DCR;
+later Evidence Events extend or relate to it.
+
+Note 2 to entry: The existence of an Evidence Event does not by itself establish
+a state change, recognition, or effect.
+
+### 3.19 evidence graph
+
+DCR graph including Anchor Records, later evidence records, and any linked
+evidence records
+
+### 3.20 guard policy
 
 policy applied before publication by an implementation to decide whether it
 will sign or publish a proposed event
@@ -263,7 +278,7 @@ will sign or publish a proposed event
 Note 1 to entry: A guard policy cannot prevent another implementation from
 publishing a competing signed event.
 
-### 3.20 Key-Based Identifier
+### 3.21 Key-Based Identifier
 
 KBI
 
@@ -274,33 +289,33 @@ Note 1 to entry: A KBI identifies the signing key used to verify attributable
 signed evidence. It does not, by itself, establish the identity, actor type,
 authority, role, or recognition of the actor associated with that key.
 
-### 3.21 recognized state
+### 3.22 recognized state
 
 Consequential State accepted under an identified external recognition policy
 for a stated purpose
 
-### 3.22 recognition
+### 3.23 recognition
 
 determination by a relying party, institution, registry, trust framework,
 contract, or law that evidence or derived state is acceptable for a stated
 purpose
 
-### 3.23 Reference
+### 3.24 Reference
 
 external authority, registry, assessor, attestor, trust service, or other
 source that can supply recognition or assurance context
 
-### 3.24 relying party
+### 3.25 relying party
 
 person, organization, system, or authority that evaluates OpenETR evidence or
 acts upon resulting state
 
-### 3.25 verifier policy
+### 3.26 verifier policy
 
 identified and versioned rule book used to validate DCR evidence, enumerate
 candidate chains, issue findings, and derive Consequential State
 
-### 3.26 warning
+### 3.27 warning
 
 structured finding that identifies a policy or evidence concern without
 making otherwise authentic signed evidence disappear
@@ -399,8 +414,8 @@ The OpenETR model consists of four logical layers:
 Domain adapter
   domain vocabulary, workflows, validation, and policy presentation
 
-OpenETR control layer
-  DCR evidence, graph traversal, policy evaluation, and state derivation
+OpenETR protocol layer
+  DCR evidence, graph traversal, state transition rules, and state derivation
 
 Wire binding
   signed records, identifiers, tags, transport, storage, and retrieval
@@ -480,7 +495,7 @@ under the same identified rules.
 
 An implementation may disclose the artifact, retain it privately, or make it
 available through a separate content service. The DCR shall not require the
-artifact bytes to be stored inside each control record.
+artifact bytes to be stored inside each evidence record.
 
 ## 8 Digital Controllable Record requirements
 
@@ -513,9 +528,9 @@ cryptographically valid.
 
 More than one candidate Anchor Record may exist for the same Digital Artifact.
 
-### 8.3 Later control records
+### 8.3 Later evidence records
 
-A later control record shall:
+A later evidence record shall:
 
 a) identify the same Digital Artifact as the candidate Anchor Record;
 
@@ -528,7 +543,7 @@ d) identify its signer; and
 
 e) carry a valid signature.
 
-A control record shall not be silently relinked to a different prior record.
+An evidence record shall not be silently relinked to a different prior record.
 
 ### 8.4 Generic actions
 
@@ -1087,7 +1102,7 @@ MLETR-based enactment.
 
 ### 14.4 Document independence
 
-A Domain Adapter shall permit the control layer to remain logically separate
+A Domain Adapter shall permit the protocol layer to remain logically separate
 from document movement and storage.
 
 The artifact may be exchanged by an existing document-management, registry,
@@ -1398,7 +1413,7 @@ The profile defines:
 | Kind | Name | Requirement |
 | --- | --- | --- |
 | `1415` | Anchor Event | Regular event beginning a candidate DCR |
-| `1416` | Control Event | Regular event extending or relating to a candidate DCR |
+| `1416` | Evidence Event | Regular event extending or relating to a candidate DCR |
 
 Kinds `31415` and `31416` are deprecated prototype kinds and shall not be used
 for newly published conforming DCR graphs.
@@ -1451,9 +1466,9 @@ It may include named structured metadata tags such as `name`,
 `digest_generated_at`, `size_bytes`, `record_reference`,
 `record_description`, `domain`, `document_type`, `schema`, or `schema_digest`.
 
-## A.5 Control Event minimum shapes
+## A.5 Evidence Event minimum shapes
 
-Every `kind 1416` Control Event shall contain `o`, `e`, and `action`.
+Every `kind 1416` Evidence Event shall contain `o`, `e`, and `action`.
 
 Additional minimum requirements are:
 

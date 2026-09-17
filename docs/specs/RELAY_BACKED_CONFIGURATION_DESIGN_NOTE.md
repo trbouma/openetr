@@ -119,7 +119,7 @@ The root CLI key is the control key for the CLI environment.
 
 The profile keys are the operational identities that:
 
-- issue ETR origin events
+- issue ETR Anchor Events
 - initiate transfers
 - accept transfers
 - terminate ETRs

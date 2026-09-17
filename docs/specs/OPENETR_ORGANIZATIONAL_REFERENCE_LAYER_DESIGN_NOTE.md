@@ -62,9 +62,9 @@ Each identifier may be valid in its own context. But a verifier often needs to k
 
 Examples:
 
-- a warehouse operator profile signs an OpenETR origin record
+- a warehouse operator profile signs an OpenETR Anchor Record
 - a bank profile records an encumbrance
-- a carrier profile issues an eBL origin event
+- a carrier profile issues an eBL Anchor Event
 - a Competent Authority profile attaches Apostille evidence
 - a manufacturer profile issues a Product Passport record
 - an AI agent signs through an organizational workflow
@@ -78,7 +78,7 @@ That mapping belongs to organizational reference and recognition layers.
 OpenETR should preserve a clean boundary.
 
 ```text
-OpenETR control layer
+OpenETR protocol layer
   object digests, signed events, profile keys, control graphs
 
 Organizational reference layer
@@ -280,7 +280,7 @@ An MLWR adapter may require:
 - registry recognition as warehouse operator
 - authority valid at issuance time
 
-The OpenETR origin event proves the profile signed the receipt origin. The organizational reference layer helps determine whether the profile maps to the recognized warehouse operator.
+The OpenETR Anchor Event proves the profile signed the receipt origin. The organizational reference layer helps determine whether the profile maps to the recognized warehouse operator.
 
 ### Bills Of Lading
 
@@ -394,4 +394,3 @@ OpenETR should not require all mappings, ownership structures, or authority chai
 - [OPENETR_TRQP_INTEGRATION_NOTE.md](./OPENETR_TRQP_INTEGRATION_NOTE.md)
 - [EUDI_WALLET_AND_OPENETR_DESIGN_NOTE.md](./EUDI_WALLET_AND_OPENETR_DESIGN_NOTE.md)
 - Verifiable.Trade, "From Fragmented Identifiers to a Global Reference Layer: The Case for the proto-LEI"
-

@@ -173,7 +173,7 @@ reproduce consequential state.
 ## Terminology Migration
 
 The canonical and public OpenETR surfaces use the model in this note. Some
-older domain-adapter and comparison drafts may still use **Controlled Object**
+older domain-adapter and comparison drafts may still use **Digital Artifact**
 for the digest-identified artifact. In those drafts, the term should be read as
 **Digital Artifact** until the document receives a contextual migration. It
 must not be mechanically reinterpreted as DCR, because a DCR is the signed

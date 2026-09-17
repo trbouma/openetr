@@ -10,7 +10,7 @@ OpenETR accepts human-friendly identifiers at application and command boundaries
 
 This note defines the expected resolution rules for:
 
-- Controlled Object identifiers;
+- Digital Artifact identifiers;
 - participant, party, and entity identifiers;
 - profile names;
 - aliases;
@@ -29,11 +29,11 @@ In practical terms:
 - object references entered by a human may be `nobj` or 64-character hex;
 - object digests used internally should be 64-character lowercase hex;
 - participant references entered by a human may be a profile name, alias, `npub`, 64-character pubkey hex, or NIP-05 identifier;
-- participant pubkeys used internally and in control event tags should be 64-character lowercase hex.
+- participant pubkeys used internally and in evidence event tags should be 64-character lowercase hex.
 
-## Controlled Object Resolution
+## Digital Artifact Resolution
 
-A Controlled Object is the protocol role occupied by a Digital Artifact when
+A Digital Artifact is the protocol role occupied by a Digital Artifact when
 it is identified as the subject of an OpenETR event graph. Its identifier is
 the digest of the artifact's canonical content. Resolving that identifier does
 not itself establish valid consequential state or a current controller.
@@ -179,20 +179,20 @@ It does not answer:
 - Should this event be recognized as effective?
 - Does this party satisfy a trust framework, registry, licensing, or accreditation rule?
 
-OpenETR's control layer can record and verify signed evidence. Recognition depends on the verifier, domain profile, law, contract, registry, attestation, or institutional policy being applied.
+OpenETR's protocol layer can record and verify signed evidence. Recognition depends on the verifier, domain profile, law, contract, registry, attestation, or institutional policy being applied.
 
 ## Guard Policy Extension Point
 
 Resolution should happen before guard evaluation.
 
-After object and participant identifiers have been normalized to canonical hex, the control-event publisher may apply guard policy.
+After object and participant identifiers have been normalized to canonical hex, the evidence-event publisher may apply guard policy.
 
 The default OpenETR control guard policy evaluates questions such as:
 
 - whether the signer is the current controller for a transfer initiation;
 - whether the signer is the intended transferee for a transfer acceptance;
 - whether a single active control chain can be resolved;
-- whether a supplied prior event resolves back to an origin event;
+- whether a supplied prior event resolves back to an Anchor Event;
 - whether the target chain is ambiguous.
 
 Implementations may need stricter or domain-specific guard behavior.
@@ -213,7 +213,7 @@ The current component exposes a default guard policy through `ControlGuardPolicy
 
 The default guard policy is a baseline application policy.
 
-It helps the reference web app, CLI, and service layer apply the same checks before publishing control events. For example, the baseline policy can require the signer to be the current controller before initiating a transfer or terminating a control graph.
+It helps the reference web app, CLI, and service layer apply the same checks before publishing evidence events. For example, the baseline policy can require the signer to be the current controller before initiating a transfer or terminating a control graph.
 
 That does not mean the rule is cryptographically enforced across the whole network.
 

@@ -37,7 +37,7 @@ OpenETR is responsible for the signed DCR evidence and state derivation:
 - receipt digest
 - Anchor Event
 - profile signer
-- control events
+- evidence events
 - prior-event links
 - attestations and linked evidence
 - Evidence Graph reconstruction
@@ -124,7 +124,7 @@ The first pilot should demonstrate that:
 
 - a warehouse receipt artifact can be digest-identified
 - an account-authorized profile can sign an Anchor Event
-- later control events can link to the same object
+- later evidence events can link to the same object
 - account-to-key accountability can be evidenced by the host system
 - required attestations can attach to the graph
 - a verifier can inspect the graph outside the original system

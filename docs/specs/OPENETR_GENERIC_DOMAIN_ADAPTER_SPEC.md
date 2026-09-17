@@ -15,7 +15,7 @@ evidence concerning durable electronic records.
 
 Different domains need different language, data models, validation rules, roles, workflows, and recognition frameworks. A warehouse receipt system should speak warehouse-receipt language. A bill-of-lading system should speak maritime transport language. An Apostille workflow should speak Competent Authority and e-Register language. A Product Passport workflow should speak product, lifecycle, compliance, and evidence language.
 
-The domain adapter is the boundary object between those domain workflows and the generic OpenETR control layer.
+The domain adapter is the boundary object between those domain workflows and the generic OpenETR protocol layer.
 
 The design goal is:
 
@@ -32,8 +32,8 @@ OpenETR systems should keep four layers distinct.
 Domain adapter
   domain vocabulary, workflows, validation, UI/API, rulebook-specific state
 
-OpenETR control layer
-  DCR evidence, control records, control graphs, profile signing,
+OpenETR protocol layer
+  DCR evidence, evidence records, control graphs, profile signing,
   state transition rules, consequential-state derivation
 
 Wire format
@@ -55,7 +55,7 @@ It defines:
 
 - digest-identified Digital Artifacts
 - Anchor records
-- control records
+- evidence records
 - linked evidence records
 - signed event publication and retrieval
 - object-centric graph queries

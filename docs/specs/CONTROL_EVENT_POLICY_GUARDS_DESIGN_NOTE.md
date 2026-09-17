@@ -1,6 +1,6 @@
-# Control Event Policy Guards Design Note
+# Evidence Event Policy Guards Design Note
 
-This note explains the role of application-side guard policy and recognition rules in the OpenETR control-event flow.
+This note explains the role of application-side guard policy and recognition rules in the OpenETR evidence-event flow.
 
 It is not a claim that OpenETR can prevent all invalid or conflicting events from being published.
 
@@ -40,12 +40,12 @@ Validation rules in the web app, CLI, and shared service layer are useful becaus
 - provide a practical reference implementation of OpenETR policy
 - create an early executable model of the checks that attestors may later apply before attesting events
 
-The current component has therefore become a working reference implementation of several policy choices across the control-event set, including:
+The current component has therefore become a working reference implementation of several policy choices across the evidence-event set, including:
 
 - object-based lookup of control history
 - current-controller checks for transfer initiation and termination
 - intended-transferee checks for transfer acceptance
-- active-chain checks for attestations and auxiliary control events
+- active-chain checks for attestations and auxiliary evidence events
 - reference checks for encumbrance discharge
 - warnings for duplicate origin issuance
 - visibility of multiple candidate control chains for the same object
@@ -118,7 +118,8 @@ The downstream party must still decide whether the guard assumptions are valid f
 
 Examples:
 
-- A warehouse receipt registry may require a recognized warehouse operator profile before treating an origin record as effective.
+- A warehouse receipt registry may require a recognized warehouse operator
+  profile before treating an Anchor Record as effective.
 - A secured lender may refuse recognition of a transfer while a recognized encumbrance remains outstanding.
 - A regulator may require an authority or registry attestation even if the baseline OpenETR control graph is structurally clean.
 - A private workflow may accept a lighter rule set for operational convenience while marking the result as limited-purpose evidence.
@@ -222,7 +223,7 @@ It is determined by whether the relevant evidence chain is sufficient under the 
 
 That evidence chain may include:
 
-- origin events
+- Anchor Events
 - transfer initiate and accept events
 - encumbrance, discharge, redemption, and termination events
 - event-level or chain-level attestations
@@ -278,7 +279,7 @@ Operators using the CLI or web app should be protected from accidental mistakes 
 
 - referencing the wrong prior event
 - initiating a transfer from the wrong object history
-- publishing a conflicting control event
+- publishing a conflicting evidence event
 - accepting a transfer that does not correspond to the expected object or intended counterparty
 - discharging the wrong encumbrance
 - terminating the wrong active chain
@@ -312,7 +313,7 @@ Baseline component guards provide an early, concrete form of that checklist.
 
 ## Validation as Attestor and Verifier Policy
 
-OpenETR should treat control-event validation rules as part of the emerging attestor policy layer.
+OpenETR should treat evidence-event validation rules as part of the emerging attestor policy layer.
 
 That does not mean:
 
@@ -322,7 +323,7 @@ That does not mean:
 
 It does mean:
 
-- OpenETR can define baseline conditions under which the reference component treats a control event as publishable or cleanly reviewable
+- OpenETR can define baseline conditions under which the reference component treats an evidence event as publishable or cleanly reviewable
 - attestors can later rely on those conditions when deciding whether to attest an event
 - verifiers and relying parties can compare those conditions against their own recognition context
 - the CLI and web app can serve as reference implementations of those conditions
@@ -373,7 +374,7 @@ The command should block publication or completion because a minimum correctness
 Examples:
 
 - a referenced prior event cannot be found
-- a control chain cannot be resolved back to a valid origin event
+- a control chain cannot be resolved back to a valid Anchor Event
 - the object identifier in a referenced event is missing or inconsistent
 - an accept event references an event that is not a valid transfer initiate event
 
@@ -384,7 +385,7 @@ The command should allow the action but require operator confirmation because th
 Examples:
 
 - a prior event already exists for the same object, action, and signer
-- multiple origin events exist for the same object
+- multiple Anchor Events exist for the same object
 - a later event may supersede an earlier event but the operator is still choosing to proceed
 
 ### Recognition Rule
@@ -405,9 +406,9 @@ but rather:
 
 - Should the event be recognized as effective?
 
-## Initial Control Event Rules to Formalize
+## Initial Evidence Event Rules to Formalize
 
-The next practical step is to formalize the first control-event checks directly in the shared component and specs, then expose them consistently through the CLI and web app.
+The next practical step is to formalize the first evidence-event checks directly in the shared component and specs, then expose them consistently through the CLI and web app.
 
 The baseline guard set should cover the control actions currently used by the reference implementation:
 
@@ -419,7 +420,7 @@ The baseline guard set should cover the control actions currently used by the re
 - `terminate`
 - `attest`
 
-Transfer remains the clearest example because it changes controller state, but the policy-guard model applies to the whole control-event set.
+Transfer remains the clearest example because it changes controller state, but the policy-guard model applies to the whole evidence-event set.
 
 ### Transfer Initiate
 
@@ -427,13 +428,13 @@ Candidate validation rules:
 
 - the supplied prior event must exist
 - the supplied prior event must be either:
-  - a valid origin event, or
-  - a valid control event that can be traversed back to an origin event
-- the resulting origin event must belong to the same object being transferred
+  - a valid Anchor Event, or
+  - a valid evidence event that can be traversed back to an Anchor Event
+- the resulting Anchor Event must belong to the same object being transferred
 - the transferee must be a valid counterparty identifier
 - a conflicting replaceable initiate event for the same object and signer should trigger a warning
-- if the supplied prior event is a `kind 31415` origin event, the signer of the new `kind 31416` event should match the issuer of that origin event
-- if the supplied prior event is a `kind 31416` control event, the signer of the new `kind 31416` event should match the current-controller semantics derived from that prior event
+- if the supplied prior event is a `kind 1415` Anchor Event, the signer of the new `kind 1416` event should match the issuer of that Anchor Event
+- if the supplied prior event is a `kind 1416` evidence event, the signer of the new `kind 1416` event should match the current-controller semantics derived from that prior event
 - if a subsequent transfer initiate is being published before a corresponding accept event has been observed for the prior transfer event, the component may warn but still allow publication
 
 Current CLI behavior also supports a more object-centric initiation flow:
@@ -459,7 +460,7 @@ Candidate validation rules:
 
 Candidate validation rules:
 
-- the object to be encumbered must resolve to an existing origin event
+- the object to be encumbered must resolve to an existing Anchor Event
 - a single active control chain for that object must be determinable
 - the beneficiary or secured party must resolve to a valid participant identifier
 - a duplicate encumbrance event for the same object and signer should trigger a warning or block, depending on policy
@@ -469,10 +470,10 @@ Candidate validation rules:
 
 Candidate validation rules:
 
-- the object to be discharged must resolve to an existing origin event
+- the object to be discharged must resolve to an existing Anchor Event
 - a single active control chain for that object must be determinable
 - the referenced encumbrance event must exist
-- the referenced encumbrance event must be a control event with `action=encumber`
+- the referenced encumbrance event must be an evidence event with `action=encumber`
 - the releasing party, if supplied, must resolve to a valid participant identifier
 - domain policy may decide whether only the encumbrance beneficiary, current controller, warehouse operator, or another recognized role may discharge the encumbrance
 
@@ -480,7 +481,7 @@ Candidate validation rules:
 
 Candidate validation rules:
 
-- the object to be redeemed must resolve to an existing origin event
+- the object to be redeemed must resolve to an existing Anchor Event
 - a single active control chain for that object must be determinable
 - the obligor, warehouse operator, or other action-specific participant must resolve to a valid participant identifier
 - domain policy may decide whether redemption affects controller state, lifecycle state, delivery obligations, or only records presentation evidence
@@ -489,10 +490,10 @@ Candidate validation rules:
 
 Candidate validation rules:
 
-- the object to be terminated must resolve to an existing origin event
+- the object to be terminated must resolve to an existing Anchor Event
 - the active control chain for that object must be determinable
 - only the current controller of the active chain should be permitted to terminate the ETR
-- if the latest control event is already a termination event, a further termination attempt should be blocked
+- if the latest evidence event is already a termination event, a further termination attempt should be blocked
 - if more than one active chain for the object is currently controlled by the same signer, termination should be treated as ambiguous unless a more specific policy decides otherwise
 
 ### Attest
@@ -500,20 +501,20 @@ Candidate validation rules:
 Candidate validation rules:
 
 - the object or prior event being attested must resolve to an existing OpenETR graph
-- if a prior event is supplied, it must be traversable back to an origin event
+- if a prior event is supplied, it must be traversable back to an Anchor Event
 - the subject, if supplied, must resolve to a valid participant identifier
 - the attestation type, if supplied, should be carried in a structured tag
 - domain policy may decide which attestors are recognized and what effect their attestations have
 
-## Working Publication Model for Control Events
+## Working Publication Model for Evidence Events
 
 OpenETR should distinguish between structural invalidity, incomplete acknowledgment, and full attestation validity.
 
-This suggests the following working model for control events:
+This suggests the following working model for evidence events:
 
-- a `transfer initiate` event may reference a prior `kind 31416` transfer event even if no corresponding accept event has yet been observed
+- a `transfer initiate` event may reference a prior `kind 1416` transfer event even if no corresponding accept event has yet been observed
 - the absence of a corresponding accept event should be surfaced as a warning rather than a hard block
-- a `transfer accept` event should reference a `kind 31416` initiate event and should be signed by the transferee identified in that initiate event
+- a `transfer accept` event should reference a `kind 1416` initiate event and should be signed by the transferee identified in that initiate event
 - an `encumber`, `discharge`, `redeem`, `terminate`, or `attest` event should reference the object graph or a specific prior event according to the action's expected shape
 - action-specific participants should be resolved to canonical public-key hex before event construction
 - attestors may later require the full initiate-and-accept sequence before recognizing a subsequent transfer as fully valid
@@ -551,7 +552,7 @@ This preserves a useful distinction between:
 
 ## Event-Level and Chain-Level Attestation
 
-OpenETR does not require that every control event be separately attested in order for a later state to be recognized.
+OpenETR does not require that every evidence event be separately attested in order for a later state to be recognized.
 
 An attestor may instead attest a later event, including a termination event, after validating the prior control chain necessary to recognize that event.
 
@@ -584,7 +585,7 @@ The current OpenETR component increasingly evaluates control history from the ob
 In practice this means:
 
 - determine the object identifier
-- query related origin and control events using the object's `o` tag
+- query related Anchor Events and later Evidence Events using the object's `o` tag
 - identify candidate control chains
 - determine the current controller or terminal state from the latest event in a candidate chain
 - apply local policy to decide whether a new action should be allowed, warned, or rejected
@@ -609,7 +610,7 @@ Baseline component guards are one of the first places those rules become visible
 
 ## Operational Consequence
 
-As the component evolves, control-event validation should be treated as more than user-interface polish.
+As the component evolves, evidence-event validation should be treated as more than user-interface polish.
 
 It is part of the specification effort.
 

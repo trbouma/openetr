@@ -29,7 +29,7 @@ or an equivalent MLWR-specific profile rule that combines `attest`, `terminate`,
 
 ## Paper Must Remain Queryable
 
-The paper side should not disappear from the control layer.
+The paper side should not disappear from the protocol layer.
 
 If the current operative medium is paper, OpenETR should still be able to answer:
 
@@ -45,7 +45,7 @@ This means a medium-change event should leave a signed lookup trail for paper id
 
 The current OpenETR wire format already supports:
 
-- `kind = 1416` control events;
+- `kind = 1416` evidence events;
 - `action` tags;
 - `o` tags for object lookup;
 - `e` tags for graph links;
@@ -76,8 +76,8 @@ The exact tag names are still open. The important idea is that the event must id
 
 For electronic-to-paper conversion, the event should establish:
 
-- the electronic receipt object or origin event being converted;
-- the latest recognized control event or current controller before conversion;
+- the electronic receipt object or Anchor Event being converted;
+- the latest recognized evidence event or current controller before conversion;
 - the paper receipt identifier that becomes operative;
 - the authority or warehouse operator that issued or recognized the paper receipt;
 - whether the electronic graph is now inoperative;
@@ -103,7 +103,7 @@ For paper-to-electronic conversion, the event should establish:
 
 - the paper receipt identifier or paper digest being converted;
 - the authority or warehouse operator that declares the paper receipt inoperative;
-- the new electronic receipt object or origin event;
+- the new electronic receipt object or Anchor Event;
 - the initial electronic controller;
 - any claims, encumbrances, or references carried from the paper context.
 
@@ -159,7 +159,7 @@ It should show:
 - the prior medium;
 - the successor medium;
 - the paper reference, if any;
-- the electronic object or origin event, if any;
+- the electronic object or Anchor Event, if any;
 - the current or prior controller at the time of change;
 - the authority or signer that declared the change;
 - supporting references or registry records;

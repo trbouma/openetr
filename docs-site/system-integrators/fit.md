@@ -117,7 +117,7 @@ The graph is portable because the evidence is tied to the object digest and even
 A verifier should be able to receive:
 
 - the Digital Artifact or its digest
-- relevant Anchor and control records
+- relevant Anchor Records and later evidence records
 - linked evidence events
 - signer/profile references
 - domain-adapter interpretation
@@ -130,5 +130,5 @@ The verifier may receive this as an API response, proof bundle, file package, re
 
 - [Integration Patterns](patterns.md)
 - [Boundaries And Responsibilities](boundaries.md)
-- [Control Layer](../openetr/control-layer.md)
+- [Protocol Layer](../openetr/control-layer.md)
 - [Recognition Boundary](../openetr/recognition.md)

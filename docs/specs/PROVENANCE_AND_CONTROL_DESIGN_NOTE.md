@@ -195,13 +195,13 @@ That is not a weakness. It is a different problem.
 
 OpenETR is an implementation of the control side of the distinction.
 
-It treats a record as a digest-identified Controlled Object and associates signed events with that object.
+It treats a record as a digest-identified Digital Artifact and associates signed events with that object.
 
 The relevant evidence includes:
 
 - object digest
-- origin event
-- signed control events
+- Anchor Event
+- signed evidence events
 - prior-event references
 - participant references
 - attestations

@@ -70,13 +70,13 @@ The compact mapping is:
 
 | Legal Function | MLETR Framing | ETDA Framing | OpenETR Evidence |
 | --- | --- | --- | --- |
-| Identify the relevant electronic record | Identify `the` electronic transferable record | Identify the document so it can be distinguished from copies | Controlled Object digest and origin event |
+| Identify the relevant electronic record | Identify `the` electronic transferable record | Identify the document so it can be distinguished from copies | Digital Artifact digest and Anchor Event |
 | Preserve integrity | Complete and unaltered except authorized or normal technical changes | Protection against unauthorized alteration | Digest, canonicalization profile, signed event graph, linked evidence |
 | Establish control | Exclusive control by a person | Not possible for more than one person to exercise control at one time | Current-controller derivation from signed control graph |
 | Identify controller | Identify person in control | Allow person able to exercise control to demonstrate that ability | signer profile, participant tags, recognition inputs, verifier policy |
 | Transfer control | Transfer of control over the electronic record | Transfer deprives prior controller unless also transferee | transfer event linked to prior control state |
 | Replace paper/electronic medium | Reliable change of medium; old form made inoperative | conversion statement; old form ceases to have effect | change-of-medium events, termination/reissuance, linked conversion evidence |
-| Endorsement | Information required for endorsement included and signed | inferred through control, use, transfer, or disposal | endorsement as attestation, transfer metadata, or domain control event |
+| Endorsement | Information required for endorsement included and signed | inferred through control, use, transfer, or disposal | endorsement as attestation, transfer metadata, or domain evidence event |
 | Reliability | reliable method, function-specific, with ex post safety clause | reliable system, document-system oriented | verifier policy over OpenETR method, infrastructure, and achieved function |
 
 OpenETR is not itself the MLETR or ETDA compliance layer.
@@ -86,7 +86,7 @@ It is the evidence layer that can help a domain adapter answer:
 - Which electronic record is being evaluated?
 - What artifact or package does it identify?
 - Has the artifact remained unchanged?
-- Which control events exist?
+- Which evidence events exist?
 - Who signed them?
 - Which participant appears to be the current controller?
 - Was a transfer linked to the previous control state?
@@ -147,7 +147,7 @@ For OpenETR, its most important design signals are:
 OpenETR can support ETDA-style analysis by presenting the control graph as evidence that a reliable system or method:
 
 - identifies the document
-- distinguishes the operative controlled object from non-operative copies or representations
+- distinguishes the operative digital artifact from non-operative copies or representations
 - protects the document through digest integrity and signed event history
 - represents only one recognized controller at a time under the selected policy
 - lets a controller demonstrate control by presenting the signed graph
@@ -159,7 +159,7 @@ OpenETR should not hard-code ETDA's narrower statutory scope into the core.
 Instead, an ETDA recognition profile or domain adapter can ask:
 
 ```text
-Does this Controlled Object fall within ETDA Section 1?
+Does this Digital Artifact fall within ETDA Section 1?
 Does the selected OpenETR deployment satisfy the reliable-system gateway?
 Does the control graph support possession, indorsement, transfer, and conversion?
 ```
@@ -191,18 +191,18 @@ Second, it should not restrict the core to one statute's language, such as ETDA'
 The core concept should remain broader:
 
 ```text
-Controlled Object + signed control graph + recognition context
+Digital Artifact + signed control graph + recognition context
 ```
 
-## Electronic Record And Controlled Object
+## Electronic Record And Digital Artifact
 
 MLETR uses the concept of an electronic record that becomes the electronic transferable record.
 
 ETDA refers to information in electronic form that, together with logically associated information, constitutes an electronic trade document.
 
-OpenETR should map both to a Controlled Object.
+OpenETR should map both to a Digital Artifact.
 
-The Controlled Object may be:
+The Digital Artifact may be:
 
 - a final artifact
 - a canonical structured record
@@ -218,7 +218,7 @@ For early implementations, the safest strategy remains:
 ```text
 final artifact or canonical package
   -> digest
-  -> origin event
+  -> Anchor Event
   -> control graph
 ```
 
@@ -232,7 +232,7 @@ OpenETR should avoid building a copy/original metaphysics into the core.
 
 Instead, it should distinguish:
 
-- the digest-identified Controlled Object
+- the digest-identified Digital Artifact
 - non-operative representations
 - replicas of the same bytes
 - exported views
@@ -240,7 +240,7 @@ Instead, it should distinguish:
 - multiple legally recognized originals where the domain permits them
 - replacement or termination events that make a prior object inoperative
 
-An exact byte copy of a Controlled Object should not create a new operative object merely because it is stored somewhere else.
+An exact byte copy of a Digital Artifact should not create a new operative object merely because it is stored somewhere else.
 
 The operative question is whether the presented artifact is linked to a recognized control graph and whether the selected policy treats that graph as effective.
 
@@ -273,7 +273,7 @@ For ETDA-style analysis, integrity includes protection against unauthorized alte
 
 The domain adapter should state which changes create:
 
-- a new Controlled Object
+- a new Digital Artifact
 - an authorized amendment event
 - a linked evidence update
 - a non-operative representation
@@ -291,8 +291,8 @@ ETDA asks whether a reliable system secures that more than one person cannot exe
 OpenETR can model this as:
 
 ```text
-origin event
-  -> transfer or control event
+Anchor Event
+  -> transfer or evidence event
   -> optional acceptance event
   -> optional encumbrance/discharge events
   -> current-controller derivation
@@ -318,14 +318,14 @@ This preserves interoperability with MLETR-style jurisdictions and avoids reduci
 
 ## Transfer
 
-Transfer should be represented as an explicit Control Event.
+Transfer should be represented as an explicit Evidence Event.
 
 A transfer event should normally include:
 
 - object digest
 - transferor or prior controller reference
 - transferee reference
-- prior control event reference
+- prior evidence event reference
 - transfer intent
 - timestamp
 - signer profile
@@ -367,7 +367,7 @@ Examples:
 
 - digest identified the record
 - signature bound the event to a signer
-- transfer event referenced the prior control event
+- transfer event referenced the prior evidence event
 - current-controller derivation produced one recognized controller
 - linked evidence matched its digest
 - archived event was retrievable
@@ -440,7 +440,7 @@ An endorsement may be:
 
 - metadata on a transfer event
 - a separate signed attestation
-- a domain-specific control event
+- a domain-specific evidence event
 - a linked representation attached to the record
 
 The adapter should define:
@@ -480,7 +480,7 @@ This difference matters for OpenETR because OpenETR is intended to support porta
 
 The OpenETR core should therefore remain jurisdiction-neutral.
 
-Jurisdiction-specific adapters may evaluate whether a given Controlled Object is recognized under:
+Jurisdiction-specific adapters may evaluate whether a given Digital Artifact is recognized under:
 
 - MLETR enactment
 - ETDA
@@ -607,8 +607,8 @@ OpenETR should not:
 
 ## Recommended Roadmap
 
-1. Define an MLETR recognition profile over existing OpenETR control events.
-2. Define an ETDA recognition profile over existing OpenETR control events.
+1. Define an MLETR recognition profile over existing OpenETR evidence events.
+2. Define an ETDA recognition profile over existing OpenETR evidence events.
 3. Add structured verifier output that separates cryptographic validity, control-graph validity, and recognition result.
 4. Extend change-of-medium profiles for paper-to-electronic and electronic-to-paper conversion.
 5. Define endorsement handling for bills of lading and other documents where endorsement matters.
@@ -637,6 +637,6 @@ OpenETR should not:
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
 - [OpenETR Generic Transfer Model](./OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
-- [Control Event Minimum Shapes](./CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [Evidence Event Minimum Shapes](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [MLWR Change Of Medium Profile](./MLWR_CHANGE_OF_MEDIUM_PROFILE.md)
 - [OpenETR Electronic Bill of Lading Domain Adapter Design Note](./OPENETR_EBL_DOMAIN_ADAPTER_DESIGN_NOTE.md)

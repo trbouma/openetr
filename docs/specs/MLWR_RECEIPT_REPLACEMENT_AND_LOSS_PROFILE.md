@@ -11,8 +11,8 @@ Article 13 is one of the places where the OpenETR control graph meets a harder l
 OpenETR can prove and display evidence such as:
 
 - this receipt object existed;
-- this origin event identified the receipt;
-- this profile signed the origin event;
+- this Anchor Event identified the receipt;
+- this profile signed the Anchor Event;
 - this key or profile appeared to control the receipt under the evaluated graph;
 - this graph was terminated or otherwise marked as ended;
 - this replacement receipt was issued;
@@ -51,8 +51,8 @@ At a high level, the workflow may look like this:
 1. A participant declares that the receipt is lost, destroyed, compromised, or no longer satisfies Article 6 control conditions.
 2. Required parties review or attest the loss. Depending on policy, this may include the current controller, warehouse operator, registry, court, secured party, or other authority.
 3. The original receipt graph is marked cancelled, terminated, superseded, or otherwise inoperative under the selected policy.
-4. A replacement receipt is issued as a new origin event or controlled object.
-5. The replacement links back to the original receipt, original origin event, or loss declaration.
+4. A replacement receipt is issued as a new Anchor Event or digital artifact.
+5. The replacement links back to the original receipt, original Anchor Event, or loss declaration.
 6. Verifiers know which graph to recognize and which graph to treat as cancelled, replaced, warning-only, or disputed.
 
 ## Open Design Questions
@@ -62,7 +62,7 @@ The profile needs to answer at least these questions:
 - Who can declare loss?
 - Who must authorize replacement?
 - Is the existing `terminate` action enough, or should OpenETR add `action=replace`, `action=cancel`, `action=supersede`, or another MLWR-specific action?
-- Should replacement be modeled as a new origin event, a new controlled object, or a linked continuation of the original object?
+- Should replacement be modeled as a new Anchor Event, a new digital artifact, or a linked continuation of the original object?
 - How should the replacement link to the original receipt: `e` reference, `ref`, structured tags, original object digest, or a combination?
 - How should the system prevent or warn about two active receipts for the same goods?
 - What notice, waiting period, indemnity, registry, court, or warehouse-operator evidence is required?
@@ -74,8 +74,8 @@ The profile needs to answer at least these questions:
 
 The current implementation already has useful pieces:
 
-- origin events for issued receipt objects;
-- control events for later control-relevant actions;
+- Anchor Events for issued receipt objects;
+- evidence events for later control-relevant actions;
 - `e` links to connect graph events;
 - `o` tags to query by object digest;
 - `terminate` to end a lifecycle under policy;
@@ -104,13 +104,13 @@ A verifier should not hide evidence merely because a replacement workflow is inc
 
 Instead, it should enumerate the relevant graph evidence and annotate it:
 
-- original origin event;
+- original Anchor Event;
 - original control chain;
 - current controller before alleged loss;
 - loss or control-failure declarations;
 - required attestations;
 - termination, cancellation, or supersession events;
-- replacement origin event;
+- replacement Anchor Event;
 - links between original and replacement;
 - outstanding encumbrances or claims;
 - warnings about missing approvals, missing links, duplicate active graphs, or unknown signers;

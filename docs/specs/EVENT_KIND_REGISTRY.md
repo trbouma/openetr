@@ -27,9 +27,9 @@ Suggested status values:
 | Kind | Name | Status | Purpose | Notes |
 |------|------|--------|---------|-------|
 | `1415` | Anchor Event | working | Initial signed event establishing an anchored control state for an object | Regular event used as the starting point for a candidate control graph |
-| `1416` | control event family | working | Control-relevant events after an Anchor Event | Regular event family subtyped by the `action` tag |
-| `31415` | legacy origin event | deprecated | Earlier addressable/replaceable origin prototype | Do not use for new OpenETR graph events |
-| `31416` | legacy control event family | deprecated | Earlier addressable/replaceable control prototype | Do not use for new OpenETR graph events |
+| `1416` | Evidence Event family | working | Signed evidence of actions after an Anchor Event | Regular event family subtyped by the `action` tag |
+| `31415` | legacy origin event | deprecated | Earlier addressable/replaceable name for the Anchor Event | Do not use for new OpenETR graph events |
+| `31416` | legacy control-event family | deprecated | Earlier addressable/replaceable name for the Evidence Event family | Do not use for new OpenETR graph events |
 
 ## Current Interpretation
 
@@ -51,9 +51,11 @@ authoritative, whether it is recognized, or what external effect follows.
 
 A single object digest may have more than one Anchor Event. The registry does not require global uniqueness of `kind 1415` events per object digest; verifiers must evaluate candidate anchors under the relevant recognition profile.
 
-### `1416` Control Event Family
+### `1416` Evidence Event Family
 
-The `1416` event family is currently used to express control-relevant actions after an Anchor Event.
+The `1416` event family expresses signed evidence of actions after an Anchor
+Event. Defined rules determine whether an event changes control, contributes to
+other Consequential State, or has no state consequence.
 
 Current intended role:
 
@@ -77,7 +79,8 @@ Current working action subtypes:
 - `action=discharge`
 - `action=redeem`
 
-This means `1416` is presently being used as a shared control-event family rather than as a single-action kind.
+This means `1416` is presently used as a shared Evidence Event family rather
+than as a single-action kind.
 
 That choice remains working and provisional.
 
@@ -97,4 +100,5 @@ That choice remains working and provisional.
 - New graph events use regular event kinds `1415` and `1416`; the event id is the durable graph node.
 - The `o` tag is the object-wide query anchor, the `e` tag links to a prior event, and the named `action` tag identifies the semantic action.
 - Termination is currently modeled as `action=terminate` within `1416`, but may later be revisited as a separate kind if implementation experience suggests that is clearer.
-- Event kind assignment alone does not determine legal or operational effect; effect depends on the wider OpenETR attestation, recognition, standing, and domain-policy model.
+- Event kind assignment alone does not determine legal or operational effect;
+  effect depends on the wider OpenETR recognition and domain-policy context.

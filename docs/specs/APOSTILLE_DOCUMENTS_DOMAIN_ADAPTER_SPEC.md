@@ -31,15 +31,15 @@ Competent Authorities and recognition policies decide Apostille effect.
 
 ## Architectural Boundary
 
-The Apostille domain adapter sits above the generic OpenETR control layer.
+The Apostille domain adapter sits above the generic OpenETR protocol layer.
 
 ```text
 Apostille domain adapter
   public document packages, Apostille metadata, Competent Authority references,
   e-Register links, verification events, replacement/correction workflows
 
-OpenETR control layer
-  digest identity, origin records, linked evidence records, attestations,
+OpenETR protocol layer
+  digest identity, Anchor Records, linked evidence records, attestations,
   graph traversal, verifier warnings
 
 Wire format
@@ -107,7 +107,7 @@ It may include:
 - translations or related certifications
 - packaging metadata
 
-The package is the preferred starting-point Controlled Object.
+The package is the preferred starting-point Digital Artifact.
 
 ### Competent Authority
 
@@ -121,15 +121,15 @@ An e-Register is an online register used to verify Apostilles issued by a Compet
 
 An OpenETR graph may link to an e-Register reference, but should not imply that the OpenETR graph replaces the e-Register.
 
-## Controlled Object Model
+## Digital Artifact Model
 
-The recommended first implementation treats the full apostilled document package as the Controlled Object.
+The recommended first implementation treats the full apostilled document package as the Digital Artifact.
 
 ```text
 apostilled document package
   -> canonical package bytes
   -> SHA-256 digest
-  -> OpenETR origin record
+  -> OpenETR Anchor Record
   -> linked authority, registry, verification, and lifecycle evidence
 ```
 
@@ -150,7 +150,7 @@ Some deployments may need more granular object models.
 
 ### Public Document As Primary Object
 
-The underlying public document may be the primary Controlled Object, with Apostille certificates modeled as linked evidence.
+The underlying public document may be the primary Digital Artifact, with Apostille certificates modeled as linked evidence.
 
 ```text
 public document digest
@@ -163,7 +163,7 @@ This can be useful where the same public document may receive multiple Apostille
 
 ### Apostille Certificate As Primary Object
 
-The Apostille certificate itself may be the primary Controlled Object.
+The Apostille certificate itself may be the primary Digital Artifact.
 
 ```text
 e-Apostille bytes
@@ -189,7 +189,7 @@ This is more expressive, but it requires stronger profile rules for linking, dis
 
 ## Recommended Starting Point
 
-Use the apostilled document package as the Controlled Object.
+Use the apostilled document package as the Digital Artifact.
 
 That approach is simpler for early adoption because:
 
@@ -227,7 +227,7 @@ The adapter should expose Apostille-domain actions rather than generic database 
 | --- | --- |
 | Create package draft | Domain-system action outside OpenETR |
 | Validate package completeness | Domain validation / possible verifier annotation |
-| Record package origin | OpenETR `ISSUE` / origin record |
+| Record package origin | OpenETR `ISSUE` / Anchor Record |
 | Attach Apostille evidence | OpenETR linked evidence or `ATTEST` |
 | Attach Competent Authority reference | Linked evidence, authority metadata, or recognition input |
 | Attach e-Register reference | Linked evidence / registry reference |
@@ -245,9 +245,9 @@ Many Apostille workflows do not require transfer of control. The adapter should 
 
 The adapter may use signed structured tags to make Apostille evidence discoverable.
 
-### Origin Record Tags
+### Anchor Event Tags
 
-Recommended tags for the origin record:
+Recommended tags for the Anchor Event:
 
 - `["domain", "apostille"]`
 - `["document_type", "apostilled_document_package"]`
@@ -474,8 +474,9 @@ Those matters belong to Competent Authorities, official registries, local law, t
 
 A practical implementation should proceed in stages.
 
-1. Treat the full apostilled document package as an opaque digest-identified Controlled Object.
-2. Define origin-record tags for `domain=apostille`, package reference, jurisdiction, document type, and media type.
+1. Treat the full apostilled document package as an opaque digest-identified Digital Artifact.
+2. Define Anchor Event tags for `domain=apostille`, package reference,
+   jurisdiction, document type, and media type.
 3. Add linked evidence records for Apostille certificates, e-Register references, verification checks, translations, and related certifications.
 4. Add verifier-policy warnings for unknown authority, missing e-Register reference, registry mismatch, superseded package, revoked Apostille, and stale verification.
 5. Add private-storage and relay guidance for sensitive documents.

@@ -20,8 +20,8 @@ OpenETR uses a different center of gravity.
 
 OpenETR's core object is a signed control graph:
 
-- an origin event introduces the controlled object
-- later control events express transfer, encumbrance, discharge, redemption, termination, or attestation
+- an Anchor Event introduces the digital artifact
+- later evidence events express transfer, encumbrance, discharge, redemption, termination, or attestation
 - Nostr event ids, signatures, and tags provide cryptographic correctness
 - relays provide publication and retrieval
 - verifiers reconstruct the graph and apply their own recognition policy
@@ -38,7 +38,7 @@ For a PDF-based receipt, bill of lading, or other issued record, the document by
 
 TradeTrust / OpenAttestation uses document roots, target hashes, and Merkle proofs in its document model. The Document Store records issuance and revocation of those hashes or roots, and a verifier checks whether the presented document corresponds to the issued hash evidence.
 
-OpenETR uses the document digest as the controlled object identifier. The current implementation derives the object id from `sha256(<document bytes>)`, carries that object through the `d` and `o` tags, and includes signed structured metadata such as the source name, generation time, and byte size.
+OpenETR uses the document digest as the digital artifact identifier. The current implementation derives the object id from `sha256(<document bytes>)`, carries that object through the `d` and `o` tags, and includes signed structured metadata such as the source name, generation time, and byte size.
 
 The important contrast is therefore not whether document hashing is used. Both models use hashing. The contrast is what happens after the digest exists:
 
@@ -97,16 +97,16 @@ The OpenETR flow is:
 ```text
 issued document
   -> SHA-256 digest
-  -> controlled object id
-  -> origin event
-  -> linked control events
+  -> digital artifact id
+  -> Anchor Event
+  -> linked evidence events
   -> verifier-derived state
 ```
 
 At the OpenETR layer:
 
-- the origin event introduces the digest-identified object
-- transfer, acceptance, encumbrance, discharge, redemption, termination, and attestation are expressed as signed control events
+- the Anchor Event introduces the digest-identified object
+- transfer, acceptance, encumbrance, discharge, redemption, termination, and attestation are expressed as signed evidence events
 - `e` tags link events into the control graph
 - `p`, `enc`, `action`, and related tags express participants and action semantics
 - verifiers reconstruct the candidate state and then apply recognition policy
@@ -158,12 +158,12 @@ The smart contracts are doing important work. They provide the state machine for
 In an OpenETR-style flow:
 
 1. The bill of lading PDF is hashed with SHA-256.
-2. The digest becomes the OpenETR controlled object id.
-3. The issuing profile signs a `kind 31415` origin event carrying the object id in `d` and `o`.
-4. The current controller signs a `kind 31416` transfer initiation event.
-5. The transferee signs a `kind 31416` transfer acceptance event.
-6. Later actions such as encumbrance, discharge, redemption, attestation, or termination are signed as additional `kind 31416` control events.
-7. Each control event carries the same `o` object id and uses `e` to link to the prior event being relied on.
+2. The digest becomes the OpenETR digital artifact id.
+3. The issuing profile signs a `kind 1415` Anchor Event carrying the object id in `d` and `o`.
+4. The current controller signs a `kind 1416` transfer initiation event.
+5. The transferee signs a `kind 1416` transfer acceptance event.
+6. Later actions such as encumbrance, discharge, redemption, attestation, or termination are signed as additional `kind 1416` evidence events.
+7. Each evidence event carries the same `o` object id and uses `e` to link to the prior event being relied on.
 8. A verifier reconstructs the control graph and applies its accepted recognition policy to decide which events have effect.
 
 The state path is:
@@ -172,8 +172,8 @@ The state path is:
 bill of lading PDF
   -> SHA-256 digest
   -> object id
-  -> origin event
-  -> transfer / accept / other control events
+  -> Anchor Event
+  -> transfer / accept / other evidence events
   -> verifier-derived controller and lifecycle state
 ```
 
@@ -184,7 +184,7 @@ The OpenETR events are doing a different kind of work. They provide signed, port
 | Step | TradeTrust | OpenETR |
 | --- | --- | --- |
 | Document identity | Target hash / Merkle root becomes token ID. | SHA-256 digest becomes object id. |
-| Issuance | Token Registry maps token ID to Title Escrow. | Origin event introduces the object. |
+| Issuance | Token Registry maps token ID to Title Escrow. | Anchor Event introduces the Digital Artifact into a candidate DCR. |
 | Transfer state | Title Escrow stores Owner and Holder. | Control graph records transfer and acceptance events. |
 | Transition enforcement | Smart contract logic enforces allowed state changes. | Verifier policy determines which signed events are recognized as effective. |
 | Current state query | Read Token Registry / Title Escrow state and endorsement chain. | Retrieve events by object id and replay the linked control graph. |
@@ -206,9 +206,9 @@ TradeTrust places it in a smart-contract token and Title Escrow model. OpenETR p
 | Topic | TradeTrust / OpenAttestation Document Store | OpenETR |
 | --- | --- | --- |
 | State anchor | Blockchain smart contract state. | Signed Nostr event graph. |
-| Document identity | Document roots, target hashes, and Merkle proofs bind the presented document to issued hash evidence. | A SHA-256 digest of the issued document bytes becomes the controlled object identifier. |
-| Issuance model | Document Store smart contract records issuance and revocation of document roots or target hashes. | Origin event records issuance of the digest-identified controlled object by a profile signer. |
-| Transfer model | Transferable documents are represented as ERC-721 NFTs with an owner. | Transfer is expressed as signed control events linked into the object graph. |
+| Document identity | Document roots, target hashes, and Merkle proofs bind the presented document to issued hash evidence. | A SHA-256 digest of the issued document bytes becomes the digital artifact identifier. |
+| Issuance model | Document Store smart contract records issuance and revocation of document roots or target hashes. | Anchor Event records anchoring or issuance of the digest-identified Digital Artifact by a profile signer. |
+| Transfer model | Transferable documents are represented as ERC-721 NFTs with an owner. | Transfer is expressed as signed evidence events linked into the object graph. |
 | Runtime dependency | Verification and transfer rely on the relevant blockchain network, contract address, and contract state. | Verification relies on retrieved signed events; events can be served by public relays, private relays, archives, or local storage. |
 | Execution model | Smart-contract functions update on-chain state. | Local OpenETR software publishes signed events and independently derives candidate state. |
 | Identity model | Blockchain addresses and smart-contract roles such as admin, issuer, or revoker. | Root-and-profile identity, where existing systems authenticate users and map them to operational profile signers. |
@@ -300,9 +300,9 @@ OpenETR is trying to keep the protocol layer more general. The OpenETR control g
 - secured-finance records
 - bearer-style presentation and redemption workflows
 
-The domain adapter supplies domain vocabulary and UI. The OpenETR layer supplies common control events. The recognition layer supplies legal or operational effect.
+The domain adapter supplies domain vocabulary and UI. The OpenETR layer supplies common evidence events. The recognition layer supplies legal or operational effect.
 
-This separation lets a warehouse receipt workflow look like a warehouse receipt workflow while still using the same generic control-event family as other domains.
+This separation lets a warehouse receipt workflow look like a warehouse receipt workflow while still using the same generic evidence-event family as other domains.
 
 ## Complementary, Not Mutually Exclusive
 
@@ -312,9 +312,9 @@ A future implementation could bridge them.
 
 For example:
 
-- an OpenETR origin event could reference a TradeTrust document or contract address
+- an OpenETR Anchor Event could reference a TradeTrust document or contract address
 - an OpenETR attestation could record that a TradeTrust verification result was observed
-- a TradeTrust-enabled platform could publish OpenETR control events for additional off-chain or cross-system evidence
+- a TradeTrust-enabled platform could publish OpenETR evidence events for additional off-chain or cross-system evidence
 - an OpenETR recognition profile could require confirmation from a TradeTrust smart contract before treating an event as effective
 
 The important distinction is where each architecture places the shared source of technical truth.

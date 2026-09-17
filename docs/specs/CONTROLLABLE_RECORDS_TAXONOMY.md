@@ -15,7 +15,7 @@ It also clarifies a terminology boundary that is important in OpenETR:
 - the broader legal or policy category depends on the recognition context and must not be inferred from the DCR name alone.
 
 This note predates the canonical DCR terminology. Where older material uses
-**Controlled Object**, read **Digital Artifact**. Where it refers to the signed
+**Digital Artifact**, read **Digital Artifact**. Where it refers to the signed
 event structure, read **Digital Controllable Record**.
 
 The goal is to keep OpenETR's broader architecture visible while preserving the OpenETR brand and its connection to electronic transferable records.
@@ -163,15 +163,15 @@ Instead, it clarifies the layers:
 ```text
 Record family         controllable records
 Domain category       ETRs, non-transferable records, credentials, linked evidence, registry records
-OpenETR control layer Digital Artifacts, DCR records and graphs, profiles, policy guards
+OpenETR protocol layer Digital Artifacts, DCR records and graphs, profiles, policy guards
 Wire format           signed events, kinds, tags, relays, object queries
 Recognition layer     law, contracts, registries, trust frameworks, competent authorities, verifier policy
 ```
 
-OpenETR should remain precise at the control layer:
+OpenETR should remain precise at the protocol layer:
 
 - identify the Digital Artifact;
-- publish signed control records;
+- publish signed evidence records;
 - derive candidate state from the control graph;
 - expose policy guards and warnings;
 - preserve linked evidence;
@@ -185,7 +185,7 @@ They are especially important because the control state of the record can have h
 
 But the OpenETR control graph model is broader than transferability:
 
-- `issue` can create an origin control record for many record types;
+- `issue` can create an Anchor Record for many record types;
 - `attest` can add signed evidence or authority;
 - `encumber` and `discharge` can express restrictions and releases;
 - `redeem` can express presentation or request for performance;
@@ -210,7 +210,7 @@ OpenETR is centered on object history:
 
 ```text
 What is the Digital Artifact?
-Who issued the origin control record?
+Who issued the Anchor Record?
 What signed events exist for this object?
 Who is the current controller, if any?
 What evidence is linked?

@@ -282,7 +282,7 @@ Other systems may strengthen the evidence used in that derivation.
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [OpenETR Generic Transfer Model](./OPENETR_GENERIC_TRANSFER_MODEL.md)
-- [Control Event Minimum Shapes](./CONTROL_EVENT_MINIMUM_SHAPES.md)
+- [Evidence Event Minimum Shapes](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [Linked Evidence Record Kind Design Note](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
 - [OpenETR Draft National Standard](./OPENETR_DRAFT_NATIONAL_STANDARD.md)
 

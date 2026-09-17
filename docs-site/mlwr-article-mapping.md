@@ -2,7 +2,7 @@
 
 The MLWR article mapping tracks how OpenETR evidence could be recognized under, or given effect by, Model Law on Warehouse Receipts requirements.
 
-The mapping is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they are closely mapped to protocol evidence such as object digests, signed control records, current-controller derivation, attestations, and verifier policy output.
+The mapping is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they are closely mapped to protocol evidence such as object digests, signed evidence records, current-controller derivation, attestations, and verifier policy output.
 
 OpenETR can show what was signed, linked, retrieved, transferred, pledged, discharged, presented, or terminated. MLWR-style law, registry rules, contracts, institutional policy, courts, and verifiers decide what legal or operational effect follows.
 
@@ -24,7 +24,7 @@ The current strongest coverage is around:
 - terminology mapping;
 - electronic receipt identity by digest;
 - initial control-record evidence;
-- control event evidence;
+- evidence event evidence;
 - transfer and control graph reconstruction;
 - recognition boundary documentation.
 

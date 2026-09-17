@@ -546,7 +546,7 @@ Not every DPP lifecycle action should be a control-state transition.
 
 | DPP occurrence | Suggested OpenETR treatment |
 | --- | --- |
-| Initial canonical DPP version | Anchor or linked artifact origin evidence |
+| Initial canonical DPP version | Anchor Record or linked-artifact evidence |
 | EU Registry proof | Linked evidence |
 | Corrected or superseding DPP version | Explicit successor or supersession record |
 | Repair or maintenance record | Linked evidence, unless profile defines a state transition |
@@ -737,4 +737,3 @@ systems that implement those obligations.
 - [Linked Evidence Record Kind Design Note](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
 - [OpenETR Dependency Integrity Design Note](./OPENETR_DEPENDENCY_INTEGRITY_DESIGN_NOTE.md)
 - [OpenETR Organizational Reference Layer Design Note](./OPENETR_ORGANIZATIONAL_REFERENCE_LAYER_DESIGN_NOTE.md)
-

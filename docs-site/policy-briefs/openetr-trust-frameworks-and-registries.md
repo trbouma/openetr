@@ -61,7 +61,7 @@ At the protocol layer, OpenETR makes it possible to inspect:
 
 - the digest of the Digital Artifact;
 - the signed Anchor record;
-- later signed control records;
+- later signed evidence records;
 - linked evidence records;
 - event ids, signatures, tags, and graph links;
 - which profile key signed each record;
@@ -122,7 +122,7 @@ OpenETR is aimed at that missing layer. It gives digital-government and trust-fr
 
 - object identity by digest;
 - signed Anchor records;
-- signed lifecycle and control events;
+- signed lifecycle and evidence events;
 - linked evidence records;
 - durable query links and QR codes;
 - verifier annotations that distinguish evidence from recognition.

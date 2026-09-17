@@ -32,7 +32,7 @@ In this domain:
 - the Product Passport digest is the stable object identity;
 - each signed OpenETR Anchor, control, or linked-evidence event is a record in the Product Passport **DCR**;
 - later lifecycle documents can be attached as **linked evidence records**;
-- the linked set of Anchor and control records is the Product Passport **control graph**;
+- the linked set of Anchor Records and later evidence records is the Product Passport **control graph**;
 - the broader linked set of Anchor, control, and evidence records is the Product Passport **evidence graph**.
 
 The Product Passport itself may be a PDF, image, JSON document, data bundle, credential, registry export, or another canonical artifact. OpenETR does not need to parse it before it can identify the artifact by digest and record control-relevant evidence.
@@ -54,7 +54,7 @@ The current page supports two starting workflows.
 | Workflow | Purpose |
 | --- | --- |
 | Query Product Passport Control | Upload a Product Passport file and query the OpenETR control graph associated with its digest. |
-| Create Product Passport Control Record | Publish the initial OpenETR control record for a Product Passport document using the selected profile signer. |
+| Create Product Passport Evidence Record | Publish the initial OpenETR evidence record for a Product Passport document using the selected profile signer. |
 
 ## Product Passport Metadata
 
@@ -70,9 +70,9 @@ The first Product Passport control-record flow can carry basic signed metadata:
 | Domain | `domain=digital_product_passport` |
 | Document type | `document_type=product_passport` |
 
-These tags are early domain-adapter metadata. They make the control record easier to inspect without turning OpenETR into a complete Product Passport schema or compliance engine.
+These tags are early domain-adapter metadata. They make the evidence record easier to inspect without turning OpenETR into a complete Product Passport schema or compliance engine.
 
-## Likely Future Control Records
+## Likely Future Evidence Records
 
 Product Passport workflows will likely need domain-specific profiles and verifier policies for:
 

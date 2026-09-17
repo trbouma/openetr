@@ -12,7 +12,7 @@ Draft.
 
 ## Summary
 
-OpenETR already models a single Controlled Object as a digest-identified artifact with a signed control graph.
+OpenETR already models a single Digital Artifact as a digest-identified artifact with a signed control graph.
 
 Dependency integrity extends that model across objects.
 
@@ -61,7 +61,7 @@ OpenETR should not decide every legal consequence of that change. But it can mak
 
 ### Primary Object
 
-The **Primary Object** is the Controlled Object currently being evaluated.
+The **Primary Object** is the Digital Artifact currently being evaluated.
 
 Example:
 
@@ -102,7 +102,7 @@ Examples:
 
 ### Dependency Graph
 
-The **Dependency Graph** is the linked set of dependency edges among Controlled Objects, evidence artifacts, and recognized external references.
+The **Dependency Graph** is the linked set of dependency edges among Digital Artifacts, evidence artifacts, and recognized external references.
 
 It is not a replacement for each object's own control graph.
 
@@ -129,7 +129,7 @@ Dependency integrity builds on existing OpenETR primitives.
 
 | Existing Concept | Dependency Integrity Use |
 | --- | --- |
-| Controlled Object | Each related record remains separately digest-identified. |
+| Digital Artifact | Each related record remains separately digest-identified. |
 | Control Graph | Each object retains its own origin and control history. |
 | Linked Evidence Record | Supporting artifacts can be associated with one or more objects. |
 | Attestation | A signer can assert a relationship, dependency, warning, or status. |
@@ -171,7 +171,7 @@ This works well when the dependency is evidence about a relationship but does no
 
 ### Pattern 2: Attestation Dependency Records
 
-Use an attestation-style control event to assert a dependency.
+Use an attestation-style evidence event to assert a dependency.
 
 Example shape:
 

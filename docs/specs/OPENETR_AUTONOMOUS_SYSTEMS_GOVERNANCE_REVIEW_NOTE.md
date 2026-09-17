@@ -14,7 +14,7 @@ Autonomous systems governance:
   reviews, and remains accountable for consequential autonomous action
 
 OpenETR:
-  how a digest-identified record receives signed control events,
+  how a digest-identified record receives signed evidence events,
   linked evidence, current-state derivation, and verifier-policy output
 ```
 
@@ -61,7 +61,7 @@ authorization:
   the host system or policy decides whether the action may proceed
 
 commitment:
-  an OpenETR control event is signed and published for the object
+  an OpenETR evidence event is signed and published for the object
 
 execution consequence:
   a domain system, registry, counterparty, or verifier gives effect to the event
@@ -100,8 +100,8 @@ and can that change be reconstructed, challenged, and evaluated later?
 OpenETR can provide the record-state evidence:
 
 - object digest
-- origin event
-- signed control event
+- Anchor Event
+- signed evidence event
 - prior-event link
 - participant references
 - attestation and linked evidence
@@ -178,21 +178,21 @@ OpenETR does not define the full delegation instrument. It can record or link to
 
 This is one of the strongest alignments.
 
-OpenETR should treat proposed actions differently from control events.
+OpenETR should treat proposed actions differently from evidence events.
 
 ```text
 proposal event or local workflow state:
   suggested action, plan, recommendation, draft, or approval request
 
-OpenETR control event:
+OpenETR evidence event:
   signed event that participates in the object control graph
 ```
 
-A model, agent, or workflow may propose a transfer. The consequential OpenETR action occurs only when an authorized profile signs the control event and the relevant system submits or recognizes it.
+A model, agent, or workflow may propose a transfer. The consequential OpenETR action occurs only when an authorized profile signs the evidence event and the relevant system submits or recognizes it.
 
 Design implication:
 
-Do not allow an AI-generated recommendation to become a control event merely because it exists. It should become a control event only after the relevant authorization and enforcement checks pass.
+Do not allow an AI-generated recommendation to become an evidence event merely because it exists. It should become an evidence event only after the relevant authorization and enforcement checks pass.
 
 ### Norm 4: Time-Of-Action Authority And Current-Condition Validation
 
@@ -225,7 +225,7 @@ Relevant patterns:
 - human approval as linked evidence
 - countersignature requirements
 - quorum or multi-profile attestation
-- separation between proposal event and control event
+- separation between proposal event and evidence event
 - policy warnings for missing approval
 - domain-specific preconditions before transfer, encumbrance, redemption, or termination
 
@@ -253,7 +253,7 @@ Stronger pattern:
 ```text
 agent proposes action
   -> system validates authority and current graph state
-  -> OpenETR control event is signed
+  -> OpenETR evidence event is signed
   -> domain system gives effect only if the event and policy checks pass
 ```
 
@@ -318,7 +318,7 @@ OpenETR can support post-event review and incident response by preserving signed
 
 Useful evidence includes:
 
-- origin event
+- Anchor Event
 - transfer chain
 - conflicting branch warnings
 - duplicate origin warnings
@@ -340,7 +340,7 @@ The paper calls for shared distinctions among reasoning, recommendation, proposa
 OpenETR can help make one of these boundaries concrete:
 
 ```text
-An OpenETR control event should be treated as a commitment point,
+An OpenETR evidence event should be treated as a commitment point,
 not as a mere recommendation.
 ```
 
@@ -396,13 +396,13 @@ This gives operations teams a concrete place to enforce controls and preserve ev
 
 ### Treat Signing As Consequential Execution Authority
 
-An agent that can sign an OpenETR control event can affect record state.
+An agent that can sign an OpenETR evidence event can affect record state.
 
 The ability to call `issue`, `transfer`, `encumber`, `discharge`, `redeem`, or `terminate` should be treated as delegated authority, not ordinary tool access.
 
-### Separate Proposal Events From Control Events
+### Separate Proposal Events From Evidence Events
 
-If autonomous agents propose record actions, those proposals should be recorded separately from committed control events.
+If autonomous agents propose record actions, those proposals should be recorded separately from committed evidence events.
 
 Potential pattern:
 
@@ -413,7 +413,7 @@ proposal evidence:
 authorization evidence:
   responsible account or profile approved transfer
 
-control event:
+evidence event:
   authorized profile signed transfer event
 ```
 
@@ -431,7 +431,7 @@ Before a profile signs a consequential OpenETR event, the system should verify c
 
 ### Reference Authorization And Execution Evidence
 
-An OpenETR control event should be able to reference independently verifiable
+An OpenETR evidence event should be able to reference independently verifiable
 authorization or execution evidence without importing an autonomous-agent
 authorization framework into the control grammar.
 
@@ -520,7 +520,7 @@ The pilot should distinguish:
 - agent recommendation
 - host-system account authorization
 - time-of-action graph validation
-- OpenETR signed control event
+- OpenETR signed evidence event
 - domain recognition by the warehouse receipt system or federation
 
 This reinforces the existing pilot boundary:

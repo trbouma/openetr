@@ -1,6 +1,6 @@
 # OpenETR Implementation Alignment Note
 
-This note maps the generic OpenETR Control Layer model to the current OpenETR Nostr event implementation.
+This note maps the generic OpenETR Protocol Layer model to the current OpenETR Nostr event implementation.
 
 It is intended as a short bridge between:
 
@@ -9,7 +9,7 @@ It is intended as a short bridge between:
 
 ## Purpose
 
-The generic model describes OpenETR at the level of Control Layer concepts.
+The generic model describes OpenETR at the level of Protocol Layer concepts.
 
 The current implementation expresses those concepts through specific Nostr event kinds, tags, command flows, and query logic.
 
@@ -23,27 +23,35 @@ This note identifies:
 
 The current implementation uses the following working event family:
 
-- `kind 31415`
-  - origin event
+- `kind 1415`
+  - Anchor Event
   - currently corresponds to `ISSUE`
-- `kind 31416`
-  - control-event family
+- `kind 1416`
+  - evidence-event family
   - currently used for:
     - `action=initiate`
     - `action=accept`
     - `action=terminate`
+    - `action=attest`
+    - `action=encumber`
+    - `action=discharge`
+    - `action=redeem`
 
 At the implementation level, the mapping is therefore:
 
-- `ISSUE` -> `31415`
-- `TRANSFER` -> `31416` with `action=initiate` and optionally `action=accept`
-- `TERMINATE` -> `31416` with `action=terminate`
+- `ISSUE` -> `1415`
+- `TRANSFER` -> `1416` with `action=initiate` and optionally `action=accept`
+- `TERMINATE` -> `1416` with `action=terminate`
+- `ATTEST` -> `1416` with `action=attest`
+- `ENCUMBER` -> `1416` with `action=encumber`
+- `DISCHARGE` -> `1416` with `action=discharge`
+- `REDEEM` -> `1416` with `action=redeem`
 
-## Current Controlled Object Model
+## Current Digital Artifact Model
 
-The current implementation aligns well with the generic Controlled Object concept.
+The current implementation aligns well with the generic Digital Artifact concept.
 
-The Controlled Object is:
+The Digital Artifact is:
 
 - identified by the SHA-256 digest of the canonical file or record
 - carried through the event family using the object digest
@@ -51,12 +59,15 @@ The Controlled Object is:
 
 In current practice:
 
-- the origin event uses:
-  - `d = <object_digest>`
+- the Anchor Event uses:
   - `o = <object_digest>`
-- control events use:
+- evidence events use:
   - `o = <object_digest>`
-  - `d = <object_digest>:<action>`
+  - `e = <prior_event_id>`
+  - `action = <action_name>`
+
+The `d` tag may appear on legacy prototype events, but it is not required for
+new regular graph events.
 
 This means the object itself is already the anchor for control assertions and lifecycle events.
 
@@ -74,7 +85,7 @@ Today, the implementation:
 
 However, the current implementation still operates in an open relay environment where:
 
-- multiple origin events may exist for the same object
+- multiple Anchor Events may exist for the same object
 - multiple candidate control chains may exist
 - recognition policy is still required to determine which chain is authoritative
 
@@ -90,7 +101,7 @@ The generic model defines a single abstract `TRANSFER` event.
 
 The current implementation is more specific.
 
-It models transfer using two related control events:
+It models transfer using two related evidence events:
 
 - `transfer initiate`
 - `transfer accept`
@@ -110,7 +121,7 @@ The generic model therefore remains accurate at a high level, but the implementa
 
 ## Termination Model Alignment
 
-The generic model defines `TERMINATE` as the event through which the Obligor completes performance and the Controlled Object reaches the end of its lifecycle.
+The generic model defines `TERMINATE` as the event through which the Obligor completes performance and the Digital Artifact reaches the end of its lifecycle.
 
 The current implementation is not yet fully aligned with that formulation.
 
@@ -129,46 +140,39 @@ rather than:
 
 This is a meaningful conceptual gap between the generic model and the live implementation.
 
-## Event Types Not Yet Implemented
+## Implemented Action Set
 
-The generic model includes the following control events:
+The implementation supports the following Evidence Event actions:
 
 - `ATTEST`
 - `ENCUMBER`
 - `DISCHARGE`
 - `REDEEM`
 
-These are not yet implemented in the current OpenETR Nostr event family.
-
-At present, the live implementation covers:
-
-- `ISSUE`
-- `TRANSFER`
-- `TERMINATE`
-
-with transfer refined into:
-
-- initiate
-- accept
+Together with `initiate`, `accept`, and `terminate`, these actions use the shared
+`1416` Evidence Event family. Their existence as signed events does not itself
+establish a state change. Defined rules determine the Consequential State that
+follows.
 
 ## Overall Conclusion
 
-The current OpenETR implementation is directionally aligned with the generic Control Layer model.
+The current OpenETR implementation is directionally aligned with the generic Protocol Layer model.
 
 It already demonstrates:
 
-- a digest-identified Controlled Object
-- a signed control-event family
+- a digest-identified Digital Artifact
+- a signed evidence-event family
 - a traversable control graph
 - explicit current-controller logic
-- transfer and termination semantics within a shared control-event family
+- transfer and termination semantics within a shared evidence-event family
 
 However, the generic model is now ahead of the live implementation in several respects:
 
 - it expresses transfer more abstractly than the current initiate/accept implementation
 - it assumes a cleaner single-current-controller model than the open relay environment guarantees by itself
 - it defines termination in obligor/performance terms that the current controller-driven implementation does not yet enforce
-- it includes `ATTEST`, `ENCUMBER`, `DISCHARGE`, and `REDEEM`, which are not yet implemented
+- termination remains controller-declared in the current implementation rather
+  than necessarily proving obligor-confirmed performance
 
 The practical interpretation is therefore:
 

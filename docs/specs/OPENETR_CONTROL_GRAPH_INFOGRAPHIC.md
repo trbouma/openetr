@@ -1,12 +1,12 @@
-# OpenETR Control Graph Infographic
+# OpenETR Evidence Graph Infographic
 
 This infographic ties together the main OpenETR design idea:
 
-> A cryptographically verifiable control graph sits at the center. Nostr provides correctness and portability, domain adapters translate the graph into domain language, and root-and-profile identity lets existing systems connect authenticated users to operational signing profiles.
+> A cryptographically verifiable Evidence Graph forms the DCR. Defined rules
+> derive Consequential State, while a Control Graph is the subset relevant to
+> controller and control-transition consequences.
 
-![OpenETR control graph](/assets/images/openetr-control-graph.jpg)
-
-The publication-ready graphic above is the preferred visual for posts, presentations, and project pages. The Mermaid diagram below is the editable source model for the same architecture.
+The Mermaid diagram below is the current editable source model.
 
 ```mermaid
 flowchart TB
@@ -16,16 +16,17 @@ flowchart TB
         OTHER["Other Domains<br/>credentials, certificates, records"]
     end
 
-    subgraph Control["OpenETR Control Layer"]
-        GRAPH["Control Graph<br/>linked control records for one object"]
-        ORIGIN["Origin Control Records<br/>kind 31415"]
-        CONTROL_EVENTS["Control Records<br/>kind 31416"]
+    subgraph Control["OpenETR Protocol Layer"]
+        GRAPH["Evidence Graph<br/>linked evidence records for one artifact"]
+        CONTROL_GRAPH["Control Graph<br/>control-related subset"]
+        ORIGIN["Anchor Records<br/>kind 1415"]
+        CONTROL_EVENTS["Evidence Records<br/>kind 1416"]
         STATE["Derived State<br/>controller, lifecycle, encumbrances"]
     end
 
-    subgraph Nostr["Nostr Correctness Layer"]
+    subgraph Nostr["Nostr Event Substrate"]
         EVENTS["Signed Events<br/>event id + signature"]
-        TAGS["Wire Tags<br/>d, o, e, p, action, enc"]
+        TAGS["Wire Tags<br/>o, e, p, action, enc"]
         RELAYS["Relay Pool<br/>publish, retrieve, replicate"]
         VERIFY["Independent Verification<br/>signatures, ids, linked e chain"]
     end
@@ -48,6 +49,7 @@ flowchart TB
 
     GRAPH --> ORIGIN
     GRAPH --> CONTROL_EVENTS
+    GRAPH --> CONTROL_GRAPH
     ORIGIN --> STATE
     CONTROL_EVENTS --> STATE
 
@@ -71,11 +73,15 @@ flowchart TB
 
 ## Reading The Diagram
 
-The control graph is the center of the model. It is the object-centric history formed by an origin control record and later linked control records.
+The Evidence Graph is the object-centric DCR graph formed by an Anchor Record
+and later linked Evidence Records. The Control Graph is the subset used to
+derive controller or control-transition state.
 
-The controlled object can itself be a record, such as a warehouse receipt, bill of lading, certificate, or credential. OpenETR keeps that object distinct from the signed control records that describe its control state. The linked control records form the control graph.
+The Digital Artifact can itself be a record, such as a warehouse receipt, bill
+of lading, certificate, or credential. OpenETR keeps that artifact distinct from
+the signed evidence records that concern it.
 
-Nostr provides the correctness layer below the graph:
+Nostr provides the event substrate below the graph:
 
 - event ids bind the serialized event data
 - signatures bind events to profile public keys
@@ -87,14 +93,14 @@ Domain adapters sit above the graph. They make OpenETR usable in specific domain
 
 For example, the MLWR adapter can speak in terms of:
 
-- create receipt control record
+- create receipt evidence record
 - transfer receipt
 - pledge or restrict receipt
 - release encumbrance
 - present for delivery
 - complete delivery
 
-Those actions translate into generic OpenETR origin and control events.
+Those actions translate into generic OpenETR Anchor Events and later Evidence Events.
 
 Identity and system integration sit beside the graph. An existing system may authenticate its own users however it already does, then use a root-and-profile model to connect those users to OpenETR signing profiles.
 

@@ -1,4 +1,8 @@
-# Digital Originality, Control, And Standing Design Note
+# Digital Originality, Control, Recognition, And Effect Design Note
+
+> The filename is retained for link compatibility. **Standing** is not a core
+> OpenETR primitive. A domain may derive a standing-related status as part of
+> Consequential State, while recognition and effect remain external.
 
 ## Status
 
@@ -96,12 +100,11 @@ Recognition remains relational and contextual:
 
 The important question is not only whether an object was anchored or signed. The question is whether the relevant authority is recognized for the relevant purpose.
 
-### Standing
+### Standing As Domain State
 
-Standing may be asserted in a DCR, derived under defined rules, or accepted
-through recognition. Profile rules may derive a standing-related state, but
-**recognized standing** exists only when a recognition context accepts that
-state for a purpose.
+Standing may be asserted in a DCR or derived as domain-specific Consequential
+State under defined rules. It is not a separate core concept. A standing-related
+state is recognized only when a recognition context accepts it for a purpose.
 Examples include official copy, evidentiary copy, transferable record, retired
 record, cancelled record, or non-authoritative copy.
 
@@ -111,9 +114,8 @@ effect follows.
 
 ### Effect
 
-Effect is the consequence that law, policy, contract, institutional rules, community governance, or another recognition regime gives to a recognized object, state, or action.
-
-Rules determine effect.
+Effect is the consequence that a person, community, institution, system,
+contract, authority, or law gives to a recognized object, state, or action.
 
 ## What Does Not Create Consequential State
 
@@ -125,7 +127,7 @@ The following actions do not independently create OpenETR consequential state:
 - Timestamping a record.
 - Storing a record in a repository.
 - Anchoring a digest in a system that does not define the resulting state.
-- Publishing a malformed, invalid, unauthorized, or unlinked control event.
+- Publishing a malformed, invalid, unauthorized, or unlinked evidence event.
 - Placing a file in a digital wallet.
 
 Each may help establish integrity, authenticity, provenance, or persistence.
@@ -146,13 +148,15 @@ Useful shorthand:
   derive state from them.
 - Digital originality is not a uniqueness property of the bytes.
 
-## The Control Layer
+## The Protocol Layer
 
-The term Control Layer should be retained and used precisely:
+The term Protocol Layer should be retained and used precisely:
 
-> The Control Layer is the protocol layer that records and evaluates end-verifiable events concerning a Digital Artifact in order to derive consequential state, independent of any particular technical binding.
+> The Protocol Layer preserves and evaluates end-verifiable evidence concerning
+> a Digital Artifact in order to derive Consequential State independently of any
+> particular technical binding.
 
-The Control Layer has two jobs:
+The Protocol Layer has two jobs:
 
 - Preserve DCR evidence concerning a Digital Artifact.
 - Apply state transition rules to derive consequential state.
@@ -166,16 +170,16 @@ It lets a system express statements such as:
 - An encumbrance on object X is discharged.
 - Object X is terminated.
 
-The Control Layer does not decide whether A is legally empowered to make X an official record. It does not decide whether B is a licensed warehouse operator. It does not perform KYC. It does not create recognition. Those matters belong to domain systems and recognition regimes.
+The Protocol Layer does not decide whether A is legally empowered to make X an official record. It does not decide whether B is a licensed warehouse operator. It does not perform KYC. It does not create recognition. Those matters belong to domain systems and recognition regimes.
 
 ## Grammar And Technical Binding
 
-The Control Layer is a protocol grammar. A technical binding is an
+The Protocol Layer is a protocol grammar. A technical binding is an
 implementation of that grammar.
 
 | Concept | Role |
 | --- | --- |
-| Control Layer grammar | Defines the event and transition concepts used to derive consequential state. |
+| Protocol Layer grammar | Defines the event and transition concepts used to derive consequential state. |
 | Technical binding | Defines how those statements are represented, signed, linked, published, and verified. |
 | Recognition context | Determines whether an actor, assertion, object, or state is accepted for a purpose. |
 | Applicable rules | Determine the legal, institutional, contractual, or community effect. |
@@ -186,20 +190,20 @@ For example:
 Controller -> TRANSFER -> New Controller
 ```
 
-The Control Layer says that transfer is a meaningful state transition. A Nostr binding can specify the event kind, signed structure, object references, controller keys, prior event references, validation rules, and relay publication model.
+The Protocol Layer says that transfer is a meaningful state transition. A Nostr binding can specify the event kind, signed structure, object references, controller keys, prior event references, validation rules, and relay publication model.
 
 In short:
 
 ```text
-Control Layer != Nostr
-OpenETR Control Layer -> Nostr binding
+Protocol Layer != Nostr
+OpenETR Protocol Layer -> Nostr binding
 ```
 
-OpenETR should therefore not be described only as a wire protocol. It defines and implements a control layer that can be bound to one or more technical protocols.
+OpenETR should therefore not be described only as a wire protocol. It defines and implements a protocol layer that can be bound to one or more technical protocols.
 
-## Control Primitives
+## Protocol Actions
 
-The minimal control primitive set is:
+The generic action vocabulary includes:
 
 - Anchor.
 - Transfer.
@@ -251,7 +255,7 @@ Termination may represent cancellation, retirement, destruction of control statu
 
 Transition guards are conditions arising from the current control state that determine whether a proposed control-state transition is valid.
 
-Encumber and Discharge are the Control Layer transitions that establish and remove those guards:
+Encumber and Discharge are the Protocol Layer transitions that establish and remove those guards:
 
 ```text
 ENCUMBER  -> creates or activates a guard
@@ -296,7 +300,7 @@ Relinquishment means that a party gives up a recognized claim, right, position, 
 
 Surrender is a domain-specific form of relinquishment. It may be positive, as when a transferable record is surrendered after payment or discharge of an obligation. It may also raise concern, as when a person is required to surrender a passport or other credential to an authority that may revoke or retain it.
 
-The Control Layer may represent surrender through one or more control transitions, such as:
+The Protocol Layer may represent surrender through one or more control transitions, such as:
 
 ```text
 Surrender intent or effect
@@ -320,7 +324,7 @@ Digital Artifact
   -> Recognition
   -> Effect
 
-Control events: Anchor -> Transfer -> Encumber -> Discharge -> Terminate
+Evidence events: Anchor -> Transfer -> Encumber -> Discharge -> Terminate
 ```
 
 End-verifiable events make the object's consequential state independently
@@ -401,7 +405,7 @@ state without transferring it. Sharing discloses the Record File and evidence
 without copying control. Surrender may relinquish control, recognized status,
 or both under a domain profile.
 
-However, Surrender should not be treated as the generic primitive in the Control Layer. At the generic layer, Relinquishment is the effect concept. Domain profiles can define surrender as a specific form of relinquishment and map it to one or more control transitions.
+However, Surrender should not be treated as the generic primitive in the Protocol Layer. At the generic layer, Relinquishment is the effect concept. Domain profiles can define surrender as a specific form of relinquishment and map it to one or more control transitions.
 
 ## Product Naming Implications
 
@@ -422,8 +426,8 @@ Use caution with VouchSafe etymology. The historical meaning of vouchsafe is clo
 1. Use Anchor Event rather than Original Event where the protocol event establishes an initial anchored control state.
 2. Allow more than one Anchor Event for the same object or digest.
 3. Preserve the distinction between consequential protocol state, recognition, and effect.
-4. Keep the Control Layer independent from any single technical binding.
-5. Treat Nostr as a technical binding for the Control Layer, not as the Control Layer itself.
+4. Keep the Protocol Layer independent from any single technical binding.
+5. Treat Nostr as a technical binding for the Protocol Layer, not as the Protocol Layer itself.
 6. Model encumbrances as transition guards.
 7. Keep Recognition, Standing, and Relinquishment in the effect layer, not as primitive control transitions.
 8. Ensure verifier output distinguishes integrity, authenticity, event validity, consequential state, recognition, standing, and effect.
@@ -441,11 +445,11 @@ same digest represent the same Digital Artifact.
 related end-verifiable records through which consequential state concerning a
 Digital Artifact can be established and transitioned.
 
-**Control Layer:** The protocol layer that records and evaluates
+**Protocol Layer:** The protocol layer that records and evaluates
 end-verifiable events concerning a Digital Artifact in order to derive
 consequential state, independent of any particular technical binding.
 
-**Technical Binding:** A concrete representation of Control Layer statements in a signed, verifiable, publishable, and machine-processable form.
+**Technical Binding:** A concrete representation of Protocol Layer statements in a signed, verifiable, publishable, and machine-processable form.
 
 **Transition Guard:** A condition arising from the current consequential state
 that determines whether a proposed state transition is valid.
@@ -481,7 +485,7 @@ stated purpose.
 
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
 - [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
-- [Control Event Policy Guards Design Note](./CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
+- [Evidence Event Policy Guards Design Note](./CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [Warehouse Receipt Pilot Boundary Notes](./MLWR_WAREHOUSE_RECEIPT_PILOT_BOUNDARY_NOTES.md)

@@ -1,6 +1,6 @@
 # OpenETR Generic Transfer Model
 
-This note defines how OpenETR's control layer supports transfer of control
+This note defines how OpenETR's protocol layer supports transfer of control
 over a Digital Artifact by preserving DCR evidence and applying state
 transition rules.
 
@@ -18,7 +18,7 @@ state is the result of that validation.
 
 ## Purpose
 
-OpenETR provides a control layer for electronic transferable records.
+OpenETR provides a protocol layer for electronic transferable records.
 
 Its purpose is to make the DCR evidence, validation policy, and resulting
 consequential state concerning a Digital Artifact independently verifiable.
@@ -43,7 +43,7 @@ SHA-256 digest of its canonical representation.
 The Digital Artifact:
 
 - is uniquely identified by the SHA-256 digest of its canonical representation;
-- is the common subject referenced by candidate assertions and Control Events;
+- is the common subject referenced by candidate assertions and Evidence Events;
 - may have incomplete, invalid, competing, ambiguous, or terminated event
   history; and
 - becomes a Digital Original when validation of its DCR under an applicable
@@ -68,15 +68,15 @@ The Current Controller has the exclusive ability to:
 - redeem the Digital Artifact
 - perform other authorized control actions
 
-This is a Control Layer statement only. It does not by itself determine who owns the underlying asset or what legal consequences follow from control.
+This is a Protocol Layer statement only. It does not by itself determine who owns the underlying asset or what legal consequences follow from control.
 
 ### Control Graph
 
-The Control Graph is the control-event portion of the DCR concerning the
+The Control Graph is the evidence-event portion of the DCR concerning the
 lifecycle of the Digital Artifact.
 
 - nodes represent Participants
-- directed edges represent authenticated Control Events
+- directed edges represent authenticated Evidence Events
 - every event references the Digital Artifact
 - every event is cryptographically signed by the Participant performing the event
 
@@ -86,7 +86,7 @@ compete with another candidate graph.
 
 ### Participants
 
-A Participant is any identified entity capable of creating authenticated Control Events.
+A Participant is any identified entity capable of creating authenticated Evidence Events.
 
 A Participant may assume one or more Control Roles:
 
@@ -111,7 +111,7 @@ Commercial or institutional roles such as:
 
 exist outside the model.
 
-## Generic Control Events
+## Generic Evidence Events
 
 ### ISSUE
 
@@ -193,11 +193,11 @@ Records that the Current Controller has presented the Digital Artifact to the Ob
 
 Records that the Obligor has completed performance and that the Digital Artifact has reached the end of its OpenETR lifecycle.
 
-No further control events may occur after termination.
+No further evidence events may occur after termination.
 
 ## Endorsement and Indorsement
 
-OpenETR does not define endorsement or indorsement as a separate universal Control Event type.
+OpenETR does not define endorsement or indorsement as a separate universal Evidence Event type.
 
 Instead, where relevant, endorsement or indorsement is expressed as an attestation associated with an underlying OpenETR event, with its legal or commercial characterization determined by the applicable recognition framework.
 
@@ -206,7 +206,7 @@ In the generic model:
 - if the relevant action changes the Current Controller, it is modeled as `TRANSFER`
 - if the relevant action adds authenticated meaning, authority, approval, instruction, limitation, or another assertion without itself changing control, it is modeled as `ATTEST`
 
-Whether those events amount to an endorsement or indorsement is determined outside the Control Layer by the relevant Recognition Layer, contractual framework, or governing law.
+Whether those events amount to an endorsement or indorsement is determined outside the Protocol Layer by the relevant Recognition Layer, contractual framework, or governing law.
 
 ## Generic State Model
 
@@ -267,7 +267,7 @@ Those questions are determined by the applicable Recognition Layer, for example:
 
 OpenETR provides authenticated evidence of control.
 
-Commercial relationships and legal consequences remain outside the Control Layer.
+Commercial relationships and legal consequences remain outside the Protocol Layer.
 
 Some implementation profiles may choose to recognize certain effects, especially transfers among a small and otherwise trusted set of counterparties, without separate third-party attestation at the time of transfer.
 
@@ -306,7 +306,7 @@ This model is intended to be protocol-neutral and recognition-neutral.
 It is compatible with the broader three-layer framing in which:
 
 - the Protocol Layer establishes correctness
-- the Control Layer establishes authenticated control relationships
+- the Protocol Layer establishes authenticated control relationships
 - the Recognition Layer assigns legal, commercial, institutional, or social effect
 
-Under that framing, OpenETR belongs to the Control Layer. It preserves a durable, signed, and reviewable history of control without collapsing control into either protocol mechanics or legal recognition.
+Under that framing, OpenETR belongs to the Protocol Layer. It preserves a durable, signed, and reviewable history of control without collapsing control into either protocol mechanics or legal recognition.
