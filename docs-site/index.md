@@ -9,7 +9,18 @@ Explore the possibilities in your domain:
 [**Academic Records**](policy-briefs/academic-records-need-consequential-state.md) |
 [**Apostille Records**](policy-briefs/apostille-records-need-consequential-state.md)
 
-## Digital Records Should Function Like the Originals They Replace
+## Digital Copies Should Function Like Their Originals
+
+Copying was never the hard problem. Digital systems can already reproduce
+content perfectly. The hard problem is discerning the **Digital Original** and
+independently determining the **Consequential State** that follows from actions
+concerning it.
+
+Paper-based practice often takes this for granted. Physical possession,
+markings, endorsements, custody, and surrender help people identify the
+operative original and understand what may happen next. For digital artifacts,
+this has not yet been satisfactorily achieved in a general, open, and
+interoperable way across applications and institutions.
 
 Digital records increasingly do more than store information. People,
 institutions, and machines rely on them to decide what may or must happen next.
