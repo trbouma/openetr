@@ -51,8 +51,9 @@ docker compose up --build --detach
 ```
 
 The supplied Compose deployment sets `OPENETR_REQUIRE_SESSION_SECRET=true`.
-Startup will fail unless `.env` provides either `OPENETR_APP_SESSION_SECRET` or
-`OPENETR_APP_SESSION_SECRET_FILE`.
+It also uses Docker Compose's required-variable syntax for
+`OPENETR_APP_SESSION_SECRET`, so `docker compose config` will fail early if the
+value is missing from `.env`.
 
 The supplied Compose configuration binds to `127.0.0.1` by default. Keep that
 default when an HTTPS reverse proxy runs on the same host. Select a specific
@@ -108,7 +109,7 @@ The application recognizes runtime variables including:
 | Variable | Purpose |
 | --- | --- |
 | `OPENETR_APP_SESSION_SECRET` | Required production session-encryption secret |
-| `OPENETR_APP_SESSION_SECRET_FILE` | File containing the production session secret |
+| `OPENETR_APP_SESSION_SECRET_FILE` | File containing the production session secret for non-default runtimes or custom Compose deployments |
 | `OPENETR_ROOT_NSEC` / `_FILE` | Optional bootstrap root signing key |
 | `OPENETR_HOME_RELAYS` / `_FILE` | Optional bootstrap relay set |
 | `OPENETR_PUBLIC_BASE_URL` | External HTTPS base URL |
@@ -116,7 +117,9 @@ The application recognizes runtime variables including:
 | `OPENETR_BLOSSOM_SERVER` | Blossom storage endpoint |
 | `OPENETR_GIT_COMMIT` | Deployed source revision reported by the app |
 
-Prefer file-based secret inputs when the deployment platform supplies them.
+Prefer file-based secret inputs when the deployment platform supplies them; the
+default Compose file uses the direct `.env` secret because that matches the
+project's simple standalone deployment pattern.
 
 ## Suggested Checks
 
