@@ -100,8 +100,7 @@ poetry run mkdocs build --strict
 Run the standalone web application with Docker:
 
 ```bash
-cp .env.example .env
-# Set OPENETR_APP_SESSION_SECRET to an independently generated value.
+poetry run openetr install
 docker compose up --build --detach
 curl --fail http://127.0.0.1:8000/health
 ```

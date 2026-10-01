@@ -43,6 +43,26 @@ Use a dedicated checkout or release directory for each instance. Create its
 runtime environment and generate a unique session secret:
 
 ```sh
+poetry run openetr install
+docker compose config --quiet
+docker compose up --build --detach
+```
+
+The installer creates or updates `.env`, generates
+`OPENETR_APP_SESSION_SECRET` when missing, and prompts for the host bind
+address, port, public base URL, relay list, Blossom endpoint, and upload limit.
+For a non-interactive install, pass the desired values explicitly:
+
+```sh
+poetry run openetr install --yes \
+  --bind-address 127.0.0.1 \
+  --port 8000 \
+  --home-relays wss://relay.openetr.org
+```
+
+You can also configure the same values manually:
+
+```sh
 cp .env.example .env
 openssl rand -hex 32
 # Put the generated value in OPENETR_APP_SESSION_SECRET in .env before starting.

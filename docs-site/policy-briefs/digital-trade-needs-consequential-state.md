@@ -208,6 +208,15 @@ Each adapter supplies natural business terminology and domain rules. The
 OpenETR core remains concerned with artifact identity, signed DCR evidence,
 graph relationships, and state derivation.
 
+OpenETR is not the only architecture pursuing cross-platform digital trade.
+TradeTrust combines verifiable-document technologies with blockchain smart
+contracts for transferable-record owner and holder state. The policy choice is
+not simply blockchain or no blockchain; it is a choice about where state is
+maintained, how conflicts are settled, and what infrastructure must remain
+available at verification time. See
+[OpenETR, TradeTrust, And Blockchains](./openetr-tradetrust-and-blockchains.md)
+for the focused comparison.
+
 ## Recognition Is Still The Work
 
 Portable evidence does not make trade law or institutional policy disappear.

@@ -3,6 +3,7 @@ from importlib.resources import files
 import asyncio
 import json
 from pathlib import Path
+import secrets
 
 import click
 from monstr.client.client import ClientPool
@@ -88,6 +89,56 @@ def _normalize_relays(relays: str) -> str:
         raise click.ClickException("relays must contain at least one relay URL")
 
     return ",".join(normalized)
+
+
+def _quote_env_value(value: str) -> str:
+    if value == "":
+        return ""
+    safe_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./:@,+-= ")
+    if all(char in safe_chars for char in value) and not value.startswith(" ") and not value.endswith(" "):
+        return value
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+def _read_env_values(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in line:
+            continue
+        name, raw_value = line.split("=", 1)
+        key = name.strip()
+        value = raw_value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        values[key] = value
+    return values
+
+
+def _update_env_file(path: Path, updates: dict[str, str]) -> None:
+    existing = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    seen: set[str] = set()
+    output: list[str] = []
+    for line in existing:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in line:
+            output.append(line)
+            continue
+        name, _ = line.split("=", 1)
+        key = name.strip()
+        if key in updates:
+            output.append(f"{key}={_quote_env_value(updates[key])}")
+            seen.add(key)
+        else:
+            output.append(line)
+    for key, value in updates.items():
+        if key not in seen:
+            output.append(f"{key}={_quote_env_value(value)}")
+    path.write_text("\n".join(output) + "\n", encoding="utf-8")
 
 
 def _profile_updates(
@@ -934,6 +985,112 @@ def init_config(force: bool) -> None:
             click.echo(f"    {changes['root_recovery_phrase']}")
         else:
             click.echo("  recovery phrase: unavailable until the 'mnemonic' dependency is installed")
+
+
+@click.command("install")
+@click.option("--env-file", default=".env", show_default=True, help="Docker Compose env file to create or update.")
+@click.option("--bind-address", default=None, help="Host interface for Docker Compose to publish.")
+@click.option("--port", type=int, default=None, help="Host port for Docker Compose to publish.")
+@click.option("--public-base-url", default=None, help="External HTTPS base URL, if known.")
+@click.option("--home-relays", default=None, help="Comma-separated relay list for the web runtime.")
+@click.option("--blossom-server", default=None, help="Default Blossom storage endpoint.")
+@click.option("--max-upload-bytes", type=int, default=None, help="Maximum upload size in bytes.")
+@click.option("--force-secret", is_flag=True, help="Generate a new session secret even if one already exists.")
+@click.option("--yes", is_flag=True, help="Accept defaults without interactive prompts.")
+def install(
+    env_file: str,
+    bind_address: str | None,
+    port: int | None,
+    public_base_url: str | None,
+    home_relays: str | None,
+    blossom_server: str | None,
+    max_upload_bytes: int | None,
+    force_secret: bool,
+    yes: bool,
+) -> None:
+    """Create or update a Docker Compose .env file for an OpenETR web deployment."""
+    path = Path(env_file)
+    existing = _read_env_values(path)
+
+    if path.exists() and not yes:
+        click.confirm(f"Update existing {path}?", default=True, abort=True)
+
+    configured_bind = bind_address or existing.get("OPENETR_BIND_ADDRESS") or "127.0.0.1"
+    configured_port = str(port or existing.get("OPENETR_PORT") or "8000")
+    configured_public_base_url = (
+        public_base_url
+        if public_base_url is not None
+        else existing.get("OPENETR_PUBLIC_BASE_URL", "")
+    )
+    configured_home_relays = (
+        home_relays
+        if home_relays is not None
+        else existing.get("OPENETR_HOME_RELAYS", ",".join(resolve_home_relays(load_user_config())))
+    )
+    configured_blossom = (
+        blossom_server
+        if blossom_server is not None
+        else existing.get("OPENETR_BLOSSOM_SERVER", "")
+    )
+    configured_max_upload = (
+        str(max_upload_bytes)
+        if max_upload_bytes is not None
+        else existing.get("OPENETR_MAX_UPLOAD_BYTES", "")
+    )
+
+    if not yes:
+        configured_bind = click.prompt("Bind address", default=configured_bind)
+        configured_port = click.prompt("Port", default=configured_port)
+        configured_public_base_url = click.prompt(
+            "Public base URL (blank for request-derived URLs)",
+            default=configured_public_base_url,
+            show_default=bool(configured_public_base_url),
+        )
+        configured_home_relays = click.prompt("Home relays", default=configured_home_relays)
+        configured_blossom = click.prompt(
+            "Blossom server (blank to disable default storage endpoint)",
+            default=configured_blossom,
+            show_default=bool(configured_blossom),
+        )
+        configured_max_upload = click.prompt(
+            "Maximum upload bytes (blank for application default)",
+            default=configured_max_upload,
+            show_default=bool(configured_max_upload),
+        )
+
+    session_secret = existing.get("OPENETR_APP_SESSION_SECRET", "")
+    secret_generated = False
+    if force_secret or not session_secret:
+        session_secret = secrets.token_hex(32)
+        secret_generated = True
+
+    updates = {
+        "OPENETR_IMAGE": existing.get("OPENETR_IMAGE", "openetr-web:local"),
+        "OPENETR_BIND_ADDRESS": configured_bind.strip(),
+        "OPENETR_PORT": configured_port.strip(),
+        "OPENETR_APP_SESSION_SECRET": session_secret,
+        "OPENETR_HOME_RELAYS": _normalize_relays(configured_home_relays),
+    }
+    optional_updates = {
+        "OPENETR_PUBLIC_BASE_URL": configured_public_base_url.strip(),
+        "OPENETR_BLOSSOM_SERVER": configured_blossom.strip(),
+        "OPENETR_MAX_UPLOAD_BYTES": configured_max_upload.strip(),
+    }
+    updates.update({key: value for key, value in optional_updates.items() if value})
+
+    _update_env_file(path, updates)
+
+    click.echo(f"Wrote Docker Compose environment to {path}")
+    click.echo(f"  bind: {updates['OPENETR_BIND_ADDRESS']}:{updates['OPENETR_PORT']}")
+    click.echo(f"  home relays: {updates['OPENETR_HOME_RELAYS']}")
+    if updates.get("OPENETR_PUBLIC_BASE_URL"):
+        click.echo(f"  public base URL: {updates['OPENETR_PUBLIC_BASE_URL']}")
+    if updates.get("OPENETR_BLOSSOM_SERVER"):
+        click.echo(f"  Blossom server: {updates['OPENETR_BLOSSOM_SERVER']}")
+    click.echo(f"  session secret: {'generated' if secret_generated else 'kept existing'}")
+    click.echo("Next:")
+    click.echo("  docker compose config --quiet")
+    click.echo("  docker compose up --build --detach")
 
 
 @click.command("bip39-from-nsec")
