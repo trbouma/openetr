@@ -45,10 +45,14 @@ runtime environment and generate a unique session secret:
 ```sh
 cp .env.example .env
 openssl rand -hex 32
-# Put the generated value in OPENETR_APP_SESSION_SECRET in .env.
+# Put the generated value in OPENETR_APP_SESSION_SECRET in .env before starting.
 docker compose config --quiet
 docker compose up --build --detach
 ```
+
+The supplied Compose deployment sets `OPENETR_REQUIRE_SESSION_SECRET=true`.
+Startup will fail unless `.env` provides either `OPENETR_APP_SESSION_SECRET` or
+`OPENETR_APP_SESSION_SECRET_FILE`.
 
 The supplied Compose configuration binds to `127.0.0.1` by default. Keep that
 default when an HTTPS reverse proxy runs on the same host. Select a specific

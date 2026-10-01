@@ -30,6 +30,9 @@ services:
       - uvicorn.workers.UvicornWorker
       - --bind
       - 0.0.0.0:8000
+      - --worker-tmp-dir
+      - /tmp
+      - --no-control-socket
     volumes:
       - openetr-data:/home/openetr/.openetr
     read_only: true
