@@ -249,6 +249,7 @@ verifiable.
 
 ## Related Material
 
+- [From Inference To Consequence](./from-inference-to-consequence.md)
 - [OpenETR Axioms](../openetr/axioms.md)
 - [Agent Identity And OpenETR](./agent-identity-and-openetr.md)
 - [Autonomous Systems Governance And OpenETR](./autonomous-systems-governance-and-openetr.md)
@@ -256,4 +257,3 @@ verifiable.
 - [Recognition Boundary](../openetr/recognition.md)
 - [The Machine Can Read the Document. But Should It Believe It?](https://trbouma.substack.com/p/the-machine-can-read-the-document)
 - [UN Global Dialogue on AI Governance](https://www.un.org/global-dialogue-ai-governance/en)
-

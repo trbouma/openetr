@@ -99,6 +99,7 @@ nav:
           - Overview: apostille-documents.md
   - Policy Briefs:
       - Why OpenETR: policy-briefs/why-openetr.md
+      - From Inference To Consequence: policy-briefs/from-inference-to-consequence.md
       - Digital Trade Needs Consequential State: policy-briefs/digital-trade-needs-consequential-state.md
       - OpenETR, TradeTrust, And Blockchains: policy-briefs/openetr-tradetrust-and-blockchains.md
       - Warehouse Receipts Need Consequential State: policy-briefs/warehouse-receipts-need-consequential-state.md
