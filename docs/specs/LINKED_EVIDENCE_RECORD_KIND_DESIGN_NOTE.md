@@ -3,7 +3,7 @@
 This note considers introducing a distinct OpenETR event kind for **linked evidence records**.
 
 The motivating use case was Digital Product Passports, but the requirement is
-generic. A control graph may need to reference authorization decisions,
+generic. A DCR Evidence Graph may need to reference authorization decisions,
 execution receipts, temporal proofs, identity or role credentials, reliable-
 system assessments, repair reports, inspection records, audit certificates,
 or other evidence. Those items may inform verification or recognition without
@@ -19,8 +19,8 @@ This would sit beside the current working event kinds:
 
 | Kind | Purpose |
 | --- | --- |
-| `1415` | Anchor Record for a Digital Artifact. |
-| `1416` | Control/action record that may affect control state or lifecycle state. |
+| `1415` | Anchor Event for a Digital Artifact. |
+| `1416` | Evidence Event, including Publisher Notices and ruleset-specific actions. |
 | `1417` | Linked evidence record that associates supporting evidence with the graph. |
 
 ## Core Distinction
@@ -60,7 +60,7 @@ Required tags:
 
 Optional tags:
 
-- `e`: a prior event id if the evidence is intended to attach to a specific origin, control, or evidence event;
+- `e`: a prior event id if the evidence is intended to attach to a specific Anchor, control, or evidence event;
 - `name`: display name for the linked artifact;
 - `mime_type`: media type of the linked artifact;
 - `ref`: URL, registry identifier, storage pointer, or external reference;
@@ -151,8 +151,8 @@ Those conclusions belong to the relevant Product Passport profile, delegated act
 
 A verifier interested in an OpenETR object would likely query:
 
-1. `kind = 1415` events by `#o` for Anchor Records;
-2. `kind = 1416` events by `#o` for control and lifecycle actions;
+1. `kind = 1415` events by `#o` for Anchor Events;
+2. `kind = 1416` events by `#o` for Publisher Notices and other evidence actions;
 3. `kind = 1417` events by `#o` for linked evidence records.
 
 If the linked evidence document is stored by digest, the verifier may separately retrieve the linked document by `linked_digest` and verify that its hash matches the event tag.
@@ -161,7 +161,10 @@ If the linked evidence document is stored by digest, the verifier may separately
 
 - Should `1417` always point to the primary object with `o`, or should it also support linking evidence to a specific event with required `e`?
 - Should `linked_digest` be queryable with a single-letter Nostr tag, or is an explicit named tag preferable for readability?
-- Should evidence replacement, supersession, or withdrawal be represented by another `1417` evidence record, by `1416 action=attest`, or by a future dedicated action?
+- Should replacement, supersession, or withdrawal of linked evidence be
+  represented by another `1417` evidence record, by a Core 1.0 Publisher
+  Notice where the Anchor Publisher is speaking about the primary artifact, or
+  by a future dedicated action?
 - Should `evidence_type` values be generic OpenETR terms, domain-profile terms, or both?
 - Should linked evidence records be allowed to carry structured JSON content, or should all machine-readable semantics live in tags and referenced artifacts?
 - Should `1417` be limited to non-control evidence, or can it also link evidence supporting a control action such as pledge, discharge, redemption, or termination?
@@ -174,7 +177,7 @@ minimum verification interface are specified.
 
 The design direction is promising because it preserves the core distinction:
 
-- `1415` creates the original object graph;
-- `1416` records control-relevant actions;
+- `1415` begins a candidate DCR with an Anchor Event;
+- `1416` records Publisher Notices and other ruleset-specific evidence actions;
 - `1417` links supporting evidence without implying transfer of control or
   recognition of the evidence claim.

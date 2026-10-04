@@ -15,9 +15,11 @@ OpenETR and C2PA operate at different layers.
 
 C2PA is a content provenance framework. It attaches, embeds, or references a signed manifest that describes provenance assertions about a media asset or document.
 
-OpenETR is a consequential-state and evidence graph for digest-identified
-records. It binds end-verifiable events to an object and applies protocol rules
-to derive control and lifecycle state independently of any one application.
+OpenETR is a consequential-state and evidence model for digest-identified
+records. It binds end-verifiable events to an object, and identified rulesets
+derive state independently of any one application. Core Record Ruleset 1.0
+derives anchored state and Publisher Position; transfer rulesets may additionally
+derive Current Controller and transfer lifecycle state.
 
 The compact model is:
 
@@ -154,14 +156,14 @@ Under OpenETR Consequential State Architecture:
 
 > A Digital Artifact has uniquely identifiable content. Signed OpenETR records
 > concerning it form a Digital Controllable Record spanning its evidenced
-> lifecycle. Validation of that DCR under an applicable policy produces
+> lifecycle. Validation of that DCR under an identified ruleset produces
 > consequential state. A Digital Original is the Digital Artifact with that
 > established state.
 
 A C2PA Content Credential can provide strong end-verifiable provenance
 evidence, but C2PA validity alone does not establish OpenETR consequential
 state. A C2PA-enabled asset becomes a Digital Original in the OpenETR technical
-sense when its DCR is validated under an applicable policy and that validation
+sense when its DCR is validated under an identified ruleset and that validation
 produces consequential state for the identified Digital Artifact.
 
 Recognition remains separate. A relying party may require a trusted C2PA

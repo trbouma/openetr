@@ -20,7 +20,7 @@ exact content?” A copy can reproduce the content, but it cannot create a valid
 issuance, transfer, discharge, or termination event.
 
 **Consequential State** is state that follows from consequential actions
-according to defined protocol rules. It matters because that state can
+according to an identified, versioned ruleset. It matters because that state can
 determine or constrain what may validly happen next concerning the artifact. It
 can establish or change a controller, record a
 transfer in progress, activate an encumbrance, discharge a restriction,
@@ -32,10 +32,16 @@ This is different from ordinary application state. A selected tab, cached
 display value, database row, or background-job status may help an application
 operate, but it does not become authoritative OpenETR state merely because the
 application stores it. Consequential State must be reproducible from portable,
-end-verifiable DCR evidence under the same protocol rules.
+end-verifiable DCR evidence under the same identified ruleset.
 
 An **end-verifiable event** is a signed record that a recipient can verify
 independently, without calling the application that originally produced it.
+
+OpenETR Core Record Ruleset 1.0 defines the minimum consequence: an Anchor
+Event establishes anchored state, and qualifying Publisher Notices express the
+Anchor Publisher's later position. Transfer, Current Controller, encumbrance,
+discharge, redemption, and termination are extension-rule examples rather than
+universal Core 1.0 semantics.
 
 ## A First Example
 
@@ -43,7 +49,7 @@ Consider a warehouse receipt stored as a PDF:
 
 1. A digest identifies the exact PDF content. That content is the **Digital
    Artifact**.
-2. A warehouse signs an Anchor record concerning the PDF. Later signed records
+2. A warehouse signs an Anchor Event concerning the PDF. Later signed records
    may transfer it, encumber it, discharge the encumbrance, or terminate its
    lifecycle. Together those records are the **Digital Controllable Record**.
 3. The evidence is validated and OpenETR rules derive the current
@@ -147,7 +153,7 @@ SIGNED RECORD
 DIGITAL CONTROLLABLE RECORD
 ```
 
-The DCR may initially contain only that Anchor record. It may later grow into
+The DCR may initially contain only that Anchor Event. It may later grow into
 a graph containing attestations, control transfers, restrictions, superseding
 versions, or termination records.
 
@@ -166,7 +172,7 @@ evidence       = <basis event ids>
 
 This state is not authoritative merely because an application stored it in a
 database. Another conforming application can obtain the artifact and DCR,
-verify the signatures and references, apply the same protocol rules, and
+verify the signatures and references, apply the same identified ruleset, and
 reproduce the applicable Consequential State.
 
 Once Consequential State has been established through the DCR, the artifact is
@@ -275,8 +281,8 @@ Digital Artifact
 ```
 
 A candidate Anchor is a one-record DCR concerning a Digital Artifact. A valid
-Anchor evaluated under an applicable policy can establish initial
-Consequential State and make the artifact a Digital Original. It does not prove that the
+Anchor evaluated under OpenETR Core Record Ruleset 1.0 establishes anchored
+Consequential State and makes the artifact a Digital Original. It does not prove that the
 signer was uniquely authorized, resolve every competing event, compel a relying
 party to recognize the result, or create legal effect on its own.
 
@@ -358,7 +364,7 @@ passports, permits, certificates, community records, and archives.
 
 A Digital Artifact may have multiple anchors or competing event branches.
 OpenETR should preserve that evidence rather than silently selecting an
-authority. Validation can reject invalid transitions, and protocol rules can
+authority. Validation can reject invalid transitions, and an identified ruleset can
 derive candidate Consequential State; recognition determines which result,
 actor, or policy is accepted in a particular context.
 

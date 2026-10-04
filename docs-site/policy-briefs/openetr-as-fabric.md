@@ -88,7 +88,7 @@ OpenETR's reusable properties are:
 - a Digital Artifact can be identified by digest
 - signed events can be independently verified
 - DCR graphs can be reconstructed from portable signed records
-- DCR evidence can be validated and explicit protocol rules can derive consequential state
+- DCR evidence can be validated and an explicit ruleset can derive consequential state
 - linked evidence can be attached without becoming the main object
 - profile keys can attribute actions
 - different verifiers can apply different recognition policies to the same evidence

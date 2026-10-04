@@ -29,7 +29,7 @@ Copying content does not copy consequential state.
 ```text
 Digital Artifact
   -> Digital Controllable Record
-  -> consequential state derived according to protocol rules
+  -> Consequential State derived according to an identified ruleset
   -> Digital Original
 ```
 
@@ -42,7 +42,7 @@ verify independently.
 
 OpenETR uses a different boundary. Applications create and present signed
 records that form a DCR. Cryptographic and structural checks validate the
-evidence; defined protocol rules determine what consequential state follows.
+evidence; an identified ruleset determines what Consequential State follows.
 An application can cache a projection for performance, but another conforming
 implementation can reconstruct the same result from the evidence and rules.
 
@@ -118,7 +118,7 @@ For each consequential state variable, the specification should identify:
 
 ## Recognition Is A Separate Boundary
 
-Consequential state derived under protocol rules does not compel recognition.
+Consequential State derived under an identified ruleset does not compel recognition.
 A law, contract, institution, community, or relying-party policy still decides
 whether to accept the actor, graph, or state for a stated purpose and what
 effect follows.

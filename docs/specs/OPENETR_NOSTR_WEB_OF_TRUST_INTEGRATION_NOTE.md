@@ -6,7 +6,7 @@ This note describes how Nostr Web of Trust (WoT) concepts can relate to OpenETR.
 
 Draft design note.
 
-This note is exploratory. It does not make any Web of Trust algorithm mandatory for OpenETR implementations. It describes how WoT signals can be used as recognition, filtering, reputation, and discovery inputs above the OpenETR signed-event control graph.
+This note is exploratory. It does not make any Web of Trust algorithm mandatory for OpenETR implementations. It describes how WoT signals can be used as recognition, filtering, reputation, and discovery inputs above the OpenETR signed-event Evidence Graph.
 
 ## Summary
 
@@ -18,8 +18,8 @@ OpenETR asks:
 - Which key signed it?
 - Does the event id verify?
 - Does the event carry the required OpenETR tags?
-- How does this event link into the object control graph through `e` references?
-- What state can be derived by applying a verifier policy?
+- How does this event link into the object's DCR Evidence Graph through `e` references?
+- What state can be derived by applying an identified ruleset?
 
 Nostr Web of Trust asks:
 
@@ -31,7 +31,7 @@ Nostr Web of Trust asks:
 
 The architectural fit is:
 
-> OpenETR creates and verifies the signed control graph. Nostr Web of Trust can help a verifier decide which signers, profiles, assertions, relays, or graph branches deserve recognition, ranking, filtering, or warning treatment.
+> OpenETR preserves and verifies the signed DCR Evidence Graph. Nostr Web of Trust can help a verifier decide which signers, profiles, assertions, relays, or graph branches deserve recognition, ranking, filtering, or warning treatment.
 
 WoT belongs in the OpenETR recognition and verifier-policy layer, not in the base OpenETR wire format.
 
@@ -62,8 +62,8 @@ The key lesson for OpenETR is:
 OpenETR separates:
 
 1. **Evidence layer**: signed Nostr events, event ids, object digests, tags, and graph links.
-2. **Protocol layer**: the OpenETR evidence-event grammar, defined rules, and
-   derived state, including an object Control Graph where applicable.
+2. **Ruleset layer**: identified, versioned rules that validate evidence and
+   derive Consequential State, including a Control Graph where applicable.
 3. **Domain adapter layer**: MLWR, bills of lading, transferable records, credentials, or other domain semantics.
 4. **Recognition layer**: verifier policies, rule books, registries, authorities, reputation, and legal or operational effect.
 
@@ -140,7 +140,12 @@ Safebox's current model is intentionally shallow: configured root authorities pl
 - NIP-85-style provider scores should remain advisory unless a selected rule book makes them binding;
 - attestation checks should be kept separate from recognition checks.
 
-This is especially relevant to OpenETR because the same signed control graph may be viewed in different contexts. One verifier may treat a root-follow recognition path as sufficient for display confidence. Another may require TRQP authorization, an explicit OpenETR attestation, or a domain registry match before recognizing the transition as effective.
+This is especially relevant to OpenETR because the same signed DCR Evidence
+Graph and ruleset-derived state may be viewed in different contexts. One
+verifier may treat a root-follow recognition path as sufficient for display
+confidence. Another may require TRQP authorization, an explicit OpenETR
+attestation, or a domain registry match before recognizing the transition as
+effective.
 
 ## Possible OpenETR Uses
 
@@ -196,7 +201,7 @@ OpenETR is an open signed-event system. Anyone with a key can publish structural
 WoT can help keep open publication usable:
 
 - filter obvious spam origins;
-- lower the display priority of unknown or low-trust competing Anchor records;
+- lower the display priority of unknown or low-trust competing Anchor Events;
 - mark suspicious control branches;
 - require additional evidence for low-trust signers;
 - help user interfaces avoid treating all events as equally relevant.

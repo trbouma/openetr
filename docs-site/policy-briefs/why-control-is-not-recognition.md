@@ -19,7 +19,7 @@ Control is a state-derivation question grounded in evidence.
 At the protocol layer, OpenETR can ask:
 
 - What Digital Artifact digest is being referenced?
-- Which signed Anchor record begins the candidate DCR?
+- Which signed Anchor Event begins the candidate DCR?
 - Which later signed records reference the same artifact?
 - How do later records link to prior records?
 - Which profile key signed each record?
@@ -30,7 +30,7 @@ These questions can be answered by inspecting cryptographic evidence.
 
 The evidence is a DCR that can be queried and independently verified.
 Consequential state is what follows when that evidence is validated and
-evaluated according to the protocol rules, not a hidden database value.
+evaluated according to an identified ruleset, not a hidden database value.
 
 ## The Recognition Question
 
@@ -74,7 +74,7 @@ This lets the same evidence graph be evaluated by different relying parties with
 OpenETR can provide durable signed evidence that:
 
 - a specific file, document, or data artifact has a particular digest;
-- a profile key signed an Anchor record for that digest;
+- a profile key signed an Anchor Event for that digest;
 - later events reference the same Digital Artifact;
 - events link to prior events;
 - a transfer, attestation, encumbrance, discharge, redemption, termination, or linked evidence record was published;
@@ -172,7 +172,7 @@ They can:
 The core principle is:
 
 ```text
-Control is consequential state derived from validated DCR evidence under the protocol rules.
+Control is consequential state derived from validated DCR evidence under an identified ruleset.
 Recognition is what a rule book does with it.
 ```
 

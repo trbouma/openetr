@@ -60,7 +60,7 @@ concerning a Digital Artifact can be established and transitioned. A DCR is
 the protocol evidence structure, not the file or content that it concerns.
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established by validating its DCR under an applicable policy.
+been established by validating its DCR under an identified, versioned ruleset.
 
 This is a technical architecture definition. It does not claim that an
 external institution, community, contract, or jurisdiction must recognize the
@@ -211,12 +211,12 @@ implementation should be able to determine from the DCR and identified policy:
 ## Derived State
 
 Consequential state is produced by validating the relevant DCR record or graph
-under an identified policy and applying the relevant state transition rules.
-The policy includes the applicable OpenETR protocol rules and any stated
-profile constraints needed for that evaluation:
+under an identified, versioned ruleset. A ruleset defines the validation and
+state-derivation rules for that evaluation. Recognition policy remains a
+separate boundary and decides whether to accept the resulting state:
 
 ```text
-DCR Record Or Graph + Identified Policy
+DCR Record Or Graph + Identified Ruleset
           |
           | validate and apply state transition rules
           v
@@ -229,14 +229,15 @@ DCR Record Or Graph + Identified Policy
 ```
 
 Independent conforming implementations receiving the same relevant valid
-events **SHOULD** derive the same consequential protocol state.
+events and applying the same ruleset **SHOULD** derive the same Consequential
+State.
 
 Applications **MAY** maintain databases, indexes, caches, APIs, snapshots, and
 materialized views. These are projections of consequential state rather than
 its ultimate source of authority.
 
 A projection must be reproducible or auditable from the DCR evidence and the
-identified policy version used for validation.
+identified ruleset version used for validation.
 
 ### Historical State
 
@@ -288,8 +289,8 @@ sources may return stale, incomplete, or divergent event sets. Source
 agreement also does not establish that a signed action was intended by an
 actor whose key may have been compromised.
 
-Chronology alone is not authority. Until protocol rules and any applicable
-recognition policy resolve a conflict, a verifier should preserve candidate
+Chronology alone is not authority. Until the selected ruleset resolves a
+conflict, a verifier should preserve candidate
 graphs and describe the state as ambiguous, incomplete, or disputed rather
 than silently selecting one.
 
@@ -301,8 +302,8 @@ candidate state, and unknown evidence completeness.
 
 Consequential state, recognition, and effect are distinct:
 
-**Consequential State** is protocol state derived from end-verifiable events
-that is capable of affecting control, authority, rights, obligations,
+**Consequential State** is state derived from end-verifiable events by an
+identified ruleset that is capable of affecting control, authority, rights, obligations,
 restrictions, standing, or permitted actions.
 
 **Recognition** is acceptance of an actor, event, graph, object, or derived
@@ -462,7 +463,7 @@ If it is consequential, the specification **SHOULD** identify:
 6. which consequential state results.
 
 A consequential state field that cannot answer these questions should not be
-treated as authoritative protocol state. It may instead be application
+treated as authoritative ruleset-derived state. It may instead be application
 metadata, a cache, a hint, an unresolved assertion, or recognition-layer
 input.
 
@@ -520,7 +521,7 @@ Future OpenETR specifications and reviews should:
 - apply the OpenETR Design Rule to every consequential state field;
 - distinguish raw events, valid events, derived state, recognition results,
   and external effect;
-- identify the protocol and policy versions used to derive a projection;
+- identify the protocol binding and ruleset versions used to derive a projection;
 - preserve conflicting candidate evidence rather than hiding it;
 - make application caches and database projections explicitly non-authoritative;
 - support export or retrieval of sufficient evidence for independent replay;
@@ -536,7 +537,7 @@ For every feature, reviewers should also ask:
    the transition?
 4. Can another implementation reproduce the same state and trace it to
    inspectable evidence?
-5. Is recognition being confused with protocol state?
+5. Is recognition being confused with ruleset-derived Consequential State?
 6. Would the consequential state survive if the originating application
    disappeared?
 
@@ -545,5 +546,6 @@ For every feature, reviewers should also ask:
 - [Digital Originality, Control, Recognition, And Effect Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
 - [OpenETR Nostr Wire Format Specification](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
+- [OpenETR Core Record Ruleset 1.0](./OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
 - [OpenETR And C2PA Design Note](./OPENETR_AND_C2PA_DESIGN_NOTE.md)

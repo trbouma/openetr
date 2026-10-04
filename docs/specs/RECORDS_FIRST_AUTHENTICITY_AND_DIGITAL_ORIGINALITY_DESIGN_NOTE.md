@@ -105,8 +105,8 @@ digest-identified artifact
   -> reproducible Consequential State
 ```
 
-Two conforming verifiers using the same sufficient evidence, rules, and
-parameters should derive the same protocol state. They may still reach
+Two conforming verifiers using the same sufficient evidence, ruleset, and
+parameters should derive the same Consequential State. They may still reach
 different conclusions about recognition or external effect because those
 conclusions depend on their respective legal, institutional, commercial, or
 operational contexts.
@@ -273,7 +273,7 @@ The analogy helps distinguish two questions:
 
 OpenETR answers the first question **no** and makes the second question
 explicit. Cryptography supplies evidence of exact content and signed actions;
-protocol rules derive candidate consequential state; external institutions
+an identified ruleset derives candidate Consequential State; external institutions
 determine recognition and effect.
 
 ## Working Maxims

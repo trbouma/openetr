@@ -52,30 +52,31 @@ protocol evidence structure, not the artifact itself. A linked set of Anchor
 and Evidence Events is a candidate DCR graph.
 
 This is distinct from a **Digital Original**, which is a Digital Artifact for
-which validation of its DCR under an applicable policy establishes
-consequential state. The artifact identifies the content; the DCR is durable
-signed evidence spanning the lifecycle; state transition rules evaluate the
-DCR under policy to produce consequential state; and recognition determines
+which evaluation of its DCR under an identified ruleset establishes
+Consequential State. The artifact identifies the content; the DCR is durable
+signed evidence spanning the lifecycle; an identified ruleset evaluates the
+DCR to produce Consequential State; and recognition determines
 what effect, if any, follows.
 
 At this layer, OpenETR defines:
 
 - Digital Artifacts identified by cryptographic digest
 - DCRs formed from signed end-verifiable records
-- Anchor records that begin candidate DCRs for Digital Artifacts
+- Anchor Events that begin candidate DCRs for Digital Artifacts
+- Publisher Notices defined by OpenETR Core Record Ruleset 1.0
 - later evidence records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
-- current-controller derivation from Anchor Event and later Evidence Event chains
-- state transition rules and validation policies that evaluate the DCR as a whole and produce
-  consequential state
+- Current Controller derivation where a transferable-record ruleset defines it
+- identified, versioned rulesets that evaluate the DCR as a whole and produce
+  Consequential State
 - guardrails against ambiguous or duplicate actions where appropriate
 
 The protocol layer is domain-neutral.
 
 It should not need to know whether an object is a warehouse receipt, bill of
 lading, certificate, credential, or another transferable record. It provides
-the common machinery for DCR evidence, state transition rules, and
-consequential-state evaluation.
+the common machinery for DCR evidence and ruleset-based Consequential State
+evaluation.
 
 In implementation terms, this is the role of the `openetr` Python component, CLI, and shared service layer.
 
@@ -100,7 +101,7 @@ It speaks in terms of:
 
 Under the surface, those actions map to general OpenETR operations:
 
-- create receipt evidence record -> Anchor record
+- create receipt evidence record -> Anchor Event
 - transfer receipt -> transfer initiate / accept evidence events
 - pledge or restriction -> encumber evidence event
 - release encumbrance -> discharge evidence event

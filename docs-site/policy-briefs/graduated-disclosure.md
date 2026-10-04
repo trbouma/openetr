@@ -118,7 +118,7 @@ Controllable Record (DCR)**: one signed end-verifiable record or a graph of
 related signed records concerning that artifact. Anchor, Control, Attestation,
 and linked-evidence records may all form part of the DCR. Their presence does
 not itself establish consequential state; that state is the result of
-validating the DCR as a whole under an applicable policy.
+evaluating the DCR as a whole under an identified ruleset.
 
 The compact model is:
 

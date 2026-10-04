@@ -2,18 +2,23 @@
 
 OpenETR is unequivocal about publishing evidence.
 
-It identifies Digital Artifacts by digest and preserves their Anchor, control,
-and linked-evidence records as DCR evidence that can be retrieved and
+It identifies Digital Artifacts by digest and preserves their Anchor,
+Publisher Notice, control-extension, and linked-evidence records as DCR evidence that can be retrieved and
 independently verified.
 
 But OpenETR is equally clear about what that evidence does not do by itself.
 
 A signed event is not universal recognition. A DCR and the consequential state
-produced by validating it under an applicable policy do not automatically have
+produced by evaluating it under an identified ruleset do not automatically have
 legal, regulatory, commercial, or institutional effect. Recognition determines
 whether that result is accepted and what effect it receives.
 
 That distinction is central to OpenETR.
+
+OpenETR Core Record Ruleset 1.0 supplies the minimum anchor-and-notice model.
+The transfer, encumbrance, discharge, redemption, and termination examples in
+this brief describe extension rules and implementation guards, not universal
+Core 1.0 semantics.
 
 ```text
 Cryptographic evidence shows what was signed.
@@ -55,14 +60,15 @@ OpenETR's base contribution is durable cryptographic evidence.
 At the evidence layer, OpenETR can show:
 
 - the digest of the Digital Artifact;
-- the Anchor record that begins the candidate DCR;
+- the Anchor Event that begins the candidate DCR;
 - the profile key that signed each event;
 - the evidence records linked to the Digital Artifact;
 - the prior-event links between records;
 - transfer, acceptance, encumbrance, discharge, redemption, termination, attestation, or linked-evidence actions;
 - whether the event ids, signatures, tags, and graph shape can be verified.
 
-These are powerful facts.
+These are powerful facts. Transfer-related actions apply only where a selected
+extension ruleset defines their state consequences.
 
 They make the control history inspectable without requiring every participant to trust one database, registry, portal, wallet, or platform.
 

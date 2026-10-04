@@ -103,7 +103,8 @@ It should not depend on warehouse receipt terminology.
 The services publish and query the generalized OpenETR Nostr wire format:
 
 - `kind 1415` for Anchor Events
-- `kind 1416` for control-relevant events
+- `kind 1416` for Evidence Events, including Publisher Notices and
+  transfer-ruleset actions
 - named structured tags such as `name`, `digest_generated_at`, and `size_bytes` for Anchor Event metadata
 - MLWR domain interpretation of generic tags such as `domain=mlwr`, `document_type=warehouse_receipt`, `record_reference`, and `record_description`
 - `action` tags for evidence-event subtype
@@ -355,7 +356,7 @@ Its responsibilities include:
 - building `kind 1416` evidence events
 - signing with the provided signer key
 - publishing to configured relays
-- verifying publication by exact event id or replaceable slot
+- verifying publication by exact event id
 - returning structured publish results to adapters
 
 The service raises `ControlEventError` for service-level failures.

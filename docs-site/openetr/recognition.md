@@ -1,7 +1,7 @@
 # Recognition Boundary
 
 OpenETR is focused on end-verifiable DCR evidence and the Consequential State
-that can be derived from it under defined protocol rules. Control is one
+that can be derived from it under an identified ruleset. Control is one
 important class of Consequential State, but not the only one.
 
 Recognition frameworks decide what effect to give that evidence.
@@ -12,9 +12,9 @@ The recurring pattern is:
 real-world object, product, document, or record
   -> canonical file or data artifact
   -> digest
-  -> signed Anchor record
+  -> signed Anchor Event
   -> signed evidence records or linked evidence records
-  -> evidence validation and defined protocol rules
+  -> evidence validation and an identified ruleset
   -> Consequential State
   -> verifier, registry, authority, or relying party recognizes the state
   -> effect
@@ -32,7 +32,7 @@ OpenETR itself does not establish ownership.
 OpenETR can answer questions such as:
 
 - what object digest is being referenced?
-- which Anchor record began the candidate DCR?
+- which Anchor Event began the candidate DCR?
 - which signed events reference the same object?
 - how do evidence events link through `e` references?
 - which profile key signed each event?

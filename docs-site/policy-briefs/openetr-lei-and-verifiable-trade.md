@@ -75,9 +75,9 @@ It provides a concrete DCR and state-derivation pattern:
 ```text
 record artifact or canonical package
   -> digest
-  -> signed Anchor record in a DCR
+  -> signed Anchor Event in a DCR
   -> signed control, attestation, and evidence events
-  -> DCR evidence is validated and protocol rules derive consequential state
+  -> DCR evidence is validated and an identified ruleset derives consequential state
   -> recognition policy decides effect
 ```
 

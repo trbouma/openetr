@@ -78,7 +78,7 @@ Controllable Electronic Record under UCC Article 12.
 ### Digital Original
 
 A Digital Original is a Digital Artifact for which consequential state has
-been established by validating its DCR under an applicable policy.
+been established by validating its DCR under an identified, versioned ruleset.
 
 This is a technical architecture term. A **recognized Digital Original** is a
 Digital Original whose actor, graph, object, or derived state has also been
@@ -132,7 +132,7 @@ The following actions do not independently create OpenETR consequential state:
 
 Each may help establish integrity, authenticity, provenance, or persistence.
 A valid OpenETR Anchor Event forms a one-record DCR. Validation of that DCR
-under an applicable policy can establish initial consequential state. That
+under OpenETR Core Record Ruleset 1.0 establishes anchored Consequential State. That
 makes the identified Digital Artifact a
 Digital Original in the technical OpenETR sense, while recognition and effect
 remain unresolved.
@@ -142,7 +142,7 @@ Useful shorthand:
 - Hashing establishes integrity, not originality.
 - Signing establishes an assertion, not necessarily authority.
 - Arbitrary anchoring establishes a reference point, not consequential state.
-- Validation of a one-record Anchor DCR under an applicable policy may
+- Validation of a one-record Anchor DCR under an identified ruleset may
   establish candidate consequential state, not universal recognition.
 - Control transitions are consequential because conforming implementations can
   derive state from them.
@@ -179,7 +179,8 @@ implementation of that grammar.
 
 | Concept | Role |
 | --- | --- |
-| Protocol Layer grammar | Defines the event and transition concepts used to derive consequential state. |
+| Protocol Layer grammar | Defines how event evidence is represented and linked. |
+| Ruleset | Defines validation and state-derivation semantics for that evidence. |
 | Technical binding | Defines how those statements are represented, signed, linked, published, and verified. |
 | Recognition context | Determines whether an actor, assertion, object, or state is accepted for a purpose. |
 | Applicable rules | Determine the legal, institutional, contractual, or community effect. |
@@ -425,7 +426,7 @@ Use caution with VouchSafe etymology. The historical meaning of vouchsafe is clo
 
 1. Use Anchor Event rather than Original Event where the protocol event establishes an initial anchored control state.
 2. Allow more than one Anchor Event for the same object or digest.
-3. Preserve the distinction between consequential protocol state, recognition, and effect.
+3. Preserve the distinction between ruleset-derived Consequential State, recognition, and effect.
 4. Keep the Protocol Layer independent from any single technical binding.
 5. Treat Nostr as a technical binding for the Protocol Layer, not as the Protocol Layer itself.
 6. Model encumbrances as transition guards.
@@ -458,9 +459,13 @@ that determines whether a proposed state transition is valid.
 been established through a Digital Controllable Record.
 
 **Consequential State:** State that follows from consequential actions
-according to defined protocol rules. It is capable of affecting control,
+according to an identified, versioned ruleset. It is capable of affecting control,
 authority, rights, obligations, restrictions, standing, or permitted actions
 when recognized for a stated purpose.
+
+OpenETR Core Record Ruleset 1.0 defines the universal baseline: anchored state
+and Publisher Notices. Current Controller and other transfer-specific states
+are extension semantics and are not implied by every DCR.
 
 **Recognition:** The acceptance of an actor, assertion, object, or control state by a relying party, institution, community, or legal regime for a particular purpose.
 

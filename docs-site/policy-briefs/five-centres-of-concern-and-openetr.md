@@ -167,7 +167,7 @@ the signed record or graph concerning that artifact. Its presence does not, by
 itself, assert derived consequential state or a current controller.
 
 The DCR graph is the signed event history concerning the artifact. Validation
-checks that evidence, and protocol rules derive consequential state. That is
+checks that evidence, and an identified ruleset derives consequential state. That is
 what makes the Digital Artifact a Digital Original.
 
 The **Recognition Context** is the legal, institutional, contractual, registry, or verifier-policy setting that decides effect.
@@ -234,7 +234,8 @@ This is also why OpenETR should not be presented as the one protocol that will w
 The better policy claim is more modest:
 
 ```text
-OpenETR names and implements the control/evidence concern for durable controllable records.
+OpenETR gives evidence and ruleset-derived consequence a portable form for
+durable digital records; control is one domain-specific consequence.
 ```
 
 That contribution can complement DNS-based identity work, agent authorization frameworks, verifiable credentials, trust registries, transparency logs, electronic transferable record systems, and domain registries.

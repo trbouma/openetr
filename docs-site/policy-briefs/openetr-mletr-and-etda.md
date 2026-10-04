@@ -82,7 +82,7 @@ OpenETR can provide technical evidence for the functions that MLETR and ETDA car
 
 | Legal Concern | OpenETR Contribution |
 | --- | --- |
-| Identification | digest-identified Digital Artifact and signed Anchor record |
+| Identification | digest-identified Digital Artifact and signed Anchor Event |
 | Integrity | recomputable hash, signed events, prior-event references, linked evidence |
 | Control | artifact-specific DCR and candidate current-controller derivation |
 | Exclusive control | verifier policy that recognizes only one current controller path |

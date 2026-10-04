@@ -15,6 +15,11 @@ They are often adjacent, but they are not the same thing.
 
 Draft.
 
+This note examines the transferable-record extension of OpenETR. OpenETR Core
+Record Ruleset 1.0 does not derive Current Controller. It establishes anchored
+Consequential State and evaluates Publisher Notices; a future transfer ruleset
+would add the control semantics discussed below.
+
 ## Summary
 
 Provenance asks:
@@ -191,9 +196,10 @@ Who currently controls this transferable record?
 
 That is not a weakness. It is a different problem.
 
-## OpenETR As A Control Example
+## OpenETR As A Consequential-Evidence Example
 
-OpenETR is an implementation of the control side of the distinction.
+OpenETR provides portable evidence and explicit rulesets for deriving
+Consequential State. Control is one important extension of that general model.
 
 It treats a record as a digest-identified Digital Artifact and associates signed events with that object.
 
@@ -211,13 +217,15 @@ The relevant evidence includes:
 - termination events
 - verifier-policy output
 
-The OpenETR question is:
+The general OpenETR question is:
 
 ```text
-What is this record, and who controls it now?
+What evidence concerns this record, and what state follows under the selected ruleset?
 ```
 
-OpenETR can also preserve provenance-style evidence, but its distinctive contribution is the control graph.
+For a transferable-record ruleset, that general question includes who controls
+the record now. Evidence assigned control consequences by that ruleset forms a
+Control Graph within the broader Evidence Graph.
 
 That graph lets a verifier reconstruct a candidate state:
 
@@ -248,7 +256,8 @@ OpenETR binds assertions and control transitions to an identified record.
 Used together:
 
 - C2PA can describe content origin, transformation, and provenance assertions.
-- OpenETR can identify the operative record and preserve its signed control graph.
+- OpenETR can identify the artifact and preserve its signed DCR evidence; a
+  transfer ruleset can derive a Control Graph and candidate controller.
 - Recognition policy can evaluate both.
 
 For example:

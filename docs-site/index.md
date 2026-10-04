@@ -89,7 +89,7 @@ An end-verifiable signed record carries enough evidence for another
 implementation to verify its attribution and integrity and determine which
 artifact and prior records it concerns. Given the same sufficient DCR evidence,
 rules, and evaluation parameters, another conforming implementation should be
-able to reproduce the same protocol state without depending on the original
+able to reproduce the same Consequential State without depending on the original
 website, service, or database.
 
 This is how OpenETR seeks to **make consequences portable**. It turns
@@ -137,8 +137,9 @@ people and institutions act upon.
 
 OpenETR addresses the problem without making one application, database,
 registry, or wallet the exclusive authority for state. It identifies the exact
-content, preserves end-verifiable evidence concerning it, and applies defined
-protocol rules so another conforming system can derive the same state.
+content and preserves end-verifiable evidence concerning it so another
+conforming system can apply the same identified ruleset and derive the same
+state.
 
 Applications may maintain projections of consequential state, but those
 projections are not the authority. Applications derive consequential state;
@@ -215,7 +216,7 @@ made about the file.
 ### Consequential State
 
 **Consequential State** is state that follows from consequential actions
-according to defined protocol rules. It is not another record or container and
+according to an identified ruleset. It is not another record or container and
 it is not “the validation.” Validation asks whether evidence is authentic,
 intact, authorized, and acceptable under the protocol. Consequential State is
 what follows when the relevant evidence is evaluated according to the rules.
@@ -224,7 +225,7 @@ For example, the resulting state may identify a controller, show that an
 artifact is active or encumbered, identify a secured party, or show that its
 lifecycle has ended.
 
-> Cryptography validates the evidence. Protocol rules determine what follows.
+> Cryptography validates the evidence. An identified ruleset determines what follows.
 
 ### Digital Original
 
@@ -248,9 +249,9 @@ Consequential State -> Recognition -> Effect
 ## A Simple Example
 
 A warehouse issues a PDF receipt for stored grain. Its fingerprint identifies
-the Digital Artifact. The warehouse signs an Anchor record, and a later signed
+the Digital Artifact. The warehouse signs an Anchor Event, and a later signed
 record transfers control to a buyer. Those records form the candidate DCR.
-Cryptography validates the evidence, and OpenETR rules derive the candidate
+Cryptography validates the evidence, and a transferable-record ruleset derives the candidate
 current-controller state.
 
 Emailing another copy of the PDF does not transfer the receipt. Editing the PDF
@@ -258,9 +259,9 @@ creates a different artifact. Changing its consequential state requires valid
 signed evidence.
 
 A bank, registry, court, or trading partner then decides whether to recognize
-the signers and resulting state. OpenETR preserves the evidence and derives
-protocol state; it does not claim that cryptography alone creates ownership or
-other legal or commercial effect.
+the signers and resulting state. OpenETR preserves the evidence, and the
+selected ruleset derives Consequential State; it does not claim that
+cryptography alone creates ownership or other legal or commercial effect.
 
 ## Relationship To Mainstay
 
@@ -280,7 +281,7 @@ stewardship.
 | Area | Purpose |
 | --- | --- |
 | [OpenETR Axioms](openetr/axioms.md) | Start with the ten foundational propositions and five maxims that define the OpenETR model and its boundaries. |
-| [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, DCR evidence, protocol rules, consequential state, and Digital Originals fit together. |
+| [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, DCR evidence, identified rulesets, Consequential State, and Digital Originals fit together. |
 | [Digital Originality](policy-briefs/digital-originality.md) | Explore consequential state and the model through detailed examples. |
 | [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
 | [OpenETR Roadmap](openetr/roadmap.md) | See the prioritized work for verifier results, retrieval coverage, associated evidence, recognition adapters, and domain pilots. |
@@ -305,13 +306,13 @@ stewardship.
 | --- | --- |
 | Digital Artifact | Persistent digital content with a unique content identity, normally established by a cryptographic digest. |
 | Digital Controllable Record | A single end-verifiable record or graph of related end-verifiable records containing evidence of consequential actions concerning a Digital Artifact. |
-| Consequential State | State that follows from consequential actions according to defined protocol rules. |
+| Consequential State | State that follows from consequential actions according to an identified ruleset. |
 | Evidence Record | A signed OpenETR lifecycle record within a DCR. |
 | Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Digital Artifact without necessarily transferring control. |
-| Control Graph | The linked evidence-event portion of a DCR. |
-| Evidence Graph | The broader DCR graph, including Anchor, control, and linked-evidence records. |
+| Control Graph | The portion of a DCR Evidence Graph to which a transferable-record ruleset assigns control consequences. |
+| Evidence Graph | The broader DCR graph, including the Anchor Event, Publisher Notices, ruleset-specific actions, and linked-evidence records. |
 | Digital Original | A Digital Artifact for which consequential state has been established through a Digital Controllable Record. |
-| Domain Workspace | A user-facing adapter that speaks domain language while using the same OpenETR DCR evidence and state transition rules underneath. |
+| Domain Workspace | A user-facing adapter that speaks domain language while using OpenETR DCR evidence and an identified domain ruleset underneath. |
 | Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide whether consequential state is accepted and what effect it receives. |
 
 ## Core Thesis
@@ -325,8 +326,8 @@ derived:
 real-world object, product, document, or record
   -> canonical file or data artifact
   -> Digital Artifact identified by digest
-  -> Digital Controllable Record containing an Anchor Record and later records
-  -> evidence is validated and protocol rules derive consequential state
+  -> Digital Controllable Record containing an Anchor Event and later records
+  -> evidence is validated and an identified ruleset derives Consequential State
   -> Digital Original
   -> durable query link and QR code
   -> verifier / registry / authority / relying party decides effect
@@ -337,7 +338,7 @@ platform, or storage service. OpenETR preserves its cryptographic identity and
 portable DCR evidence.
 
 OpenETR does not decide universal effect. It preserves durable signed evidence
-and derives consequential state according to defined protocol rules.
+and derives Consequential State according to an identified ruleset.
 Recognition outside the protocol determines what legal, institutional,
 commercial, or operational effect that state receives.
 
@@ -351,7 +352,7 @@ derivable; the integrating system controls the operation within its own scope.
 
 ```text
 signing commits evidence
-protocol rules derive consequential state
+an identified ruleset derives Consequential State
 integrating systems control operations
 recognition frameworks determine effect
 ```

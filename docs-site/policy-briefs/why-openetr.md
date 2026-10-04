@@ -1,10 +1,11 @@
 # Why OpenETR
 
-OpenETR exists because many important records are becoming digital, but the digital systems around them still tend to confuse three separate questions:
+OpenETR exists because many important records are becoming digital, but the digital systems around them still tend to confuse four separate questions:
 
 - What is the record?
-- Who controls it?
-- What legal or commercial effect follows from that control?
+- What signed evidence concerns it?
+- What state follows under an identified ruleset?
+- What legal, commercial, institutional, or operational effect follows?
 
 Those questions are related, but they should not be collapsed into one application, one database, one wallet, one registry, or one legal rulebook.
 
@@ -15,8 +16,8 @@ Controllable Record. Different domain systems can then determine whether to
 recognize that state and what effect to give it.
 
 The OpenETR protocol construct is the **Digital Controllable Record**: one
-signed end-verifiable record or graph concerning a Digital Artifact. Protocol
-rules derive consequential state from validated DCR evidence; the recognition context determines
+signed end-verifiable record or graph concerning a Digital Artifact. An
+identified ruleset derives Consequential State from validated DCR evidence; the recognition context determines
 accepted effect. Electronic transferable records are one important
 subclass, but the same DCR evidence and state-derivation pattern can also support non-transferable
 records, credentials, linked evidence, Product Passports, health records,
@@ -63,15 +64,17 @@ cryptographically self-contained evidence that can move between them.
 
 ## The OpenETR Approach
 
-OpenETR separates the control problem from the recognition problem.
+OpenETR separates evidence, consequence, and recognition. Control is one
+important kind of Consequential State for transferable records, not the
+universal state of every record.
 
-At the protocol layer, OpenETR asks:
+At the evidence and ruleset layers, OpenETR asks:
 
 - What Digital Artifact is the subject of the record?
-- Which signed Anchor record began the candidate DCR?
+- Which signed Anchor Event began the candidate DCR?
 - Which signed records form the Evidence Graph?
 - Which records contribute to Consequential State under the defined rules?
-- Who is the current controller under a selected policy?
+- For a transferable-record ruleset, who is the candidate Current Controller?
 - What evidence supports that conclusion?
 
 At the recognition layer, another system asks:
@@ -141,8 +144,8 @@ external operation, universal authority, or legal effect.
 OpenETR therefore distinguishes three boundaries:
 
 1. **Evidence commitment:** a signer creates an immutable, attributable record.
-2. **Protocol consequence:** a verifier evaluates that record in its DCR and
-   derives consequential state under stated rules.
+2. **Ruleset consequence:** a verifier evaluates that record in its DCR and
+   derives Consequential State under an identified, versioned ruleset.
 3. **Operational or legal effect:** a host system, registry, institution,
    counterparty, or applicable law decides whether to act on or recognize that
    state.
@@ -198,7 +201,8 @@ DCR graphs.
 
 The graph may include:
 
-- an Anchor record
+- an Anchor Event
+- Publisher Notices
 - transfer events
 - attestation events
 - encumbrance and discharge events
@@ -213,6 +217,10 @@ A digital wallet is primarily a credential container. It holds credentials for a
 
 OpenETR is not mainly a container. It is a shared DCR evidence structure about
 a Digital Artifact.
+
+The [OpenETR Core Record Ruleset 1.0](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
+provides the universal baseline of anchoring and Publisher Notices. Transfer,
+Current Controller, encumbrance, and discharge require an extension ruleset.
 
 The wallet question is:
 

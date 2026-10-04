@@ -576,7 +576,8 @@ Evidence Set.
 
 ## 17. Recognition And Effect
 
-This ruleset derives protocol state. Recognition remains external.
+This ruleset derives Consequential State from protocol evidence. Recognition
+remains external.
 
 A relying party MAY use a recognition policy to determine:
 

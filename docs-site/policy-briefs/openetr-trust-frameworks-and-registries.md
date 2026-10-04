@@ -60,7 +60,7 @@ OpenETR preserves durable signed evidence about a record.
 At the protocol layer, OpenETR makes it possible to inspect:
 
 - the digest of the Digital Artifact;
-- the signed Anchor record;
+- the signed Anchor Event;
 - later signed evidence records;
 - linked evidence records;
 - event ids, signatures, tags, and graph links;
@@ -121,7 +121,7 @@ Trust frameworks can codify expected behavior, and registries can recognize acto
 OpenETR is aimed at that missing layer. It gives digital-government and trust-framework ecosystems a way to preserve:
 
 - object identity by digest;
-- signed Anchor records;
+- signed Anchor Events;
 - signed lifecycle and evidence events;
 - linked evidence records;
 - durable query links and QR codes;
@@ -163,7 +163,7 @@ compliance process.
 For example, OpenETR could record:
 
 - a service-offering evidence artifact by digest;
-- a signed Anchor record for that artifact;
+- a signed Anchor Event for that artifact;
 - linked evidence records for certifications, audits, or compliance checks;
 - registry references to trust anchors or labels;
 - verifier output under a Gaia-X-style rule book.
@@ -244,7 +244,8 @@ But durable electronic records also need evidence that can survive outside a sin
 
 OpenETR gives policymakers a way to separate:
 
-- the protocol evidence layer: what DCR evidence exists and what Consequential State derives from it;
+- the protocol evidence layer: what DCR evidence exists;
+- the ruleset layer: what Consequential State derives from that evidence;
 - the trust framework: what behavior and assurance rules apply;
 - the registry: which actors, authorities, statuses, or records are recognized;
 - the verifier: what effect to give the evidence in context.

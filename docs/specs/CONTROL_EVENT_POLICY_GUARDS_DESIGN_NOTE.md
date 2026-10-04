@@ -18,6 +18,13 @@ OpenETR allows parties to publish and exchange control-relevant events in a shar
 
 Draft.
 
+This note primarily describes proposed transferable-record extension behavior
+and safeguards already explored in the reference implementation. OpenETR Core
+Record Ruleset 1.0 is narrower: it covers an Anchor Event and Publisher
+Notices, and it does not derive Current Controller, transfer, encumbrance,
+discharge, redemption, or termination state. Those concepts require an
+additional ruleset.
+
 ## Purpose
 
 OpenETR is an open event scheme.
@@ -47,7 +54,7 @@ The current component has therefore become a working reference implementation of
 - intended-transferee checks for transfer acceptance
 - active-chain checks for attestations and auxiliary evidence events
 - reference checks for encumbrance discharge
-- warnings for duplicate origin issuance
+- warnings for duplicate Anchor Event publication
 - visibility of multiple candidate control chains for the same object
 
 ## Historical Context
@@ -119,9 +126,10 @@ The downstream party must still decide whether the guard assumptions are valid f
 Examples:
 
 - A warehouse receipt registry may require a recognized warehouse operator
-  profile before treating an Anchor Record as effective.
+  profile before treating an Anchor Event as effective.
 - A secured lender may refuse recognition of a transfer while a recognized encumbrance remains outstanding.
-- A regulator may require an authority or registry attestation even if the baseline OpenETR control graph is structurally clean.
+- A regulator may require an authority or registry attestation even if a
+  transferable-record ruleset's Control Graph is structurally clean.
 - A private workflow may accept a lighter rule set for operational convenience while marking the result as limited-purpose evidence.
 
 This is why the same guard logic is consolidated into a component: not to make OpenETR closed or permissioned, but to make the baseline behavior consistent, reviewable, testable, and replaceable by implementations with different recognition requirements.
@@ -432,7 +440,7 @@ Candidate validation rules:
   - a valid evidence event that can be traversed back to an Anchor Event
 - the resulting Anchor Event must belong to the same object being transferred
 - the transferee must be a valid counterparty identifier
-- a conflicting replaceable initiate event for the same object and signer should trigger a warning
+- a conflicting initiate event for the same object and signer should trigger a warning
 - if the supplied prior event is a `kind 1415` Anchor Event, the signer of the new `kind 1416` event should match the issuer of that Anchor Event
 - if the supplied prior event is a `kind 1416` evidence event, the signer of the new `kind 1416` event should match the current-controller semantics derived from that prior event
 - if a subsequent transfer initiate is being published before a corresponding accept event has been observed for the prior transfer event, the component may warn but still allow publication
@@ -454,7 +462,7 @@ Candidate validation rules:
 - the object identifier must be present and valid
 - the accept event must point to the intended initiate event
 - the signer of the accept event should match the intended transferee identified in the initiate event's `p` tag
-- a conflicting replaceable accept event for the same object and signer should trigger a warning or block, depending on policy
+- a conflicting accept event for the same object and signer should trigger a warning or block, depending on policy
 
 ### Encumber
 

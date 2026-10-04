@@ -62,7 +62,7 @@ Each identifier may be valid in its own context. But a verifier often needs to k
 
 Examples:
 
-- a warehouse operator profile signs an OpenETR Anchor Record
+- a warehouse operator profile signs an OpenETR Anchor Event
 - a bank profile records an encumbrance
 - a carrier profile issues an eBL Anchor Event
 - a Competent Authority profile attaches Apostille evidence

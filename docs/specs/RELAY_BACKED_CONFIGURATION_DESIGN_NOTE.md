@@ -512,7 +512,9 @@ That way the configuration remains:
 - backed by multiple independent stores
 - still recoverable if one relay disappears
 
-This fits the larger OpenETR claim that important protocol state can exist across multiple independent relays rather than inside one application boundary.
+This fits the larger OpenETR claim that evidence needed to derive important
+Consequential State can exist across multiple independent relays rather than
+inside one application boundary.
 
 ## Relationship to Kind `0` Profiles
 

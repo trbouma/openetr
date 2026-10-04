@@ -29,7 +29,7 @@ Integrators do not need to adopt every OpenETR surface at once. A practical inte
 
 | Milestone | Integration Question | OpenETR Concern |
 | --- | --- | --- |
-| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as Digital Artifact, Anchor record, evidence record, DCR, Commitment Profile, Acting Profile, contact, reference, and verifier policy. |
+| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as Digital Artifact, Anchor Event, Evidence Event, DCR, Commitment Profile, Acting Profile, contact, reference, ruleset, and recognition policy. |
 | Separate consequential evidence from document movement | How do documents move today, and where should DCR evidence live? | Use OpenETR to preserve portable signed evidence while allowing PDFs, files, records, registry entries, or business documents to move through existing channels. |
 | Define the host-system boundary | Which existing or new system owns users, accounts, workflow, documents, and policy? | Treat OpenETR as portable signed evidence underneath the host system rather than as the host system's application database. |
 | Define authentication and recognition | How are users authenticated and recognized in the relevant domain or jurisdiction? | Let the host system, domain adapter, registry, KYC provider, trust framework, or verifier policy decide whether an actor is recognized for a particular role. |
@@ -111,7 +111,7 @@ The OpenETR evidence needed for state derivation can be reconstructed from
 signed events:
 
 - Commitment Profiles and profile configuration;
-- Anchor records;
+- Anchor Events;
 - evidence events;
 - graph links;
 - signer attribution;

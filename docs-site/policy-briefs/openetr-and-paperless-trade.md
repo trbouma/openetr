@@ -52,7 +52,7 @@ OpenETR's contribution is to make the control and evidence layer portable.
 OpenETR provides:
 
 - digest-based Digital Artifact identity
-- signed Anchor records
+- signed Anchor Events
 - signed evidence events
 - linked evidence records
 - artifact-centric DCR retrieval
@@ -66,7 +66,7 @@ The compact model is:
 ```text
 trade record or package -> Digital Artifact by digest
   -> signed OpenETR DCR
-  -> validation under an applicable policy
+  -> evaluation under an identified ruleset
   -> consequential state
   -> domain adapter interpretation
   -> recognition policy decides effect
@@ -75,7 +75,7 @@ trade record or package -> Digital Artifact by digest
 This helps paperless trade systems answer:
 
 - Which artifact is being relied on?
-- Who signed the Anchor record?
+- Who signed the Anchor Event?
 - What control or evidence events exist?
 - Has the record been transferred, encumbered, redeemed, terminated, replaced, or warned about?
 - Which linked evidence supports the record?
@@ -200,7 +200,7 @@ It can begin by:
 1. selecting a document type
 2. defining the final artifact or canonical package
 3. computing a digest
-4. publishing an Anchor record
+4. publishing an Anchor Event
 5. recording control or evidence events
 6. linking supporting documents
 7. applying a domain verifier policy

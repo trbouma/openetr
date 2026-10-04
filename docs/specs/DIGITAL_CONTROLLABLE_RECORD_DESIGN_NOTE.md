@@ -21,7 +21,7 @@ uniquely identifiable content
 DIGITAL CONTROLLABLE RECORD
 single record or record graph spanning the evidenced lifecycle
 
-DCR + APPLICABLE POLICY
+DCR + IDENTIFIED RULESET
         |
         | validation and state transition rules
         v
@@ -58,8 +58,8 @@ A DCR may contain one record or a directed graph of records expressing:
 - another protocol-defined consequential relationship.
 
 The DCR is evidence. A conforming implementation evaluates the record or graph
-as a whole under an identified, versioned validation policy. Consequential
-state is the result of that validation, not another record beside the DCR. An
+as a whole under an identified, versioned ruleset. Consequential
+state is the result of that evaluation, not another record beside the DCR. An
 application may cache the result, but the cache is not the authority.
 
 Every displayed consequential state should therefore be traceable to the DCR
@@ -78,7 +78,7 @@ End-verifiable event
 DCR record or graph
         |
         v
-State transition rules + applicable policy
+Identified, versioned ruleset
         |
         v
 Consequential State
@@ -94,7 +94,7 @@ recognized standing or authority is a recognition-layer question.
 Cryptographic validity does not itself create legal or institutional effect:
 
 ```text
-DCR OR DCR GRAPH + APPLICABLE POLICY
+DCR OR DCR GRAPH + IDENTIFIED RULESET
     |
     | validation
     v
@@ -178,3 +178,9 @@ for the digest-identified artifact. In those drafts, the term should be read as
 **Digital Artifact** until the document receives a contextual migration. It
 must not be mechanically reinterpreted as DCR, because a DCR is the signed
 record or graph, not the file.
+
+The minimum defined baseline is [OpenETR Core Record Ruleset
+1.0](./OPENETR_CORE_RECORD_RULESET_1_0.md). It derives anchored state and a
+Publisher Position from an Anchor Event and qualifying Publisher Notices.
+Transfer, Current Controller, encumbrance, discharge, and similar state require
+an additional ruleset.

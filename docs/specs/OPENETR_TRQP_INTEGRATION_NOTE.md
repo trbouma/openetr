@@ -6,7 +6,7 @@ This note describes how the Trust Over IP Trust Registry Query Protocol (TRQP) c
 
 Draft design note.
 
-This note is exploratory. It does not make TRQP mandatory for OpenETR implementations. It describes how TRQP can be used as one recognition and authority-query mechanism above the OpenETR signed-event control graph.
+This note is exploratory. It does not make TRQP mandatory for OpenETR implementations. It describes how TRQP can be used as one recognition and authority-query mechanism above the OpenETR signed-event Evidence Graph and ruleset-derived state.
 
 ## Summary
 
@@ -16,10 +16,10 @@ OpenETR provides:
 
 - cryptographically signed event evidence;
 - object identity through document or record digests;
-- a control graph of Anchor and later evidence events;
+- a DCR Evidence Graph of Anchor and later evidence events;
 - relay-backed publication and retrieval;
 - domain adapters such as the MLWR adapter;
-- verifier policies that decide how to recognize candidate graph transitions.
+- identified rulesets that derive candidate state, followed by recognition policies.
 
 TRQP provides:
 
@@ -40,14 +40,14 @@ TRQP belongs in the OpenETR recognition and verifier-policy layer, not in the ba
 OpenETR separates:
 
 1. **Evidence layer**: signed Nostr events, event ids, object digests, tags, and graph links.
-2. **Protocol layer**: the OpenETR evidence-event grammar, graph model, defined
-   rules, and derived state.
+2. **Ruleset layer**: identified, versioned validation and state-derivation
+   rules applied to the DCR Evidence Graph.
 3. **Domain adapter layer**: MLWR, bills of lading, transferable records, credentials, or other domain semantics.
 4. **Recognition layer**: verifier policies, rule books, registries, authorities, and legal or operational effect.
 
 TRQP fits primarily in layer 4.
 
-It should not be required to publish or retrieve OpenETR events. A verifier should still be able to inspect the OpenETR graph locally if it already has the signed events and the applicable policy.
+It should not be required to publish or retrieve OpenETR events. A verifier should still be able to inspect the OpenETR graph locally if it already has the signed events and the applicable ruleset. Recognition policy may then use TRQP results.
 
 TRQP becomes useful when the verifier needs to ask questions such as:
 

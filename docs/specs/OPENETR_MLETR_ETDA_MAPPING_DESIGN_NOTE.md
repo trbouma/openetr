@@ -1,5 +1,9 @@
 # OpenETR MLETR And ETDA Mapping Design Note
 
+> This note concerns a future transferable-record ruleset built on OpenETR Core
+> Record Ruleset 1.0. Core 1.0 establishes anchored state and Publisher
+> Notices; it does not derive Current Controller or transfer state.
+
 This note analyzes how the UNCITRAL Model Law on Electronic Transferable Records (`MLETR`) and the United Kingdom Electronic Trade Documents Act 2023 (`ETDA`) can map to OpenETR.
 
 It is informed by Alan Davidson's comparative paper on MLETR and ETDA, which argues that MLETR offers the better template for international harmonization while ETDA provides a narrower domestic digitization model with some divergent terminology and structure.
@@ -125,7 +129,7 @@ An OpenETR implementation can support MLETR-style analysis by producing evidence
 - change of medium from paper to electronic or electronic to paper
 - verifier-policy analysis of reliability
 
-The OpenETR core should stay neutral about the substantive rights attached to the document. A bill of lading, warehouse receipt, promissory note, or insurance certificate may have different legal consequences in different jurisdictions. OpenETR should expose the control graph. Domain law decides the effect.
+The OpenETR protocol and Core Record Ruleset should stay neutral about the substantive rights attached to the document. A bill of lading, warehouse receipt, promissory note, or insurance certificate may have different legal consequences in different jurisdictions. A transferable-record ruleset should expose its derived Control Graph. Domain law decides the effect.
 
 ## ETDA Orientation
 

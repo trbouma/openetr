@@ -38,7 +38,7 @@ OTL identity and transport
 OpenETR DCR
   -> preserve durable signed evidence concerning the Digital Artifact
 
-OpenETR protocol rules
+identified OpenETR ruleset
   -> evaluate validated DCR evidence and derive consequential state
 
 Domain adapter

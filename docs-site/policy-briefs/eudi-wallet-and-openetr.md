@@ -34,12 +34,13 @@ What happened concerning this Digital Artifact?
 ```
 
 OpenETR identifies content as a Digital Artifact by digest. Signed records
-concerning it form a DCR. Validation checks that evidence, and protocol rules
-derive consequential state.
+concerning it form a DCR. Validation checks that evidence, and an identified
+ruleset derives Consequential State.
 
 The graph may include:
 
-- an Anchor record;
+- an Anchor Event;
+- Publisher Notices;
 - transfer or evidence events;
 - attestations;
 - encumbrance and discharge events;
@@ -51,6 +52,10 @@ The graph may include:
 OpenETR is therefore artifact-centric. The central unit is not the holder's
 wallet; it is the Digital Artifact, its DCR evidence, and the consequential
 state derived from that evidence.
+
+Core Record Ruleset 1.0 supplies the minimum anchor-and-notice model. Transfer,
+Current Controller, encumbrance, and discharge are extension semantics where a
+domain ruleset requires them.
 
 ## Practical Distinction
 
@@ -87,7 +92,7 @@ EUDI Wallet credential
   -> proves identity, role, mandate, or authorization
   -> OpenETR profile signs a record event
   -> OpenETR DCR preserves durable signed evidence
-  -> DCR evidence is validated and protocol rules derive consequential state
+  -> DCR evidence is validated and an identified ruleset derives consequential state
   -> registry / authority / relying party evaluates effect
 ```
 
@@ -102,7 +107,7 @@ For Product Passports, an EUDI Wallet could help an economic operator or represe
 OpenETR could then record:
 
 - the original Product Passport digest;
-- the Anchor record for that passport artifact;
+- the Anchor Event for that passport artifact;
 - the recognized organization profile key that issued it;
 - linked evidence records for repair, recall, recycling, audit, or end-of-life documents;
 - durable query links and QR codes;

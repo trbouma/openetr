@@ -1,10 +1,10 @@
 # Evidence And State
 
-The OpenETR protocol layer evaluates end-verifiable evidence concerning a
-Digital Artifact. Signed records form a DCR; cryptographic and structural checks
-validate that evidence; defined rules determine what Consequential State
-follows. Control is one possible subject of that state, not the name for every
-event or every consequence.
+The OpenETR protocol layer represents and links end-verifiable evidence
+concerning a Digital Artifact. Signed records form a DCR; cryptographic and
+structural checks validate that evidence; an identified ruleset determines
+what Consequential State follows. Control is one possible subject of that
+state, not the name for every event or every consequence.
 
 ## Digital Artifact And Digital Controllable Record
 
@@ -24,16 +24,17 @@ The object may be:
 - a verifiable credential;
 - another canonical electronic record.
 
-OpenETR does not need to parse the object to track its control history. It needs the digest.
+OpenETR does not need to parse the object to associate DCR evidence with it. It
+needs the digest.
 
-When validation of the DCR under an applicable policy establishes
-consequential state for the Digital Artifact, it becomes a **Digital Original**
+When evaluation of the DCR under an identified ruleset establishes
+Consequential State for the Digital Artifact, it becomes a **Digital Original**
 in the technical OpenETR sense.
 
 ## Anchor Event
 
-An Anchor event forms a one-record candidate DCR. Validation of that DCR under
-an applicable policy may establish candidate consequential state.
+An Anchor Event forms a one-record candidate DCR. Evaluation of that DCR under
+OpenETR Core Record Ruleset 1.0 establishes candidate anchored state.
 
 It binds:
 
@@ -46,11 +47,11 @@ It binds:
 
 ## Evidence Events
 
-Evidence Events express later signed actions concerning the same Digital
-Artifact. Some actions change control, while attestations and other evidence may
-support different state or no state change at all.
+Evidence Events express later signed statements or actions concerning the same
+Digital Artifact. Core Record Ruleset 1.0 defines `notice`. Other actions only
+have state consequences when an extension ruleset defines them.
 
-Current actions include:
+Registered and proposed actions include:
 
 | Action | Meaning |
 | --- | --- |
@@ -73,19 +74,19 @@ The Evidence Graph is reconstructed from signed events:
 - `action` identifies the Evidence Event subtype;
 - action-specific tags such as `enc`, `type`, `notice_type`, and `ref` add structured context.
 
-The Control Graph is the portion of that Evidence Graph concerned specifically
-with control transitions. The graph is portable evidence. Cryptographic and
-structural checks validate the DCR as a whole, and defined rules determine what
-Consequential State follows.
+The Control Graph is the portion of that Evidence Graph to which a
+transferable-record ruleset assigns control consequences. The graph is
+portable evidence. Cryptographic and structural checks validate the DCR as a
+whole, and an identified ruleset determines what Consequential State follows.
 Recognition separately decides whether to accept that result for a purpose and
 what effect to give it.
 
 ```text
-validated DCR evidence -> defined rules -> Consequential State
+validated DCR evidence -> identified ruleset -> Consequential State
 Consequential State -> recognition -> effect
 ```
 
-Nostr carries the events. OpenETR determines their consequences.
+Nostr carries the events. An identified OpenETR ruleset determines their consequences.
 
 Applications may cache and display a projection of the state, but they do not
 own it. See [Consequential State](./consequential-state.md).

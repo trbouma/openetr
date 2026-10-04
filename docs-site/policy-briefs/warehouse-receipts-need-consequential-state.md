@@ -56,12 +56,17 @@ A receipt file can state a warehouse, depositor, description of goods,
 quantity, date, and receipt number. Its bytes do not independently reveal what
 happened after issuance.
 
-A relying party may need to determine:
+A relying party may first need to determine:
 
 - whether this is the exact receipt originally recorded;
 - which warehouse-operator or issuer key signed the initial evidence;
-- whether the receipt remains active;
-- who is the current controller under the applicable rules;
+- whether the Anchor Publisher has issued a later caution, correction,
+  withdrawal, supersession, or other notice.
+
+A future transferable-record ruleset may additionally determine:
+
+- whether the receipt remains active under that ruleset;
+- who is the candidate Current Controller;
 - whether a transfer was initiated and accepted;
 - whether an encumbrance remains outstanding;
 - whether a discharge released the identified encumbrance;
@@ -79,8 +84,8 @@ OpenETR separates the receipt artifact from evidence of actions concerning it:
 ```text
 warehouse receipt PDF or canonical data package
   -> Digital Artifact identified by SHA-256 digest
-  -> signed Anchor Records and later evidence records form the DCR
-  -> MLWR-aware and OpenETR rules evaluate the evidence
+  -> signed Anchor Events and later evidence records form the DCR
+  -> an identified OpenETR ruleset evaluates the evidence
   -> Consequential State is derived
   -> law, registry, contract, and institutional policy determine effect
 ```
@@ -168,8 +173,8 @@ The host warehouse system should remain responsible for:
 - connection between digital redemption and physical delivery; and
 - correction, dispute, audit, and recovery procedures.
 
-OpenETR records attributable evidence concerning the receipt and derives
-protocol state. It does not operate the warehouse.
+OpenETR records attributable evidence concerning the receipt, and an
+identified ruleset derives Consequential State. It does not operate the warehouse.
 
 ## Control Desk And Commitment Profiles
 
@@ -305,21 +310,23 @@ of these questions into a universal `valid` result.
 
 A warehouse-receipt implementation should:
 
-1. begin with the operator issuing a receipt and creating its Anchor record;
+1. begin with the operator issuing a receipt and creating its Anchor Event;
 2. identify the final receipt artifact by a deterministic SHA-256 digest;
 3. keep receipt content and physical-goods systems outside the event graph;
 4. connect each Commitment Profile to an authenticated and authorized warehouse
    account or workflow;
-5. implement transfer, encumbrance, discharge, redemption, and termination with
-   explicit prior-event links;
-6. report all outstanding encumbrances and material graph conflicts;
-7. link physical-custody and condition evidence without overclaiming what it
+5. implement Core Record Ruleset 1.0 anchoring and Publisher Notices;
+6. treat transfer, encumbrance, discharge, redemption, and termination as a
+   later transferable-record ruleset with explicit prior-event links;
+7. report all material evidence conflicts and, when the extension is enabled,
+   outstanding encumbrances;
+8. link physical-custody and condition evidence without overclaiming what it
    proves;
-8. develop replacement and change-of-medium workflows against the MLWR article
+9. develop replacement and change-of-medium workflows against the MLWR article
    mapping;
-9. test retrieval and state derivation outside the originating warehouse
+10. test retrieval and state derivation outside the originating warehouse
    application; and
-10. involve warehouse operators, lenders, registries, holders, and legal
+11. involve warehouse operators, lenders, registries, holders, and legal
     authorities in recognition-policy design.
 
 ## What OpenETR Does Not Do
@@ -361,4 +368,3 @@ That is the focused role of OpenETR in an MLWR-aligned warehouse-receipt system.
 - [MLWR Article Requirements Mapping](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_ARTICLE_REQUIREMENTS_MAPPING.md)
 - [MLWR Change Of Medium Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_CHANGE_OF_MEDIUM_PROFILE.md)
 - [MLWR Receipt Replacement And Loss Profile](https://github.com/trbouma/openetr/blob/main/docs/specs/MLWR_RECEIPT_REPLACEMENT_AND_LOSS_PROFILE.md)
-

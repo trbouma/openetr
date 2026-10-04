@@ -38,11 +38,11 @@ OpenETR calls the identifiable content a **Digital Artifact**. It calls the
 signed evidence a **Digital Controllable Record (DCR)**. A DCR may be one
 independently verifiable signed record or a graph of related records containing
 evidence of consequential actions. Consequential state is what follows when
-validated evidence is evaluated according to defined protocol rules. A Digital
+validated evidence is evaluated according to an identified ruleset. A Digital
 Artifact for which consequential state has been established through a DCR is a
 **Digital Original**.
 
-> Cryptography validates the evidence. Protocol rules determine what follows.
+> Cryptography validates the evidence. An identified ruleset determines what follows.
 
 The DCR is not the file, and the word “controllable” does not automatically
 give it legal status. Legal recognition remains a separate question.
@@ -98,7 +98,7 @@ OpenETR defines:
 - digest-addressed Digital Artifacts;
 - Digital Controllable Records made of signed end-verifiable events;
 - state transition rules for deriving state from DCR evidence;
-- Anchor records that begin candidate DCRs;
+- Anchor Events that begin candidate DCRs;
 - evidence events for transfer, encumbrance, discharge, redemption, termination, and attestation;
 - linked evidence records for supporting documents and lifecycle evidence;
 - profile-backed signing;
@@ -124,7 +124,7 @@ OpenETR does not, by itself, decide:
 - a globally authoritative ordering for concurrent events.
 
 Those are recognition questions. OpenETR preserves durable signed evidence and
-derives consequential state according to defined protocol rules. Recognition
+derives Consequential State according to an identified ruleset. Recognition
 outside the protocol determines the effect given to that state.
 
 A host application can make a stronger, bounded claim when it places OpenETR

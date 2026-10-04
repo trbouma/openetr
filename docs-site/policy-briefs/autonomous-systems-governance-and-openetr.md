@@ -41,8 +41,8 @@ Governance must identify the point where consequence becomes possible and enforc
 OpenETR is not an autonomous-systems governance framework.
 
 It is a correctness protocol for **Digital Artifacts**, **Digital Controllable
-Records (DCRs)**, validation of that evidence, and protocol rules that derive
-consequential state.
+Records (DCRs)**, validation of that evidence, and identified rulesets that
+derive Consequential State.
 
 The relationship is:
 
@@ -167,7 +167,7 @@ agent recommendation
   -> account authorization
   -> time-of-action state validation
   -> signed OpenETR record added to the DCR
-  -> validation of DCR evidence and application of protocol rules
+  -> validation of DCR evidence and application of an identified ruleset
   -> consequential state
   -> domain or federation recognition
 ```

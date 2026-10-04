@@ -12,19 +12,19 @@ OpenETR can provide an additional final-artifact integrity layer by taking a
 cryptographic digest of the completed file. But for electronic transferable
 records, OpenETR's more important contribution is consequential state: the
 digest identifies the artifact, signed records form end-verifiable DCR
-evidence, validation checks that evidence, and protocol rules derive control
+evidence, validation checks that evidence, and an identified ruleset derives control
 and lifecycle state.
 
 Used together, C2PA helps explain and verify the provenance of content, while
 OpenETR identifies the Digital Artifact, validates its DCR evidence, and
-applies protocol rules to derive consequential state. Recognition then decides what effect to give
+applies an identified ruleset to derive consequential state. Recognition then decides what effect to give
 either result.
 
 The short version is:
 
 ```text
 C2PA explains content and provenance.
-OpenETR validates DCR evidence and applies protocol rules to derive consequential state.
+OpenETR validates DCR evidence and applies an identified ruleset to derive consequential state.
 Recognition determines accepted meaning and effect.
 ```
 
@@ -68,14 +68,15 @@ The digest does not need to understand the internal structure of the file. It do
 It treats the final file as the evidence object.
 
 For a Digital Artifact with DCR evidence, OpenETR then goes beyond integrity.
-It validates the DCR as a whole and applies identified, versioned state
-transition rules to derive consequential state:
-the current controller, lifecycle status, active guards, and other results that
-constrain what may validly happen next.
+It validates the DCR as a whole and applies an identified, versioned ruleset.
+Core Record Ruleset 1.0 derives anchored state and Publisher Position. A
+transferable-record extension may additionally derive Current Controller,
+lifecycle status, active guards, and other results that constrain what may
+validly happen next.
 
 ```text
 Digital Artifact -> Digital Controllable Record spanning candidate evidence
-Digital Controllable Record + applicable policy -> state transition rules -> consequential state
+Digital Controllable Record + identified ruleset -> consequential state
 Digital Artifact + consequential state -> Digital Original
 ```
 

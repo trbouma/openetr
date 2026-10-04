@@ -12,7 +12,8 @@ Draft.
 
 ## Summary
 
-OpenETR already models a single Digital Artifact as a digest-identified artifact with a signed control graph.
+OpenETR already models a single Digital Artifact as digest-identified content
+with a signed DCR evidence record or graph.
 
 Dependency integrity extends that model across objects.
 
@@ -104,13 +105,13 @@ Examples:
 
 The **Dependency Graph** is the linked set of dependency edges among Digital Artifacts, evidence artifacts, and recognized external references.
 
-It is not a replacement for each object's own control graph.
+It is not a replacement for each object's own DCR Evidence Graph.
 
 It is an overlay:
 
 ```text
-object control graph
-  + linked evidence graph
+DCR Evidence Graph
+  + optional ruleset-specific graph, such as a Control Graph
   + cross-object dependency edges
   -> dependency graph evaluated by policy
 ```
@@ -130,7 +131,8 @@ Dependency integrity builds on existing OpenETR primitives.
 | Existing Concept | Dependency Integrity Use |
 | --- | --- |
 | Digital Artifact | Each related record remains separately digest-identified. |
-| Control Graph | Each object retains its own origin and control history. |
+| DCR Evidence Graph | Each object retains its own Anchor Event and related evidence history. |
+| Ruleset-specific graph | A ruleset may select evidence that forms a Control Graph or another consequential subgraph. |
 | Linked Evidence Record | Supporting artifacts can be associated with one or more objects. |
 | Attestation | A signer can assert a relationship, dependency, warning, or status. |
 | Encumbrance | A dependent financing or security relationship can affect recognition of transfer, redemption, or termination. |
@@ -494,4 +496,3 @@ This design does not require OpenETR to:
 - [OPENETR_GENERIC_VERIFIER_POLICY.md](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 - [CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md](./CONTROL_EVENT_POLICY_GUARDS_DESIGN_NOTE.md)
 - Verifiable.Trade, "Can Digital Trade Achieve True Singularity without creating new third party dependencies?"
-

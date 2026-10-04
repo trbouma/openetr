@@ -53,7 +53,7 @@ itself, establish authority, recognition, or legal effect.
 
 ### 3. An Anchor Begins A Candidate Record
 
-An **Anchor Record** establishes the starting point of a candidate **Digital
+An **Anchor Event** establishes the starting point of a candidate **Digital
 Controllable Record (DCR)**. It does not, by itself, establish uniqueness,
 validity, or recognition.
 

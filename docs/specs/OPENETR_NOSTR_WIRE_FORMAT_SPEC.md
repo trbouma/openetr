@@ -73,13 +73,14 @@ by itself, assert derived or recognized consequential state.
 Its current wire-level role is to:
 
 - bind the object digest into the OpenETR event graph
-- provide the candidate evidence from which initial anchored state may be
-  produced by policy validation
-- provide the starting point for later control traversal
+- provide the candidate evidence from which an identified ruleset may derive
+  initial anchored state
+- provide the starting point for Publisher Notice chains and extension graphs
 
-A valid Anchor Event forms a one-record candidate DCR. Validation of that DCR
-under an applicable policy may establish initial consequential state and bring
-the identified Digital Artifact into the OpenETR Digital Original model. The
+A valid Anchor Event forms a one-record candidate DCR. Evaluation of that DCR
+under OpenETR Core Record Ruleset 1.0 establishes initial anchored
+Consequential State and brings the identified Digital Artifact into the
+OpenETR Digital Original model. The
 event does not by itself establish that the candidate is uniquely authoritative
 or compel recognition, standing, or legal or operational effect.
 
