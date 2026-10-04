@@ -546,9 +546,8 @@ The current regular-event model uses:
 - `action` as the semantic subtype for a `1416` Evidence Event; and
 - action-specific tags such as `p`, `enc`, `type`, and `ref` where required.
 
-The `d` tag may appear on legacy `31415` and `31416` prototype events. It is
-not required for new regular graph events and shall not be used as the basis for
-current graph reconstruction.
+The `d` tag is not part of the current DCR graph grammar. It shall not be used
+as the basis for graph reconstruction.
 
 ### Event Kind Split Rationale
 
@@ -611,93 +610,26 @@ This helps support:
 
 This is consistent with the broader OpenETR design goal of making lifecycle semantics explicit rather than collapsing all control-relevant actions into one undifferentiated event stream.
 
-## Replaceable Events and Attested Binding Effect
+## Regular Events, Persistence, and Attestation
 
-OpenETR does not require raw transaction events to be permanently preserved at the relay layer in order for them to matter.
+Anchor Events and Evidence Events are regular Nostr events. Exact event ids form
+the graph edges, so a graph node shall not be represented as an addressable or
+replaceable event.
 
-The current design direction assumes that canonical transaction events may be published as Nostr replaceable events.
+Relay retention is still not the source of Consequential State or external
+effect. Relays transport, index, and preserve signed evidence. Implementations
+should use relay diversity, archives, exports, or local stores appropriate to
+their availability and retention requirements.
 
-That means there may be nothing at the relay layer alone to prevent an author from:
+Attestation is one possible form of DCR evidence. An attestation may identify an
+accountable actor that witnessed, evaluated, certified, or recognized another
+record. Whether an attestation is required, sufficient, or effective is
+determined by the identified verifier policy and the applicable recognition
+framework.
 
-- replacing the event
-- deleting the event from a particular relay's retained view
-- making the event difficult to recover later from ordinary relay queries
-
-This is not treated as a fatal flaw in the scheme.
-
-### Core Distinction
-
-OpenETR distinguishes between:
-
-- the transaction event
-- the attestation event
-
-The transaction event expresses the underlying control-relevant act.
-
-The attestation event expresses the accountable statement that the act was witnessed, evaluated under policy, and recognized for effect.
-
-In this model, binding effect does not arise from the relay persistence of the underlying transaction event alone.
-
-Binding effect arises when an identifiable attestor issues an attestation referencing that transaction event and thereby assumes accountability for having witnessed and evaluated it.
-
-### Consequence
-
-An event may later be replaced, removed, or become unavailable from common relay views, while an attestation concerning it still remains the binding evidence that the event existed and satisfied policy at the relevant time.
-
-The attestation therefore functions as:
-
-- witnessed evidence
-- policy-bearing evidence
-- accountability-bearing evidence
-
-### Trust Anchor
-
-The trust anchor in OpenETR is not platform behavior.
-
-It is the accountable use of protocol by recognized attestors.
-
-This means the scheme does not ultimately rely on the proposition:
-
-> the platform preserved the event, therefore the effect is trustworthy
-
-Instead, it relies on the proposition:
-
-> the attestor is accountable for having witnessed and evaluated the event under policy
-
-### Design Significance
-
-This distinction allows OpenETR to avoid making legal or operational effect depend entirely on:
-
-- relay retention
-- platform immutability claims
-- centralized registry persistence
-
-It places the decisive weight on identifiable actors who can be reviewed, challenged, and held accountable.
-
-### Persistence as Evidence
-
-Persistence is still valuable.
-
-An event that remains queryable across relays is useful evidence.
-
-However, persistence is not treated as the ultimate source of effect.
-
-The decisive source of effect is attested witness combined with recognition under policy.
-
-### Specification Implication
-
-Future OpenETR specifications should therefore distinguish clearly between:
-
-- transaction-event semantics
-- event-level attestation semantics
-- chain-level attestation semantics
-- recognition of final effect after validation of the relevant prior chain
-- attestation-event semantics
-- recognition rules
-
-Transaction events may remain replaceable.
-
-Attestation events are the layer at which witnessed reliability and accountable effect are anchored.
+Consequential State is derived from validated DCR evidence under defined rules.
+No attestor, relay, or platform is the universal trust anchor for every OpenETR
+record.
 
 ## Revocation
 

@@ -278,9 +278,9 @@ async def resolve_single_active_chain_for_object(
 def derive_origin_object_digest(origin_event: Event) -> str:
     if origin_event.kind != DEFAULT_KIND:
         raise ControlEventError(f"referenced origin event must be kind {DEFAULT_KIND}")
-    digest = event_tag_value(origin_event, "o") or event_tag_value(origin_event, "d")
+    digest = event_tag_value(origin_event, "o")
     if digest is None:
-        raise ControlEventError("referenced origin event does not contain an object identifier in o or d")
+        raise ControlEventError("referenced origin event does not contain an object identifier in o")
     return assert_hex_object_identifier(digest)
 
 

@@ -135,7 +135,7 @@ def _print_profile(profile: dict) -> None:
 
 
 def _print_event_details(evt: Event, output: str, indent: str = "", verbose: bool = False) -> None:
-    structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"d", "o", "e", "p"}]
+    structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"o", "e", "p"}]
     if output == "raw":
         click.echo(f"{indent}event:")
         click.echo(f"{indent}{evt.event_data()}")
@@ -229,7 +229,6 @@ async def _run_query_object(
         return
 
     for evt in events:
-        d_values = evt.get_tags_value("d")
         o_values = evt.get_tags_value("o")
         click.echo(f"author: {format_pubkey(evt.pub_key)}")
         profile = await _fetch_profile(
@@ -240,8 +239,6 @@ async def _run_query_object(
         )
         if profile:
             _print_profile(profile)
-        if d_values:
-            click.echo(f"legacy d value: {d_values}")
         click.echo(f"o value: {o_values}")
         print_event(evt, output)
 
@@ -326,8 +323,6 @@ async def _run_query_etr(
     else:
         click.echo("issuer profile: none found")
 
-    if initial_event["d_values"]:
-        click.echo(f"legacy d value: {initial_event['d_values']}")
     click.echo(f"o value: {initial_event['o_values']}")
     print_event(initial_event["raw_event"], output)
     _print_separator()
@@ -425,8 +420,6 @@ async def _run_query_etr(
                     click.echo(f"{indent}    {field}: {value}")
             else:
                 click.secho(f"{indent}  WARNING: no profile found for the {subject_label}.", fg="yellow", bold=True)
-        if evt["d_values"]:
-            click.echo(f"{indent}  legacy d value: {evt['d_values']}")
         click.echo(f"{indent}  o value: {evt['o_values']}")
         _print_event_details(evt["raw_event"], output, indent=f"{indent}  ", verbose=verbose)
         _print_separator(indent)

@@ -67,7 +67,8 @@ conditions while preserving clear boundaries for trust and governance.
 ## Initial implementation
 
 The reference implementation uses ordinary Nostr event kinds `1415` and `1416`
-for linked, signed records. Prototype kinds `31415` and `31416` are deprecated.
+for linked, signed records. OpenETR DCR events are regular events, not
+replaceable events.
 The CLI can issue, query, transfer, encumber, discharge, redeem, and terminate
 records.
 

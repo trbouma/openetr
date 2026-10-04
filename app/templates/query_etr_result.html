@@ -451,9 +451,6 @@
           <div class="muted">Acting Profile signer</div><div>Yes</div>
           {% endif %}
           <div class="muted">Created At</div><div>{{ query.initial_event.created_at }}</div>
-          {% if query.initial_event.d_values %}
-          <div class="muted">Legacy d value</div><div class="mono">{{ query.initial_event.d_values }}</div>
-          {% endif %}
           <div class="muted">o value</div><div class="mono">{{ query.initial_event.o_values }}</div>
           <div class="muted">Unstructured content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
@@ -535,7 +532,6 @@
               {% if node.event.type %}<div class="muted">Type</div><div>{{ node.event.type }}</div>{% endif %}
               {% if node.event.external_ref %}<div class="muted">Reference</div><div class="mono">{{ node.event.external_ref }}</div>{% endif %}
               {% if node.event.subject_npub %}<div class="muted">{{ node.event.participant_label or "Participant" }}</div><div class="mono">{{ node.event.subject_npub }}</div>{% endif %}
-              {% if node.event.d_values %}<div class="muted">Legacy d value</div><div class="mono">{{ node.event.d_values }}</div>{% endif %}
               <div class="muted">o value</div><div class="mono">{{ node.event.o_values }}</div>
               <div class="muted">Unstructured content</div><div class="mono">{{ node.event.content }}</div>
             </div>

@@ -33,7 +33,8 @@ The current regular-event model uses:
 | `1415` | Anchor Event |
 | `1416` | Evidence Event family |
 
-Legacy prototype events using `31415` and `31416` may exist, but new graph events use regular kinds `1415` and `1416`.
+OpenETR DCR events use regular kinds `1415` and `1416`. Replaceable events
+are not part of the DCR wire format.
 
 ## Core Tags
 

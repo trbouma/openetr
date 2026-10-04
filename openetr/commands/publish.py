@@ -303,7 +303,6 @@ async def _run_publish_object(
     matched = []
     query_events = []
     for evt in events:
-        d_values = evt.get_tags_value("d")
         o_values = evt.get_tags_value("o")
         has_tag_match = digest in o_values
         same_event = evt.id == event.id
@@ -315,7 +314,6 @@ async def _run_publish_object(
                 "kind": evt.kind,
                 "author_hex": evt.pub_key,
                 "author_npub": format_pubkey(evt.pub_key),
-                "d_values": d_values,
                 "o_values": o_values,
                 "content": evt.content,
                 "has_object_tag_match": has_tag_match,
@@ -328,8 +326,6 @@ async def _run_publish_object(
                 f"author={format_pubkey(evt.pub_key)} "
                 f"o_values={[format_object_identifier(value) for value in o_values]}"
             )
-            if d_values:
-                click.echo(f"  legacy_d_values={[format_object_identifier(value) for value in d_values]}")
             click.echo(f"  content={evt.content}")
         if has_tag_match:
             matched.append(evt)
@@ -809,9 +805,9 @@ def _derive_origin_object_digest(origin_event: Event) -> str:
     if origin_event.kind != DEFAULT_KIND:
         raise click.ClickException(f"referenced origin event must be kind {DEFAULT_KIND}")
 
-    digest = _event_tag_value(origin_event, "o") or _event_tag_value(origin_event, "d")
+    digest = _event_tag_value(origin_event, "o")
     if digest is None:
-        raise click.ClickException("referenced origin event does not contain an object identifier in o or d")
+        raise click.ClickException("referenced origin event does not contain an object identifier in o")
     return assert_hex_object_identifier(digest)
 
 

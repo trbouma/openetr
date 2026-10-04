@@ -28,8 +28,6 @@ Suggested status values:
 |------|------|--------|---------|-------|
 | `1415` | Anchor Event | working | Initial signed event establishing an anchored control state for an object | Regular event used as the starting point for a candidate control graph |
 | `1416` | Evidence Event family | working | Signed evidence of actions after an Anchor Event | Regular event family subtyped by the `action` tag |
-| `31415` | legacy origin event | deprecated | Earlier addressable/replaceable name for the Anchor Event | Do not use for new OpenETR graph events |
-| `31416` | legacy control-event family | deprecated | Earlier addressable/replaceable name for the Evidence Event family | Do not use for new OpenETR graph events |
 
 ## Current Interpretation
 

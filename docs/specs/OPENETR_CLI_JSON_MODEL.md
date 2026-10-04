@@ -316,7 +316,6 @@ Where the JSON response includes an event view, the current model includes:
 | `author_npub` | Signer pubkey as npub. |
 | `created_at` | Display timestamp. |
 | `o_values` | Object tag values. |
-| `d_values` | Legacy `d` values, if present. |
 | `prior_event_id` | Prior event id from the `e` tag, if present. |
 | `subject_npub` | Participant from the `p` tag, if present. |
 | `structured_tags` | Non-core structured tags as name/value views. |

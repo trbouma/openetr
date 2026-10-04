@@ -172,7 +172,10 @@ A transferable record is rarely only transferred. It may be inspected, pledged, 
 
 By carrying the action in an `action` tag, OpenETR can keep the object history queryable while still distinguishing the meaning of each event.
 
-The `o` tag anchors the event to the object. The `d` tag provides the replaceable action slot. The `e` tag links the event into the control graph. Action-specific tags such as `p`, `enc`, `type`, and `ref` add the participants and business references needed by the relevant workflow.
+The `o` tag anchors the event to the object. The `e` tag links the event into
+the graph, and `action` identifies the Evidence Event subtype. Action-specific
+tags such as `p`, `enc`, `type`, and `ref` add the participants and
+business references needed by the relevant workflow.
 
 That is enough structure for a reference implementation to publish and query meaningful state today, while leaving room for stricter schemas, policy profiles, and recognition rules later.
 

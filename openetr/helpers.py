@@ -434,7 +434,7 @@ def format_pubkey(pubkey_hex: str) -> str:
 
 
 def print_event(evt: Event, output: str) -> None:
-    structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"d", "o", "e", "p"}]
+    structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"o", "e", "p"}]
     if output == "raw":
         click.echo(evt.event_data())
         click.echo(evt.tags)

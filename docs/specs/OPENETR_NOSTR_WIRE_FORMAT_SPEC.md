@@ -57,7 +57,9 @@ The current OpenETR wire format uses two event families:
 
 - `kind 1415` for the Anchor Event
 - `kind 1416` for later Evidence Events
-- legacy prototype `kind 31415` / `kind 31416` events may exist, but new OpenETR graph events use regular kinds `1415` / `1416`
+
+Both are regular events. Addressable or replaceable events are not part of the
+OpenETR DCR graph.
 
 ### `1415` Anchor Event
 
@@ -130,17 +132,6 @@ The recommended convention is:
 - use core single-letter tags for lookup and traversal
 - use named tags for signed structured metadata
 - use `content` for readable summaries, comments, or other unstructured event data
-
-### `d`
-
-`d` is not required for new regular OpenETR graph events.
-
-Earlier prototype events used `d` as the addressable / replaceable slot:
-
-- Anchor Event: `d = <object_hex>`
-- Evidence Event: `d = <object_hex>:<action>`
-
-Readers may display `d` when inspecting legacy events, but new graph reconstruction should not rely on it.
 
 ### `o`
 
@@ -543,65 +534,20 @@ An event may therefore be:
 - recognized only under a specific policy profile
 - invalid and therefore not capable of recognition
 
-## Legacy Replaceable-Event Rationale
+## Regular-Event Rationale
 
-The earlier prototype model assumed that OpenETR graph events could be published as Nostr addressable / replaceable events within their author and `d` slot.
+OpenETR graph links commit to exact event ids. Anchor Events and Evidence Events
+therefore use regular event kinds so a later record always references the exact
+prior record on which it relies.
 
-That is now treated as a legacy design stage. New OpenETR graph events use regular event kinds `1415` and `1416`.
+Rebroadcasting the exact same signed event preserves its event id. Publishing
+different content produces a different event and does not replace or silently
+relink the existing graph node. Missing records referenced by `e` shall be
+reported as broken graph continuity.
 
-The reason for the migration is important:
-
-- relay persistence alone is not the source of effect
-- graph continuity should be based on exact event ids
-- a verifier should not silently relink old evidence events to a newer replacement event
-- archives, attestations, local event stores, or relay diversity may still matter for evidentiary completeness
-
-This means the wire format should be understood as the event grammar for OpenETR publication and traversal, not as a guarantee of effect by publication alone.
-
-### Replacement And Control Graph Continuity
-
-OpenETR control chains use event ids as graph links.
-
-This creates a tension with Nostr replaceable-event behavior.
-
-If a legacy Anchor Event is merely rebroadcast unchanged, it has the same event id and the control graph remains linked.
-
-If the same author republishes the Anchor Event as a new replaceable event for the same `kind` and `d` coordinate, the new event normally has a different event id because the Nostr event id commits to the serialized event data, including fields such as `created_at`, tags, and content.
-
-For example:
-
-```text
-same pubkey
-same kind 31415
-same d tag / object slot
-new created_at or changed tags/content
-=> different event id
-```
-
-Under ordinary replaceable-event relay behavior, the relay may stop returning the older legacy Anchor Event for that author/kind/`d` coordinate and return only the newer replacement.
-
-That can break later control-chain traversal:
-
-```text
-old Anchor Event id = A
-later evidence event e tag -> A
-new replacement Anchor Event id = B
-relay stops returning A
-=> later evidence event does not extend B
-=> verifier cannot fully traverse the chain unless A is available from another source
-```
-
-For this reason, the reference implementation moved origin and control graph events to regular event kinds.
-
-A verifier should not silently relink old evidence events to the newer Anchor Event. The `e` tag points to a specific event id, not merely to the latest replaceable coordinate.
-
-Recommended policy treatment:
-
-- rebroadcasting the exact same event is safe because the event id is unchanged
-- republishing an Anchor Event after dependent evidence events exist should produce a strong warning or policy failure
-- missing prior events referenced by `e` should be reported as broken graph continuity
-- archives, attestations, or local event stores may be needed to verify older graph links when relays have replaced earlier events
-- domain policies may require Anchor Event immutability once the first evidence event is recognized
+Relay persistence alone is not the source of effect. Relay diversity, archives,
+exports, attestations, or local stores may still be needed to preserve a
+complete evidence set.
 
 ## Relationship to Other Specifications
 

@@ -66,9 +66,6 @@ In current practice:
   - `e = <prior_event_id>`
   - `action = <action_name>`
 
-The `d` tag may appear on legacy prototype events, but it is not required for
-new regular graph events.
-
 This means the object itself is already the anchor for control assertions and lifecycle events.
 
 ## Current Controller Semantics

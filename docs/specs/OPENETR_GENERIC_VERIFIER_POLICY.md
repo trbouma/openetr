@@ -460,9 +460,9 @@ Recommended fields for future structured verifier output include:
 
 The generic verifier should treat broken `e` links as a first-class graph-continuity issue.
 
-This is especially important because every OpenETR control transition links to a specific prior event id. New OpenETR graph events use regular event kinds `1415` and `1416`, but earlier prototype events used addressable / replaceable kinds `31415` and `31416` with a `d` slot.
-
-If a legacy Anchor Event is republished by the same author for the same object slot, the replacement event normally has a different event id. A relay may then stop returning the older Anchor Event. Later evidence events that point to the older origin through `e` still point to that exact older event id, not to the newer replacement event.
+This is especially important because every OpenETR control transition links to
+a specific prior event id. OpenETR Anchor Events and Evidence Events use regular
+event kinds `1415` and `1416`; they are not replaceable event slots.
 
 The verifier should therefore distinguish:
 

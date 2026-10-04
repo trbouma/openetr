@@ -209,7 +209,7 @@ def is_lifecycle_state_event(evt: Event) -> bool:
 def structured_event_tags(evt: Event) -> list[dict[str, Any]]:
     structured_tags = []
     for tag in evt.tags:
-        if len(tag) < 2 or tag[0] in {"d", "o", "e", "p"}:
+        if len(tag) < 2 or tag[0] in {"o", "e", "p"}:
             continue
         structured_tags.append(
             {
@@ -243,7 +243,6 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "author_npub": format_pubkey(evt.pub_key),
         "created_at": evt.created_at,
         "kind": evt.kind,
-        "d_values": evt.get_tags_value("d"),
         "o_values": evt.get_tags_value("o"),
         "structured_tags": structured_event_tags(evt),
         "content": evt.content,

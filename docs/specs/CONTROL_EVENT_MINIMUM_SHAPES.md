@@ -260,8 +260,6 @@ The minimum convention in this note is:
 - `action` identifies how the event should be interpreted
 - action-specific tags such as `p`, `enc`, `type`, and `ref` provide signed structured event data
 
-The `d` tag is not required for new regular OpenETR graph events. Older prototype events may still contain `d`; readers may display it as legacy data, but should not rely on it to reconstruct the current graph.
-
 ## Summary
 
 The minimum required tags for each event are:

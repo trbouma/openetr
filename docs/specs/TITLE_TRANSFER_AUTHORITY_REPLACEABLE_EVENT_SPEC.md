@@ -2,7 +2,7 @@
 
 > Status: Legacy / specialized recognition-pattern note.
 >
-> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. The current OpenETR model has evolved toward a broader Protocol Layer with `31415` Anchor Events, `31416` evidence events, relay-backed profiles, and separate Recognition Layer policy.
+> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. It is not an OpenETR DCR wire-format specification. Current OpenETR DCR graphs use regular `1415` Anchor Events and `1416` Evidence Events.
 >
 > The note remains useful as a specialized pattern for registry-style or attestor-led recognition, and as background for trust-anchor design. It should not be read as the primary current OpenETR model.
 
@@ -38,7 +38,7 @@ Use a dedicated custom kind for title records.
 
 Recommended starting point:
 
-- `kind = 31415`
+- an application-specific addressable event kind
 
 This is only a working value for experimentation. A production deployment should choose and document a stable application kind.
 
@@ -224,7 +224,7 @@ The minimum required query is:
 
 ```python
 {
-    "kinds": [31415],
+    "kinds": ["<application-specific-addressable-kind>"],
     "#d": ["<digest>"]
 }
 ```
@@ -233,7 +233,7 @@ If `o` is also used, additional queries may be supported:
 
 ```python
 {
-    "kinds": [31415],
+    "kinds": ["<application-specific-addressable-kind>"],
     "#o": ["<digest>"]
 }
 ```
@@ -375,7 +375,7 @@ Example title event:
 
 ```json
 {
-  "kind": 31415,
+  "kind": "<application-specific-addressable-kind>",
   "pubkey": "<tta_pubkey>",
   "tags": [
     ["d", "<sha256_digest>"],
@@ -392,7 +392,7 @@ Example transfer event:
 
 ```json
 {
-  "kind": 31415,
+  "kind": "<application-specific-addressable-kind>",
   "pubkey": "<tta_pubkey>",
   "tags": [
     ["d", "<sha256_digest>"],

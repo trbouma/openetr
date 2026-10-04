@@ -80,7 +80,6 @@ openetr issue examples/MLWR001.pdf
 Implementation mapping:
 
 - event kind: `1415`
-- `d` tag: object digest hex
 - `o` tag: object digest hex
 - signer: active profile signer unless overridden
 - object digest: SHA-256 of the source file

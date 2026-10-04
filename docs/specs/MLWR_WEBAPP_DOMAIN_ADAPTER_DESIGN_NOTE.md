@@ -108,7 +108,6 @@ The services publish and query the generalized OpenETR Nostr wire format:
 - MLWR domain interpretation of generic tags such as `domain=mlwr`, `document_type=warehouse_receipt`, `record_reference`, and `record_description`
 - `action` tags for evidence-event subtype
 - `o` for object identity
-- `d` for replaceable action slot
 - `e` for prior event linkage
 - `p` for action-specific participant
 - `enc` for discharge of a specific encumbrance

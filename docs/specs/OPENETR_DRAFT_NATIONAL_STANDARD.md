@@ -1415,8 +1415,8 @@ The profile defines:
 | `1415` | Anchor Event | Regular event beginning a candidate DCR |
 | `1416` | Evidence Event | Regular event extending or relating to a candidate DCR |
 
-Kinds `31415` and `31416` are deprecated prototype kinds and shall not be used
-for newly published conforming DCR graphs.
+OpenETR DCR graphs shall use regular events. Addressable or replaceable event
+kinds shall not be used for Anchor Events or Evidence Events.
 
 ## A.3 Common tags
 
