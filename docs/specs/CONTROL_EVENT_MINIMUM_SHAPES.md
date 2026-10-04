@@ -24,6 +24,7 @@ The goal is to define a minimal, internally consistent event shape for the curre
 - `ACCEPT`
 - `TERMINATE`
 - `ATTEST`
+- `NOTICE`
 - `ENCUMBER`
 - `DISCHARGE`
 - `REDEEM`
@@ -57,6 +58,7 @@ The current CLI maps these action shapes as follows:
 | `openetr transfer accept` | `1416` | `accept` | optional `p` = counterparty |
 | `openetr terminate-etr` | `1416` | `terminate` | none |
 | `openetr attest` | `1416` | `attest` | optional `p` = subject |
+| not yet exposed by the reference CLI | `1416` | `notice` | none |
 | `openetr encumber` | `1416` | `encumber` | `p` = beneficiary |
 | `openetr discharge` | `1416` | `discharge` | optional `p` = releasing party |
 | `openetr redeem` | `1416` | `redeem` | `p` = obligor |
@@ -165,6 +167,44 @@ An attestation does not change the Current Controller.
 
 - no change to Current Controller
 
+## NOTICE
+
+### Purpose
+
+`NOTICE` records the Anchor Publisher's signed position concerning the
+Digital Artifact.
+
+A qualifying notice is evidence of what the Anchor Publisher states. It does
+not erase the Anchor Event or independently establish validity, recognition, or
+effect.
+
+### Minimum Shape
+
+- `kind = 1416`
+- required tags:
+  - `["o", "<object_hex>"]`
+  - `["e", "<anchor_event_id_or_prior_notice_event_id>"]`
+  - `["action", "notice"]`
+  - `["notice_type", "<publisher_position>"]`
+
+### Optional Tags
+
+- `["severity", "<information_warning_or_critical>"]`
+- `["effective_at", "<publisher_declared_time>"]`
+- `["reason_code", "<structured_reason>"]`
+- `["ref", "<external_reference>"]`
+- `["successor", "<successor_artifact_digest>"]`
+
+### State Effect
+
+- derives Publisher Position under OpenETR Core Record Ruleset 1.0
+- does not change `anchor_state`
+- does not change the Current Controller
+
+The notice vocabulary, signer requirements, chain rules, and conflict handling
+are defined in
+[OPENETR_CORE_RECORD_RULESET_1_0.md](./OPENETR_CORE_RECORD_RULESET_1_0.md).
+
 ## ENCUMBER
 
 ### Purpose
@@ -258,7 +298,7 @@ The minimum convention in this note is:
 - `o` finds all candidate DCR events for the Digital Artifact
 - `e` links each non-anchor graph event to the exact prior event id
 - `action` identifies how the event should be interpreted
-- action-specific tags such as `p`, `enc`, `type`, and `ref` provide signed structured event data
+- action-specific tags such as `p`, `enc`, `type`, `notice_type`, and `ref` provide signed structured event data
 
 ## Summary
 
@@ -272,6 +312,8 @@ The minimum required tags for each event are:
   - `o`, `e`, `action`
 - `ATTEST`
   - `o`, `e`, `action`
+- `NOTICE`
+  - `o`, `e`, `action`, `notice_type`
 - `ENCUMBER`
   - `o`, `e`, `action`, `p`
 - `DISCHARGE`

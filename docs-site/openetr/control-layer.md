@@ -61,6 +61,7 @@ Current actions include:
 | `redeem` | Present or redeem the object. |
 | `terminate` | Complete or end the active lifecycle. |
 | `attest` | Publish an attestation about an object, actor, or context. |
+| `notice` | Record the Anchor Publisher's signed position concerning the artifact. |
 
 ## Graph Reconstruction
 
@@ -70,7 +71,7 @@ The Evidence Graph is reconstructed from signed events:
 - `e` links to a prior event;
 - `p` identifies an action-specific participant;
 - `action` identifies the Evidence Event subtype;
-- action-specific tags such as `enc`, `type`, and `ref` add structured context.
+- action-specific tags such as `enc`, `type`, `notice_type`, and `ref` add structured context.
 
 The Control Graph is the portion of that Evidence Graph concerned specifically
 with control transitions. The graph is portable evidence. Cryptographic and
@@ -91,6 +92,7 @@ own it. See [Consequential State](./consequential-state.md).
 
 ## Source Specs
 
+- [OpenETR Core Record Ruleset 1.0](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)
 - [Evidence Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [State Transition Note](https://github.com/trbouma/openetr/blob/main/docs/specs/STATE-TRANSITION.md)

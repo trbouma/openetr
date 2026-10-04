@@ -553,6 +553,7 @@ The generic OpenETR action vocabulary includes:
 - `initiate`, to propose a transfer;
 - `accept`, to accept a proposed transfer;
 - `attest`, to make a signed assertion;
+- `notice`, to state the Anchor Publisher's position concerning an artifact;
 - `encumber`, to declare a claimed encumbrance;
 - `discharge`, to release or satisfy a referenced encumbrance;
 - `redeem`, to present the artifact to an obligor for performance; and
@@ -1478,6 +1479,7 @@ Additional minimum requirements are:
 | `accept` | none | acceptance of referenced initiation |
 | `terminate` | none | claimed lifecycle termination |
 | `attest` | none | assertion about the record referenced by `e` |
+| `notice` | `notice_type` | Anchor Publisher position concerning the artifact |
 | `encumber` | `p` | beneficiary or secured party |
 | `discharge` | `enc` | encumbrance event being discharged |
 | `redeem` | `p` | obligor to whom performance is presented |

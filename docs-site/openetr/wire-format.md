@@ -46,6 +46,7 @@ are not part of the DCR wire format.
 | `action` | Evidence Event subtype. |
 | `enc` | Encumbrance event referenced by a discharge. |
 | `type` | Action-specific subtype. |
+| `notice_type` | Anchor Publisher position carried by a Publisher Notice. |
 | `ref` | External reference or business reference. |
 
 ## Structured Metadata
@@ -74,6 +75,7 @@ The signed tags are the machine interface.
 
 ## Source Specs
 
+- [OpenETR Core Record Ruleset 1.0](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [OpenETR Nostr Wire Format Specification](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [Event Kind Registry](https://github.com/trbouma/openetr/blob/main/docs/specs/EVENT_KIND_REGISTRY.md)
 - [Regular Event Kind Migration Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md)

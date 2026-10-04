@@ -101,11 +101,14 @@ Current working `1416` actions are:
 - `accept`
 - `terminate`
 - `attest`
+- `notice`
 - `encumber`
 - `discharge`
 - `redeem`
 
 The current reference CLI command mapping is summarized in [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
+Publisher Notice publication is specified by Core Record Ruleset 1.0 but is not
+yet exposed by the reference CLI.
 
 ## Core Tag Model
 
@@ -186,6 +189,7 @@ Examples:
 - `["action", "accept"]`
 - `["action", "terminate"]`
 - `["action", "attest"]`
+- `["action", "notice"]`
 - `["action", "encumber"]`
 - `["action", "discharge"]`
 - `["action", "redeem"]`
@@ -198,6 +202,7 @@ Examples:
 
 - `["enc", "<encumbrance_event_id_hex>"]` for a discharge event
 - `["type", "<subtype>"]` for attestation or encumbrance typing
+- `["notice_type", "<publisher_position>"]` for a Publisher Notice
 - `["ref", "<external_reference>"]` for external linkage
 
 Current reference CLI usage:
@@ -344,6 +349,32 @@ Control meaning:
 - targets the specific Anchor Event or evidence event identified by the `e` tag
 - does not by itself change the Current Controller
 
+### Publisher Notice
+
+- `kind = 1416`
+- required tags:
+  - `["o", "<object_hex>"]`
+  - `["e", "<anchor_event_id_or_prior_notice_event_id>"]`
+  - `["action", "notice"]`
+  - `["notice_type", "<publisher_position>"]`
+- optional tags:
+  - `["severity", "<information_warning_or_critical>"]`
+  - `["effective_at", "<publisher_declared_time>"]`
+  - `["reason_code", "<structured_reason>"]`
+  - `["ref", "<external_reference>"]`
+  - `["successor", "<successor_artifact_digest>"]`
+
+State meaning:
+
+- records the Anchor Publisher's signed position concerning the artifact
+- must be signed by the Anchor Publisher to qualify under Core Record Ruleset 1.0
+- does not erase or replace the Anchor Event
+- does not by itself establish external validity, recognition, or effect
+- does not by itself change the Current Controller
+
+The normative notice vocabulary and state-derivation rules are defined in
+[OPENETR_CORE_RECORD_RULESET_1_0.md](./OPENETR_CORE_RECORD_RULESET_1_0.md).
+
 ### Encumber Event
 
 - `kind = 1416`
@@ -462,7 +493,7 @@ For a candidate object history, an implementation should verify:
 5. each event has the required minimum tags for its event shape
 6. each event in the candidate chain carries the same `o` object identifier
 7. each evidence event carries an `e` tag that points to the prior event being relied on
-8. action-specific references such as `p`, `enc`, `type`, and `ref` are present where required by the action or local recognition profile
+8. action-specific references such as `p`, `enc`, `type`, `notice_type`, and `ref` are present where required by the action or local recognition profile
 9. the linked chain can be replayed in order to derive lifecycle state, current controller, and outstanding control conditions
 
 The `e` tag follows the Nostr convention for event references. In OpenETR, it is the primary cryptographic link between control-relevant events:
@@ -470,6 +501,7 @@ The `e` tag follows the Nostr convention for event references. In OpenETR, it is
 - for the first later evidence event, `e` should point to the Anchor Event
 - for later control-transition events, `e` should point to the immediately prior control-relevant event being extended
 - for attestations, `e` should point to the specific event being attested
+- for a Publisher Notice, `e` should point to the Anchor Event or immediately prior Publisher Notice
 - for discharges, `enc` identifies the encumbrance being discharged, while `e` links the discharge into the current control chain
 
 The chain therefore needs no separate root-pointer tag. A verifier recovers

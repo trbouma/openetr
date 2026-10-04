@@ -4,14 +4,16 @@ This directory is reserved for OpenETR specification drafts and supporting docum
 
 Suggested starting points:
 
-- `core-model.md`
-- `object-format.md`
-- `control-transfer.md`
-- `nostr-reference-implementation.md`
-- `mletr-alignment.md`
+- [OpenETR Core Record Ruleset 1.0](./OPENETR_CORE_RECORD_RULESET_1_0.md)
+- [OpenETR Draft National Standard](./OPENETR_DRAFT_NATIONAL_STANDARD.md)
+- [Consequential State Architecture](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
+- [Digital Controllable Record](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [OpenETR Nostr Wire Format](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 
 Current drafts:
 
+- [OPENETR_CORE_RECORD_RULESET_1_0.md](./OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [OPENETR_ROADMAP.md](./OPENETR_ROADMAP.md)
 - [OPENETR_DRAFT_NATIONAL_STANDARD.md](./OPENETR_DRAFT_NATIONAL_STANDARD.md)
 - [CONTROLLABLE_RECORDS_TAXONOMY.md](./CONTROLLABLE_RECORDS_TAXONOMY.md)

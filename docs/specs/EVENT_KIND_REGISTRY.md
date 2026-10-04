@@ -61,6 +61,7 @@ Current intended role:
 - represent transfer acceptance
 - represent termination
 - represent attestations
+- represent Publisher Notices
 - represent encumbrances
 - represent discharges
 - represent redemption or presentation events
@@ -73,6 +74,7 @@ Current working action subtypes:
 - `action=accept`
 - `action=terminate`
 - `action=attest`
+- `action=notice`
 - `action=encumber`
 - `action=discharge`
 - `action=redeem`
@@ -87,6 +89,7 @@ That choice remains working and provisional.
 - [CANONICAL_ETR_TRANSACTION_SPEC.md](./CANONICAL_ETR_TRANSACTION_SPEC.md)
 - [REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md](./REGULAR_EVENT_KIND_MIGRATION_DESIGN_NOTE.md)
 - [OPENETR_NOSTR_WIRE_FORMAT_SPEC.md](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
+- [OPENETR_CORE_RECORD_RULESET_1_0.md](./OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [CONTROL_EVENT_MINIMUM_SHAPES.md](./CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
 - [TITLE_TRANSFER_AUTHORITY_REPLACEABLE_EVENT_SPEC.md](./TITLE_TRANSFER_AUTHORITY_REPLACEABLE_EVENT_SPEC.md)
