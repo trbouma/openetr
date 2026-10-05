@@ -367,7 +367,7 @@
         <p class="eyebrow">Durable Control. Portable Records.</p>
         <h1>OpenETR</h1>
         <p class="hero-subtitle">
-          A formal working surface for relay-backed profiles, portable records, and transferable control.
+          A formal working surface for Digital Artifacts, Anchor Records, Evidence Events, and derived consequential state.
         </p>
       </header>
       {% if error_message %}
@@ -411,7 +411,7 @@
         <div class="subpanel record-panel">
           <h2>Query Digital Controllable Record</h2>
           <p class="flow-note">
-            Upload a Digital Artifact and query the OpenETR DCR associated with its digest.
+            Upload a Digital Artifact and verify the DCR evidence associated with its digest. The result enumerates candidate Anchor Records, Evidence Events, derived controller state, lifecycle state, and policy warnings.
           </p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
@@ -542,7 +542,7 @@
         <div class="subpanel record-panel">
           <h2>Create Anchor Record</h2>
           <p class="flow-note">
-            Publish the first signed record in a candidate DCR using the Acting Profile.
+            Publish a signed <code>kind 1415</code> Anchor Record for this Digital Artifact using the Acting Profile. This creates a candidate DCR; later <code>kind 1416</code> Evidence Events can transfer, encumber, redeem, terminate, or attest to it under the relevant policy.
           </p>
           <form action="/api/issue-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>

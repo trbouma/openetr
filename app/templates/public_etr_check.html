@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#151915">
   <title>Check Record · OpenETR</title>
-  <meta name="description" content="Check durable OpenETR control evidence for a record identified by digest.">
+  <meta name="description" content="Check durable OpenETR DCR evidence for a Digital Artifact identified by digest.">
   <meta property="og:title" content="Check OpenETR Record">
-  <meta property="og:description" content="Human-readable verification evidence for an OpenETR controlled record.">
+  <meta property="og:description" content="Human-readable Anchor Record, Evidence Event, and consequential-state view for an OpenETR DCR.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Check OpenETR Record">
-  <meta name="twitter:description" content="Human-readable verification evidence for an OpenETR controlled record.">
+  <meta name="twitter:description" content="Human-readable Anchor Record, Evidence Event, and consequential-state view for an OpenETR DCR.">
   <style>
     :root {
       color-scheme: dark;
@@ -458,7 +458,7 @@
     </section>
 
     <section aria-labelledby="control-history-heading">
-      <h2 id="control-history-heading">Control Records</h2>
+      <h2 id="control-history-heading">Evidence Events</h2>
       {% set event_count = namespace(value=0) %}
       {% for group in query.transfer_groups %}
         {% macro render_public_node(node) %}
@@ -480,7 +480,7 @@
         {{ render_public_node(group.root) }}
       {% endfor %}
       {% if event_count.value == 0 %}
-      <p>No related Control Records were found.</p>
+      <p>No related Evidence Events were found.</p>
       {% endif %}
     </section>
     {% endif %}

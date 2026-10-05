@@ -13,7 +13,7 @@ from openetr.helpers import format_object_identifier, format_pubkey, resolve_key
 
 
 def build_issue_event_content(filename: str) -> str:
-    return f"Issued OpenETR object {filename}"
+    return f"Created OpenETR Anchor Record for Digital Artifact {filename}"
 
 
 def build_issue_event_tags(

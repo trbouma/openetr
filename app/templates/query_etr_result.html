@@ -249,7 +249,8 @@
         <p class="eyebrow">OpenETR Digital Controllable Record</p>
         <h1>DCR And Consequential State</h1>
         <p class="section-intro">
-          This page shows the signed DCR evidence and the consequential state derived for {{ filename }}.
+          This verification view shows candidate Anchor Records, signed Evidence Events, and the consequential state derived for {{ filename }} under the OpenETR base rules.
+          Recognition and legal effect remain matters for the applicable verifier policy, domain profile, rule book, or law.
         </p>
         <div class="summary-grid">
           <div class="summary-card">
@@ -436,7 +437,7 @@
         <div class="kv">
           <div class="muted">Relays</div><div class="mono">{{ relays }}</div>
           <div class="muted">Anchor filter</div><div class="mono">{{ query.relay_filter }}</div>
-          <div class="muted">Control-record filter</div><div class="mono">{{ query.transfer_filter }}</div>
+          <div class="muted">Evidence-event filter</div><div class="mono">{{ query.transfer_filter }}</div>
           <div class="muted">Returned</div><div>{{ query.count }} event(s)</div>
         </div>
       </section>
@@ -513,9 +514,9 @@
       {% endif %}
 
       <section class="panel">
-        <h2>Matching Control Records (kind {{ query.control_event_kind }})</h2>
+        <h2>Matching Evidence Events (kind {{ query.control_event_kind }})</h2>
         {% if not query.transfer_groups %}
-        <p>No Control Records were found for this Digital Artifact.</p>
+        <p>No Evidence Events were found for this Digital Artifact.</p>
         {% else %}
         {% macro render_node(node) %}
           <div class="event">
@@ -536,7 +537,7 @@
               <div class="muted">Unstructured content</div><div class="mono">{{ node.event.content }}</div>
             </div>
             {% if node.signer_profile %}
-            <h3>Control Record Signer Profile</h3>
+            <h3>Evidence Event Signer Profile</h3>
             <ul>
               {% for field, value in node.signer_profile %}
               <li><strong>{{ field }}</strong>: {{ value }}</li>
@@ -563,7 +564,7 @@
 
         {% for group in query.transfer_groups %}
         <div class="event">
-          <h3>Control Record Group {{ group.index }}</h3>
+          <h3>Evidence Event Group {{ group.index }}</h3>
           {% if group.root_prior_event_id %}
           <p><strong>Root Prior Event ID:</strong> <span class="mono">{{ group.root_prior_event_id }}</span></p>
           {% endif %}
