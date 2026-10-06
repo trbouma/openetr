@@ -72,6 +72,21 @@ A **Digital Controllable Record (DCR)** is one end-verifiable record or a graph
 of related end-verifiable records concerning the Digital Artifact. The DCR is
 the control evidence structure, not the artifact itself.
 
+In OpenETR, the **proof is outside the artifact**. The Digital Artifact remains
+the byte-identifiable content; the DCR is the separate signed evidence
+concerning that content. Implementations should not require the artifact bytes
+to be modified, wrapped, watermarked, or re-minted in order to carry OpenETR
+proof.
+This makes OpenETR format agnostic: the same evidence model can apply to PDFs,
+images, JSON documents, credentials, document bundles, media files, or future
+formats without embedding OpenETR-specific proof into each format.
+
+This separation is central to the recognition boundary. OpenETR can publish,
+retrieve, and validate signed evidence of control-related events, but it does
+not universally enforce transferability or legal effect. A verifier, registry,
+platform, court, counterparty, or other relying party applies its policy to
+decide whether a particular DCR is recognized for a particular purpose.
+
 ### Current Controller
 
 For a valid, complete, unambiguous, and active candidate graph, an applicable

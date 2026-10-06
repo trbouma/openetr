@@ -12,6 +12,14 @@ validation rules, graph relationships, and Consequential State derivation.
 The OpenETR model permits future non-Nostr bindings that preserve equivalent
 evidence and state-derivation semantics.
 
+In OpenETR, the **proof is outside the artifact**. The artifact is identified
+by byte identity through the `o` tag, while Anchor Events and Evidence Events
+carry the signed proof beside the artifact. A verifier or recognition policy
+decides what effect, if any, to give that evidence.
+This lets OpenETR remain format agnostic: the same event model can reference
+PDFs, images, JSON records, credentials, bundles, media files, and future
+artifact formats.
+
 ## Key-Based Identifiers
 
 A **Key-Based Identifier (KBI)** identifies public-key verification material

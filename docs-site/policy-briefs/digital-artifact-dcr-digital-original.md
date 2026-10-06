@@ -58,6 +58,17 @@ transfer, attestation, encumbrance, discharge, redemption, or termination.
 The DCR is not the PDF or image. It is the portable record of consequential
 statements made about that content.
 
+This is a deliberate design choice: in OpenETR, the **proof is outside the
+artifact**. OpenETR does not require the artifact to be reissued, wrapped, or
+mutated to become controllable. The artifact keeps its byte identity; the proof
+of control, status, transfer, encumbrance, redemption, or termination lives
+beside it as signed DCR evidence.
+
+That gives OpenETR an important practical advantage: it can be format
+agnostic. The same DCR model can work with PDFs, images, JSON records,
+credentials, document bundles, media files, or future formats without requiring
+each format to embed OpenETR-specific proof.
+
 Each record identifies its signer and links to the relevant artifact and prior
 records. A verifier can therefore inspect the evidence without relying solely
 on the application or database that originally displayed it.
@@ -105,6 +116,11 @@ to **recognize** the consequential state and give it legal, institutional,
 commercial, or operational effect. Recognition does not create another DCR
 record. It accepts consequential state for a particular purpose and determines
 what follows from accepting it.
+
+OpenETR therefore does not rely on one mint, registry, platform, or issuing
+system to enforce transferability for everyone. It makes the evidence durable
+and independently inspectable; the recognizing party decides whether that
+evidence satisfies its rulebook.
 
 ## 3. The Digital Original
 

@@ -213,6 +213,13 @@ redemption, or termination.
 The DCR is not the file. It is the portable record of consequential statements
 made about the file.
 
+In OpenETR, the **proof is outside the artifact**. The artifact keeps its byte
+identity; signed DCR evidence records what has been asserted or done concerning
+that artifact. Recognition and effect are then applied by the relevant
+verifier, registry, platform, legal rulebook, or relying party.
+Because the proof is external, OpenETR can remain format agnostic across PDFs,
+images, JSON, credentials, bundles, media files, and future artifact formats.
+
 ### Consequential State
 
 **Consequential State** is state that follows from consequential actions
