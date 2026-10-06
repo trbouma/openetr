@@ -264,7 +264,7 @@
           <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
         </div>
         <p>
-          Treat a Product Passport file as a Digital Artifact identified by its digest. Its Anchor Record and later Evidence Events
+          Treat a Product Passport file as a Digital Artifact identified by byte identity: the digest of its exact bytes. Its Anchor Record and later Evidence Events
           form a Digital Controllable Record (DCR) from which consequential product state can be derived.
         </p>
         {% if identity.logged_in %}
@@ -329,7 +329,7 @@
       <section class="grid">
         <div class="card">
           <h2>Query Product Passport DCR</h2>
-          <p>Upload a Product Passport Digital Artifact and verify the OpenETR DCR evidence associated with its digest.</p>
+          <p>Upload a Product Passport Digital Artifact and verify the OpenETR DCR evidence associated with its byte identity.</p>
           <form action="/digital-product-passports/query" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -345,7 +345,7 @@
         {% if identity.logged_in %}
         <div class="card">
           <h2>Create Product Passport Anchor</h2>
-          <p>Publish a signed <code>kind 1415</code> Anchor Record concerning a Product Passport Digital Artifact. The Anchor begins its candidate DCR.</p>
+          <p>Publish a signed <code>kind 1415</code> Anchor Record concerning the byte identity of a Product Passport Digital Artifact. The Anchor begins its candidate DCR.</p>
           <form action="/digital-product-passports/create" method="post" enctype="multipart/form-data" data-dpp-form>
             <input type="file" name="file" required data-dpp-file>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>
@@ -399,7 +399,7 @@
       <section class="panel">
         <h2>Domain Starting Points</h2>
         <ul class="action-list">
-          <li><strong>Digital Artifact</strong>: a PDF, image, JSON document, or other canonical Product Passport content is identified by digest.</li>
+          <li><strong>Digital Artifact</strong>: a PDF, image, JSON document, or other Product Passport content is identified by byte identity.</li>
           <li><strong>Anchor Record</strong>: begins the candidate DCR and can carry product event data such as product id, manufacturer, and batch.</li>
           <li><strong>Digital Controllable Record</strong>: the Anchor Record and later Evidence Events can evidence attestations, control changes, recalls, repairs, recycling, compliance checks, or registry interactions.</li>
         </ul>

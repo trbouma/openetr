@@ -6,11 +6,11 @@
     <title>{{ app_title }} Query Result</title>
     <meta name="description" content="OpenETR control graph query result for a controllable record, showing signed control evidence, current controller state, linked evidence, and recognition context.">
     <meta property="og:title" content="OpenETR Control Graph">
-    <meta property="og:description" content="View signed OpenETR control evidence for a controllable record identified by digest.">
+    <meta property="og:description" content="View signed OpenETR control evidence for a controllable record identified by byte identity.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="OpenETR Control Graph">
-    <meta name="twitter:description" content="Signed control evidence for a controllable record identified by digest.">
+    <meta name="twitter:description" content="Signed control evidence for a controllable record identified by byte identity.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -250,6 +250,7 @@
         <h1>DCR And Consequential State</h1>
         <p class="section-intro">
           This verification view shows candidate Anchor Records, signed Evidence Events, and the consequential state derived for {{ filename }} under the OpenETR base rules.
+          The DCR is bound to the file's byte identity: the SHA-256 digest of its exact bytes.
           Recognition and legal effect remain matters for the applicable verifier policy, domain profile, rule book, or law.
         </p>
         <div class="summary-grid">
@@ -279,7 +280,7 @@
           </div>
         </div>
         <div class="kv digest-summary">
-          <div class="muted">Digital Artifact digest</div><div class="mono">{{ sha256 }}</div>
+          <div class="muted">Byte identity digest</div><div class="mono">{{ sha256 }}</div>
           <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
         </div>
       </section>
@@ -293,7 +294,7 @@
       {% if query.no_events %}
       <section class="panel">
         <h2>No DCR Found</h2>
-        <p class="muted">No matching Anchor Records were returned for this Digital Artifact digest.</p>
+        <p class="muted">No matching Anchor Records were returned for this Digital Artifact byte identity.</p>
       </section>
       {% include "_media_preview.html" %}
       {% include "_etr_query_qr.html" %}

@@ -205,7 +205,7 @@
         <div class="kv">
           <div class="muted">Digital Artifact</div><div>{{ filename }}</div>
           <div class="muted">Size</div><div>{{ size_bytes }} bytes</div>
-          <div class="muted">Receipt digest</div><div class="mono">{{ sha256 }}</div>
+          <div class="muted">Receipt byte identity</div><div class="mono">{{ sha256 }}</div>
           <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
           <div class="muted">Relays</div><div class="mono">{{ relays }}</div>
           <div class="muted">Consequential lifecycle state</div><div>{{ query.lifecycle_state }}</div>
@@ -248,7 +248,7 @@
       {% if query.no_events %}
       <section class="panel warning">
         <h2>No Receipt Anchor Found</h2>
-        <p>No OpenETR Anchor Record was returned for this warehouse receipt digest.</p>
+        <p>No OpenETR Anchor Record was returned for this warehouse receipt byte identity.</p>
       </section>
       {% else %}
       <section class="panel">

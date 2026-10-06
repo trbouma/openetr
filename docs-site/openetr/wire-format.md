@@ -40,7 +40,7 @@ are not part of the DCR wire format.
 
 | Tag | Role |
 | --- | --- |
-| `o` | Digital Artifact digest. Primary artifact-centric query anchor. |
+| `o` | Digital Artifact byte identity digest. Primary artifact-centric query anchor. |
 | `e` | Prior event link for graph traversal. |
 | `p` | Action-specific participant. |
 | `action` | Evidence Event subtype. |

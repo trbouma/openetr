@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#151915">
   <title>Check Record · OpenETR</title>
-  <meta name="description" content="Check durable OpenETR DCR evidence for a Digital Artifact identified by digest.">
+  <meta name="description" content="Check durable OpenETR DCR evidence for a Digital Artifact identified by byte identity.">
   <meta property="og:title" content="Check OpenETR Record">
   <meta property="og:description" content="Human-readable Anchor Record, Evidence Event, and consequential-state view for an OpenETR DCR.">
   <meta property="og:type" content="website">
@@ -361,13 +361,13 @@
 
     <h1>Check Record</h1>
 
-    <p class="advisory"><strong>OpenETR evidence.</strong> This page checks the public Digital Controllable Record for a digest-identified Digital Artifact.</p>
+    <p class="advisory"><strong>OpenETR evidence.</strong> This page checks the public Digital Controllable Record for a Digital Artifact identified by byte identity.</p>
 
     {% if query.no_events %}
     <section class="panel" aria-labelledby="record-status-heading">
       <h2 id="record-status-heading">No Anchor Record Found</h2>
-      <p>No OpenETR Anchor Record was returned for this Digital Artifact digest.</p>
-      <p class="openetr-source">Digest: <code>{{ sha256 }}</code></p>
+      <p>No OpenETR Anchor Record was returned for this Digital Artifact byte identity.</p>
+      <p class="openetr-source">Byte identity digest: <code>{{ sha256 }}</code></p>
     </section>
     {% else %}
     <section class="panel" aria-labelledby="record-status-heading">
@@ -418,7 +418,7 @@
         </div>
         {% endif %}
       </div>
-      <p class="openetr-source">Digest: <code>{{ sha256 }}</code></p>
+      <p class="openetr-source">Byte identity digest: <code>{{ sha256 }}</code></p>
     </section>
 
     {% if query.warnings %}
@@ -508,7 +508,7 @@
       <div class="openetr-protocol-details-content">
         <h3>Anchor Event</h3>
         <dl class="openetr-event-fields openetr-protocol-fields">
-          <dt>Digital Artifact Digest</dt><dd><code>{{ sha256 }}</code></dd>
+          <dt>Byte Identity Digest</dt><dd><code>{{ sha256 }}</code></dd>
           <dt>Artifact Reference</dt><dd><code>{{ object_id }}</code></dd>
           <dt>Anchor Event ID</dt><dd><code>{{ query.initial_event.id }}</code></dd>
           <dt>Anchor Event Kind</dt><dd>{{ query.initial_event.kind }}</dd>

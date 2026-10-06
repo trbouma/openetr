@@ -42,7 +42,7 @@ In each case, the condition of the record affects a decision, right,
 obligation, status, or action. OpenETR calls that condition **Consequential
 State**.
 
-OpenETR provides a general way for any digest-identifiable **Digital Artifact**
+OpenETR provides a general way for any byte-identifiable **Digital Artifact**
 to become a **Digital Original**. Signed, linked records concerning the
 artifact form a **Digital Controllable Record (DCR)**. When that evidence is
 validated and evaluated under defined rules, it produces **Consequential
@@ -58,7 +58,7 @@ Digital Artifact
 
 The transformation does not make the file uncopyable. It makes the artifact's
 consequential history independently verifiable. Identical copies remain the
-same digest-identified artifact; copying the bytes does not independently copy
+same byte-identified artifact; copying the bytes does not independently copy
 or change its Consequential State.
 
 > Content makes an artifact identifiable. Consequential State makes it an
@@ -197,10 +197,10 @@ effect it receives.
 
 ### Digital Artifact
 
-The **Digital Artifact** is persistent digital content with a unique content
-identity, normally established by a cryptographic digest. It may be a document,
-image, credential, record, data structure, or other identifiable content. It is
-the subject of consequential actions.
+The **Digital Artifact** is persistent digital content with byte identity:
+identity established by the exact bytes, normally expressed as a cryptographic
+digest. It may be a document, image, credential, record, data structure, or
+other identifiable content. It is the subject of consequential actions.
 
 ### Digital Controllable Record
 
@@ -304,7 +304,8 @@ stewardship.
 
 | Term | Meaning |
 | --- | --- |
-| Digital Artifact | Persistent digital content with a unique content identity, normally established by a cryptographic digest. |
+| Byte Identity | The identity of digital content as determined by its exact bytes, normally expressed as a cryptographic digest. |
+| Digital Artifact | Persistent digital content with byte identity. |
 | Digital Controllable Record | A single end-verifiable record or graph of related end-verifiable records containing evidence of consequential actions concerning a Digital Artifact. |
 | Consequential State | State that follows from consequential actions according to an identified ruleset. |
 | Evidence Record | A signed OpenETR lifecycle record within a DCR. |
@@ -325,7 +326,7 @@ derived:
 ```text
 real-world object, product, document, or record
   -> canonical file or data artifact
-  -> Digital Artifact identified by digest
+  -> Digital Artifact identified by byte identity
   -> Digital Controllable Record containing an Anchor Event and later records
   -> evidence is validated and an identified ruleset derives Consequential State
   -> Digital Original

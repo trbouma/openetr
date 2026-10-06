@@ -35,14 +35,31 @@ Those matters belong to the Recognition Layer.
 
 ## Core Primitives
 
+### Byte Identity
+
+**Byte identity** is the identity of digital content as determined by its exact
+byte sequence. In the current OpenETR binding, byte identity is expressed as
+the SHA-256 digest of those bytes.
+
+If a PDF is stamped, metadata is added, an image is re-encoded, a JSON package
+is serialized differently, or any byte changes for any reason, the result has a
+different byte identity and is a different Digital Artifact for OpenETR
+purposes.
+
+Byte identity is not visual, semantic, legal, or document-system identity. Two
+files may look the same or represent the same business record while having
+different byte identities. OpenETR can link related artifacts through Evidence
+Events, but it does not collapse distinct byte sequences into one artifact.
+
 ### Digital Artifact
 
-A **Digital Artifact** is persistent digital content uniquely identified by the
-SHA-256 digest of its canonical representation.
+A **Digital Artifact** is persistent digital content with byte identity. In the
+current implementation, that identity is the SHA-256 digest of the artifact's
+exact bytes.
 
 The Digital Artifact:
 
-- is uniquely identified by the SHA-256 digest of its canonical representation;
+- is uniquely identified by the SHA-256 digest of its exact bytes;
 - is the common subject referenced by candidate assertions and Evidence Events;
 - may have incomplete, invalid, competing, ambiguous, or terminated event
   history; and

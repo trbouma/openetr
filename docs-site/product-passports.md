@@ -29,13 +29,13 @@ signed lifecycle evidence as an independently verifiable DCR.
 In this domain:
 
 - the Product Passport file or data artifact is the **Digital Artifact**;
-- the Product Passport digest is the stable object identity;
+- the Product Passport byte identity is the stable object identity, expressed as the digest of its exact bytes;
 - each signed OpenETR Anchor, control, or linked-evidence event is a record in the Product Passport **DCR**;
 - later lifecycle documents can be attached as **linked evidence records**;
 - the linked set of Anchor Records and later evidence records is the Product Passport **control graph**;
 - the broader linked set of Anchor, control, and evidence records is the Product Passport **evidence graph**.
 
-The Product Passport itself may be a PDF, image, JSON document, data bundle, credential, registry export, or another canonical artifact. OpenETR does not need to parse it before it can identify the artifact by digest and record control-relevant evidence.
+The Product Passport itself may be a PDF, image, JSON document, data bundle, credential, registry export, or another artifact. OpenETR does not need to parse it before it can identify the artifact by byte identity and record control-relevant evidence.
 
 ## Requirements Mapping
 
@@ -53,7 +53,7 @@ The current page supports two starting workflows.
 
 | Workflow | Purpose |
 | --- | --- |
-| Query Product Passport Control | Upload a Product Passport file and query the OpenETR control graph associated with its digest. |
+| Query Product Passport Control | Upload a Product Passport file and query the OpenETR control graph associated with its byte identity. |
 | Create Product Passport Evidence Record | Publish the initial OpenETR evidence record for a Product Passport document using the selected profile signer. |
 
 ## Product Passport Metadata

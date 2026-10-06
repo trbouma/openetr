@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ app_title }} Control Desk</title>
-    <meta name="description" content="OpenETR is a connective control layer for controllable records, using digest identifiers and signed control graphs to create portable evidence across existing systems.">
+    <meta name="description" content="OpenETR is a connective control layer for controllable records, using byte identity and signed control graphs to create durable evidence across existing systems.">
     <meta property="og:title" content="OpenETR">
     <meta property="og:description" content="A control layer for electronic transferable records and other controllable records. OpenETR creates portable, cryptographically self-contained evidence that can work behind existing systems.">
     <meta property="og:type" content="website">
@@ -226,7 +226,7 @@
           <img class="brand-mark" src="/assets/images/openetr.png" alt="OpenETR logo">
         </div>
         <p>
-          OpenETR identifies a Digital Artifact by its digest. An Anchor Record and any later Evidence Events
+          OpenETR identifies a Digital Artifact by byte identity: the digest of its exact bytes. An Anchor Record and any later Evidence Events
           form a Digital Controllable Record (DCR) that can be queried, validated, and interpreted across domains.
           Protocol rules derive Consequential State; external recognition determines its effect.
         </p>
@@ -238,7 +238,7 @@
       <section class="grid">
         <div class="card">
           <h2>Query DCR</h2>
-          <p>Upload any document or product data file to query the OpenETR DCR associated with its Digital Artifact digest.</p>
+          <p>Upload any document or product data file to query the OpenETR DCR associated with its Digital Artifact byte identity.</p>
           <form action="/api/query-etr-from-upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" required>
             <span class="field-help">Maximum upload size: {{ upload_limit_label }}.</span>

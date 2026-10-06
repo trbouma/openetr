@@ -61,6 +61,18 @@ The current OpenETR wire format uses two event families:
 Both are regular events. Addressable or replaceable events are not part of the
 OpenETR DCR graph.
 
+### Byte Identity
+
+OpenETR uses **byte identity** for the Digital Artifact: the identity of the
+artifact is derived from its exact bytes. In this Nostr binding, byte identity
+is carried as the 64-character lowercase SHA-256 digest of those bytes.
+
+If the bytes change, the byte identity changes. A visually identical PDF, a
+re-encoded image, or a differently serialized data package may therefore be a
+different Digital Artifact at the protocol layer. Related artifacts can be
+linked by Evidence Events, but they do not share the same `o` value unless
+their bytes produce the same digest.
+
 ### `1415` Anchor Event
 
 The Anchor Event is the first candidate DCR record concerning a Digital Artifact.
@@ -72,7 +84,7 @@ by itself, assert derived or recognized consequential state.
 
 Its current wire-level role is to:
 
-- bind the object digest into the OpenETR event graph
+- bind the Digital Artifact byte identity into the OpenETR event graph
 - provide the candidate evidence from which an identified ruleset may derive
   initial anchored state
 - provide the starting point for Publisher Notice chains and extension graphs
@@ -139,13 +151,13 @@ The recommended convention is:
 
 ### `o`
 
-`o` is the Digital Artifact identifier carried forward across the full DCR history.
+`o` is the Digital Artifact byte identity carried forward across the full DCR history.
 
 In the current model:
 
 - `o = <object_hex>`
 
-The `o` tag is the primary object-centric query anchor for both Anchor Events and later Evidence Events.
+The `o` tag carries the SHA-256 digest of the artifact's exact bytes and is the primary object-centric query anchor for both Anchor Events and later Evidence Events.
 
 The `o` tag is a relay-query anchor. It should not be confused with the `1415` Anchor Event, which is a signed event in the control graph.
 

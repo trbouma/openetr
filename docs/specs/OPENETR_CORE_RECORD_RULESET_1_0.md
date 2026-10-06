@@ -11,7 +11,7 @@ openetr:core-record:1.0
 ```
 
 This document defines the minimum OpenETR ruleset for deriving Consequential
-State concerning a digest-identified Digital Artifact. It is intentionally
+State concerning a byte-identified Digital Artifact. It is intentionally
 limited to artifact anchoring and later notices from the Anchor Publisher.
 
 The ruleset is suitable as a complete foundation for non-transferable records.
@@ -153,13 +153,15 @@ verifier, together with the declared retrieval scope and sources.
 
 ## 7. Digital Artifact Identification
 
+The Digital Artifact's **byte identity** is derived from its exact bytes.
+
 The artifact identifier SHALL be:
 
 ```text
 SHA-256(exact artifact bytes)
 ```
 
-The canonical representation SHALL be 64 lowercase hexadecimal characters.
+The canonical digest representation SHALL be 64 lowercase hexadecimal characters.
 
 Byte-identical copies having the same digest SHALL be treated as the same
 Digital Artifact. Copying the bytes SHALL NOT be interpreted as creating a new

@@ -23,22 +23,24 @@ one core concept: **Consequential State**.
 
 ## 1. The Digital Artifact
 
-The **Digital Artifact** is persistent digital content with a unique content
-identity, normally established by a cryptographic digest.
+The **Digital Artifact** is persistent digital content with byte identity:
+identity established by the exact bytes, normally expressed as a cryptographic
+digest.
 
 It might be a PDF, image, structured data file, media file, or canonical bundle
 of data. OpenETR calculates a cryptographic fingerprint, called a digest, from
 the exact bytes. If even one byte changes, the fingerprint changes.
 
-The digest answers a limited but important question:
+Byte identity answers a limited but important question:
 
 > Which exact digital content are we talking about?
 
 It does not say who issued the artifact, who controls it, whether it is current,
-or whether anyone should trust it. It only gives the content a stable identity.
+or whether anyone should trust it. It only gives the exact bytes a stable identity.
 
 Several people can hold identical copies with the same digest. They are copies
-of the same Digital Artifact, not separate originals.
+of the same Digital Artifact, not separate originals. If the bytes change, the
+byte identity changes, even if the file appears visually or semantically similar.
 
 ## 2. The Digital Controllable Record
 

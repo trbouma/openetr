@@ -48,7 +48,7 @@ Recognition layer
 | Question | Integration Answer |
 | --- | --- |
 | Do we need to replace our application? | No. OpenETR is intended to sit behind existing workflows. |
-| Does OpenETR store the document? | Not necessarily. OpenETR can identify the document by digest while the host system stores the content. |
+| Does OpenETR store the document? | Not necessarily. OpenETR can identify the document by byte identity while the host system stores the content. |
 | Does OpenETR perform KYC? | No. KYC and account binding belong to the host system or an external provider. |
 | Does OpenETR decide legal effect? | No. It preserves evidence. Recognition belongs to law, registries, contracts, institutional policy, or verifier rulebooks. |
 | Can events move through our API instead of Nostr? | Yes, if the signed event data and graph links are preserved. Nostr is the reference wire format, not the only possible transport pattern. |

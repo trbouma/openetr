@@ -31,13 +31,20 @@ The generic verifier policy is the baseline policy for all OpenETR evaluations.
 
 Every OpenETR domain should start from the same generic sequence:
 
-1. retrieve the object graph
-2. verify cryptographic and structural correctness
-3. enumerate candidate chains
-4. apply or review baseline guard assumptions
-5. annotate policy issues
-6. derive candidate or recognized state according to the selected policy
-7. present the evidence and policy outcome separately
+1. establish the Digital Artifact's byte identity, or identify the byte
+   identity being queried
+2. retrieve the object graph
+3. verify cryptographic and structural correctness
+4. enumerate candidate chains
+5. apply or review baseline guard assumptions
+6. annotate policy issues
+7. derive candidate or recognized state according to the selected policy
+8. present the evidence and policy outcome separately
+
+Where the verifier has the artifact bytes, it should hash those exact bytes and
+match the result to the DCR `o` value. Where the verifier only has a digest or
+durable link, it can verify the graph for that byte identity, but it has not
+independently verified a file in hand.
 
 Domain policies are overlays on this baseline.
 

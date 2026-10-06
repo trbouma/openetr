@@ -83,7 +83,7 @@ OpenETR separates the receipt artifact from evidence of actions concerning it:
 
 ```text
 warehouse receipt PDF or canonical data package
-  -> Digital Artifact identified by SHA-256 digest
+  -> Digital Artifact identified by byte identity
   -> signed Anchor Events and later evidence records form the DCR
   -> an identified OpenETR ruleset evaluates the evidence
   -> Consequential State is derived
@@ -91,7 +91,7 @@ warehouse receipt PDF or canonical data package
 ```
 
 The receipt file remains outside the OpenETR event graph. OpenETR records its
-digest and structured event data needed to understand the signed action. The
+byte identity digest and structured event data needed to understand the signed action. The
 document may remain in the warehouse system, document repository, lender's
 records, holder's custody, or another authorized store.
 
@@ -107,7 +107,7 @@ come from evidence and state rather than physical scarcity.
 
 In OpenETR:
 
-- the digest identifies the exact Digital Artifact;
+- the byte identity digest identifies the exact Digital Artifact;
 - the Anchor begins a candidate DCR for that artifact;
 - signed evidence records preserve attributable consequential actions;
 - graph links establish the claimed transition history;

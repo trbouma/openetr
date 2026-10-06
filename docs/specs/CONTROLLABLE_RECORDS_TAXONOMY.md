@@ -10,7 +10,7 @@ This note defines the broader family of **controllable records** and explains ho
 
 It also clarifies a terminology boundary that is important in OpenETR:
 
-- the **Digital Artifact** is the artifact, document, file, credential, record bundle, or data object identified by digest;
+- the **Digital Artifact** is the artifact, document, file, credential, record bundle, or data object identified by byte identity;
 - the **Digital Controllable Record (DCR)** is one signed end-verifiable record or the graph of related records concerning that artifact;
 - the broader legal or policy category depends on the recognition context and must not be inferred from the DCR name alone.
 
@@ -74,8 +74,8 @@ A **controllable record** is not merely the underlying file or artifact.
 
 In OpenETR terms:
 
-- the **Digital Artifact** is the record artifact itself, such as a PDF, image, JSON document, credential, registry export, document bundle, product data artifact, certificate, or other canonical electronic artifact;
-- the object is identified by cryptographic digest;
+- the **Digital Artifact** is the record artifact itself, such as a PDF, image, JSON document, credential, registry export, document bundle, product data artifact, certificate, or other electronic artifact;
+- the object is identified by byte identity, normally expressed as a cryptographic digest;
 - signed OpenETR events about that artifact are DCR records;
 - the linked set of those events is the DCR graph;
 - recognition policy decides what practical, legal, regulatory, commercial, or operational effect to give the graph.

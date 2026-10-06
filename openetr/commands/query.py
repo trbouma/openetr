@@ -206,7 +206,7 @@ async def _run_query_object(
 
     click.echo(f"Relay filter: {query_filter}")
     if digest_file is not None:
-        click.echo(f"Digest source: sha256({digest_file})")
+        click.echo(f"Byte identity source: sha256({digest_file})")
 
     async with ClientPool(
         relays.split(","),
@@ -292,7 +292,7 @@ async def _run_query_etr(
         click.echo(f"Relay filter: {result['relay_filter']}")
         click.echo(f"Transfer filter: {result['transfer_filter']}")
         if digest_file is not None:
-            click.echo(f"Digest source: sha256({digest_file})")
+            click.echo(f"Byte identity source: sha256({digest_file})")
         click.echo(f"Returned {result['count']} event(s)")
 
     if result["no_events"]:

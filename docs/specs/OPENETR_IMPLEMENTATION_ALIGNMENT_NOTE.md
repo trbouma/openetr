@@ -53,9 +53,15 @@ The current implementation aligns well with the generic Digital Artifact concept
 
 The Digital Artifact is:
 
-- identified by the SHA-256 digest of the canonical file or record
+- identified by byte identity: the SHA-256 digest of the exact file or record bytes
 - carried through the event family using the object digest
 - referenced in event tags
+
+The implementation should treat byte identity as a boundary condition. Rendering,
+preview, storage, retrieval, QR-code lookup, and Blossom retrieval may help a
+user inspect the Digital Artifact, but they must not change the bytes whose
+digest is being verified. If retrieved bytes do not hash to the expected digest,
+they are not the same Digital Artifact even if they appear visually similar.
 
 In current practice:
 
@@ -157,7 +163,7 @@ The current OpenETR implementation is directionally aligned with the generic Pro
 
 It already demonstrates:
 
-- a digest-identified Digital Artifact
+- a byte-identified Digital Artifact
 - a signed evidence-event family
 - a traversable control graph
 - explicit current-controller logic
