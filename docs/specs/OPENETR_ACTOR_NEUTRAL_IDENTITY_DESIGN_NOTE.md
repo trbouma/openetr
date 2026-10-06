@@ -23,6 +23,36 @@ At the protocol layer, an actor is represented by a public key. A valid event si
 
 This actor-neutral treatment is intentional. Human or agent status may matter greatly to an integrating system, regulator, counterparty, or verifier policy, but it is not an intrinsic property of a Nostr public key or OpenETR signature.
 
+## Guiding Principles
+
+OpenETR actor-neutrality follows from a broader separation of functions:
+inference, evidence, consequence, and recognition.
+
+1. **Start with the artifact.** OpenETR first identifies the Digital Artifact by
+   byte identity. It does not need to decide whether the artifact was created
+   by a human, machine, organization, sensor, service, or collaborative
+   workflow before it can identify the artifact.
+2. **Treat actor claims as evidence, not protocol facts.** A signature
+   attributes a statement to a key. Claims that the key represents a person,
+   organization, agent, device, role, mandate, or supervised workflow should be
+   carried or linked as evidence from an identified issuer.
+3. **Do not let inference create authority.** A model, agent, application, or
+   human reviewer may infer who created an artifact or what it means. That
+   inference is not itself proof of authorization, control, or recognized
+   effect.
+4. **Let rules determine consequence.** The same signed evidence graph can be
+   evaluated under identified rules to derive Consequential State. Actor type
+   may be an input to a policy, but it is not hidden inside the cryptographic
+   identity of the artifact or signer.
+5. **Leave recognition contextual.** A court, regulator, institution,
+   counterparty, platform, or community may require human approval, agent
+   disclosure, provider attestation, licensing, KYC, mandate evidence, or other
+   safeguards before giving effect to a result.
+6. **Preserve equal technical standing.** Human-created, machine-created, and
+   human-machine collaborative artifacts can enter the same OpenETR evidence
+   architecture. Equal technical standing does not imply equal recognition or
+   legal effect.
+
 ## Protocol Claim
 
 For any signed OpenETR event, the core protocol can establish:
@@ -30,7 +60,7 @@ For any signed OpenETR event, the core protocol can establish:
 ```text
 the event is cryptographically valid
 the event was signed by this public key
-the event refers to this digest-identified object
+the event refers to this byte-identified object
 the event participates in this candidate control graph
 ```
 
@@ -196,11 +226,15 @@ integrating system and verifier policy:
 
 Singapore AI Safety Hub (SASH), *Designing Agent IDs*, 31 March 2026, 16 pages. The paper was supplied directly for this review.
 
+Tim Bouma, *From Inference to Consequence*, 3 October 2026. Reviewed as a
+supporting statement of the inference, evidence, consequence, and recognition
+separation that underlies OpenETR actor-neutrality.
+
 ## Related Notes
 
 - [Root And Profile Identity Model](./ROOT_AND_PROFILE_IDENTITY_MODEL.md)
 - [System Integration Considerations](./SYSTEM_INTEGRATION_CONSIDERATIONS.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
+- [From Inference To Consequence](../../docs-site/policy-briefs/from-inference-to-consequence.md)
 - [OpenETR Autonomous Systems Governance Review Note](./OPENETR_AUTONOMOUS_SYSTEMS_GOVERNANCE_REVIEW_NOTE.md)
 - [OpenETR Organizational Reference Layer Design Note](./OPENETR_ORGANIZATIONAL_REFERENCE_LAYER_DESIGN_NOTE.md)
-
