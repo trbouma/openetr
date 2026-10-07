@@ -102,6 +102,22 @@ state follows.
 
 > Nostr carries the events. OpenETR determines their consequences.
 
+## Verification Without Full Disclosure
+
+Rules define the propositions needed for consequence to follow. Future
+profiles may accept privacy-preserving proofs of those propositions instead
+of requiring all supporting information to be revealed. A verified proposition
+is a scoped verification result, not a new event type or universal truth.
+
+The same evidence, rules, parameters, and verification dependencies should yield
+the same result, including conflict or insufficient evidence where applicable.
+Different disclosed subsets do not necessarily support the same conclusion.
+Historical re-verification requires preserved proof material and dependencies;
+it need not require later disclosure of the original private information.
+
+See [Independent Verification Without Full Disclosure](../policy-briefs/independent-verification-without-full-disclosure.md)
+for the policy implications and the limits of this future capability.
+
 ## Applications Project State
 
 An OpenETR application may maintain indexes, caches, and friendly views. These

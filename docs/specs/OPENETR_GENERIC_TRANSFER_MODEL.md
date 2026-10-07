@@ -87,6 +87,22 @@ not universally enforce transferability or legal effect. A verifier, registry,
 platform, court, counterparty, or other relying party applies its policy to
 decide whether a particular DCR is recognized for a particular purpose.
 
+### Evidence And Disclosure
+
+Verifiable evidence establishes the propositions required by an identified
+ruleset; it need not always disclose all underlying information. Future
+profiles may accept privacy-preserving proofs of particular propositions,
+provided their scope, artifact and event binding, verification dependencies,
+and sufficiency can be independently checked. This does not relax existing
+signed-event requirements or add private-proof support to the base ruleset.
+
+Artifact identification requires exact bytes and their digest, not semantic
+interpretation. No implicit normalization or metadata stripping occurs.
+Related representations require separate evidence and profile semantics.
+
+See [Private Evidence And Verified Propositions](PRIVATE_EVIDENCE_AND_VERIFIED_PROPOSITIONS_DESIGN_NOTE.md)
+for the design boundary, coverage limitations, and privacy considerations.
+
 ### Current Controller
 
 For a valid, complete, unambiguous, and active candidate graph, an applicable

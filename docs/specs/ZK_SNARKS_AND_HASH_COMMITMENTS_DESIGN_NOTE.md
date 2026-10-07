@@ -12,6 +12,13 @@ The current position is that SHA-256 object commitments, Nostr signatures, and s
 
 ZK proofs may still be useful as optional domain-adapter, attestation, or recognition-layer features where privacy-preserving claims about hidden data are required.
 
+The [Private Evidence And Verified Propositions Design Note](PRIVATE_EVIDENCE_AND_VERIFIED_PROPOSITIONS_DESIGN_NOTE.md)
+refines this position: independently verifiable evidence need not disclose
+all underlying information. A future extension ruleset may accept a proof of
+a required transition proposition, as well as a proof used for recognition.
+No particular ZK system becomes mandatory, and current base-event requirements
+remain unchanged. Proof carriage and validation still require a defined profile.
+
 ## Core Protocol Question
 
 The base OpenETR protocol asks:
@@ -135,7 +142,13 @@ It could be carried by:
 - a domain adapter that understands a particular proof system;
 - a recognition policy that requires or accepts the proof.
 
-The ZK proof would support a recognition or privacy-preserving disclosure policy. It would not replace the object digest, event signature, or control graph.
+The ZK proof could support a recognition policy or, under a future explicit
+extension ruleset, a proposition required for state derivation. It would not
+automatically replace the object digest, event signature, or control graph.
+A reference to an external verifier service is insufficient for independent
+proof verification unless the required proof and dependencies are available.
+A service's signed verdict is instead an attestation with that service as a
+trust dependency.
 
 ## Relationship To Recognition Policy
 

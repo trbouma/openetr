@@ -63,6 +63,14 @@ deriving a singular consequential state from signed evidence, see the
 
 ## How The Implementation Fits
 
+Independent verification does not necessarily require disclosure of all
+underlying information. Future evidence profiles may allow required facts to
+be established through privacy-preserving proofs. Their verification must
+remain reproducible under identified rules, with explicit evidence scope and
+dependencies. Current base verification continues to use digests and signed
+events; optional private-proof verification remains design work. See
+[Independent Verification Without Full Disclosure](../policy-briefs/independent-verification-without-full-disclosure.md).
+
 ```text
 Domain adapters       Warehouse Receipts, Product Passports, bills of lading, credentials
 OpenETR protocol      DCR evidence, state transition rules, consequential state

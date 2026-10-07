@@ -13,7 +13,7 @@ platform.
 
 OpenETR supports a more practical model: **graduated disclosure**.
 
-> Publish the evidence necessary for verification, disclose the record only
+> Make sufficient evidence available for verification, disclose the record only
 > when the decision requires it, and retain it only when deeper verification
 > is justified. Surrender control only when the domain and legal context call
 > for an actual transfer, discharge, cancellation, or custodial handoff.
@@ -110,6 +110,14 @@ OpenETR does not require advanced selective-disclosure cryptography in its base
 protocol. Digest commitments, signed events, and verifier policy already
 support useful graduated disclosure. Specialized credentials and domain
 adapters can add selective disclosure where appropriate.
+
+Evidence availability does not necessarily mean public publication or full
+disclosure of supporting information. A future profile may let a verifier
+establish a required proposition through an accepted privacy-preserving proof.
+The proof still needs explicit scope, sufficient verification material, and
+rules for unresolved evidence. See
+[Independent Verification Without Full Disclosure](independent-verification-without-full-disclosure.md)
+for this complementary design direction and its current implementation limits.
 
 ## The OpenETR Role
 

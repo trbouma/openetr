@@ -24,6 +24,31 @@ evidence concerning it, and the basis for determining its lifecycle state. It
 does not issue Apostilles, replace Competent Authorities or e-Registers, or
 decide recognition under the Convention.
 
+## Public Seals And Verifiable References
+
+John Gregory's [Electronic Seals: The Public Sector](https://www.slaw.ca/2011/12/23/apostille-convention/),
+published on 23 December 2011, is the companion to his article on transactional
+seals. It examines public seals as authentication mechanisms and describes two
+electronic approaches: a secured electronic record and a reference to an
+official verification source. It also highlights the loss of electronic
+assurances when a record is printed.
+
+OpenETR can connect these approaches: the digest identifies exact bytes,
+signed evidence attributes statements, and official references support
+authority and register checks. The three functions remain distinct. A lookup
+identifier locates a record; it does not itself bind every byte of a presented
+document or establish the issuer's competence.
+
+The article's implementation examples are historical. Canada subsequently
+became a Convention party, with entry into force on 11 January 2024.
+[HCCH announcement](https://www.hcch.net/en/news-archive/details/?varevent=953).
+Current e-APP guidance and official authority information should govern a
+deployment, rather than the article's 2011 account of practice.
+
+See [Electronic Seals And OpenETR](electronic-seals-and-openetr.md) for the
+broader distinction between organizational authentication and deliberate
+execution under seal.
+
 ## What An Apostille Establishes
 
 The
@@ -45,6 +70,15 @@ It does not, by itself, establish:
 
 The Convention therefore separates authentication of origin from recognition
 of content and effect. OpenETR should preserve that separation exactly.
+
+There are also two different signatures or seals to distinguish: those on the
+underlying public document, and those authenticating the Apostille itself.
+An OpenETR publisher may be a third actor who merely records the package.
+Verifying that publisher's signature does not verify either official act.
+
+Where an Apostille concerns a notarial certification, its scope should be
+displayed as such. It must not be presented as a substantive endorsement of
+every claim in the document attached to that certification.
 
 ## The Cross-Border Record Problem
 
@@ -92,6 +126,24 @@ OpenETR should complement e-APP by making document identity and related
 evidence portable. It should not create a parallel authority system or imply
 that a relay record outranks the register maintained by the Competent
 Authority.
+
+## Treaty Recognition And Document Effect
+
+The recognition boundary is constrained by the Convention. It is not a licence
+to impose additional legalisation on documents within its scope. Article 5
+also exempts the Apostille's own signature, seal, and stamp from certification.
+[Convention text, Articles 2-5](https://www.hcch.net/en/instruments/conventions/full-text/?cid=41).
+
+The HCCH states that an e-Apostille cannot be refused simply because it is
+electronic. OpenETR must not become an additional mandatory certificate or
+authentication step for an otherwise compliant Apostille.
+[HCCH Apostille guidance](https://www.hcch.net/en/instruments/conventions/specialised-sections/apostille).
+
+Acceptance of the Apostille's authentication function is distinct from the
+underlying document's substantive effect. Scope, applicable treaty relations,
+and the receiving institution's lawful requirements still matter. A verifier
+should explain which question remains unresolved rather than treating every
+issue as discretionary rejection of the Apostille.
 
 ## The OpenETR Contribution
 
@@ -156,6 +208,40 @@ the whole package while allowing later profiles to adopt more granular linked
 objects.
 
 ## Making Apostille Consequences Portable
+
+### Official Records And Observations
+
+The Convention requires a register or card index and a means for the issuing
+authority to check certificate particulars against it. This does not itself
+require every authority to operate a public online e-Register.
+[Convention text, Article 7](https://www.hcch.net/en/instruments/conventions/full-text/?cid=41).
+
+An OpenETR profile should distinguish three evidence types:
+
+| Evidence | What it supports | Limit |
+| --- | --- | --- |
+| Authority-issued e-Apostille | Verification of the authority's signed certificate using its prescribed validation process | Does not certify the truth of all underlying content |
+| Official register response | Correspondence with the particulars the authority makes available | May not authenticate the entire presented file byte for byte |
+| Verifier-signed observation | Attribution of a report about a check, including its source and declared time | Does not become an authority-issued response merely because the verifier signs it |
+
+Preserve the request scope, reference number, returned particulars, source,
+response evidence where available, and time basis. A screenshot or unsigned
+web response is not independently authenticated official evidence merely
+because someone hashes and anchors it. A profile should expose that dependency.
+
+### Paper And Digital Representations
+
+A scan of a paper Apostille is a new Digital Artifact, not an authority-issued
+e-Apostille by virtue of scanning. Printing an e-Apostille does not preserve
+its cryptographic signature verification in the paper itself. A QR code may
+recover the digital source, but can also be copied onto unrelated pages.
+
+Verification must therefore distinguish matching exact digital bytes from
+checking a paper representation against official particulars or an authorized
+copy-certification process. OpenETR can preserve the evidence of that process;
+it cannot infer the paper-to-digital relationship from the digest alone.
+
+### Durable Evidence Across Systems
 
 The Competent Authority remains the issuer. The e-Register remains an official
 verification source where the applicable authority provides one. OpenETR's
@@ -225,6 +311,12 @@ These states must identify their evidence and temporal basis. Terms such as
 `valid Apostille` should be avoided as a universal protocol conclusion because
 they compress technical integrity, authority competence, current registry
 information, Convention scope, and receiving-party recognition into one label.
+
+These are proposed domain states, not new Core Record Ruleset 1.0 outputs.
+The base ruleset establishes anchoring and publisher position. Authority
+warnings, certificate status, and document replacement require separate
+profile semantics. Withdrawal of an anchoring assertion must not be displayed
+as automatic cancellation of the Apostille or underlying public document.
 
 ## Privacy And Access
 
@@ -297,6 +389,8 @@ with it.
 
 ## Related Reading
 
+- [Electronic Seals: The Public Sector (John Gregory, 2011)](https://www.slaw.ca/2011/12/23/apostille-convention/)
+- [Electronic Seals And OpenETR](electronic-seals-and-openetr.md)
 - [Apostille Documents domain](../apostille-documents.md)
 - [Apostille Documents Domain Adapter Specification](https://github.com/trbouma/openetr/blob/main/docs/specs/APOSTILLE_DOCUMENTS_DOMAIN_ADAPTER_SPEC.md)
 - [Consequential State](../openetr/consequential-state.md)

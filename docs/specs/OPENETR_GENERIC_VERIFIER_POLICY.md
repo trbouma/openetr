@@ -313,6 +313,30 @@ A historical-state result should identify:
 Signed timestamps do not create a trusted total order. Accepted Temporal
 Proofs may add time assurance as a separate verifier dimension.
 
+## Private Evidence And Proof Profiles
+
+Design direction: future profiles may accept proofs of required propositions
+without full source disclosure. This is not a new baseline acceptance rule or
+a claim of implemented proof-verifier support. Current required event bodies,
+signatures, references, and ruleset checks remain necessary.
+
+A profile should identify the exact proposition, evidence mechanism and
+version, public inputs, artifact/event/action binding, relevant time or graph
+cut, trust dependencies, and verification outcome. A verifier must distinguish
+an invalid proof, unsupported mechanism, missing material, and a verified
+negative proposition. Unresolved required evidence must not silently pass.
+
+Absence proofs are scoped to an identified set or commitment. Its authority,
+coverage, and freshness require their own evidence; neither an empty relay
+response nor a proof about an incomplete set establishes global absence of
+encumbrances, revocations, or competing branches.
+
+Historical verification requires preserved proof dependencies and applicable
+temporal evidence. A service verdict alone proves the service's assertion,
+not independent replay of the underlying proof. See
+[Private Evidence And Verified Propositions](PRIVATE_EVIDENCE_AND_VERIFIED_PROPOSITIONS_DESIGN_NOTE.md)
+for the proposed interface, durability requirements, and threat model.
+
 ## Verifier Result Dimensions
 
 A mature verifier should not collapse every conclusion into one `valid`

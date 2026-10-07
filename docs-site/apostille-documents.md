@@ -30,8 +30,8 @@ In an OpenETR model, a Competent Authority should be treated as the **issuer of 
 That means:
 
 - the **Digital Artifact** is the document package being apostilled;
-- the **Competent Authority** is a trusted issuer or controller identity;
-- the **Apostille** is an authority attestation over the document package, its digest, or both;
+- the **Competent Authority** is a designated issuer whose authority and key binding require verification, not necessarily a controller;
+- the **Apostille** authenticates the relevant public-document signature, signing capacity, and seal or stamp; OpenETR may separately bind its digital representation to a digest;
 - the **recognition rule** says that attestations from this authority, for this jurisdiction and document class, are accepted as Apostille evidence.
 
 This separates technical verification from legal recognition:
@@ -43,7 +43,24 @@ This separates technical verification from legal recognition:
 | Is the authority competent for this document? | Legal, jurisdictional, or governance rule. |
 | Is the Apostille accepted by the relying party? | Recognition outcome. |
 
-This lets OpenETR represent the evidence graph without overclaiming. OpenETR can verify signatures, preserve digest-linked evidence, link to official authority sources, and show the chain of control. The legal effect still depends on the relevant Convention rules, Competent Authority practice, registry evidence, and relying-party policy.
+This lets OpenETR preserve digest-linked evidence and official authority
+references without implying a transfer of control. The public-document signer,
+Competent Authority, Anchor Publisher, and verifier may be different actors.
+Their signatures and statements must be evaluated separately.
+
+## Official Verification And Electronic Form
+
+The recognition boundary operates within the Convention's obligations. The
+HCCH confirms that an e-Apostille cannot be refused simply because it is
+electronic. OpenETR adds an optional evidence facility, not another mandatory
+legalisation step.
+[HCCH guidance](https://www.hcch.net/en/instruments/conventions/specialised-sections/apostille).
+
+A register lookup may confirm particular certificate fields without verifying
+every byte of a presented file. A verifier's signed observation is not the
+same evidence as an authority-signed response. A scan is a distinct artifact,
+and a QR code on paper does not prove that the paper matches the official
+digital record.
 
 ## Candidate DCR Records
 
@@ -101,3 +118,5 @@ More to come.
 
 For the policy framing and proposed consequential-state boundaries, see
 [Apostille Records Need Consequential State](policy-briefs/apostille-records-need-consequential-state.md).
+For the public-seal connection, see
+[Electronic Seals And OpenETR](policy-briefs/electronic-seals-and-openetr.md).

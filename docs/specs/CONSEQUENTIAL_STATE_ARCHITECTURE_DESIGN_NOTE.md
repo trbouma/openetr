@@ -166,6 +166,28 @@ evidence to determine:
 The durable primitive is not an application's state row. It is portable,
 verifiable evidence of a state transition.
 
+## Evidence, Disclosure, And Verified Propositions
+
+Independent verification does not imply full disclosure. Verifiable evidence
+must be sufficient to establish the propositions required by the applicable
+rules. A future evidence profile may establish those propositions through
+disclosed records or privacy-preserving proofs with explicit assumptions.
+
+A verified proposition is a conceptual result of evidence verification, not
+a new DCR event type. Rules define what must be proven; an identified evidence
+profile defines acceptable mechanisms. Existing cryptographic and structural
+requirements remain in force. Optional proof support requires further profile
+design and implementation.
+
+Reproducibility requires the same evidence, rules and versions, evaluation
+parameters, and verification dependencies. It does not require unique
+assertions or guarantee a single controller: conflict and insufficient
+evidence may be the deterministic result. Different evidence subsets can
+support different conclusions and must be reported with their scope.
+
+See [Private Evidence And Verified Propositions](PRIVATE_EVIDENCE_AND_VERIFIED_PROPOSITIONS_DESIGN_NOTE.md)
+for the evidence interface and threat analysis.
+
 ## State Transition Rules
 
 OpenETR uses ordinary state transition rules to determine how valid
@@ -268,6 +290,13 @@ derive_state(DCR evidence, rules, at_event=E)
 
 The evidence basis and rules used for either result should be exportable so
 another implementation can reproduce the derivation.
+
+For a future profile accepting privacy-preserving proofs, preserve sufficient
+proof material, public inputs, commitments, verification parameters, profile
+versions, and temporal or revocation evidence for historical re-verification.
+The private witness need not necessarily be disclosed or retained by the
+verifier. A proof created later does not establish its existence at the event
+time, and missing dependencies must remain visible as verification limits.
 
 ## Conflicts And Candidate State
 

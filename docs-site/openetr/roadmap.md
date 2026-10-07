@@ -25,6 +25,18 @@ verification scope and uncertainty more explicit.
 - continue the warehouse-receipt pilot, including change of medium and the
   China electronic-document mapping.
 
+## Exploratory Privacy Profiles
+
+Investigate proof mechanisms that establish required propositions without full
+disclosure, beginning with credential eligibility or mandate scope. The work
+must preserve independent verification, historical proof dependencies, and
+explicit limits on coverage and absence claims. Private controller continuity
+requires further design because current signed events expose keys and links.
+
+This is future profile work, not an implemented base-protocol capability. See
+[Independent Verification Without Full Disclosure](../policy-briefs/independent-verification-without-full-disclosure.md)
+and its linked design note.
+
 ## Monitored Work
 
 OpenETR is monitoring SCITT temporal proofs, Vaara receipts, NIP-67, NIP-78,
@@ -39,4 +51,3 @@ from one relay, put KYC into the base protocol, or treat protocol validity as
 system reliability or legal effect.
 
 Read the complete [project roadmap](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_ROADMAP.md).
-

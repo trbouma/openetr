@@ -145,6 +145,26 @@ Priority: after the verifier result model stabilizes.
 - avoid adding domain semantics to the generic control grammar unless they are
   demonstrably cross-domain.
 
+## Exploratory: Privacy-Preserving Consequential State
+
+Priority: profile design before implementation; outside the normative core.
+
+Investigate an evidence-to-verified-proposition interface that allows a profile
+to establish required facts without full disclosure. Start with a bounded case
+such as qualifying-credential possession or mandate scope, and specify proof
+binding, issuer authority, revocation, coverage, and historical verification.
+Preserve proof material, public inputs, parameter versions, and temporal
+evidence sufficient for independent re-verification.
+
+Range proofs and membership proofs are further candidates. Non-membership or
+absence claims require a justified set scope and freshness. Private controller
+continuity needs separate work on exposed signing keys and graph links; it
+is not provided by attaching a proof to current public event shapes.
+
+This work does not introduce a new event kind, mandate a ZK system, or change
+Core Record Ruleset 1.0. See
+[Private Evidence And Verified Propositions](PRIVATE_EVIDENCE_AND_VERIFIED_PROPOSITIONS_DESIGN_NOTE.md).
+
 ## Monitored Work
 
 The project should monitor, test against, and learn from external work without
@@ -184,4 +204,3 @@ The roadmap does not call for OpenETR to:
 - [OPENETR_NOSTR_WIRE_FORMAT_SPEC.md](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
 - [OPENETR_CHINA_ELECTRONIC_WAREHOUSE_RECEIPTS_REVIEW_NOTE.md](./OPENETR_CHINA_ELECTRONIC_WAREHOUSE_RECEIPTS_REVIEW_NOTE.md)
-

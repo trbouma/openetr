@@ -8,9 +8,30 @@ It is intended to support Apostille-related evidence, portability, verification,
 
 Draft.
 
+The mappings and tags below are design proposals, not a claim that an
+Apostille adapter or these extension actions are implemented. Core Record
+Ruleset 1.0 establishes anchored state and publisher position; additional
+Apostille-domain consequences need a versioned extension ruleset.
+
+## Public Seal Design Basis
+
+John Gregory's [Electronic Seals: The Public Sector](https://www.slaw.ca/2011/12/23/apostille-convention/)
+(23 December 2011) motivates separating signed-document authentication from
+official-source lookup. The adapter combines exact-byte binding, attributed
+evidence, and official verification references without treating them as
+equivalent proofs. See also [Electronic Seals](ELECTRONIC_SEALS_DESIGN_NOTE.md).
+
+The historical discussion is not a current deployment specification. Use
+current Convention and HCCH guidance. In particular, electronic form alone
+is not a basis for refusing an e-Apostille, and an OpenETR record must not
+become an extra mandatory legalisation requirement.
+[HCCH Apostille Section](https://www.hcch.net/en/instruments/conventions/specialised-sections/apostille).
+
 ## Purpose
 
-The Apostille Documents domain adapter lets OpenETR represent apostilled document packages as digest-identified controllable records.
+The proposed Apostille Documents domain adapter represents apostilled packages
+as Digital Artifacts identified by exact-byte digests, with separate DCR
+evidence concerning those artifacts.
 
 The adapter should make Apostille workflows inspectable by linking:
 
@@ -59,6 +80,12 @@ OpenETR may verify signatures and preserve evidence. It does not decide:
 - whether a paper or electronic Apostille has been properly issued under local procedure
 
 Those are recognition-layer questions.
+
+Recognition policy must respect applicable treaty obligations. Articles 2-5
+limit legalisation formalities and the certification of the Apostille itself;
+Article 6 provides for designated Competent Authorities. An OpenETR profile
+does not override those provisions.
+[Convention text](https://www.hcch.net/en/instruments/conventions/full-text/?cid=41).
 
 ## Domain Model
 
@@ -115,11 +142,23 @@ A Competent Authority is a designated authority of a Contracting Party that may 
 
 In OpenETR, a Competent Authority should be modeled as a recognized issuer, attestor, registry source, or recognition input. It should not be treated as a generic user profile without authority context.
 
+Keep the public-document signer, Apostille-issuing authority, OpenETR Anchor
+Publisher, and verification observer distinct. A holder can anchor a package
+without becoming any of its official issuers. Authority attestations require
+an independently supported designation and key binding, including jurisdiction,
+document-class scope, and relevant time; a self-signed profile is insufficient.
+
 ### e-Register
 
 An e-Register is an online register used to verify Apostilles issued by a Competent Authority.
 
 An OpenETR graph may link to an e-Register reference, but should not imply that the OpenETR graph replaces the e-Register.
+
+Article 7 requires a register or card index and verification of particulars
+on request; a publicly accessible online endpoint is not universally required
+by that provision. Missing online access must be distinguished from an adverse
+official result.
+[Convention text, Article 7](https://www.hcch.net/en/instruments/conventions/full-text/?cid=41).
 
 ## Digital Artifact Model
 
@@ -127,7 +166,7 @@ The recommended first implementation treats the full apostilled document package
 
 ```text
 apostilled document package
-  -> canonical package bytes
+  -> exact finalized package bytes
   -> SHA-256 digest
   -> OpenETR Anchor Record
   -> linked authority, registry, verification, and lifecycle evidence
@@ -143,6 +182,28 @@ It lets a verifier answer:
 - Has the package been superseded, corrected, warned, or revoked under a recognized policy?
 
 It avoids forcing OpenETR to parse every possible Apostille certificate format.
+
+An e-Apostille signature, a register match, and an OpenETR event signature are
+separate checks. The profile must identify the particular public-document
+signature, capacity, or seal authenticated, including a notarial certification
+where that is the relevant public act. It must not expand that act's scope
+to an endorsement of all attached content.
+
+### Representation And Attachment Evidence
+
+Hashing a scan proves the identity of that scan, not its correspondence with
+an official paper original. A scanned paper Apostille must retain its
+paper-derived classification; it is not automatically an e-Apostille.
+
+For linked objects, the adapter should preserve evidence that the authority's
+certificate applies to the identified public document. A holder-created bundle
+or manifest can bind files together technically without proving official
+attachment or certification. Report who made that association.
+
+Printing, scanning, or adding a barcode creates a representation with different
+verification properties. A QR lookup cannot by itself authenticate the paper
+carrying it. Record exact-byte matching, visual comparison, and certified-copy
+verification as different procedures with different evidence.
 
 ## Alternative Object Models
 
@@ -239,6 +300,12 @@ The adapter should expose Apostille-domain actions rather than generic database 
 | Archive package | Linked evidence / lifecycle attestation |
 | Terminate reliance on package | OpenETR `TERMINATE` or policy-level non-recognition, depending on profile |
 
+Only anchoring and qualifying same-publisher notices have Core 1.0 semantics.
+`ATTEST`, linked evidence, and other lifecycle actions in this table require
+defined extensions. A publisher withdrawal is not automatically an official
+Apostille revocation. A verification observer's warning must not be labelled
+as a Competent Authority's determination.
+
 Many Apostille workflows do not require transfer of control. The adapter should not force transferable-record semantics where the domain only needs authority, evidence, status, and verification.
 
 ## Suggested Event Tags
@@ -334,6 +401,20 @@ Recognition checks include:
 
 OpenETR should present these checks separately.
 
+### Register Observation Evidence
+
+An observation should preserve the official source, query particulars,
+returned fields, response material or its digest where available, observer
+identity, declared observation time, independent time evidence if any, and
+the procedure applied. Distinguish authority-signed responses from an
+observer's signed account of an unsigned response.
+
+A URL or certificate number alone does not bind the entire package. A
+`matched` result must identify which particulars matched and whether the
+authority supplied any exact-byte binding. An observer's signature cannot
+upgrade a captured page into an authority-signed response. Historical checks
+remain scoped observations, not guarantees of present status or completeness.
+
 A package digest can match while the Apostille is not recognized. An Apostille can verify while the presented package is not the same package that was recorded in OpenETR.
 
 ## Status Dimensions
@@ -387,7 +468,7 @@ Examples:
 
 The OpenETR graph can support status derivation, but the status meanings are domain policy choices.
 
-## Package Integrity And Canonicalization
+## Package Integrity And Assembly
 
 The domain adapter should define what bytes are hashed.
 
@@ -411,6 +492,12 @@ If an archive package is used, the profile should define:
 - timestamp normalization
 
 Without package rules, two systems may assemble semantically equivalent packages that hash differently.
+
+These are pre-issuance assembly rules, not implicit normalization during
+verification. Always hash the exact finalized bytes. Do not rewrite an
+authority-issued signed package merely to conform to local packaging rules;
+retain its original bytes and put supplemental evidence outside it. Changed
+packages are different artifacts even when their visible contents look alike.
 
 ## Replacement And Correction
 
@@ -499,5 +586,8 @@ Further design work should decide:
 - HCCH Apostille Section: https://www.hcch.net/en/conventions/causes/specials/apostille
 - HCCH electronic Apostille Programme FAQ: https://www.hcch.net/en/publications-and-studies/details4/?pid=5576
 - HCCH 1961 Apostille Convention
+- [Electronic Seals: The Public Sector (John Gregory, 2011)](https://www.slaw.ca/2011/12/23/apostille-convention/)
+- [Electronic Seals Design Note](ELECTRONIC_SEALS_DESIGN_NOTE.md)
+- [Core Record Ruleset 1.0](OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [CONTROLLABLE_RECORDS_TAXONOMY.md](./CONTROLLABLE_RECORDS_TAXONOMY.md)
 - [LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)

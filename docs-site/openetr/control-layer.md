@@ -91,6 +91,17 @@ Nostr carries the events. An identified OpenETR ruleset determines their consequ
 Applications may cache and display a projection of the state, but they do not
 own it. See [Consequential State](./consequential-state.md).
 
+## Evidence And Disclosure
+
+Evidence must be independently verifiable, but its underlying information need
+not always be fully disclosed. Future profiles can define acceptable proofs
+of facts required by a rule, while retaining the artifact digest, DCR, and
+control model. A private source record alone is not verifiable by a party that
+cannot inspect it; an accepted proof or other sufficient evidence is needed.
+
+This is an extension direction, not implemented private-transfer support. See
+[Private Evidence And Verified Propositions](https://github.com/trbouma/openetr/blob/main/docs/specs/PRIVATE_EVIDENCE_AND_VERIFIED_PROPOSITIONS_DESIGN_NOTE.md).
+
 ## Source Specs
 
 - [OpenETR Core Record Ruleset 1.0](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
