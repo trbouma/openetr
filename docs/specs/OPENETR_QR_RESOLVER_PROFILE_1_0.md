@@ -202,7 +202,7 @@ The hexadecimal encoding SHALL:
 Example:
 
 ```text
-2976895f610a8e928249f365827c2fd385d2c7d71da0e4d3bf47845f8dcbdd20
+72f268d79dc36412a21d046cc2124b9ca02aab3c712eb23e67fd96d86a38e38f
 ```
 
 #### 7.2.2 Unpadded Base64URL
@@ -219,7 +219,7 @@ The Base64URL encoding SHALL:
 Example representing the same digest as Section 7.2.1:
 
 ```text
-KXaJX2EKjpKCSfNlgnwv04XSx9cdoOTTv0eEX43L3SA
+cvJo153DZBKiHQRswhJLnKAqqzxxLrI-Z_2W2Go4448
 ```
 
 A decoder SHALL reject a Base64URL value whose canonical unpadded re-encoding
@@ -258,14 +258,17 @@ https://{resolver-authority}/etr/{artifact-digest}
 Example:
 
 ```text
-https://openetr.org/etr/2976895f610a8e928249f365827c2fd385d2c7d71da0e4d3bf47845f8dcbdd20
+https://openetr.org/etr/72f268d79dc36412a21d046cc2124b9ca02aab3c712eb23e67fd96d86a38e38f
 ```
 
 Equivalent compact example:
 
 ```text
-https://openetr.org/etr/KXaJX2EKjpKCSfNlgnwv04XSx9cdoOTTv0eEX43L3SA
+https://openetr.org/etr/cvJo153DZBKiHQRswhJLnKAqqzxxLrI-Z_2W2Go4448
 ```
+
+These URLs resolve to the same
+[live public OpenETR example](https://openetr.org/etr/cvJo153DZBKiHQRswhJLnKAqqzxxLrI-Z_2W2Go4448).
 
 The URI SHALL conform to the generic URI syntax in RFC 3986. The
 `{artifact-digest}` SHALL appear as the final path segment.

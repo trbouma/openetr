@@ -59,27 +59,32 @@ identifier or changing the underlying digest.
 
 ## 3. Reference Payload
 
-This note uses the following digest:
+This note uses the following digest from a live public OpenETR example:
 
 ```text
-2976895f610a8e928249f365827c2fd385d2c7d71da0e4d3bf47845f8dcbdd20
+72f268d79dc36412a21d046cc2124b9ca02aab3c712eb23e67fd96d86a38e38f
 ```
 
 Its equivalent unpadded Base64URL encoding is:
 
 ```text
-KXaJX2EKjpKCSfNlgnwv04XSx9cdoOTTv0eEX43L3SA
+cvJo153DZBKiHQRswhJLnKAqqzxxLrI-Z_2W2Go4448
 ```
 
 Using `openetr.org` as the Resolver Authority produces these payloads:
 
 ```text
-https://openetr.org/etr/2976895f610a8e928249f365827c2fd385d2c7d71da0e4d3bf47845f8dcbdd20
+https://openetr.org/etr/72f268d79dc36412a21d046cc2124b9ca02aab3c712eb23e67fd96d86a38e38f
 ```
 
 ```text
-https://openetr.org/etr/KXaJX2EKjpKCSfNlgnwv04XSx9cdoOTTv0eEX43L3SA
+https://openetr.org/etr/cvJo153DZBKiHQRswhJLnKAqqzxxLrI-Z_2W2Go4448
 ```
+
+Both URLs resolve to the same
+[live record](https://openetr.org/etr/cvJo153DZBKiHQRswhJLnKAqqzxxLrI-Z_2W2Go4448)
+and are normalized to the hexadecimal digest before OpenETR evidence is
+queried.
 
 The hexadecimal URL contains 88 characters. The Base64URL form contains 67
 characters.
