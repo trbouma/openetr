@@ -23,7 +23,7 @@ For most implementations, the Resolver Profile produces an HTTPS URL that an
 ordinary mobile-device camera can open. An application MAY instead implement a
 custom Resolver Profile and QR handler, as Safebox Web does for
 application-controlled scanning flows. A campaign platform MAY use a URL such
-as `sqratch.com/{campaign-id}/{unique-link-id}` and map that campaign-scoped
+as `example.com/{campaign-id}/{unique-link-id}` and map that campaign-scoped
 reference to an Artifact Digest. In every profile, the SHA-256 digest remains
 the OpenETR artifact identifier and retains the same meaning regardless of how
 it is obtained.
@@ -350,7 +350,7 @@ local verifier.
 An indirect campaign Resolver Profile MAY use a URL such as:
 
 ```text
-https://sqratch.com/{campaign-id}/{individual-unique-link-id}
+https://example.com/{campaign-id}/{individual-unique-link-id}
 ```
 
 The campaign identifier and unique link identifier locate a campaign-managed

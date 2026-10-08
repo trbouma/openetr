@@ -562,10 +562,10 @@ as a parallel visible retail layer.
 ### 13.1 Existing Campaign URL Structures
 
 A physical-label platform may already assign one unique URL to every label. A
-representative SQRATCH structure is:
+representative campaign structure is:
 
 ```text
-https://sqratch.com/{campaign-id}/{individual-unique-link-id}
+https://example.com/{campaign-id}/{individual-unique-link-id}
 ```
 
 This structure is compatible with OpenETR through an indirect campaign
@@ -585,7 +585,7 @@ event-evaluation rules. It only carries the URL.
 The recommended flow is:
 
 ```text
-physical SQRATCH label
+physical campaign label
   -> campaign URL
   -> validate campaign and unique-link reference
   -> resolve stable label-to-digest binding
@@ -667,7 +667,7 @@ should not be treated as proof of ownership.
 | Campaign URL resolving to digest | Fits an existing campaign system and allows dynamic experiences | Depends on the campaign resolver until the digest is disclosed |
 | Campaign URL plus signed digest binding | Combines campaign flexibility with auditable artifact identity | Requires binding publication and verification support |
 
-For SQRATCH-style labels, the third pattern is the preferred long-term model:
+For campaign-managed labels, the third pattern is the preferred long-term model:
 keep the existing campaign URL, resolve it to a stable digest, expose a
 canonical direct OpenETR link, and provide a signed binding where the assurance
 case requires one.
