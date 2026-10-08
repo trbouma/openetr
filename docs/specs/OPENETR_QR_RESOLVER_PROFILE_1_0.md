@@ -531,6 +531,7 @@ A QR code conforms to `openetr:qr-resolver:1.0` when:
 - [OpenETR Core Record Ruleset 1.0](OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [OpenETR Nostr Wire Format Specification](OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [OpenETR CLI JSON Model](OPENETR_CLI_JSON_MODEL.md)
+- [OpenETR QR Production And Scratch-Off Design Note](OPENETR_QR_PRODUCTION_AND_SCRATCH_OFF_DESIGN_NOTE.md)
 - [RFC 3986: Uniform Resource Identifier Generic Syntax](https://www.rfc-editor.org/rfc/rfc3986)
 - [RFC 4648: Base-N Encodings](https://www.rfc-editor.org/rfc/rfc4648)
 - [ISO/IEC 18004: QR code bar code symbology specification](https://www.iso.org/standard/83389.html)
