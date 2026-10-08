@@ -36,7 +36,12 @@ The central production principle is:
 The QR Resolver Profile separates:
 
 1. the **Resolver Profile**, which determines dispatch and handling; and
-2. the **Artifact Digest**, which identifies the exact Digital Artifact.
+2. the **Resolution Reference**, which either carries the Artifact Digest
+   directly or resolves to it through a declared service.
+
+The resulting **Artifact Digest** identifies the exact Digital Artifact. A
+campaign identifier or unique label identifier remains a locator and does not
+replace the digest as OpenETR artifact identity.
 
 For ordinary mobile-device scanning, the Standard Web Resolver Profile uses:
 
@@ -53,9 +58,13 @@ Both representations identify the same Digital Artifact. The Resolver
 normalizes either representation to lowercase hexadecimal before performing
 OpenETR object queries.
 
-The compact Base64URL representation is preferable where the physical QR size
-is constrained. It reduces the payload without introducing an opaque record
-identifier or changing the underlying digest.
+For direct resolution, the compact Base64URL representation is preferable
+where the physical QR size is constrained. It reduces the payload without
+introducing an opaque record identifier or changing the underlying digest.
+
+An indirect campaign profile may instead carry a short campaign-scoped URL.
+The campaign resolver then returns the digest and applies declared routing or
+presentation rules.
 
 ## 3. Reference Payload
 
@@ -375,9 +384,317 @@ A candidate should be enlarged or otherwise revised if it only succeeds after
 repeated repositioning, manual camera zoom, unusually bright lighting, or
 complete laboratory-quality cleaning.
 
-## 12. Security And Product Claims
+## 12. GS1 And Other 2D Carrier Standards
 
-### 12.1 What The Scratch Layer Provides
+### 12.1 Carrier And Payload Are Separate Layers
+
+QR Code, Data Matrix, Aztec, and PDF417 are machine-readable carriers. They
+define how characters or bytes are rendered and acquired. They do not, by
+themselves, determine what the encoded payload means.
+
+Domain standards add that meaning. For example:
+
+- GS1 defines product and supply-chain identifiers, Application Identifiers,
+  GS1 element strings, and GS1 Digital Link URI syntax;
+- IATA defines the structured payload of a Bar Coded Boarding Pass; and
+- OpenETR defines a Resolver Profile and Artifact Digest used to discover
+  evidence concerning a Digital Artifact.
+
+Encoding an OpenETR resolver URL in an Aztec or Data Matrix symbol would not
+make it an IATA or GS1 record. Conversely, displaying a GS1 Digital Link URI as
+a QR code does not make the QR symbology itself specific to GS1.
+
+The architectural distinction is:
+
+```text
+machine-readable carrier
+  -> acquisition and decoding
+
+payload profile
+  -> structure and dispatch
+
+identifier and domain rules
+  -> meaning, verification, and effect
+```
+
+### 12.2 When GS1 Is Relevant
+
+GS1 is relevant where the product label must participate in processes such as:
+
+- retail point-of-sale scanning;
+- GTIN-based product identification;
+- batch, lot, serial, or expiry processing;
+- recalls and supply-chain traceability;
+- inventory management; or
+- standardized product-information discovery.
+
+GS1 Sunrise 2027 encourages retail systems to accept 2D barcodes carrying GS1
+identifiers, especially the GTIN, at point of sale. It does not mean that every
+QR code printed on a product must use a GS1 payload.
+
+The Standard Web Resolver Profile URL:
+
+```text
+https://openetr.org/etr/{artifact-digest}
+```
+
+is a valid QR payload, but it is not a GS1 Digital Link. It identifies a
+Digital Artifact using an OpenETR digest rather than identifying a trade item,
+location, asset, or other entity using a GS1 primary identification key.
+
+### 12.3 Assigned Identifiers And Values
+
+GS1 standardizes the syntax and meanings of its Application Identifiers. For
+example:
+
+- `01` identifies a GTIN;
+- `10` identifies a batch or lot;
+- `17` identifies an expiration date; and
+- `21` identifies a serial number.
+
+GS1 does not centrally assign every value appearing in a barcode. A business
+obtains the appropriate GS1 identification capacity and assigns product,
+batch, or serial values according to the applicable GS1 rules. The Application
+Identifiers allow other systems to interpret those values consistently.
+
+A serialized GS1 Digital Link might use this form:
+
+```text
+https://example.wine/01/{14-digit-gtin}/21/{serial-number}
+```
+
+A conforming GS1 Digital Link includes a GS1 primary identification key in its
+path. An OpenETR digest is not a substitute for that key.
+
+### 12.4 Possible GS1 Integration Patterns
+
+#### Separate Carriers
+
+The simplest pattern is:
+
+```text
+visible GS1 EAN/UPC or GS1 Digital Link
+  -> product identity, inventory, and checkout
+
+concealed OpenETR QR
+  -> bottle-specific artifact digest and signed evidence
+```
+
+This pattern keeps the standards boundaries clear and allows each code to be
+optimized for its own scanners and operating conditions.
+
+It is particularly appropriate for a scratch-off implementation. A concealed
+code cannot serve as the point-of-sale barcode before purchase, and keeping it
+separate prevents a retail scanner from selecting the OpenETR QR when it
+expects a GTIN.
+
+#### GS1 Digital Link Resolver Association
+
+A GS1 Digital Link may identify the bottle using a GTIN and serial number. A
+GS1-conformant resolver may then offer multiple related resources, including a
+link to an OpenETR resolver URL:
+
+```text
+GS1 Digital Link
+  -> identifies the bottle
+  -> resolver links to:
+       product information
+       traceability information
+       OpenETR evidence lookup
+```
+
+This can provide a single visible entry point. It also means that discovery of
+the OpenETR digest may depend on the GS1 resolver continuing to publish the
+association. Encoding the digest directly in the concealed OpenETR QR
+preserves greater resolver independence.
+
+#### GS1 Extension Parameter
+
+GS1 Digital Link permits arbitrary query-string extension parameters when the
+parameter key is not entirely numeric and the data cannot already be expressed
+using a GS1 Application Identifier. A deployment could therefore evaluate a
+form such as:
+
+```text
+https://example.wine/01/{gtin}/21/{serial}?openetr={base64url-digest}
+```
+
+This approach should not be adopted without GS1 validation and production
+scanner testing. It creates a longer and denser symbol, combines two identifier
+systems in one payload, and may interact differently with retail, resolver,
+and consumer applications. The OpenETR digest remains an extension value; it
+does not become the GS1 primary identification key.
+
+### 12.5 Boarding-Pass Comparison
+
+Boarding-pass systems illustrate the same distinction. Aztec, QR Code, and
+PDF417 can act as carriers. The IATA Bar Coded Boarding Pass standard defines a
+specific structured payload interpreted by airline and airport systems.
+
+An OpenETR resolver URL could technically be rendered as an Aztec symbol, but
+that would not make the payload an IATA boarding pass. It would remain an
+OpenETR resolver payload using a different acquisition technology.
+
+### 12.6 OpenETR Design Consequence
+
+No change to the OpenETR evidence protocol, Artifact Digest, Anchor Event, or
+Core Record Ruleset is required to support another carrier.
+
+The presentation architecture can be understood as:
+
+```text
+Artifact Digest
+  + Resolver Profile
+  + Machine-Readable Carrier
+```
+
+The current standardized carrier is QR Code Model 2. Future presentation
+profiles may use Data Matrix, Aztec, NFC, a GS1 Digital Link association, or
+another acquisition mechanism while preserving the same digest and evidence
+semantics.
+
+For the initial wine-bottle scratch-off pilot, this note recommends retaining
+the compact OpenETR QR beneath the scratch panel and treating GS1 identification
+as a parallel visible retail layer.
+
+## 13. Campaign And Unique-Label Resolution
+
+### 13.1 Existing Campaign URL Structures
+
+A physical-label platform may already assign one unique URL to every label. A
+representative SQRATCH structure is:
+
+```text
+https://sqratch.com/{campaign-id}/{individual-unique-link-id}
+```
+
+This structure is compatible with OpenETR through an indirect campaign
+Resolver Profile. The campaign and unique-link identifiers locate the label
+record. The campaign resolver maps that record to the applicable Artifact
+Digest.
+
+These identifiers are assigned and governed by the campaign platform. They do
+not need to be GS1-assigned values unless the deployment separately chooses to
+encode a GS1-conformant payload.
+
+The QR carrier does not need to understand OpenETR, the campaign, or the
+event-evaluation rules. It only carries the URL.
+
+### 13.2 Resolution Flow
+
+The recommended flow is:
+
+```text
+physical SQRATCH label
+  -> campaign URL
+  -> validate campaign and unique-link reference
+  -> resolve stable label-to-digest binding
+  -> expose or redirect to canonical OpenETR digest URL
+  -> retrieve and verify signed evidence
+  -> apply identified OpenETR ruleset
+  -> apply campaign-specific rules
+  -> render the resulting experience
+```
+
+The flow has two distinct rule boundaries:
+
+```text
+OpenETR ruleset
+  -> evaluates signed evidence concerning the digest
+
+campaign rulebook
+  -> determines registration, rewards, presentation, transfer workflow,
+     eligibility, redemption, and other campaign consequences
+```
+
+The campaign rulebook may rely on OpenETR results, but it should not present an
+application decision as though it were a conclusion produced by the OpenETR
+protocol.
+
+### 13.3 Stable Binding And Dynamic Campaign Rules
+
+The resolver may change the user experience without changing the printed QR
+code. For example, the same label URL may present:
+
+- pre-release product information;
+- post-purchase verification;
+- registration or activation;
+- a points claim;
+- a transfer workflow;
+- redemption status; or
+- a warning after recall, cancellation, or suspicious duplicate use.
+
+That flexibility should not make artifact identity mutable. Once a physical
+label is distributed, its mapping to the Artifact Digest should remain stable.
+A correction or supersession should preserve the earlier binding and expose
+auditable evidence of what changed.
+
+Where durable independent verification matters, the campaign operator should
+publish a signed binding containing at least:
+
+- the campaign reference;
+- the unique physical-label reference;
+- the Artifact Digest;
+- the binding issuer;
+- the binding time or claimed effective time; and
+- any replacement or supersession relationship.
+
+The binding format remains an implementation and protocol-design question. It
+could be represented as signed OpenETR linked evidence without placing the
+campaign identifiers in the Anchor Event itself.
+
+### 13.4 Verification, Ownership, And Points
+
+An OpenETR integration could support several different campaign concerns, but
+their meanings should remain separate.
+
+| Concern | OpenETR contribution | Campaign or domain responsibility |
+| --- | --- | --- |
+| Product verification | Resolve the digest, verify Anchor and Evidence Events, and report derived state | Decide which publishers and results are recognized for the product |
+| Digital ownership | Preserve signed evidence relevant to a claimed control or transfer history | Authenticate users and define what ownership means and how it is transferred |
+| Transferable points | Preserve attributable issuance or transfer evidence under a future profile | Define balances, eligibility, transfer, expiry, redemption, fraud controls, and consumer terms |
+
+OpenETR Core Record Ruleset 1.0 does not establish legal ownership, Current
+Controller, or transferable-points balances. Those conclusions require an
+identified extension ruleset and an external recognition policy. A scan alone
+should not be treated as proof of ownership.
+
+### 13.5 Direct, Indirect, And Hybrid Choices
+
+| Pattern | Benefit | Limitation |
+| --- | --- | --- |
+| Direct OpenETR digest URL | Maximum portability and independent resolution | Does not directly carry campaign routing identifiers |
+| Campaign URL resolving to digest | Fits an existing campaign system and allows dynamic experiences | Depends on the campaign resolver until the digest is disclosed |
+| Campaign URL plus signed digest binding | Combines campaign flexibility with auditable artifact identity | Requires binding publication and verification support |
+
+For SQRATCH-style labels, the third pattern is the preferred long-term model:
+keep the existing campaign URL, resolve it to a stable digest, expose a
+canonical direct OpenETR link, and provide a signed binding where the assurance
+case requires one.
+
+### 13.6 Privacy And Bearer-Capability Considerations
+
+A unique campaign link under a scratch panel may be more than a locator. If
+first possession or first use can register an account, award points, transfer a
+benefit, or redeem value, it functions as a bearer capability.
+
+The campaign system should therefore consider:
+
+- link entropy and resistance to guessing;
+- pre-activation theft or photography;
+- replay and duplicate scans;
+- user authentication before consequential actions;
+- consent before account binding;
+- recovery and dispute processes;
+- scan telemetry and location privacy; and
+- separation between public verification and private reward claims.
+
+The Artifact Digest itself remains a public identifier and should not be used
+as the secret authorizing a campaign consequence.
+
+## 14. Security And Product Claims
+
+### 14.1 What The Scratch Layer Provides
 
 A scratch layer can provide:
 
@@ -386,7 +703,7 @@ A scratch layer can provide:
 - a deliberate consumer interaction; and
 - some resistance to casual pre-purchase scanning.
 
-### 12.2 What It Does Not Provide
+### 14.2 What It Does Not Provide
 
 A scratch layer does not make the QR code unclonable. A QR payload may be
 copied before coating, during production, after legitimate reveal, or from a
@@ -405,7 +722,7 @@ Scanning a valid OpenETR resolver URL does not, by itself, prove:
 - that the product has not been refilled or substituted; or
 - that a retrieved Anchor Event is recognized by the relying party.
 
-### 12.3 Bottle-Specific Records
+### 14.3 Bottle-Specific Records
 
 If the use case includes anti-counterfeiting, activation, or first-purchaser
 interaction, each bottle should use a bottle-specific Digital Artifact and
@@ -425,7 +742,7 @@ Even this combination does not create universal consensus or make a physical
 object cryptographically unclonable. It provides evidence that a verifier can
 evaluate under an identified rulebook.
 
-## 13. Initial Pilot Recommendation
+## 15. Initial Pilot Recommendation
 
 The recommended initial wine-bottle pilot is:
 
@@ -449,7 +766,7 @@ determine whether greater damage recovery offsets its denser module matrix.
 No production minimum should be adopted until the complete label system passes
 the acceptance tests described in Section 11.
 
-## 14. Open Design Questions
+## 16. Open Design Questions
 
 1. Should QR Resolver Profile 1.0 permit both M and Q, or should Q be defined in
    a separate scratch-off production profile?
@@ -462,8 +779,12 @@ the acceptance tests described in Section 11.
 5. What signed evidence, if any, should follow first reveal, activation, or
    redemption?
 6. What recognition policy governs duplicate, delayed, or offline scans?
+7. Should the campaign-to-digest binding use an existing OpenETR linked
+   evidence shape or a dedicated evidence profile?
+8. Which campaign actions are presentation decisions, and which should produce
+   signed evidence for later independent verification?
 
-## 15. References
+## 17. References
 
 - [OpenETR QR Resolver Profile 1.0](OPENETR_QR_RESOLVER_PROFILE_1_0.md)
 - [OpenETR Core Record Ruleset 1.0](OPENETR_CORE_RECORD_RULESET_1_0.md)
@@ -471,3 +792,6 @@ the acceptance tests described in Section 11.
 - [DENSO WAVE: QR Code Error Correction](https://www.qrcode.com/en/about/error_correction.html)
 - [DENSO WAVE: QR Code Quiet Zone](https://www.qrcode.com/en/howto/code.html)
 - [DENSO WAVE: QR Code Module Size](https://www.qrcode.com/en/howto/cell.html)
+- [GS1 Digital Link URI Syntax](https://ref.gs1.org/standards/digital-link/uri-syntax/)
+- [GS1-Conformant Resolver Standard](https://ref.gs1.org/standards/resolver/)
+- [GS1 US: Sunrise 2027](https://www.gs1us.org/industries-and-insights/by-topic/sunrise-2027)

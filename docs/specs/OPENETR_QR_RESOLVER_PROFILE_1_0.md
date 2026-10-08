@@ -16,15 +16,17 @@ parts:
 
 1. a **Resolver Profile**, which determines how a scan is dispatched and
    handled; and
-2. an **Artifact Digest**, encoded as either lowercase hexadecimal or unpadded
-   Base64URL, which identifies the exact Digital Artifact.
+2. a **Resolution Reference**, which either carries the Artifact Digest
+   directly or resolves to it through a declared indirection service.
 
 For most implementations, the Resolver Profile produces an HTTPS URL that an
 ordinary mobile-device camera can open. An application MAY instead implement a
 custom Resolver Profile and QR handler, as Safebox Web does for
-application-controlled scanning flows. In every profile, the SHA-256 digest is
-the sole record identifier and retains the same meaning regardless of which
-permitted encoding is used.
+application-controlled scanning flows. A campaign platform MAY use a URL such
+as `sqratch.com/{campaign-id}/{unique-link-id}` and map that campaign-scoped
+reference to an Artifact Digest. In every profile, the SHA-256 digest remains
+the OpenETR artifact identifier and retains the same meaning regardless of how
+it is obtained.
 
 The governing principle is:
 
@@ -39,6 +41,7 @@ The purpose of this specification is to provide a QR code model that:
   Standard Web Resolver Profile;
 - can also be handled by a purpose-built application under a declared custom
   Resolver Profile;
+- can support either direct digest resolution or indirect campaign resolution;
 - remains small and visually robust;
 - carries one stable artifact identifier;
 - does not bind the artifact to a particular event, relay, ruleset, or derived
@@ -74,14 +77,16 @@ The Resolver Profile selects a convenient route to a handler. It does not make
 that handler the exclusive authority for the artifact or its evidence. Any
 party that obtains the digest can use another profile or conforming
 implementation, retrieve evidence from other sources, and independently
-verify the results.
+verify the results. An indirect profile introduces a service dependency until
+the digest has been resolved.
 
 ```text
 QR payload
   -> Resolver Profile: determines dispatch and handling
-  -> Artifact Digest: identifies the Digital Artifact
+  -> Resolution Reference: directly carries or indirectly resolves the digest
 
 resolver
+  -> produces the Artifact Digest
   -> discovers candidate evidence
   -> verifies the retrieved evidence
   -> evaluates it under an identified ruleset
@@ -95,7 +100,8 @@ recognition context
 
 This specification defines:
 
-- the two-part Resolver Profile and Artifact Digest model;
+- the Resolver Profile and Resolution Reference model;
+- direct and indirect resolution modes;
 - the Standard Web Resolver Profile;
 - requirements for custom Resolver Profiles;
 - the canonical SHA-256 digest representation;
@@ -142,48 +148,69 @@ create a different Digital Artifact or record identifier.
 
 ### 6.4 Resolver Profile
 
-A declared set of rules that determines how a QR Payload carries an Artifact
-Digest, how a scanner or application dispatches the payload, and how the
-receiving handler extracts the digest.
+A declared set of rules that determines how a scanner or application
+dispatches a QR Payload and how the receiving handler obtains the Artifact
+Digest.
 
 A Resolver Profile may use an HTTPS URI, a custom URI scheme, an
-application-specific descriptor, or an application scanning context. It SHALL
-NOT change the meaning or representation of the Artifact Digest.
+application-specific descriptor, an application scanning context, or a
+campaign-scoped URL. It SHALL NOT change the meaning of the Artifact Digest.
 
-### 6.5 Resolver
+### 6.5 Resolution Reference
+
+The profile-specific value carried by the QR Payload and supplied to the
+Resolver. A Resolution Reference is either:
+
+- a directly encoded Artifact Digest; or
+- an indirect reference that the Resolver maps to an Artifact Digest.
+
+An indirect Resolution Reference is a locator. It is not the OpenETR artifact
+identifier and is not cryptographic evidence concerning the artifact.
+
+### 6.6 Resolver
 
 A service or application handler that accepts an Artifact Digest, retrieves or
 receives candidate evidence concerning that digest, verifies the evidence, and
 presents the resulting observations and derivations.
 
-### 6.6 Resolver Authority
+### 6.7 Resolver Authority
 
 The URI authority component identifying the host that operates the Resolver.
 The Resolver Authority is a routing and service-discovery choice. It is not, by
 itself, evidence concerning the artifact.
 
-### 6.7 QR Payload
+### 6.8 QR Payload
 
 The exact character string encoded in the QR symbol.
 
 ## 7. QR Payload Model
 
-### 7.1 Two-Part Model
+### 7.1 Resolution Model
 
 Every conforming QR use SHALL consist logically of:
 
 ```text
-Resolver Profile + Artifact Digest
+Resolver Profile + Resolution Reference -> Artifact Digest
 ```
 
-The Resolver Profile determines how the digest is encoded, dispatched, and
-delivered to a Resolver. The Artifact Digest is the only component that
-identifies the record.
+The Resolver Profile determines how the reference is encoded, dispatched, and
+processed. The resulting Artifact Digest identifies the Digital Artifact.
+
+Two resolution modes are permitted:
+
+```text
+direct resolution
+  Resolution Reference = Artifact Digest
+
+indirect resolution
+  Resolution Reference = campaign or application locator
+  Resolver maps locator -> Artifact Digest
+```
 
 The Resolver Profile MAY be selected explicitly by a URI scheme or payload
 prefix. It MAY instead be selected by the scanning application or workflow,
-provided that the handler unambiguously extracts a permitted Artifact Digest
-Encoding and the applicable profile is documented.
+provided that the applicable profile and Resolution Reference are
+unambiguously determined and documented.
 
 ### 7.2 Digest Requirements
 
@@ -228,12 +255,14 @@ with invalid unused bits.
 
 #### 7.2.3 Common Requirements
 
-The encoded Artifact Digest SHALL be recoverable from the QR Payload without
-network access.
+For direct resolution, the encoded Artifact Digest SHALL be recoverable from
+the QR Payload without network access and SHALL be the sole record identifier
+in the payload.
 
-The Artifact Digest SHALL be the sole record identifier in the QR Payload. A
-custom Resolver Profile SHALL NOT substitute an event identifier, database
-key, opaque token, or service-specific record identifier for the digest.
+For indirect resolution, the Resolver SHALL return or visibly expose the
+Artifact Digest after resolving the campaign or application reference. The
+indirect reference SHALL NOT be represented as though it were the Artifact
+Digest.
 
 A conforming generator MAY use either encoding. Base64URL is RECOMMENDED when
 minimizing QR payload length is the primary concern. Lowercase hexadecimal is
@@ -293,23 +322,68 @@ A custom Resolver Profile SHALL document:
 
 - a stable profile identifier and version;
 - the exact payload syntax or scanning context;
-- which permitted Artifact Digest Encodings are accepted and how they are
-  extracted;
+- whether resolution is direct or indirect;
+- which Artifact Digest Encodings are accepted or returned;
 - how the payload is dispatched to the handler;
+- for indirect resolution, how the Resolution Reference maps to an Artifact
+  Digest;
 - validation and error behavior; and
 - any security, privacy, installation, or platform dependencies.
 
 A custom profile SHOULD use a URI conforming to RFC 3986 when operating-system
 dispatch is required. A custom scheme or descriptor MAY be used when a
 purpose-built scanner owns dispatch. Custom profiles SHOULD remain as compact
-as practical and SHOULD allow the digest to be recovered without contacting
-the original handler.
+as practical.
+
+For direct resolution, the profile SHOULD allow the digest to be recovered
+without contacting the original handler. For indirect resolution, the profile
+SHOULD provide a durable way to export the resolved digest and any verifiable
+binding between the reference and digest.
 
 The use of a custom profile does not create a different artifact identity. The
 same digest MAY be resolved through the Standard Web Resolver Profile, a
-Safebox Web handler, another application, a CLI, or a local verifier.
+Safebox Web handler, a campaign resolver, another application, a CLI, or a
+local verifier.
 
-### 7.5 Excluded Data
+### 7.5 Indirect Campaign Resolver Profiles
+
+An indirect campaign Resolver Profile MAY use a URL such as:
+
+```text
+https://sqratch.com/{campaign-id}/{individual-unique-link-id}
+```
+
+The campaign identifier and unique link identifier locate a campaign-managed
+label record. They do not replace the Artifact Digest.
+
+An indirect campaign Resolver SHALL:
+
+1. validate the campaign-scoped Resolution Reference;
+2. resolve it to exactly one Artifact Digest for the applicable record version;
+3. expose the digest in a permitted encoding;
+4. distinguish the stable reference-to-digest binding from campaign-specific
+   routing and presentation rules; and
+5. proceed with evidence discovery and ruleset evaluation using the resolved
+   digest.
+
+After a physical label has been distributed, the Resolver SHALL NOT silently
+remap its Resolution Reference to a different digest. Correction,
+supersession, or migration SHOULD preserve the prior binding and SHOULD expose
+signed or otherwise auditable evidence explaining the change.
+
+Campaign rules MAY select different experiences according to campaign phase,
+locale, authentication state, prior interaction, product status, or other
+declared context. Those rules MAY determine whether the user sees verification,
+registration, transfer, points, redemption, or another application surface.
+They SHALL NOT be represented as OpenETR protocol conclusions unless they are
+derived from qualifying evidence under an identified ruleset.
+
+An indirect Resolver SHOULD redirect to or expose a canonical direct-digest
+OpenETR URL after resolution. Where long-term independent verification is
+required, it SHOULD also provide a signed binding between the campaign
+reference, physical-label context, and Artifact Digest.
+
+### 7.6 Excluded Data
 
 The QR Payload SHALL NOT include:
 
@@ -319,8 +393,12 @@ The QR Payload SHALL NOT include:
 - relay addresses or relay hints;
 - a ruleset identifier;
 - a claimed state or verification result;
-- artifact metadata such as a filename, reference, or description; or
-- any other value that functions as a second record identifier.
+- artifact metadata such as a filename or description.
+
+A direct profile SHALL NOT add another value that functions as a second record
+identifier. An indirect profile MAY carry campaign and unique-link identifiers
+as its Resolution Reference, but those values SHALL remain locators and SHALL
+NOT be presented as OpenETR artifact identifiers.
 
 A Standard Web Resolver Profile payload SHALL NOT include a query component or
 fragment component. A custom Resolver Profile SHOULD avoid them and SHALL
@@ -367,12 +445,14 @@ mobile devices and in the intended operating conditions.
 A conforming Resolver SHALL:
 
 1. identify the applicable Resolver Profile;
-2. extract the encoded Artifact Digest according to that profile;
-3. validate the digest syntax before performing evidence retrieval;
-4. decode the value to exactly 32 bytes;
-5. normalize the value to 64-character lowercase hexadecimal for OpenETR
+2. extract and validate the Resolution Reference;
+3. obtain the encoded Artifact Digest directly from the reference or
+   indirectly through the declared mapping;
+4. validate the digest syntax before performing evidence retrieval;
+5. decode the value to exactly 32 bytes;
+6. normalize the value to 64-character lowercase hexadecimal for OpenETR
    event comparison and object-centric queries; and
-6. reject malformed or unsupported identifiers without interpreting them as
+7. reject malformed or unsupported values without interpreting them as
    event identifiers or search text.
 
 A Resolver implementing the Standard Web Resolver Profile SHALL accept an
@@ -471,6 +551,11 @@ A custom Resolver Profile MAY dispatch to an installed application, an
 application-controlled web route, or another documented handler. Changes to
 that dispatch mechanism SHALL preserve the digest and its meaning.
 
+An indirect campaign Resolver MAY change routing, presentation, or campaign
+rules without changing the physical QR Payload. It SHALL preserve the resolved
+Artifact Digest or expose an auditable correction or supersession as specified
+in Section 7.5.
+
 Resolver operators SHOULD keep canonical resolver URIs durable. Changes to
 relay pools, storage systems, verifier implementations, user interfaces, and
 rulesets SHOULD be made behind the canonical URI so that existing printed QR
@@ -485,6 +570,10 @@ A printed or displayed QR code SHOULD be accompanied by:
 - the resolver domain, application, or profile; and
 - a human-readable digest or digest prefix sufficient to compare records and
   diagnose scanning errors.
+
+For indirect resolution, the result SHOULD also identify the campaign or
+application reference that was resolved and clearly distinguish it from the
+Artifact Digest.
 
 The accompanying language SHOULD avoid claims such as "verified," "valid,"
 "authentic," or "current" unless the displayed result states what was
@@ -503,6 +592,8 @@ SHOULD account for:
 - malicious artifacts associated with a digest lookup;
 - unsafe redirects;
 - tracking through resolver requests; and
+- silent remapping of indirect references;
+- campaign links that act as bearer capabilities or one-time claims;
 - overstatement of what a successful lookup proves.
 
 The digest makes independently retrieved artifact bytes comparable. It does
@@ -514,16 +605,24 @@ record-specific tracking identifiers to resolver payloads. Sensitive domains
 SHOULD consider the privacy implications of transmitting an Artifact Digest to
 a public or application-specific Resolver.
 
+An indirect campaign reference may be intentionally unique and concealed. If
+possession or first use of that reference can register an owner, award points,
+redeem value, or trigger another consequence, the Resolver SHALL treat it as a
+potential bearer capability rather than as a public digest. Appropriate user
+authentication, replay protection, consent, and recovery rules are application
+responsibilities outside the OpenETR evidence protocol.
+
 ## 13. Conformance Summary
 
 A QR code conforms to `openetr:qr-resolver:1.0` when:
 
 1. the applicable Resolver Profile and version are declared or unambiguously
    determined by the scanning context;
-2. the payload carries either the lowercase hexadecimal or unpadded Base64URL
-   encoding of the SHA-256 Artifact Digest in accordance with that profile;
-3. the digest can be recovered without network access;
-4. the digest is the sole record identifier;
+2. the payload carries a valid direct or indirect Resolution Reference;
+3. direct resolution carries either the lowercase hexadecimal or unpadded
+   Base64URL encoding of the SHA-256 Artifact Digest;
+4. indirect resolution deterministically produces and exposes the Artifact
+   Digest without treating the locator as artifact identity;
 5. the payload contains no event, relay, signer, ruleset, or state data;
 6. a Standard Web Resolver Profile payload contains no query or fragment;
 7. the QR symbol follows the rendering requirements in Section 8; and
