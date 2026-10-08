@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import binascii
 from contextlib import contextmanager
 from dataclasses import dataclass
 import hashlib
@@ -169,14 +170,66 @@ def public_base_url(request: Request) -> str:
     return PUBLIC_BASE_URL or request_base_url(request)
 
 
-def public_etr_url(request: Request, digest: str) -> str:
-    return f"{public_base_url(request)}/etr/{digest}"
+def detect_qr_digest_encoding(value: str) -> str:
+    return "base64url" if len(value.strip()) == 43 else "hex"
 
 
-def qr_context_for_digest(request: Request, digest: str) -> dict[str, str]:
+def normalize_qr_digest(value: str) -> str:
+    candidate = value.strip()
+    if len(candidate) != 43:
+        return normalize_object_identifier(candidate)
+
+    if re.fullmatch(r"[A-Za-z0-9_-]{43}", candidate) is None:
+        raise click.ClickException(
+            "artifact digest must be 64 lowercase hex characters, "
+            "43 unpadded Base64URL characters, or a valid nobj"
+        )
+    try:
+        digest_bytes = base64.b64decode(
+            f"{candidate}=",
+            altchars=b"-_",
+            validate=True,
+        )
+    except (ValueError, binascii.Error) as exc:
+        raise click.ClickException("artifact digest must be valid unpadded Base64URL") from exc
+    if len(digest_bytes) != 32:
+        raise click.ClickException("Base64URL artifact digest must decode to exactly 32 bytes")
+    canonical = base64.urlsafe_b64encode(digest_bytes).decode("ascii").rstrip("=")
+    if canonical != candidate:
+        raise click.ClickException("artifact digest must use canonical unpadded Base64URL")
+    return digest_bytes.hex()
+
+
+def encode_qr_digest(digest: str, encoding: str = "hex") -> str:
+    normalized = normalize_object_identifier(digest)
+    if encoding == "hex":
+        return normalized
+    if encoding == "base64url":
+        return base64.urlsafe_b64encode(bytes.fromhex(normalized)).decode("ascii").rstrip("=")
+    raise ValueError(f"unsupported QR digest encoding: {encoding}")
+
+
+def public_etr_url(request: Request, digest: str, encoding: str = "hex") -> str:
+    encoded_digest = encode_qr_digest(digest, encoding)
+    return f"{public_base_url(request)}/etr/{encoded_digest}"
+
+
+def qr_context_for_digest(
+    request: Request,
+    digest: str,
+    encoding: str = "hex",
+) -> dict[str, str]:
+    normalized = normalize_object_identifier(digest)
+    hex_url = public_etr_url(request, normalized, "hex")
+    base64url_url = public_etr_url(request, normalized, "base64url")
     return {
-        "public_query_url": public_etr_url(request, digest),
-        "public_query_qr_url": f"/etr/qr/{digest}",
+        "public_query_url": hex_url if encoding == "hex" else base64url_url,
+        "public_query_qr_url": f"/etr/qr/{normalized}?encoding={encoding}",
+        "public_query_encoding": encoding,
+        "public_query_hex_option_url": f"{hex_url}?qr_encoding=hex",
+        "public_query_base64url_option_url": (
+            f"{base64url_url}?qr_encoding=base64url"
+        ),
     }
 
 
@@ -1505,14 +1558,18 @@ async def experimental_page(
 
 
 @app.get("/etr/qr/{digest}", responses={200: {"content": {"image/png": {}}}})
-async def public_etr_query_qr(request: Request, digest: str):
-    return render_etr_query_qr(request, digest)
+async def public_etr_query_qr(
+    request: Request,
+    digest: str,
+    encoding: str | None = Query(default=None, pattern="^(hex|base64url)$"),
+):
+    return render_etr_query_qr(request, digest, encoding)
 
 
 @app.get("/etr/blob/{digest}", include_in_schema=False)
 async def public_etr_blossom_blob(digest: str):
     try:
-        object_digest = normalize_object_identifier(digest.strip())
+        object_digest = normalize_qr_digest(digest)
         content, declared_type = await asyncio.to_thread(blossom_fetch_bytes, object_digest)
     except Exception as exc:
         raise HTTPException(status_code=404, detail=f"Verified Blossom blob not found: {exc}") from exc
@@ -1533,10 +1590,12 @@ async def public_etr_blossom_blob(digest: str):
 async def public_etr_lookup(
     request: Request,
     digest: str,
+    qr_encoding: str | None = Query(default=None, pattern="^(hex|base64url)$"),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     try:
-        object_digest = normalize_object_identifier(digest.strip())
+        selected_qr_encoding = qr_encoding or detect_qr_digest_encoding(digest)
+        object_digest = normalize_qr_digest(digest)
         validated_relays = await validate_relays(
             identity.get("default_relays") or DEFAULT_RELAYS,
             timeout=DEFAULT_QUERY_TIMEOUT,
@@ -1570,14 +1629,19 @@ async def public_etr_lookup(
             "relays": validated_relays,
             "query": query_context,
             "media_preview": media_preview,
-            **qr_context_for_digest(request, object_digest),
+            **qr_context_for_digest(request, object_digest, selected_qr_encoding),
         },
     )
 
 
-def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
+def render_etr_query_qr(
+    request: Request,
+    digest: str,
+    encoding: str | None = None,
+) -> StreamingResponse:
     try:
-        object_digest = normalize_object_identifier(digest.strip())
+        selected_encoding = encoding or detect_qr_digest_encoding(digest)
+        object_digest = normalize_qr_digest(digest)
     except click.ClickException as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     try:
@@ -1585,8 +1649,8 @@ def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
         import PIL  # noqa: F401
     except ImportError as exc:
         raise HTTPException(status_code=503, detail="QR code support is not installed.") from exc
-    # The image path accepts a digest or nobj; the QR payload is the full query URL.
-    qr_text = public_etr_url(request, object_digest)
+    # The image path accepts either QR digest encoding or legacy nobj input.
+    qr_text = public_etr_url(request, object_digest, selected_encoding)
     image = branded_qr_image(qr_text)
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
@@ -1599,18 +1663,30 @@ def render_etr_query_qr(request: Request, digest: str) -> StreamingResponse:
 
 
 @app.get("/qr/{digest}", include_in_schema=False)
-async def legacy_short_etr_query_qr(request: Request, digest: str):
-    return render_etr_query_qr(request, digest)
+async def legacy_short_etr_query_qr(
+    request: Request,
+    digest: str,
+    encoding: str | None = Query(default=None, pattern="^(hex|base64url)$"),
+):
+    return render_etr_query_qr(request, digest, encoding)
 
 
 @app.get("/etr/{digest}/qr", include_in_schema=False)
-async def legacy_public_etr_query_qr(request: Request, digest: str):
-    return render_etr_query_qr(request, digest)
+async def legacy_public_etr_query_qr(
+    request: Request,
+    digest: str,
+    encoding: str | None = Query(default=None, pattern="^(hex|base64url)$"),
+):
+    return render_etr_query_qr(request, digest, encoding)
 
 
 @app.get("/api/etr-qr/{digest}", include_in_schema=False)
-async def etr_query_qr(request: Request, digest: str):
-    return render_etr_query_qr(request, digest)
+async def etr_query_qr(
+    request: Request,
+    digest: str,
+    encoding: str | None = Query(default=None, pattern="^(hex|base64url)$"),
+):
+    return render_etr_query_qr(request, digest, encoding)
 
 
 @app.post("/warehouse-receipts/query")

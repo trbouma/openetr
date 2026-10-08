@@ -499,6 +499,20 @@
         </span>
       </button>
       <p><a href="{{ public_query_url }}">{{ public_query_url }}</a></p>
+      <p class="openetr-source">
+        QR digest encoding:
+        {% if public_query_encoding == "hex" %}
+        <strong>Hexadecimal</strong>
+        {% else %}
+        <a href="{{ public_query_hex_option_url }}">Hexadecimal</a>
+        {% endif %}
+        <span aria-hidden="true">|</span>
+        {% if public_query_encoding == "base64url" %}
+        <strong>Compact Base64URL</strong>
+        {% else %}
+        <a href="{{ public_query_base64url_option_url }}">Compact Base64URL</a>
+        {% endif %}
+      </p>
       <p id="openetr-durable-copy-status" class="openetr-source" role="status" aria-live="polite" hidden></p>
     </section>
 

@@ -50,6 +50,12 @@
     margin: 0;
     min-height: 1.4rem;
   }
+  .etr-query-encoding {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
   @media (max-width: 640px) {
     .etr-query-actions,
     .etr-query-actions button {
@@ -69,6 +75,20 @@
     <div>
       <p class="muted">This Digital Controllable Record has a durable link and scannable QR code that can be shared, printed, or captured for later verification.</p>
       <a class="mono etr-query-share-url" href="{{ public_query_url }}" data-etr-query-url>{{ public_query_url }}</a>
+      <p class="muted etr-query-encoding">
+        <span>QR digest encoding:</span>
+        {% if public_query_encoding == "hex" %}
+        <strong>Hexadecimal</strong>
+        {% else %}
+        <a href="{{ public_query_hex_option_url }}">Hexadecimal</a>
+        {% endif %}
+        <span aria-hidden="true">|</span>
+        {% if public_query_encoding == "base64url" %}
+        <strong>Compact Base64URL</strong>
+        {% else %}
+        <a href="{{ public_query_base64url_option_url }}">Compact Base64URL</a>
+        {% endif %}
+      </p>
       <div class="etr-query-actions">
         <button type="button" data-copy-etr-link>Copy Link</button>
         <button type="button" data-copy-etr-qr>Copy QR Code</button>

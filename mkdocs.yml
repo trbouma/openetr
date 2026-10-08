@@ -68,6 +68,7 @@ nav:
       - Consequential State: openetr/consequential-state.md
       - Digital Controllable Record: https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md
       - Nostr Wire Format: openetr/wire-format.md
+      - QR Resolver Profile: https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_QR_RESOLVER_PROFILE_1_0.md
       - Component And CLI: openetr/component-and-cli.md
       - Integration Model: openetr/integration.md
       - Recognition Boundary: openetr/recognition.md
