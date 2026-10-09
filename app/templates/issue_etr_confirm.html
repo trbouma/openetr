@@ -147,6 +147,12 @@
           <input type="hidden" name="file_digest" value="{{ sha256 }}">
           <input type="hidden" name="file_name" value="{{ filename }}">
           <input type="hidden" name="file_size" value="{{ size_bytes }}">
+          {% if store_upload %}
+          <input type="hidden" name="store_upload" value="true">
+          <p><label>Upload the same artifact again to confirm storage:
+            <input type="file" name="file" required>
+          </label></p>
+          {% endif %}
           <button type="submit">Create another Anchor Record</button>
         </form>
         <p><a href="/openetr">Cancel and return</a></p>

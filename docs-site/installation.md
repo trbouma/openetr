@@ -134,7 +134,12 @@ The application recognizes runtime variables including:
 | `OPENETR_HOME_RELAYS` / `_FILE` | Optional bootstrap relay set |
 | `OPENETR_PUBLIC_BASE_URL` | External HTTPS base URL |
 | `OPENETR_MAX_UPLOAD_BYTES` | Maximum accepted upload size |
-| `OPENETR_BLOSSOM_SERVER` | Blossom storage endpoint |
+| `OPENETR_BLOSSOM_SERVER` | Single Blossom origin fallback; defaults to `https://blossom.getsafebox.app` |
+| `OPENETR_BLOSSOM_SERVERS` | Upload destinations, comma/whitespace-separated; overrides the single-server setting |
+| `OPENETR_BLOSSOM_QUERY_SERVERS` / `_FILE` | Additional retrieval origins for public links and queries; combined with verified anchor hints and upload servers, deduplicated and queried concurrently |
+| `OPENETR_BLOSSOM_REQUIRE` | Storage confirmation threshold: `any` (default), `half`, `majority`, or `all` |
+| `OPENETR_BLOSSOM_TIMEOUT_SECONDS` | Per-request deadline, default 20 seconds |
+| `OPENETR_BLOSSOM_OPERATION_TIMEOUT_SECONDS` | Overall storage/retrieval deadline, default 60 seconds |
 | `OPENETR_GIT_COMMIT` | Deployed source revision reported by the app |
 
 Prefer file-based secret inputs when the deployment platform supplies them; the

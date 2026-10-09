@@ -57,7 +57,58 @@ Uploads are limited to 10 MiB by default. Set `OPENETR_MAX_UPLOAD_BYTES` to over
 
 When the uploaded file is a PDF or supported image, the result page also shows an inline preview. Preview files are temporary, tokenized, served with `Cache-Control: no-store`, and cleaned up after one hour. PDFs render through the bundled PDF.js assets under `app/assets/js`.
 
-Create-control-record upload forms can optionally store the raw uploaded file on the app-managed Blossom server so later QR lookups can retrieve the document by digest. Blossom uploads are authorized with a short-lived signed Nostr event from the profile signer. The default Blossom server is `https://blossom.getsafebox.app`. Set `OPENETR_BLOSSOM_SERVER` to use a different server, and `OPENETR_BLOSSOM_TIMEOUT_SECONDS` to adjust storage request timeouts. Public digest lookup pages verify Blossom bytes against the requested SHA-256 digest before rendering supported PDFs or images.
+Create-control-record upload forms can optionally store the raw uploaded file using
+Stroma's `BlossomPool`. Storage remains opt-in: selecting it sends the artifact to
+all configured servers, authorized by short-lived events signed by the Acting
+Profile. Only servers that return digest-matching bytes are advertised in repeated
+`blossom` tags on the new anchor, before it is signed. No existing anchor is
+rewritten to change locations.
+
+The default remains `https://blossom.getsafebox.app`. The legacy
+`OPENETR_BLOSSOM_SERVER` setting still works. To configure replication:
+
+```dotenv
+OPENETR_BLOSSOM_SERVERS=https://blossom.example.org,https://backup.example.org
+OPENETR_BLOSSOM_REQUIRE=any
+OPENETR_BLOSSOM_TIMEOUT_SECONDS=20
+OPENETR_BLOSSOM_OPERATION_TIMEOUT_SECONDS=60
+```
+
+The plural setting accepts commas or whitespace and overrides the singular one.
+Origins must be public HTTPS, without credentials, paths, queries or fragments.
+Duplicate origins count once. The storage threshold is `any` (one, default),
+`half` (ceiling of N/2), `majority` (floor of N/2 plus one), or `all` (N).
+All configured servers are attempted; the threshold is not a replication limit.
+If it is unmet, no anchor is published. Some copies may already exist; retrying
+checks them before uploading again. These thresholds are local storage policy,
+not consensus or retention guarantees. Users who do not select storage can still
+publish anchors without Blossom hints.
+
+Upload destinations and retrieval candidates are separate settings:
+
+```dotenv
+OPENETR_BLOSSOM_SERVERS=https://storage.example.org
+OPENETR_BLOSSOM_QUERY_SERVERS=https://storage.example.org,https://archive.example.org
+```
+
+`OPENETR_BLOSSOM_QUERY_SERVERS` accepts commas or whitespace, with
+`OPENETR_BLOSSOM_QUERY_SERVERS_FILE` taking precedence when supplied. When unset
+(or an empty environment variable), retrieval falls back to the upload pool.
+Retrieval combines verified anchor hints, an optional form entry, query servers,
+and upload servers into one pool. Stroma normalizes and deduplicates the combined
+origins. These are concurrent retrieval candidates, not strict sequential
+fallback stages: the first digest-verified copy wins. Each configured pool and
+the hint list is bounded to 32 origins, allowing up to 97 unique retrieval
+candidates including the form entry, with four concurrent requests and the
+existing overall deadline.
+Query servers, anchor hints, and per-query form entries never become upload
+destinations. `OPENETR_BLOSSOM_REQUIRE` applies only to uploads.
+
+Public QR lookups combine query and upload servers with permitted hints from
+signature- and event-ID-verified matching anchors. The first SHA-256-verified
+copy suffices. Requests are bounded, private destinations and redirects are
+blocked, and only supported PDFs/images are previewed. Verified preview bytes
+are cached temporarily, avoiding a second download during page rendering.
 
 Result pages include a branded QR code for public digest lookup. The QR image is served from `/etr/qr/<digest>` as PNG data, and it encodes `<request-base-url>/etr/<digest>` only; the app uses its configured default relays when that URL is opened. The QR generator supports `?encoding=hex` and `?encoding=base64url`. Public `/etr/<digest>` lookup links accept either a 64-character lowercase hexadecimal SHA-256 digest or its equivalent 43-character unpadded Base64URL encoding and normalize both to lowercase hexadecimal before querying OpenETR events. The request base URL honors `Forwarded`, `X-Forwarded-Proto`, and `X-Forwarded-Host` headers for TLS reverse proxy deployments. Set `OPENETR_PUBLIC_BASE_URL` only when deployment should force a different public base URL than the incoming request host.
 
@@ -164,13 +215,12 @@ For the web app to discover relay-backed profiles and encrypted profile signer r
 
 ### Record-query relays
 
-The home-page Query DCR form also accepts a per-query **Blossom server**, prefilled
-from `OPENETR_BLOSSOM_SERVER`. The uploaded artifact supplies the digest; the app
-retrieves bytes from the selected server, verifies SHA-256, and caches supported
-image/PDF previews. Retrieval failure does not prevent record evidence from being
-shown. This does not change publication storage or the server used by public QR
-links. User-selected retrieval requires public HTTPS on port 443, rejects private
-network destinations, and does not follow redirects.
+The home-page Query DCR form accepts a per-query **Blossom server**, prefilled with
+the first configured retrieval origin. It is an additional retrieval candidate
+alongside the query pool, upload servers, and verified anchor hints, not an upload
+destination.
+The uploaded artifact supplies the digest. Retrieval failure does not prevent
+record evidence from being shown and does not invalidate the anchor.
 
 Set `OPENETR_QUERY_RELAYS` independently of the home/bootstrap relays:
 

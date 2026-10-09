@@ -76,6 +76,7 @@ are not part of the DCR wire format.
 | `type` | Action-specific subtype. |
 | `notice_type` | Anchor Publisher position carried by a Publisher Notice. |
 | `ref` | External reference or business reference. |
+| `blossom` | Optional, repeatable Anchor Event hint identifying a Blossom server origin for artifact retrieval; not assumed relay-indexed. |
 
 ## Structured Metadata
 
@@ -94,6 +95,44 @@ Examples:
 ```
 
 Implementations should read structured data from tags after retrieving the event. They should not parse the `content` field to recover machine data.
+
+## Blossom Retrieval Hints
+
+An Anchor Event may advertise multiple locations for the same artifact:
+
+```text
+["blossom", "https://blossom.example.org"]
+["blossom", "https://backup.example.org"]
+```
+
+Each tag contains a server origin, not a complete blob URL. The resolver
+constructs `<server-origin>/<o-digest>` and verifies the returned bytes against
+`o`. The digest identifies the artifact; these optional signed hints only help
+locate it. They are read from event tags after relay discovery through `#o`.
+
+When storage is requested, the publication workflow confirms availability
+before signing the anchor and advertises the confirmed locations. Storage
+requirements are local policy: `any` (default), `half`, `majority`, or `all`.
+For N unique target origins, the thresholds are respectively 1, ceil(N/2),
+floor(N/2)+1, and N. Failed targets remain in the denominator. An unmet
+requirement must be surfaced, not silently treated as successful storage.
+These thresholds are not event tags, consensus, or retention guarantees.
+
+Resolvers can combine permitted hints with configured servers. Hints remain
+untrusted network destinations even when signed; destination validation,
+private-network protection, and bounded retrieval are required. Unusable
+hints or unavailable bytes do not by themselves invalidate signed record
+evidence. Existing anchors without hints continue to work through configured
+storage or other available copies.
+
+An anchor's signed hints cannot be edited without changing its event ID.
+Do not silently reissue an anchor to refresh locations; local resolver
+configuration can change independently of the DCR.
+
+**Implementation status:** the OpenETR reference app uses Stroma's
+`BlossomPool` for opt-in storage and hint-aware retrieval. New anchors advertise
+only readback-confirmed origins; older anchors without hints use configured servers.
+See the [full hint convention](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_NOSTR_WIRE_FORMAT_SPEC.md#blossom-retrieval-hints).
 
 ## Content Field
 

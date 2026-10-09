@@ -14,6 +14,11 @@ Draft.
 
 This is a current working specification for the OpenETR reference direction. It reflects the present `1415` / `1416` regular-event split and current tag conventions. It should not yet be treated as a final permanent registry decision.
 
+The OpenETR reference app implements the optional `blossom` Anchor Event hint
+convention using Stroma's `BlossomPool`: opt-in artifact storage precedes signing,
+and retrieval combines verified anchor hints with configured servers.
+Existing anchors without hints remain compatible.
+
 ## Scope
 
 This specification defines:
@@ -139,7 +144,7 @@ Nostr relay filters express tag queries with leading `#` keys, such as `#o`, `#e
 
 OpenETR therefore uses short, stable tags such as `o`, `e`, and `p` for object identity, graph traversal, and participant lookup.
 
-OpenETR also uses named tags such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `record_reference`, or `record_description` for structured metadata that does not need to be relay-queryable.
+OpenETR also uses named tags such as `name`, `size_bytes`, `digest_generated_at`, `domain`, `document_type`, `record_reference`, `record_description`, or `blossom` for structured metadata that does not need to be relay-queryable.
 
 Those named tags are still part of the signed event. They should be read from the event tag list after the event has been retrieved through the core query anchors. Implementations should not need to parse the `content` field to recover structured OpenETR metadata.
 
@@ -258,6 +263,142 @@ Implementations should treat these named tags as structured event data.
 
 The `content` field should not be the primary machine interface for such data. It is reserved for readable narrative, comments, or unstructured context that helps a person understand the event after the structured tags have been read.
 
+## Artifact Retrieval
+
+### Blossom Retrieval Hints
+
+An Anchor Event MAY carry zero or more optional `blossom` tags:
+
+```json
+["blossom", "https://blossom.example.org"]
+```
+
+Each tag has exactly two string elements: the tag name and a Blossom server
+origin. Publishers MUST use an absolute HTTPS origin, with no credentials,
+non-root path, query, or fragment. A port MAY be specified. Publishers SHOULD
+normalize the scheme and hostname to lowercase, omit the default HTTPS port
+and trailing slash, and emit at most one tag per normalized origin. Readers
+SHOULD accept a root trailing slash and normalize equivalent origins before
+deduplicating them. Plain HTTP or private storage may be configured locally,
+but is not advertised by this interoperable public-hint convention.
+
+Repeat the tag for multiple locations; do not put a comma-separated server
+list in a single tag. The value is a server origin, not a complete blob URL
+or another artifact identifier. The candidate blob locator is constructed as
+`<server-origin>/<o-digest>`. The `o` tag remains the canonical byte identity.
+
+`blossom` is signed structured metadata, not a relay-query anchor. No
+`#blossom` indexing or filtering support is required. Retrieve the Anchor
+Event through `#o` and read its tag list, not its `content`.
+
+#### Publication And Confirmation
+
+When an issuance workflow requests Blossom storage, it MUST finish its
+storage-confirmation step before constructing the final anchor tags and
+signing the Anchor Event. A server MUST be advertised only after a GET
+from that origin returns bytes whose SHA-256 matches `o`. This applies both
+to new uploads and to copies already available at the server. A successful
+PUT response or HEAD response alone is not digest-verified read-back.
+
+For the reference publication workflow, the storage success requirement is
+selected locally from the following options, defaulting to `any`:
+
+| Requirement | Confirmed locations required for N unique target origins |
+| --- | --- |
+| `any` | 1 |
+| `half` | `ceil(N / 2)` |
+| `majority` | `floor(N / 2) + 1` |
+| `all` | N |
+
+An empty target set is an error when storage is requested. Deduplicate the
+targets before calculating N; unavailable, rejected, and unconfirmed targets
+remain in the denominator. Distinct origins need not be independently operated.
+These are availability-confirmation thresholds, not consensus or independent
+custodian guarantees. The selected threshold is not a new wire tag and cannot
+be inferred from the number of hints in an anchor.
+
+The workflow MUST report whether the requirement was met and the individual
+outcomes. If it was not met, it MUST NOT silently proceed with automatic
+anchor publication as though storage succeeded. An explicit application
+decision may instead proceed without the requested storage assurance; it
+must not turn unconfirmed locations into confirmed hints. Issuing an anchor
+without requesting Blossom storage remains valid.
+
+After the requirement is met, the workflow SHOULD include every confirmed
+location it intends to advertise, not only enough locations to meet the
+threshold. Rejected or unconfirmed uploads MUST NOT be represented as
+confirmed locations. An upload timeout is ambiguous: the workflow SHOULD
+attempt digest-verified retrieval before considering another upload.
+
+A hint is the publisher's signed retrieval suggestion. It is not independent
+proof that a read-back occurred, that a server physically retains a copy, or
+that the artifact will remain available. Neither the tag nor a server response
+establishes ownership, authority, retention, control, recognition, or effect.
+
+#### Resolver Behavior
+
+Resolvers SHOULD combine locally configured servers with permitted hints
+from signature- and event-ID-verified candidate anchors carrying the requested
+`o` value, then normalize and deduplicate them. Choosing which candidate
+anchors and destinations to use remains application policy. No particular
+server ordering is implied by tag order.
+
+Resolvers MUST verify the returned bytes against the requested `o` digest
+before treating them as the Digital Artifact. The first verified copy is
+sufficient for byte retrieval; storage thresholds do not require downloading
+a quorum of copies. A missing file, timeout, or digest mismatch at one server
+SHOULD allow attempts at other permitted locations.
+
+Signed hints remain untrusted network destinations. Implementations MUST
+apply destination policy and resource limits before fetching, including
+protection against private-network requests, DNS rebinding, and unsafe
+redirects. A resolver may reject redirects altogether. It MUST NOT forward
+credentials or upload authorization tokens to hinted retrieval destinations.
+Digest verification does not make a file or its declared media type safe to
+render; normal content-handling safeguards still apply.
+
+Malformed or disallowed optional hints SHOULD be ignored with a diagnostic;
+they do not by themselves invalidate otherwise valid DCR evidence. Failure
+to retrieve the artifact MUST be reported separately from failure to retrieve
+or verify its Anchor Event and Evidence Events. It is not proof that the
+artifact never existed, that the DCR is invalid, or that control changed.
+
+#### Compatibility And Immutability
+
+Anchors without `blossom` tags remain valid and use configured servers,
+archives, local copies, or other permitted artifact-retrieval mechanisms.
+Older readers may ignore the optional tag. Evidence Events need not repeat
+anchor hints; this convention introduces no new action or event kind.
+
+Hints in an existing signed Anchor Event cannot be edited. Adding or changing
+a hint changes the event ID and produces a different candidate anchor; it
+does not update the old anchor or its linked graph. Implementations MUST NOT
+silently reissue an anchor solely to refresh its storage locations. Local
+resolver configuration can evolve without changing artifact identity or the
+DCR. A future signed locator-update convention would require a separate design.
+
+#### Example Anchor Fields
+
+This fragment omits the standard Nostr author, timestamp, event ID, and
+signature fields; it is not a complete signed event:
+
+```json
+{
+  "kind": 1415,
+  "tags": [
+    ["o", "72f268d79dc36412a21d046cc2124b9ca02aab3c712eb23e67fd96d86a38e38f"],
+    ["action", "issue"],
+    ["name", "receipt.pdf"],
+    ["blossom", "https://blossom.example.org"],
+    ["blossom", "https://backup.example.org"]
+  ],
+  "content": "Anchored the digital artifact."
+}
+```
+
+The two locations are hints for the same exact bytes. They do not represent
+two artifacts, two anchors, or two votes about consequential state.
+
 ## Minimum Event Shapes
 
 The wire-level event structures below define the current minimum working format.
@@ -273,7 +414,7 @@ The wire-level event structures below define the current minimum working format.
   - `["digest_generated_at", "<iso_8601_timestamp>"]`
   - `["size_bytes", "<decimal_byte_count>"]`
 - optional structured tags:
-  - `["action", "issue"]`
+  - `["blossom", "<https_server_origin>"]`, repeated for multiple optional retrieval hints
   - profile or identity tags such as `display_name`, `lei`, or related metadata where a given implementation chooses to include them
   - document metadata tags such as `record_reference` or `record_description`
   - domain tags such as `domain`, `document_type`, `schema`, or `schema_digest`
@@ -623,6 +764,7 @@ The current OpenETR Nostr wire format is defined by:
 - `e` as the control-chain link
 - `action` as the semantic subtype within the evidence-event family
 - named non-indexed tags as the convention for signed structured metadata
+- optional repeated `blossom` tags as artifact-retrieval hints, without changing byte identity or control semantics
 - `content` as human-readable or unstructured event data
 
 This provides a coherent current working format for publishing, querying, and traversing OpenETR control history over Nostr while leaving recognition, standing, mandate, attestation policy, and legal effect to higher layers.

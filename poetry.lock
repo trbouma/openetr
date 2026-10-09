@@ -1532,12 +1532,13 @@ aiohttp = ">=3.10,<4"
 bech32 = ">=1.2,<2"
 coincurve = ">=20,<22"
 pycryptodome = ">=3.20,<4"
+yarl = ">=1.9,<2"
 
 [package.source]
 type = "git"
 url = "https://github.com/trbouma/stroma.git"
-reference = "544165018f38f12d8b4f33d70b940a996acb46c3"
-resolved_reference = "544165018f38f12d8b4f33d70b940a996acb46c3"
+reference = "main"
+resolved_reference = "a2898d82348b201cb5794f0f00d3d2aca08bf6c5"
 
 [[package]]
 name = "typing-extensions"
@@ -1719,4 +1720,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.14"
-content-hash = "0f7adadf9ce169a34275db614575eaa430ac0e2cfe3ced3e94e2b7d9986d2f81"
+content-hash = "62d454228a0a07c473fdc9a42d27b1ab1d58803196bcc890de96003fea72294d"

@@ -4,10 +4,14 @@
   <div class="kv">
     <div class="muted">Status</div>
     <div>{{ blossom_storage.message }}</div>
-    {% if blossom_storage.stored and blossom_storage.url %}
+    {% for url in blossom_storage.urls | default([]) %}
     <div class="muted">Blob URL</div>
-    <div><a class="mono" href="{{ blossom_storage.url }}">{{ blossom_storage.url }}</a></div>
-    {% endif %}
+    <div><a class="mono" href="{{ url }}">{{ url }}</a></div>
+    {% endfor %}
+    {% for outcome in blossom_storage.outcomes | default([]) %}
+    <div class="mono">{{ outcome.server }}</div>
+    <div>{{ outcome.status }}{% if outcome.message %}: {{ outcome.message }}{% endif %}</div>
+    {% endfor %}
   </div>
 </section>
 {% endif %}

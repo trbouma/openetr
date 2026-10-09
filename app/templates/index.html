@@ -424,7 +424,7 @@
             <label>
               Blossom server
               <input type="url" name="blossom_server" value="{{ blossom_server }}" placeholder="https://blossom.example.org">
-              <span class="field-help">Retrieve and verify the artifact from this public HTTPS server.</span>
+              <span class="field-help">Checked alongside configured servers and verified anchor hints.</span>
             </label>
             <button type="submit">Query DCR</button>
           </form>
@@ -543,7 +543,7 @@
             <label>
               Blossom server
               <input type="url" name="blossom_server" value="{{ blossom_server }}" placeholder="https://blossom.example.org">
-              <span class="field-help">Retrieve and verify the artifact from this public HTTPS server.</span>
+              <span class="field-help">Checked alongside configured servers and verified anchor hints.</span>
             </label>
             <button type="submit">Query DCR</button>
           </form>
@@ -561,7 +561,7 @@
               <input type="checkbox" name="store_upload" value="true">
               <span>
                 Store uploaded file for future QR lookups
-                <span class="field-help">This lets the public QR link show the original file preview later.</span>
+                <span class="field-help">Uploads a public copy to every configured Blossom server for later QR previews.</span>
               </span>
             </label>
             <label>

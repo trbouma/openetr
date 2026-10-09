@@ -10,7 +10,7 @@ include = ["openetr/defaults.yaml", "openetr/openetr_trivia.yaml"]
 [tool.poetry.dependencies]
 python = ">=3.11,<3.14"
 click = "^8.1.8"
-stroma-nostr = {git = "https://github.com/trbouma/stroma.git", rev = "544165018f38f12d8b4f33d70b940a996acb46c3"}
+stroma-nostr = {git = "https://github.com/trbouma/stroma.git", branch = "main"}
 pyyaml = "^6.0.2"
 mnemonic = "^0.21"
 pydantic = "^2.11.7"
