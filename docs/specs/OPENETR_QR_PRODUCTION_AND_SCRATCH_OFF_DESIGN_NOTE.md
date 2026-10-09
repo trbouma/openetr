@@ -40,8 +40,20 @@ The QR Resolver Profile separates:
    directly or resolves to it through a declared service.
 
 The resulting **Artifact Digest** identifies the exact Digital Artifact. A
-campaign identifier or unique label identifier remains a locator and does not
-replace the digest as OpenETR artifact identity.
+campaign identifier or unique label identifier remains a scoped Resolution
+Reference and does not replace the digest as OpenETR artifact identity.
+
+The complete printed resolver URL is a **Resource Locator**. A **Resource
+Identifier** identifies a resource within its scheme; a **Resource Reference**
+may contain an identifier, locators, or both. A locator can already contain an
+identifier, so these need not be separate fields. The resolver base address
+alone does not locate the specific artifact. See the
+[formal terms and identity/location model](OPENETR_QR_RESOLVER_PROFILE_1_0.md#69-resource-identifier).
+
+Changing a storage location need not change the artifact digest. Changing the
+artifact bytes does. Durable printed labels therefore require both continued
+resolution and preservation of the reference-to-digest binding; keeping a URL
+online alone is not sufficient.
 
 For ordinary mobile-device scanning, the Standard Web Resolver Profile uses:
 

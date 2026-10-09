@@ -164,8 +164,11 @@ Resolver. A Resolution Reference is either:
 - a directly encoded Artifact Digest; or
 - an indirect reference that the Resolver maps to an Artifact Digest.
 
-An indirect Resolution Reference is a locator. It is not the OpenETR artifact
-identifier and is not cryptographic evidence concerning the artifact.
+An indirect Resolution Reference is a campaign- or application-scoped value
+interpreted by the Resolver Profile. It may identify an entry within that
+service, but is not the OpenETR artifact identifier or cryptographic evidence
+concerning the artifact. The complete resolvable URL is a Resource Locator;
+the opaque value alone need not be one.
 
 ### 6.6 Resolver
 
@@ -182,6 +185,50 @@ itself, evidence concerning the artifact.
 ### 6.8 QR Payload
 
 The exact character string encoded in the QR symbol.
+
+### 6.9 Resource Identifier
+
+A value that identifies a resource within a defined namespace or scheme.
+Its scope and persistence depend on that scheme; an opaque service identifier
+SHALL NOT be assumed to be globally unique, immutable, or cryptographically
+bound to resource bytes.
+
+In this profile, the Artifact Digest identifies the exact bytes of a Digital
+Artifact. An Anchor Event ID identifies a particular signed event concerning
+that artifact. These identifiers identify different resources and SHALL NOT
+be treated as interchangeable.
+
+### 6.10 Resource Locator
+
+An address through which a resource can be accessed or resolved. A Resource
+Locator may identify a retrieval or resolution location for a document,
+record, service endpoint, or other resource; the term does not imply immutable
+content or guarantee availability.
+
+A complete URL such as `https://example.com/files/12345` is a Resource Locator.
+It can contain a Resource Identifier, here `12345` within the service's
+namespace. The base `https://example.com/files/` alone does not locate that
+specific resource. A locator does not establish authority, integrity, or
+recognition of the resource it returns.
+
+### 6.11 Resource Reference
+
+Information used to identify or locate a resource. It may contain a Resource
+Identifier, one or more Resource Locators, or both. The identifier and locator
+are conceptually distinct but need not occupy separate fields: a locator can
+already contain an identifier.
+
+An identifier with several locators is one useful Resource Reference model,
+not a mandatory serialization format. This definition introduces no new QR
+payload field, Nostr tag, or event kind.
+
+### 6.12 Resolver Base
+
+The base address to which a profile-specific Resolution Reference is applied
+to construct a complete resolver URL. For example, `https://example.com/etr/`
+is a Resolver Base; appending an encoded Artifact Digest produces the Resource
+Locator used by the Standard Web Resolver Profile. A Resolver Base is an
+address, whereas a Resolver Profile specifies dispatch and interpretation rules.
 
 ## 7. QR Payload Model
 
@@ -203,14 +250,52 @@ direct resolution
   Resolution Reference = Artifact Digest
 
 indirect resolution
-  Resolution Reference = campaign or application locator
-  Resolver maps locator -> Artifact Digest
+  Resolution Reference = campaign- or application-scoped reference
+  Resolver maps reference -> Artifact Digest
 ```
 
 The Resolver Profile MAY be selected explicitly by a URI scheme or payload
 prefix. It MAY instead be selected by the scanning application or workflow,
 provided that the applicable profile and Resolution Reference are
 unambiguously determined and documented.
+
+#### 7.1.1 Resource Identity And Retrieval Location
+
+The QR model is a specific use of the Resource Reference concepts in Section 6:
+
+```text
+Resolver Base + encoded Resolution Reference -> complete resolver URL
+complete resolver URL = Resource Locator
+Resolver Profile + Resolution Reference -> Artifact Digest
+```
+
+Construction of a URL follows the selected profile; the `+` notation describes
+composition, not unrestricted string concatenation. A custom application
+handler need not use a web Resolver Base.
+
+| Resource | Resource Identifier | Possible retrieval or resolution sources |
+| --- | --- | --- |
+| Digital Artifact's exact bytes | SHA-256 Artifact Digest | Blossom server, HTTPS mirror, local storage |
+| Particular Anchor Event | Anchor Event ID | Nostr relay, archive, local event store |
+| Campaign-managed entry | Campaign-scoped reference | Campaign resolver |
+
+A relay normally supplies signed evidence concerning the artifact; it need
+not store the artifact bytes. A Blossom server may supply the bytes without
+supplying the Anchor Event. Implementations SHALL distinguish these resources
+even when a single application retrieves and displays both.
+
+Resource identity can remain stable while retrieval locations change. For
+digest-addressed artifacts this stability applies to the exact bytes: changing
+those bytes produces a different digest. Alternative locators do not create
+different artifact identities when the retrieved bytes verify against the
+same digest. Conversely, an unchanged URL does not prove that the bytes or
+resource returned by it have remained unchanged.
+
+The complete QR URL is a Resource Locator for a resolver. It may return a
+presentation of evidence and links to artifact bytes rather than the artifact
+itself. Resolver location SHALL NOT be treated as artifact identity or evidence
+authority. Multiple locators may be maintained outside the QR payload; their
+existence does not relax the payload exclusions in Section 7.6.
 
 ### 7.2 Digest Requirements
 
@@ -397,8 +482,8 @@ The QR Payload SHALL NOT include:
 
 A direct profile SHALL NOT add another value that functions as a second record
 identifier. An indirect profile MAY carry campaign and unique-link identifiers
-as its Resolution Reference, but those values SHALL remain locators and SHALL
-NOT be presented as OpenETR artifact identifiers.
+as its Resolution Reference, but those values SHALL remain scoped resolution
+references and SHALL NOT be presented as OpenETR artifact identifiers.
 
 A Standard Web Resolver Profile payload SHALL NOT include a query component or
 fragment component. A custom Resolver Profile SHOULD avoid them and SHALL
@@ -622,7 +707,7 @@ A QR code conforms to `openetr:qr-resolver:1.0` when:
 3. direct resolution carries either the lowercase hexadecimal or unpadded
    Base64URL encoding of the SHA-256 Artifact Digest;
 4. indirect resolution deterministically produces and exposes the Artifact
-   Digest without treating the locator as artifact identity;
+   Digest without treating the indirect Resolution Reference as artifact identity;
 5. the payload contains no event, relay, signer, ruleset, or state data;
 6. a Standard Web Resolver Profile payload contains no query or fragment;
 7. the QR symbol follows the rendering requirements in Section 8; and

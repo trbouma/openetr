@@ -32,6 +32,26 @@ lowercase hexadecimal representation is the canonical wire encoding used in
 events and relay filters. `npub` is the NIP-19 human-readable encoding of the
 same KBI.
 
+## Resource References
+
+A **Resource Identifier** identifies a resource within a defined namespace or
+scheme. A **Resource Locator** provides an address through which a resource can
+be accessed or resolved. A **Resource Reference** may contain an identifier,
+one or more locators, or both; a complete URL may already contain its identifier.
+
+For OpenETR, an Artifact Digest identifies exact artifact bytes, while an Anchor
+Event ID identifies a particular signed event concerning those bytes. Blossom
+and HTTPS mirrors can supply the artifact; relays and archives can supply its
+signed evidence. These are different resources with different identifiers.
+
+The complete QR resolver URL is a Resource Locator. Its Resolution Reference
+can directly carry a digest or be mapped to one by a campaign resolver. The
+Resolver Profile defines how that interpretation works. Artifact identity can
+remain stable while retrieval locations change, provided the bytes still
+verify against the digest.
+
+See the [QR Resolver Profile definitions](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_QR_RESOLVER_PROFILE_1_0.md#69-resource-identifier).
+
 ## Event Kinds
 
 The current regular-event model uses:
