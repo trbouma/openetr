@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import click
-from stroma import Event, RelayPool
+from stroma import BlossomPool, Event, RelayPool
 from datetime import datetime, timezone
 from typing import Any
 
@@ -219,6 +219,22 @@ def structured_event_tags(evt: Event) -> list[dict[str, Any]]:
     return structured_tags
 
 
+def blossom_servers_for_view(evt: Event) -> list[str]:
+    servers = []
+    if evt.kind != DEFAULT_KIND:
+        return servers
+    for tag in evt.tags:
+        if len(tag) != 2 or tag[0] != "blossom":
+            continue
+        try:
+            server = BlossomPool([tag[1]]).servers[0]
+        except ValueError:
+            continue
+        if server not in servers:
+            servers.append(server)
+    return servers
+
+
 def event_to_view(evt: Event) -> dict[str, Any]:
     subject_hex = transfer_party_from_p_tag(evt)
     action = control_action(evt)
@@ -243,6 +259,7 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "kind": evt.kind,
         "o_values": evt.tags.get_tags_value("o"),
         "structured_tags": structured_event_tags(evt),
+        "blossom_servers": blossom_servers_for_view(evt),
         "content": evt.content,
         "action": action,
         "action_label": action_label,

@@ -13,6 +13,7 @@ from stroma import BlossomError, BlossomOutcome, BlossomPool, BlossomRetrievalRe
 
 from app import blossom_query, main
 from openetr.services.issue_etr import build_issue_event_tags
+from openetr.services.query_etr import event_to_view
 from datetime import datetime, timezone
 
 
@@ -34,6 +35,24 @@ def context(*events):
 
 
 class BlossomQueryTests(unittest.TestCase):
+    def test_anchor_hint_display_normalizes_links_and_handles_old_anchors(self):
+        event = anchor([
+            ["blossom", SERVERS[0] + "/"], ["blossom", SERVERS[0]],
+            ["blossom", SERVERS[1]], ["blossom", "javascript:alert(1)"],
+            ["blossom", "https://127.0.0.1"], ["blossom", "https://example.org/path"],
+        ])
+        view = event_to_view(event)
+        self.assertEqual(view["blossom_servers"], list(SERVERS))
+        template = main.templates.env.get_template("_anchor_blossom_hints.html")
+        rendered = template.render(anchor_event=view)
+        for server in SERVERS:
+            self.assertEqual(rendered.count(f'href="{server}"'), 1)
+        self.assertNotIn("javascript:", rendered)
+        self.assertNotIn("127.0.0.1", rendered)
+        self.assertIn("current availability is not guaranteed", rendered)
+        rendered = template.render(anchor_event=event_to_view(anchor()))
+        self.assertIn("No Blossom hints advertised.", rendered)
+
     def test_configuration_plural_precedence_and_legacy_fallback(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(main.configured_blossom_servers(), (main.BLOSSOM_DEFAULT_SERVER,))

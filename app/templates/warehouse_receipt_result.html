@@ -259,6 +259,7 @@
           <div class="muted">Created at</div><div>{{ query.initial_event.created_at }}</div>
           <div class="muted">Unstructured content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
+        {% with anchor_event=query.initial_event %}{% include "_anchor_blossom_hints.html" %}{% endwith %}
         {% if query.initial_event.structured_tags %}
         <h3>Event Data</h3>
         <div class="kv">

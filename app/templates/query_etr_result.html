@@ -464,6 +464,7 @@
           <div class="muted">o value</div><div class="mono">{{ query.initial_event.o_values }}</div>
           <div class="muted">Unstructured content</div><div class="mono">{{ query.initial_event.content }}</div>
         </div>
+        {% with anchor_event=query.initial_event %}{% include "_anchor_blossom_hints.html" %}{% endwith %}
         {% if query.initial_event.structured_tags %}
         <h3>Event Data</h3>
         <div class="kv">
@@ -499,6 +500,7 @@
             <div class="muted">Artifact reference</div><div class="mono">{{ object_id }}</div>
             <div class="muted">Unstructured content</div><div class="mono">{{ item.event.content }}</div>
           </div>
+          {% with anchor_event=item.event %}{% include "_anchor_blossom_hints.html" %}{% endwith %}
           {% if item.event.structured_tags %}
           <h3>Event Data</h3>
           <div class="kv">

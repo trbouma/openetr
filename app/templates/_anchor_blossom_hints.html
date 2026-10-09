@@ -1,0 +1,10 @@
+<h3>Blossom Hints</h3>
+{% if anchor_event.blossom_servers %}
+<ul>
+  {% for server in anchor_event.blossom_servers %}
+  <li><a href="{{ server }}" target="_blank" rel="noopener noreferrer" style="overflow-wrap: anywhere;" title="Retrieval hint; current availability is not guaranteed">{{ server }}</a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No Blossom hints advertised.</p>
+{% endif %}

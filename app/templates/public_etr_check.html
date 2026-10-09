@@ -455,6 +455,7 @@
         {% if query.initial_event.content %}<dt>Statement</dt><dd>{{ query.initial_event.content }}</dd>{% endif %}
       </dl>
       <p class="openetr-evidence-note">Signer information may help recognition, but it does not independently establish authority or effect.</p>
+      {% with anchor_event=query.initial_event %}{% include "_anchor_blossom_hints.html" %}{% endwith %}
     </section>
 
     <section aria-labelledby="control-history-heading">
