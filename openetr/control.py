@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from stroma import Event
 from dataclasses import dataclass
 
-from monstr.event.event import Event
 
 
 ORIGIN_KIND = 1415
@@ -89,7 +89,7 @@ ACTION_SPECS = {
 
 
 def first_tag_value(event: Event, tag_name: str) -> str | None:
-    values = event.get_tags_value(tag_name)
+    values = event.tags.get_tags_value(tag_name)
     return values[0] if values else None
 
 

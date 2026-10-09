@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import click
-from monstr.encrypt import Keys
+from stroma import Keys
 
 from openetr.config import (
     DEFAULT_RELAYS,

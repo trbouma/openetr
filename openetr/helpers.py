@@ -10,9 +10,9 @@ from urllib.request import Request, urlopen
 
 import bech32
 import click
-from monstr.client.client import ClientPool
-from monstr.encrypt import Keys
-from monstr.event.event import Event
+from stroma import Event, Keys, RelayPool
+
+from openetr.relay import query_events
 
 from openetr.config import DEFAULT_KIND, get_aliases
 
@@ -126,7 +126,10 @@ def resolve_keys(as_user: str | None) -> Keys:
     if not as_user.startswith("nsec"):
         raise click.ClickException("as-user must be provided in nsec bech32 format")
 
-    key = Keys.get_key(as_user)
+    try:
+        key = Keys.get_key(as_user)
+    except ValueError as exc:
+        raise click.ClickException("as-user must be a valid nsec private key") from exc
     if key is None or key.private_key_hex() is None:
         raise click.ClickException("as-user must be a valid nsec private key")
     return key
@@ -157,17 +160,8 @@ async def validate_relays(relays: str, timeout: int = 10) -> str:
 
     for relay in relay_list:
         try:
-            async with ClientPool(
-                [relay],
-                timeout=timeout,
-                query_timeout=timeout,
-            ) as client:
-                await client.query(
-                    {"limit": 1},
-                    emulate_single=True,
-                    wait_connect=True,
-                    timeout=timeout,
-                )
+            client = RelayPool([relay], timeout=timeout)
+            await query_events(client, {"limit": 1})
         except Exception:
             invalid.append(relay)
 
@@ -366,7 +360,10 @@ def parse_authors(authors: str | None) -> list[str] | None:
         if not author.startswith("npub"):
             raise click.ClickException("authors must be supplied in npub bech32 format or as configured aliases")
 
-        author_hex = Keys.bech32_to_hex(author)
+        try:
+            author_hex = Keys.bech32_to_hex(author)
+        except ValueError as exc:
+            raise click.ClickException(f"invalid npub author key or alias target: {author}") from exc
         if author_hex is None:
             raise click.ClickException(f"invalid npub author key or alias target: {author}")
         resolved_authors.append(author_hex)
@@ -436,20 +433,20 @@ def format_pubkey(pubkey_hex: str) -> str:
 def print_event(evt: Event, output: str) -> None:
     structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"o", "e", "p"}]
     if output == "raw":
-        click.echo(evt.event_data())
+        click.echo(evt.data())
         click.echo(evt.tags)
         click.echo(f"content: {evt.content}")
         return
 
     if output == "tags":
-        click.echo(evt)
+        click.echo(evt.id)
         click.echo(f"content: {evt.content}")
         for tag in evt.tags:
             click.echo(tag)
         click.echo(f"total {len(evt.tags)}")
         return
 
-    click.echo(evt)
+    click.echo(evt.id)
     if output == "full":
         click.echo("content:")
         for line in evt.content.splitlines() or [""]:

@@ -19,11 +19,10 @@ import urllib.request
 
 import bech32
 import click
+from stroma import Event, Keys, RelayError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from monstr.encrypt import Keys
-from monstr.event.event import Event
 from starlette.staticfiles import StaticFiles
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_wallet_material, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input, fetch_blockstream_wallet_balance_sats
@@ -114,6 +113,11 @@ app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 if APP_ASSETS_DIR.exists():
     app.mount("/app-assets", StaticFiles(directory=str(APP_ASSETS_DIR)), name="app-assets")
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
+
+
+@app.exception_handler(RelayError)
+async def relay_operation_error(request: Request, exc: RelayError):
+    return JSONResponse(status_code=503, content={"ok": False, "error": "relay_operation_failed", "detail": str(exc)})
 
 
 def configured_home_relays() -> str:

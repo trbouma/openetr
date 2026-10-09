@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+import click
+from stroma import Event, RelayPool
+from datetime import datetime, timezone
 from typing import Any
 
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+
+from openetr.relay import query_events
 
 from openetr.config import DEFAULT_KIND, DEFAULT_LIMIT, DEFAULT_QUERY_TIMEOUT
 from openetr.control import (
@@ -48,26 +50,20 @@ async def fetch_profile(
     timeout: int,
     ssl_disable_verify: bool,
 ) -> dict | None:
-    ssl = False if ssl_disable_verify else None
+    if ssl_disable_verify:
+        raise click.ClickException("Stroma requires TLS certificate verification; --ssl-disable-verify is no longer supported.")
 
-    async with ClientPool(
-        relays.split(","),
-        query_timeout=timeout,
-        timeout=timeout,
-        ssl=ssl,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [0],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [0],
+            'limit': 1,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events or not events[0].content:
         return None
 
@@ -145,6 +141,8 @@ def event_timestamp_seconds(value) -> float | None:
 
 
 def format_event_date_compact(value) -> str:
+    if isinstance(value, (int, float)):
+        value = datetime.fromtimestamp(value, timezone.utc)
     if isinstance(value, datetime):
         return value.strftime("%Y%m%d")
     return "unknown"
@@ -241,9 +239,9 @@ def event_to_view(evt: Event) -> dict[str, Any]:
         "event_ref": format_event_reference(evt.id),
         "author_hex": evt.pub_key,
         "author_npub": format_pubkey(evt.pub_key),
-        "created_at": evt.created_at,
+        "created_at": datetime.fromtimestamp(evt.created_at, timezone.utc),
         "kind": evt.kind,
-        "o_values": evt.get_tags_value("o"),
+        "o_values": evt.tags.get_tags_value("o"),
         "structured_tags": structured_event_tags(evt),
         "content": evt.content,
         "action": action,
@@ -271,35 +269,16 @@ async def build_query_etr_result(
     all_events_filter = {"kinds": [DEFAULT_KIND], "#o": [digest], "limit": limit}
     transfer_filter = {"kinds": [CONTROL_TRANSFER_KIND], "#o": [digest], "limit": limit}
 
-    ssl = False if ssl_disable_verify else None
-    async with ClientPool(
-        relays.split(","),
-        query_timeout=timeout,
-        timeout=timeout,
-        ssl=ssl,
-    ) as client:
-        all_events = await client.query(
-            all_events_filter,
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
-        events = await client.query(
-            all_events_filter,
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
-        transfer_events = await client.query(
-            transfer_filter,
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
+    if ssl_disable_verify:
+        raise click.ClickException("Stroma requires TLS certificate verification; --ssl-disable-verify is no longer supported.")
+    client = RelayPool(relays.split(","), timeout=timeout)
+    all_events = await query_events(client, all_events_filter)
+    events = await query_events(client, all_events_filter)
+    transfer_events = await query_events(client, transfer_filter)
 
-    Event.sort(all_events, inplace=True, reverse=False)
-    Event.sort(events, inplace=True, reverse=False)
-    Event.sort(transfer_events, inplace=True, reverse=False)
+    all_events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
+    transfer_events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
 
     profile_cache: dict[str, dict | None] = {}
 
@@ -417,7 +396,7 @@ async def build_query_etr_result(
             discharge_events_by_encumbrance_id.setdefault(encumbrance_event_id, []).append(evt)
 
     for encumbrance_id in discharge_events_by_encumbrance_id:
-        Event.sort(discharge_events_by_encumbrance_id[encumbrance_id], inplace=True, reverse=False)
+        discharge_events_by_encumbrance_id[encumbrance_id].sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
 
     for encumber_event in encumber_events:
         matching_discharges = discharge_events_by_encumbrance_id.get(encumber_event.id, [])

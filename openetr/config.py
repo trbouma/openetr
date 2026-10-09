@@ -8,10 +8,9 @@ import os
 from pathlib import Path
 
 import click
-from monstr.client.client import ClientPool
-from monstr.encrypt import Keys
-from monstr.encrypt import NIP44Encrypt
-from monstr.event.event import Event
+from stroma import Event, Keys, NIP44Encrypt, RelayPool
+
+from openetr.relay import query_events, publish_event
 from pydantic import BaseModel
 import yaml
 
@@ -177,7 +176,10 @@ def generate_recovery_phrase_from_nsec(nsec: str) -> str | None:
     except ModuleNotFoundError:
         return None
 
-    key = Keys.get_key(nsec)
+    try:
+        key = Keys.get_key(nsec)
+    except ValueError as exc:
+        raise click.ClickException("root nsec is invalid and cannot be converted to a recovery phrase") from exc
     if key is None or key.private_key_hex() is None:
         raise click.ClickException("root nsec is invalid and cannot be converted to a recovery phrase")
 
@@ -531,7 +533,10 @@ def _get_root_keys(config: dict | None = None) -> Keys:
 
 
 def resolve_key_string(value: str) -> Keys:
-    key = Keys.get_key(value)
+    try:
+        key = Keys.get_key(value)
+    except ValueError as exc:
+        raise click.ClickException("invalid nsec private key") from exc
     if key is None or key.private_key_hex() is None:
         raise click.ClickException("invalid nsec private key")
     return key
@@ -578,9 +583,9 @@ async def _async_store_profiles_index(index: ProfilesIndexRecord, config: dict) 
         tags=[["d", d_value]],
     )
     event.sign(root_keys.private_key_hex())
-    async with ClientPool(resolve_home_relays(config)) as client:
-        client.publish(event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    await publish_event(client, event)
+    await asyncio.sleep(0.2)
 
 
 async def _async_store_aliases_index(index: AliasIndexRecord, config: dict) -> None:
@@ -597,9 +602,9 @@ async def _async_store_aliases_index(index: AliasIndexRecord, config: dict) -> N
         tags=[["d", d_value]],
     )
     event.sign(root_keys.private_key_hex())
-    async with ClientPool(resolve_home_relays(config)) as client:
-        client.publish(event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    await publish_event(client, event)
+    await asyncio.sleep(0.2)
 
 
 async def _async_store_known_entities_index(index: KnownEntitiesRecord, config: dict) -> None:
@@ -616,9 +621,9 @@ async def _async_store_known_entities_index(index: KnownEntitiesRecord, config: 
         tags=[["d", d_value]],
     )
     event.sign(root_keys.private_key_hex())
-    async with ClientPool(resolve_home_relays(config)) as client:
-        client.publish(event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    await publish_event(client, event)
+    await asyncio.sleep(0.2)
 
 
 async def _async_load_profiles_index(config: dict) -> ProfilesIndexRecord | None:
@@ -630,9 +635,9 @@ async def _async_load_profiles_index(config: dict) -> ProfilesIndexRecord | None
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
-    Event.sort(events, inplace=True, reverse=True)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events:
         return None
     try:
@@ -651,9 +656,9 @@ async def _async_load_aliases_index(config: dict) -> AliasIndexRecord | None:
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
-    Event.sort(events, inplace=True, reverse=True)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events:
         return None
     try:
@@ -672,9 +677,9 @@ async def _async_load_known_entities_index(config: dict) -> KnownEntitiesRecord 
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
-    Event.sort(events, inplace=True, reverse=True)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events:
         return None
     try:
@@ -788,9 +793,9 @@ async def _async_store_profile_record(profile: str, values: dict, config: dict) 
         tags=[["d", d_value]],
     )
     event.sign(root_keys.private_key_hex())
-    async with ClientPool(resolve_home_relays(config)) as client:
-        client.publish(event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    await publish_event(client, event)
+    await asyncio.sleep(0.2)
 
 
 async def _async_load_profile_record(profile: str, config: dict) -> ProfileConfigRecord | None:
@@ -802,9 +807,9 @@ async def _async_load_profile_record(profile: str, config: dict) -> ProfileConfi
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
-    Event.sort(events, inplace=True, reverse=True)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events:
         return None
     try:
@@ -842,20 +847,20 @@ async def _async_delete_profile_record(profile: str, config: dict) -> bool:
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
-        Event.sort(events, inplace=True, reverse=True)
-        if not events:
-            return False
-        delete_event = Event(
-            kind=Event.KIND_DELETE,
-            content="",
-            pub_key=root_keys.public_key_hex(),
-            tags=[["e", events[0].id]],
-        )
-        delete_event.sign(root_keys.private_key_hex())
-        client.publish(delete_event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
+    if not events:
+        return False
+    delete_event = Event(
+        kind=Event.KIND_DELETE,
+        content="",
+        pub_key=root_keys.public_key_hex(),
+        tags=[["e", events[0].id]],
+    )
+    delete_event.sign(root_keys.private_key_hex())
+    await publish_event(client, delete_event)
+    await asyncio.sleep(0.2)
     return True
 
 
@@ -894,9 +899,9 @@ async def _async_store_profile_secret(profile: str, nsec: str, config: dict) -> 
         tags=[["d", d_value]],
     )
     event.sign(root_keys.private_key_hex())
-    async with ClientPool(resolve_home_relays(config)) as client:
-        client.publish(event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    await publish_event(client, event)
+    await asyncio.sleep(0.2)
     return payload.npub
 
 
@@ -918,10 +923,10 @@ async def _async_load_profile_secret(profile: str, config: dict) -> str | None:
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events:
         return None
 
@@ -951,20 +956,20 @@ async def _async_delete_profile_secret(profile: str, config: dict) -> bool:
         "#d": [d_value],
         "limit": 1,
     }
-    async with ClientPool(resolve_home_relays(config)) as client:
-        events = await client.query(query_filter)
-        Event.sort(events, inplace=True, reverse=True)
-        if not events:
-            return False
-        delete_event = Event(
-            kind=Event.KIND_DELETE,
-            content="",
-            pub_key=root_keys.public_key_hex(),
-            tags=[["e", events[0].id]],
-        )
-        delete_event.sign(root_keys.private_key_hex())
-        client.publish(delete_event)
-        await asyncio.sleep(0.2)
+    client = RelayPool(resolve_home_relays(config), timeout=10)
+    events = await query_events(client, query_filter)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
+    if not events:
+        return False
+    delete_event = Event(
+        kind=Event.KIND_DELETE,
+        content="",
+        pub_key=root_keys.public_key_hex(),
+        tags=[["e", events[0].id]],
+    )
+    delete_event.sign(root_keys.private_key_hex())
+    await publish_event(client, delete_event)
+    await asyncio.sleep(0.2)
     return True
 
 

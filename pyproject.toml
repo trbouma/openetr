@@ -8,13 +8,14 @@ readme = "README.md"
 include = ["openetr/defaults.yaml", "openetr/openetr_trivia.yaml"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.11,<3.14"
 click = "^8.1.8"
-monstr = "^0.1.9"
+stroma-nostr = {git = "https://github.com/trbouma/stroma.git", rev = "544165018f38f12d8b4f33d70b940a996acb46c3"}
 pyyaml = "^6.0.2"
 mnemonic = "^0.21"
 pydantic = "^2.11.7"
 btclib = "^2023.7.12"
+secp256k1 = "^0.14.0"
 qrcode = {extras = ["pil"], version = "^8.2"}
 
 [tool.poetry.scripts]

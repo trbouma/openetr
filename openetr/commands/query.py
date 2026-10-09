@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Any
 
 import click
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+from stroma import Event, RelayPool
+
+from openetr.relay import query_events
 
 from openetr.commands.output import emit_json
 from openetr.config import (
@@ -47,26 +48,20 @@ async def _fetch_profile(
     timeout: int,
     ssl_disable_verify: bool,
 ) -> dict | None:
-    ssl = False if ssl_disable_verify else None
+    if ssl_disable_verify:
+        raise click.ClickException("Stroma requires TLS certificate verification; --ssl-disable-verify is no longer supported.")
 
-    async with ClientPool(
-        relays.split(","),
-        query_timeout=timeout,
-        timeout=timeout,
-        ssl=ssl,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [0],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [0],
+            'limit': 1,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events or not events[0].content:
         return None
 
@@ -138,13 +133,13 @@ def _print_event_details(evt: Event, output: str, indent: str = "", verbose: boo
     structured_tags = [tag for tag in evt.tags if len(tag) >= 2 and tag[0] not in {"o", "e", "p"}]
     if output == "raw":
         click.echo(f"{indent}event:")
-        click.echo(f"{indent}{evt.event_data()}")
+        click.echo(f"{indent}{evt.data()}")
         click.echo(f"{indent}tags: {evt.tags}")
         click.echo(f"{indent}content: {evt.content}")
         return
 
     if output == "tags":
-        click.echo(f"{indent}event: {evt}")
+        click.echo(f"{indent}event: {evt.id}")
         click.echo(f"{indent}content: {evt.content}")
         click.echo(f"{indent}tags:")
         for tag in evt.tags:
@@ -153,7 +148,7 @@ def _print_event_details(evt: Event, output: str, indent: str = "", verbose: boo
         return
 
     if verbose:
-        click.echo(f"{indent}event: {evt}")
+        click.echo(f"{indent}event: {evt.id}")
     if output == "full":
         click.echo(f"{indent}content:")
         for line in evt.content.splitlines() or [""]:
@@ -190,7 +185,8 @@ async def _run_query_object(
     ssl_disable_verify: bool,
     digest_file: Path | None,
 ) -> None:
-    ssl = False if ssl_disable_verify else None
+    if ssl_disable_verify:
+        raise click.ClickException("Stroma requires TLS certificate verification; --ssl-disable-verify is no longer supported.")
     assert_hex_object_identifier(digest)
     if authors:
         for author in authors:
@@ -208,20 +204,10 @@ async def _run_query_object(
     if digest_file is not None:
         click.echo(f"Byte identity source: sha256({digest_file})")
 
-    async with ClientPool(
-        relays.split(","),
-        query_timeout=timeout,
-        timeout=timeout,
-        ssl=ssl,
-    ) as client:
-        events = await client.query(
-            query_filter,
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=timeout)
+    events = await query_events(client, query_filter)
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     click.echo(f"Returned {len(events)} event(s)")
 
     if not events:
@@ -229,7 +215,7 @@ async def _run_query_object(
         return
 
     for evt in events:
-        o_values = evt.get_tags_value("o")
+        o_values = evt.tags.get_tags_value("o")
         click.echo(f"author: {format_pubkey(evt.pub_key)}")
         profile = await _fetch_profile(
             relays=relays,
@@ -542,7 +528,8 @@ async def _run_query_profile(
     timeout: int,
     ssl_disable_verify: bool,
 ) -> None:
-    ssl = False if ssl_disable_verify else None
+    if ssl_disable_verify:
+        raise click.ClickException("Stroma requires TLS certificate verification; --ssl-disable-verify is no longer supported.")
     assert_hex_pubkey(pubkey_hex)
 
     query_filter = {

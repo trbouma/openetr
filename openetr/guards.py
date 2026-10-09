@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from stroma import Event, RelayPool
 from typing import Any
 
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+
+from openetr.relay import query_events
 
 from openetr.config import DEFAULT_KIND
 from openetr.helpers import assert_hex_object_identifier, assert_hex_pubkey, format_object_identifier, format_pubkey
@@ -16,23 +17,17 @@ async def find_existing_origin_records_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(digest)
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [DEFAULT_KIND],
-                "#o": [digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [DEFAULT_KIND],
+            '#o': [digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return events
 
 

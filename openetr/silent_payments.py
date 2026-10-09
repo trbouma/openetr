@@ -10,9 +10,9 @@ from urllib import error, parse, request
 
 import bech32
 import click
+from stroma import Keys
 import secp256k1
 from btclib.bip32 import BIP32KeyData, derive, rootxprv_from_seed
-from monstr.encrypt import Keys
 from btclib.script.script_pub_key import ScriptPubKey
 
 from openetr.bitcoin import _estimate_signed_p2tr_vsize, build_signed_p2tr_transaction, confirmed_utxos_only, dust_threshold_for_script_pub_key, fetch_blockstream_address_utxos

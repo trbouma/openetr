@@ -4,7 +4,7 @@ ENV PIP_NO_CACHE_DIR=1 \
     PATH=/opt/venv/bin:$PATH
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential \
+    && apt-get install -y --no-install-recommends build-essential git ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && python -m venv /opt/venv
 

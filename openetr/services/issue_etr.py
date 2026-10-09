@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from stroma import Event, RelayPool
 import asyncio
 from datetime import datetime, timezone
 from typing import Any, Iterable, Sequence
 
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+
+from openetr.relay import query_events, publish_event
 
 from openetr.config import DEFAULT_KIND, DEFAULT_LIMIT, DEFAULT_QUERY_TIMEOUT
 from openetr.guards import evaluate_issue_etr_guard
@@ -94,28 +95,22 @@ async def publish_issue_etr(
     )
     event.sign(keys.private_key_hex())
 
-    async with ClientPool(
-        relays.split(","),
-        on_ok=on_ok,
-        timeout=timeout,
-        query_timeout=timeout,
-    ) as client:
-        client.publish(event)
-        if publish_wait > 0:
-            await asyncio.sleep(publish_wait)
-        matching_events = await client.query(
-            {
-                "authors": [keys.public_key_hex()],
-                "kinds": [DEFAULT_KIND],
-                "#o": [digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=timeout)
+    for acknowledgement in await publish_event(client, event):
+        on_ok(client, acknowledgement.event_id, acknowledgement.accepted, acknowledgement.message)
+    if publish_wait > 0:
+        await asyncio.sleep(publish_wait)
+    matching_events = await query_events(
+        client,
+        {
+            'authors': [keys.public_key_hex()],
+            'kinds': [DEFAULT_KIND],
+            '#o': [digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(matching_events, inplace=True, reverse=False)
+    matching_events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return {
         "filename": filename,
         "size_bytes": size_bytes,

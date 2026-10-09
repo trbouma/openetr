@@ -14,6 +14,12 @@ This keeps:
 
 ## Install
 
+Use Python 3.11-3.13 and Poetry 2.2 or newer. OpenETR uses Stroma rather than
+Monstr for Nostr operations. Existing keys and relay-backed profiles remain
+compatible. When upgrading a Python 3.10 virtualenv, select a supported interpreter
+with `poetry env use python3.12` before installing both component and app dependencies.
+Docker deployments need an image rebuild, not only a restart.
+
 Install the component from the repo root if you want the app to import package code later:
 
 ```sh

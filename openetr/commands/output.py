@@ -4,10 +4,12 @@ from pathlib import Path
 from typing import Any
 
 import click
-from monstr.event.event import Event
+from stroma import Event, EventTags
 
 
 def to_jsonable(value: Any) -> Any:
+    if isinstance(value, EventTags):
+        return to_jsonable(value.as_list())
     if isinstance(value, Event):
         return to_jsonable(value.data())
     if isinstance(value, datetime):

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from stroma import Event, RelayPool
 from typing import Protocol
 
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+
+from openetr.relay import query_events
 
 from openetr.config import DEFAULT_KIND
 from openetr.control import ACTION_INITIATE, ACTION_TERMINATE, CONTROL_EVENT_KIND
@@ -15,7 +16,7 @@ class ControlEventError(Exception):
 
 
 def event_tag_value(event: Event, tag_name: str) -> str | None:
-    values = event.get_tags_value(tag_name)
+    values = event.tags.get_tags_value(tag_name)
     return values[0] if values else None
 
 
@@ -38,23 +39,17 @@ async def find_control_events_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [CONTROL_EVENT_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [CONTROL_EVENT_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return events
 
 
@@ -65,23 +60,17 @@ async def find_origin_events_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [DEFAULT_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [DEFAULT_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return events
 
 
@@ -91,25 +80,19 @@ async def fetch_event_by_id(
     query_timeout: int,
 ) -> Event | None:
     assert_hex_event_id(event_id_hex)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "ids": [event_id_hex],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'ids': [event_id_hex],
+            'limit': 1,
+        },
+    )
 
     if not events:
         return None
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return events[0]
 
 

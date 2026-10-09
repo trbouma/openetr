@@ -72,6 +72,12 @@ replaceable events.
 The CLI can issue, query, transfer, encumber, discharge, redeem, and terminate
 records.
 
+The component, CLI, and web app use **Stroma** for Nostr keys, signing, NIP-44
+encryption, and native `RelayPool` queries/publication. Monstr is no longer a
+dependency. Python **3.11-3.13** is required; use Poetry 2.2 or newer for the
+dependency groups and lockfile. Existing event IDs, keys, and encrypted
+relay-backed profiles do not require migration or republishing.
+
 ```bash
 poetry install
 poetry run openetr profile use warehouse
@@ -93,10 +99,17 @@ poetry run openetr query examples/MLWR001.pdf
 Check the CLI and build the documentation:
 
 ```bash
+poetry env use python3.12
 poetry install
 poetry run openetr --help
 poetry run mkdocs build --strict
 ```
+
+If upgrading from a Python 3.10 environment, select a supported interpreter
+before installing. For the web app, also install `app/requirements.txt` in the
+new environment. Docker already uses Python 3.11; rebuild the image to pick up
+the new dependency. See [Component and CLI](docs-site/openetr/component-and-cli.md)
+for relay behavior and compatibility details.
 
 Run the standalone web application with Docker:
 

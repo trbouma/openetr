@@ -1,13 +1,14 @@
 import asyncio
 import json
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import click
-from monstr.client.client import ClientPool
-from monstr.encrypt import Keys
-from monstr.event.event import Event
+from stroma import Event, Keys, RelayError, RelayPool
+
+from openetr.relay import query_events, publish_event
 
 from openetr.commands.output import emit_json, to_jsonable
 from openetr.config import (
@@ -265,36 +266,27 @@ async def _run_publish_object(
             click.echo(f"  {tag}")
         click.echo()
 
-    async with ClientPool(
-        relays.split(","),
-        on_ok=on_ok,
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    if not json_output:
+        click.echo("Publishing event...")
+    for acknowledgement in await publish_event(client, event):
+        on_ok(client, acknowledgement.event_id, acknowledgement.accepted, acknowledgement.message)
+
+    if publish_wait > 0:
         if not json_output:
-            click.echo("Publishing event...")
-        client.publish(event)
+            click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
+        await asyncio.sleep(publish_wait)
 
-        if publish_wait > 0:
-            if not json_output:
-                click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
-            await asyncio.sleep(publish_wait)
+    query_filter = {
+        "authors": [as_user.public_key_hex()],
+        "kinds": [DEFAULT_KIND],
+        "#o": [digest],
+        "limit": limit,
+    }
 
-        query_filter = {
-            "authors": [as_user.public_key_hex()],
-            "kinds": [DEFAULT_KIND],
-            "#o": [digest],
-            "limit": limit,
-        }
-
-        if not json_output:
-            click.echo(f"Querying with filter: {query_filter}")
-        events = await client.query(
-            query_filter,
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    if not json_output:
+        click.echo(f"Querying with filter: {query_filter}")
+    events = await query_events(client, query_filter)
 
     if not json_output:
         click.echo()
@@ -303,14 +295,14 @@ async def _run_publish_object(
     matched = []
     query_events = []
     for evt in events:
-        o_values = evt.get_tags_value("o")
+        o_values = evt.tags.get_tags_value("o")
         has_tag_match = digest in o_values
         same_event = evt.id == event.id
         query_events.append(
             {
                 "event": evt,
                 "id": evt.id,
-                "created_at": evt.created_at,
+                "created_at": datetime.fromtimestamp(evt.created_at, timezone.utc),
                 "kind": evt.kind,
                 "author_hex": evt.pub_key,
                 "author_npub": format_pubkey(evt.pub_key),
@@ -322,7 +314,7 @@ async def _run_publish_object(
         )
         if not json_output:
             click.echo(
-                f"- id={evt.id} created_at={evt.created_at} kind={evt.kind} "
+                f"- id={evt.id} created_at={datetime.fromtimestamp(evt.created_at, timezone.utc)} kind={evt.kind} "
                 f"author={format_pubkey(evt.pub_key)} "
                 f"o_values={[format_object_identifier(value) for value in o_values]}"
             )
@@ -390,24 +382,18 @@ async def _find_existing_object_records(
 ) -> list[Event]:
     assert_hex_object_identifier(digest)
     assert_hex_pubkey(pubkey_hex)
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [DEFAULT_KIND],
-                "#o": [digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [DEFAULT_KIND],
+            '#o': [digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return events
 
 
@@ -421,24 +407,18 @@ async def _find_existing_transfer_records(
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
     assert_hex_pubkey(pubkey_hex)
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [CONTROL_TRANSFER_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [CONTROL_TRANSFER_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return [event for event in events if _event_tag_value(event, "action") == action]
 
 
@@ -449,23 +429,17 @@ async def _find_control_events_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [CONTROL_TRANSFER_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [CONTROL_TRANSFER_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return events
 
 
@@ -500,23 +474,17 @@ async def _find_origin_events_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [DEFAULT_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [DEFAULT_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return events
 
 
@@ -742,23 +710,17 @@ async def _fetch_current_profile(
     pubkey_hex: str,
     query_timeout: int,
 ) -> dict:
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [0],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [0],
+            'limit': 1,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events or not events[0].content:
         return {}
 
@@ -774,30 +736,24 @@ async def _fetch_event_by_id(
     query_timeout: int,
 ) -> Event | None:
     assert_hex_event_id(event_id_hex)
-    async with ClientPool(
-        relays.split(","),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "ids": [event_id_hex],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'ids': [event_id_hex],
+            'limit': 1,
+        },
+    )
 
     if not events:
         return None
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return events[0]
 
 
 def _event_tag_value(event: Event, tag_name: str) -> str | None:
-    values = event.get_tags_value(tag_name)
+    values = event.tags.get_tags_value(tag_name)
     return values[0] if values else None
 
 
@@ -899,20 +855,16 @@ async def _run_publish_transfer_event(
         click.echo()
 
     relay_list = _split_relays(relays)
-    async with ClientPool(
-        relay_list,
-        on_ok=on_ok,
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        if not json_output:
-            click.echo("Publishing transfer event...")
-        client.publish(event)
+    client = RelayPool(relay_list, timeout=query_timeout)
+    if not json_output:
+        click.echo("Publishing transfer event...")
+    for acknowledgement in await publish_event(client, event):
+        on_ok(client, acknowledgement.event_id, acknowledgement.accepted, acknowledgement.message)
 
-        if publish_wait > 0:
-            if not json_output:
-                click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
-            await asyncio.sleep(publish_wait)
+    if publish_wait > 0:
+        if not json_output:
+            click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
+        await asyncio.sleep(publish_wait)
 
     normalized_verify = _normalize_verify_value(verify)
     if normalized_verify in {"any", "majority", "all"}:
@@ -936,29 +888,15 @@ async def _run_publish_transfer_event(
         slot_count = 0
 
         for relay in verify_relays:
-            async with ClientPool(
-                [relay],
-                timeout=query_timeout,
-                query_timeout=query_timeout,
-            ) as verify_client:
-                relay_events = await verify_client.query(
-                    {
-                        "ids": [event.id],
-                        "limit": 1,
-                    },
-                    emulate_single=True,
-                    wait_connect=True,
-                    timeout=query_timeout,
-                )
+            verify_client = RelayPool([relay], timeout=query_timeout)
+            try:
+                relay_events = await query_events(verify_client, {"ids": [event.id], "limit": 1})
                 if not relay_events:
-                    relay_events = await verify_client.query(
-                        fallback_filter,
-                        emulate_single=True,
-                        wait_connect=True,
-                        timeout=query_timeout,
-                    )
+                    relay_events = await query_events(verify_client, fallback_filter)
+            except RelayError:
+                relay_events = []
 
-            Event.sort(relay_events, inplace=True, reverse=True)
+            relay_events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
             verification_results[relay] = relay_events
             if relay_events:
                 slot_count += 1
@@ -1047,7 +985,7 @@ async def _run_publish_transfer_event(
                 latest = relay_events[0]
                 click.echo(f"Relay: {relay}")
                 click.echo(f"  returned event id: {latest.id}")
-                click.echo(f"  returned created_at: {latest.created_at}")
+                click.echo(f"  returned created_at: {datetime.fromtimestamp(latest.created_at, timezone.utc)}")
             else:
                 click.echo(f"Relay: {relay}")
                 click.echo("  returned event id: none")
@@ -1098,31 +1036,25 @@ async def _run_publish_profile(
     click.echo(event.content)
     click.echo()
 
-    async with ClientPool(
-        relays.split(","),
-        on_ok=on_ok,
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        click.echo("Publishing profile event...")
-        client.publish(event)
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    click.echo("Publishing profile event...")
+    for acknowledgement in await publish_event(client, event):
+        on_ok(client, acknowledgement.event_id, acknowledgement.accepted, acknowledgement.message)
 
-        if publish_wait > 0:
-            click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
-            await asyncio.sleep(publish_wait)
+    if publish_wait > 0:
+        click.echo(f"Waiting {publish_wait:.1f}s for relay indexing...")
+        await asyncio.sleep(publish_wait)
 
-        events = await client.query(
-            {
-                "authors": [as_user.public_key_hex()],
-                "kinds": [0],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    events = await query_events(
+        client,
+        {
+            'authors': [as_user.public_key_hex()],
+            'kinds': [0],
+            'limit': 1,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     click.echo()
     click.echo(f"Query returned {len(events)} event(s)")
 

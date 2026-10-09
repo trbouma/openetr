@@ -6,9 +6,9 @@ from pathlib import Path
 import secrets
 
 import click
-from monstr.client.client import ClientPool
-from monstr.encrypt import Keys
-from monstr.event.event import Event
+from stroma import Event, Keys, RelayPool
+
+from openetr.relay import query_events
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_material_with_balance, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input
 from openetr.silent_payments import create_silent_payment_sweep_result, derive_silent_payment_material, frigate_debug_subscription, frigate_scan_subscribe, inspect_silent_payment_transaction, resolve_silent_payment_wallet_mode_material, scan_silent_payment_receipts
@@ -279,23 +279,17 @@ def _profile_list_entries(config: dict, include_active: bool = True) -> list[str
 
 
 async def _fetch_kind0_profile(relays: str, pubkey_hex: str, timeout: int) -> dict | None:
-    async with ClientPool(
-        relays.split(","),
-        query_timeout=timeout,
-        timeout=timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [0],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [0],
+            'limit': 1,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     if not events or not events[0].content:
         return None
 

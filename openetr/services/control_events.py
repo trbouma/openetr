@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from stroma import Event, RelayError, RelayPool
 import asyncio
 from typing import Any
 
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+
+from openetr.relay import query_events, publish_event
 
 from openetr.config import DEFAULT_KIND, DEFAULT_LIMIT, DEFAULT_QUERY_TIMEOUT
 from openetr.control import (
@@ -31,7 +32,7 @@ from openetr.helpers import (
 
 
 def event_tag_value(event: Event, tag_name: str) -> str | None:
-    values = event.get_tags_value(tag_name)
+    values = event.tags.get_tags_value(tag_name)
     return values[0] if values else None
 
 
@@ -67,25 +68,19 @@ async def find_existing_control_records(
 ) -> list[Event]:
     assert_hex_pubkey(pubkey_hex)
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "authors": [pubkey_hex],
-                "kinds": [CONTROL_EVENT_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'authors': [pubkey_hex],
+            'kinds': [CONTROL_EVENT_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
     events = [event for event in events if event_tag_value(event, "action") == action]
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return events
 
 
@@ -96,23 +91,17 @@ async def find_control_events_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [CONTROL_EVENT_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [CONTROL_EVENT_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return events
 
 
@@ -123,23 +112,17 @@ async def find_origin_events_for_object(
     limit: int,
 ) -> list[Event]:
     assert_hex_object_identifier(object_digest)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "kinds": [DEFAULT_KIND],
-                "#o": [object_digest],
-                "limit": limit,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'kinds': [DEFAULT_KIND],
+            '#o': [object_digest],
+            'limit': limit,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=False)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=False)
     return events
 
 
@@ -149,25 +132,19 @@ async def fetch_event_by_id(
     query_timeout: int,
 ) -> Event | None:
     assert_hex_event_id(event_id_hex)
-    async with ClientPool(
-        split_relays(relays),
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        events = await client.query(
-            {
-                "ids": [event_id_hex],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(split_relays(relays), timeout=query_timeout)
+    events = await query_events(
+        client,
+        {
+            'ids': [event_id_hex],
+            'limit': 1,
+        },
+    )
 
     if not events:
         return None
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     return events[0]
 
 
@@ -309,15 +286,11 @@ async def publish_event_and_verify(
         ok_results.append({"event_id": event_id, "success": success, "message": message})
 
     relay_list = split_relays(relays)
-    async with ClientPool(
-        relay_list,
-        on_ok=on_ok,
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        client.publish(event)
-        if publish_wait > 0:
-            await asyncio.sleep(publish_wait)
+    client = RelayPool(relay_list, timeout=query_timeout)
+    for acknowledgement in await publish_event(client, event):
+        on_ok(client, acknowledgement.event_id, acknowledgement.accepted, acknowledgement.message)
+    if publish_wait > 0:
+        await asyncio.sleep(publish_wait)
 
     normalized_verify = normalize_verify_value(verify)
     verify_relays = relay_list if normalized_verify in {"any", "majority", "all"} else [normalized_verify]
@@ -335,21 +308,14 @@ async def publish_event_and_verify(
         verification_results = {}
         exact_count = 0
         for relay in verify_relays:
-            async with ClientPool([relay], timeout=query_timeout, query_timeout=query_timeout) as verify_client:
-                relay_events = await verify_client.query(
-                    {"ids": [event.id], "limit": 1},
-                    emulate_single=True,
-                    wait_connect=True,
-                    timeout=query_timeout,
-                )
+            verify_client = RelayPool([relay], timeout=query_timeout)
+            try:
+                relay_events = await query_events(verify_client, {"ids": [event.id], "limit": 1})
                 if not relay_events:
-                    relay_events = await verify_client.query(
-                        fallback_filter,
-                        emulate_single=True,
-                        wait_connect=True,
-                        timeout=query_timeout,
-                    )
-            Event.sort(relay_events, inplace=True, reverse=True)
+                    relay_events = await query_events(verify_client, fallback_filter)
+            except RelayError:
+                relay_events = []
+            relay_events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
             verification_results[relay] = relay_events
             if any(found.id == event.id for found in relay_events):
                 exact_count += 1

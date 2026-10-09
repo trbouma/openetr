@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from stroma import Event, RelayPool
 import asyncio
 import json
 from typing import Any
 
-from monstr.client.client import ClientPool
-from monstr.event.event import Event
+
+from openetr.relay import query_events, publish_event
 
 from openetr.config import DEFAULT_QUERY_TIMEOUT
 from openetr.helpers import format_pubkey, resolve_lei, resolve_keys
@@ -69,27 +70,21 @@ async def publish_profile_content(
     )
     event.sign(keys.private_key_hex())
 
-    async with ClientPool(
-        relays.split(","),
-        on_ok=on_ok,
-        timeout=query_timeout,
-        query_timeout=query_timeout,
-    ) as client:
-        client.publish(event)
-        if publish_wait > 0:
-            await asyncio.sleep(publish_wait)
-        events = await client.query(
-            {
-                "authors": [keys.public_key_hex()],
-                "kinds": [0],
-                "limit": 1,
-            },
-            emulate_single=True,
-            wait_connect=True,
-            timeout=query_timeout,
-        )
+    client = RelayPool(relays.split(","), timeout=query_timeout)
+    for acknowledgement in await publish_event(client, event):
+        on_ok(client, acknowledgement.event_id, acknowledgement.accepted, acknowledgement.message)
+    if publish_wait > 0:
+        await asyncio.sleep(publish_wait)
+    events = await query_events(
+        client,
+        {
+            'authors': [keys.public_key_hex()],
+            'kinds': [0],
+            'limit': 1,
+        },
+    )
 
-    Event.sort(events, inplace=True, reverse=True)
+    events.sort(key=lambda event: (int(event.created_at), event.id), reverse=True)
     latest = events[0] if events else None
     latest_content = {}
     if latest and latest.content:

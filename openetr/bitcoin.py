@@ -14,8 +14,8 @@ from btclib.script.script_pub_key import ScriptPubKey
 from btclib.script.witness import Witness
 from btclib.tx import OutPoint, Tx, TxIn, TxOut
 import click
+from stroma import Keys
 import secp256k1
-from monstr.encrypt import Keys
 
 from openetr.helpers import format_pubkey, normalize_nip05_identifier, resolve_author, resolve_keys
 
