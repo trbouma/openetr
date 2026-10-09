@@ -285,6 +285,14 @@
         </div>
       </section>
 
+      {% if artifact_retrieval_message %}
+      <section class="panel">
+        <h2>Artifact Retrieval</h2>
+        <p>{{ artifact_retrieval_message }}</p>
+        <p class="muted">Blossom server: <code>{{ artifact_retrieval_server }}</code></p>
+      </section>
+      {% endif %}
+
       {% if query.warning_multiple_origin_events %}
       <section class="panel warning">
         <strong>Warning:</strong> multiple Anchor Events (kind {{ query.origin_kind }}) were found for this Digital Artifact.

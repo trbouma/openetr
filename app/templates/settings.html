@@ -164,7 +164,7 @@
       <div class="notice success">{{ success_message }}</div>
       {% endif %}
       <div class="notice info">
-        These relay settings apply to this browser session. Bootstrap relays support Control Desk Key discovery and recovery of Commitment Profiles; working relays are used by default for DCR queries and record publication. Both fields accept comma- or space-delimited relay entries.
+        These relay settings apply to this browser session. Bootstrap relays support Control Desk Key discovery and recovery of Commitment Profiles; working relays are used by default for record publication and, when no deployment query pool is configured, DCR queries. Both fields accept comma- or space-delimited relay entries.
       </div>
 
       <section class="panel">
@@ -181,6 +181,7 @@
 
       <section class="panel">
         <h2>Relay Configuration</h2>
+        <p>Effective query relays: <code>{{ query_relays }}</code>. A deployment's <code>OPENETR_QUERY_RELAYS</code> setting takes precedence over working relays for record lookups.</p>
         <form action="/settings" method="post">
           <label>
             Bootstrap relay(s)
@@ -190,7 +191,7 @@
           <label>
             Working relay(s)
             <input type="text" name="default_relays" value="{{ default_relays }}" placeholder="wss://relay.example.com,wss://relay.backup.example.com">
-            <span class="field-help">Used by default for DCR queries, Anchor Record publication, and Evidence Event publication in this session. Separate multiple relays with commas or spaces.</span>
+            <span class="field-help">Used by default for Anchor Record and Evidence Event publication, and for DCR queries when no deployment query pool is configured. Separate multiple relays with commas or spaces.</span>
           </label>
           <div class="actions">
             <button type="submit">Save Relay Settings</button>

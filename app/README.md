@@ -156,6 +156,41 @@ For the web app to discover relay-backed profiles and encrypted profile signer r
 - `OPENETR_ROOT_NSEC` or `OPENETR_ROOT_NSEC_FILE`
 - `OPENETR_HOME_RELAYS` or `OPENETR_HOME_RELAYS_FILE`
 
+### Record-query relays
+
+The home-page Query DCR form also accepts a per-query **Blossom server**, prefilled
+from `OPENETR_BLOSSOM_SERVER`. The uploaded artifact supplies the digest; the app
+retrieves bytes from the selected server, verifies SHA-256, and caches supported
+image/PDF previews. Retrieval failure does not prevent record evidence from being
+shown. This does not change publication storage or the server used by public QR
+links. User-selected retrieval requires public HTTPS on port 443, rejects private
+network destinations, and does not follow redirects.
+
+Set `OPENETR_QUERY_RELAYS` independently of the home/bootstrap relays:
+
+```dotenv
+OPENETR_HOME_RELAYS=wss://home.example.org
+OPENETR_QUERY_RELAYS=wss://relay.openetr.org,wss://records.example.org
+```
+
+This setting is used for public `/etr/{digest}` lookups (including QR links) and
+prepopulates record-query forms in the Control Desk, OpenETR, warehouse receipt,
+and product passport pages. Forms and upload-query API requests may explicitly
+override it with their `relays` field. `OPENETR_QUERY_RELAYS_FILE` is also supported
+and takes precedence over the environment value. Relay entries can be separated
+by commas or spaces.
+
+When unset, queries retain the existing browser-session working relays, falling
+back to the packaged default (`wss://relay.openetr.org`). A configured query pool
+takes precedence over previously saved session defaults. Home relays, Commitment
+Profile discovery, publication destinations, and post-publication confirmation
+queries are unchanged. This setting applies to the demonstration web app, not CLI
+profile defaults.
+
+After deploying this version and editing `.env`, recreate the container with
+`docker compose up -d --force-recreate`. Build or pull the updated image first;
+restarting an old image does not add support for this setting.
+
 For browser-session encryption, you can also use:
 
 - `OPENETR_APP_SESSION_SECRET` or `OPENETR_APP_SESSION_SECRET_FILE`

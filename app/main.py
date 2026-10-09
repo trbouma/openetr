@@ -28,6 +28,7 @@ from starlette.staticfiles import StaticFiles
 
 from openetr.bitcoin import broadcast_blockstream_transaction, create_p2tr_send_result, create_p2tr_sweep_result, derive_bitcoin_wallet_material, derive_p2tr_balance_for_nostr_input, derive_recent_transactions_for_nostr_input, fetch_blockstream_wallet_balance_sats
 from app.encrypted_session import EncryptedSessionMiddleware
+from app.blossom_query import fetch_verified, normalize_server
 from openetr.config import DEFAULT_LIMIT, DEFAULT_PROFILE_NAME, DEFAULT_QUERY_TIMEOUT, DEFAULT_RELAYS, _async_load_aliases_index, _async_load_profile_record, _async_load_profile_secret, _async_load_profiles_index, load_user_config, packaged_defaults, reset_runtime_bootstrap_overrides, set_runtime_bootstrap_overrides
 from openetr.guards import evaluate_issue_etr_guard
 from openetr.helpers import assert_hex_object_identifier, assert_hex_pubkey, format_object_identifier, format_pubkey, normalize_alias, normalize_object_identifier, normalize_relays, resolve_author, resolve_keys, validate_relays
@@ -117,6 +118,14 @@ templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 def configured_home_relays() -> str:
     return normalize_relays(read_runtime_value("OPENETR_HOME_RELAYS", DEFAULT_RELAYS) or DEFAULT_RELAYS)
+
+
+def configured_query_relays(identity: dict[str, Any] | None = None) -> str:
+    return normalize_relays(
+        read_runtime_value("OPENETR_QUERY_RELAYS")
+        or (identity or {}).get("default_relays")
+        or DEFAULT_RELAYS
+    )
 
 
 def bytes_to_nobj(data: bytes, prefix: str = NOBJ_PREFIX) -> str:
@@ -1054,6 +1063,8 @@ async def get_default_template_context(
         "site_url": SITE_URL,
         "git_commit": GIT_COMMIT,
         "default_relays": identity.get("default_relays") or DEFAULT_RELAYS,
+        "query_relays": configured_query_relays(identity),
+        "blossom_server": BLOSSOM_SERVER,
         "bootstrap_relays": identity.get("bootstrap_relays") or configured_home_relays(),
         "identity": identity,
         "available_profiles": available_profiles,
@@ -1117,6 +1128,13 @@ async def enrich_query_controller_profile_for_identity(
 def normalize_relays_form(relays: str = Form(DEFAULT_RELAYS)) -> str:
     raw = relays or DEFAULT_RELAYS
     return normalize_relays(raw)
+
+
+def normalize_query_relays_form(
+    relays: str = Form(""),
+    identity: dict[str, Any] = Depends(get_session_identity),
+) -> str:
+    return normalize_relays(relays or configured_query_relays(identity))
 
 
 @app.post("/settings")
@@ -1597,7 +1615,7 @@ async def public_etr_lookup(
         selected_qr_encoding = qr_encoding or detect_qr_digest_encoding(digest)
         object_digest = normalize_qr_digest(digest)
         validated_relays = await validate_relays(
-            identity.get("default_relays") or DEFAULT_RELAYS,
+            configured_query_relays(identity),
             timeout=DEFAULT_QUERY_TIMEOUT,
         )
     except (click.ClickException, ControlEventError) as exc:
@@ -1693,7 +1711,7 @@ async def etr_query_qr(
 async def warehouse_receipts_query(
     request: Request,
     file: UploadFile = File(...),
-    relays: str = Depends(normalize_relays_form),
+    relays: str = Depends(normalize_query_relays_form),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     try:
@@ -1846,7 +1864,7 @@ async def warehouse_receipts_issue(
 async def digital_product_passports_query(
     request: Request,
     file: UploadFile = File(...),
-    relays: str = Depends(normalize_relays_form),
+    relays: str = Depends(normalize_query_relays_form),
     identity: dict[str, Any] = Depends(get_session_identity),
 ):
     try:
@@ -3770,8 +3788,9 @@ async def uploaded_media_preview(token: str):
 async def query_etr_from_upload(
     request: Request,
     file: UploadFile = File(...),
-    relays: str = Depends(normalize_relays_form),
+    relays: str = Depends(normalize_query_relays_form),
     identity: dict[str, Any] = Depends(get_session_identity),
+    blossom_server: str = Form(""),
 ):
     try:
         validated_relays = await validate_relays(relays, timeout=DEFAULT_QUERY_TIMEOUT)
@@ -3792,6 +3811,31 @@ async def query_etr_from_upload(
         author_pubkey_hex=identity["pubkey_hex"],
     )
     await enrich_query_controller_profile_for_identity(query_context, identity)
+    selected_server = blossom_server.strip() or BLOSSOM_SERVER
+    media_preview = None
+    try:
+        selected_server = normalize_server(selected_server)
+        content, declared_type = await asyncio.to_thread(
+            fetch_verified, upload.digest, selected_server,
+            timeout=BLOSSOM_TIMEOUT_SECONDS, max_bytes=MAX_UPLOAD_BYTES,
+        )
+        media_type = preview_media_type(upload.filename, declared_type, content[:UPLOAD_READ_CHUNK_BYTES])
+        if media_type:
+            remove_stale_media_previews()
+            MEDIA_PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
+            token = secrets.token_hex(16)
+            media_preview_path(token, media_type).write_bytes(content)
+            media_preview = {
+                "url": f"/api/upload-preview/{token}", "filename": upload.filename,
+                "media_type": media_type,
+                "kind": "pdf" if media_type == "application/pdf" else "image",
+                "source": "blossom",
+            }
+        retrieval_message = "Artifact retrieved from Blossom and SHA-256 verified."
+        if not media_type:
+            retrieval_message += " This file type has no inline preview."
+    except Exception:
+        retrieval_message = "The artifact could not be retrieved and verified from the selected public HTTPS Blossom server. Record evidence is shown below."
     return templates.TemplateResponse(
         request,
         "query_etr_result.html",
@@ -3807,7 +3851,9 @@ async def query_etr_from_upload(
             "object_id": format_object_identifier(upload.digest),
             "relays": validated_relays,
             "query": query_context,
-            "media_preview": upload.media_preview,
+            "media_preview": media_preview,
+            "artifact_retrieval_message": retrieval_message,
+            "artifact_retrieval_server": selected_server,
             **qr_context_for_digest(request, upload.digest),
         },
     )
