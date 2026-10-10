@@ -19,6 +19,10 @@ files can be retrieved from different sources and checked against the same diges
 **The printed domain can be an entry point without becoming the exclusive source
 of the information or the authority for its integrity.**
 
+The broader proposition is **one barcode, multiple experiences, and independent
+trust decisions**. Participants can share a product reference without having to
+share an application, information provider, or rulebook for recognizing evidence.
+
 ## One Code With Two Uses
 
 A QR Code carrying a GS1 Digital Link is an ordinary QR symbol containing a
@@ -38,6 +42,48 @@ The ordinary phone camera need not understand OpenETR to open that page.
 Checkout interoperability still requires suitable retailer systems, assigned
 identifiers, and compliant printed symbols. Generating a QR image alone does not
 certify those conditions. [GS1 retail implementation guidance](https://ref.gs1.org/guidelines/2d-in-retail/).
+
+## One Reference, Different Trust Models
+
+Different uses are not merely different screens after a scan. They can also
+reflect different decisions about what evidence to require and whose assertions
+to recognize:
+
+| Reader | Experience | Basis for reliance |
+| --- | --- | --- |
+| Retail checkout | Extract identifiers and look up the item | Retailer product records and trading arrangements |
+| Consumer camera | Open the linked website and view information | The consumer's assessment of the site and producer; opening the URL does not itself verify OpenETR evidence |
+| OpenETR-aware application | Retrieve and verify the referenced artifact and signed anchors | Digest and signature checks, followed by the application's recognition rules |
+| Regulatory reader | Independently acquire a certificate, compare identifiers, and inspect the goods | The regulator's accepted issuers, required evidence, and inspection procedures |
+
+Including a digest makes the regulatory option especially useful. A regulator
+can use its own acquisition application, obtain the exact artifact from an
+independent archive or permitted source, and compare its calculated digest with
+the scanned value. It can then check the product identifiers and signed evidence
+without treating the producer's website or its displayed verification result as
+authoritative. The compact `d` parameter and descriptive `digest` alias carry the
+same commitment; the choice of spelling does not change the trust model.
+
+These checks establish correspondence with the scanned reference, not that the
+reference itself deserves trust. A substituted label can carry a different digest
+and a valid signature from an unrecognized key. The regulator must still recognize
+the relevant issuer, evaluate current applicability, and assess the physical
+association. The digest supplies a common integrity check, not a universal trust
+decision.
+
+OpenETR therefore supports shared evidence without requiring shared conclusions.
+A buyer may accept a supplier assertion that a regulator considers insufficient;
+the regulator may require a recognized laboratory's certificate and additional
+inspection. Both can evaluate the same independently verifiable material under
+their own explicit rules. Ordinary checkout and consumer access can continue
+without adopting that regulatory workflow.
+
+For deployment, this means verification capabilities can be added to existing
+applications without requiring another printed code or a single mandatory
+verification platform. Independent readers still need compatible conventions,
+available evidence, and appropriate access rights. GS1 supplies the standardized
+product-identification structure; the OpenETR extension supports portable evidence;
+each recognizing party retains responsibility for what follows from it.
 
 ## Information That Can Outlive Its Website
 
