@@ -38,10 +38,15 @@ and [retail guidance](https://ref.gs1.org/guidelines/2d-in-retail/).
 Illustrative template:
 
 ```text
-https://example.com/01/{gtin}/10/{lot}/21/{serial}?digest={digest}
+https://example.com/01/{gtin}/10/{lot}/21/{serial}?d={digest}
 ```
 
-Lot and serial segments are optional. `digest` is an OpenQR application extension,
+Generated links use `d`, saving five ASCII bytes. The descriptive `digest` alias
+remains supported for existing links and authors who prefer it. Readers accept
+exactly one occurrence of either name, never both, even if their values match.
+Both accept the same digest encodings; generation and redirects use `d`.
+
+Lot and serial segments are optional. `d` (alias `digest`) is an OpenQR application extension,
 not a newly defined GS1 Application Identifier. Its generated value is:
 
 ```text
@@ -287,7 +292,7 @@ OpenETR action or transfer ruleset is introduced by this attachment convention.
 
 | Property | `/{campaign}/{digest}` | GS1 Digital Link |
 | --- | --- | --- |
-| Digest location | Path | `digest` query parameter |
+| Digest location | Path | `d` query parameter (`digest` also accepted) |
 | Product identifiers | Not in URL | GTIN, optional lot/serial |
 | Dispatch | Campaign passed through; currently no campaign rules | Default `etr` handler |
 | Evidence lookup | Kind 1415 plus `#o` | Same |
