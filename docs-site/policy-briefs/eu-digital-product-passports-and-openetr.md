@@ -288,6 +288,8 @@ supporting important DPP states more durable, portable, and explainable.
 
 ## Related Materials
 
+- [GS1 Digital Link And Verifiable Product Information](gs1-digital-link-and-verifiable-product-information.md)
+
 - [Product Passports Domain](../product-passports.md)
 - [Product Passport Requirements Mapping](../product-passport-requirements.md)
 - [European Commission DPP

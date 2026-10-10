@@ -99,6 +99,7 @@ nav:
       - Apostille Documents:
           - Overview: apostille-documents.md
   - Policy Briefs:
+      - GS1 Digital Link And Verifiable Product Information: policy-briefs/gs1-digital-link-and-verifiable-product-information.md
       - Why OpenETR: policy-briefs/why-openetr.md
       - From Inference To Consequence: policy-briefs/from-inference-to-consequence.md
       - Digital Trade Needs Consequential State: policy-briefs/digital-trade-needs-consequential-state.md

@@ -35,6 +35,11 @@ The governing principle is:
 
 ## 1. Purpose
 
+For an implemented custom GS1 Digital Link extension and the proposed structured
+product-record approach, see the supporting
+[GS1 design and analysis note](GS1_DIGITAL_LINK_CONTENT_ADDRESSED_PRODUCT_INFORMATION_DESIGN_NOTE.md).
+That extension does not change the Standard Web Resolver Profile's query-free syntax.
+
 The purpose of this specification is to provide a QR code model that:
 
 - can normally be opened by ordinary mobile-device QR scanners through the
