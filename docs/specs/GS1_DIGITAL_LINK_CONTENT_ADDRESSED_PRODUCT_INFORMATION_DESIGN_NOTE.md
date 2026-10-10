@@ -33,6 +33,39 @@ generator, not FNC1-based GS1 QR mode. Scanner readiness and printed-symbol
 requirements still need validation. See [GS1 URI syntax](https://ref.gs1.org/standards/digital-link/uri-syntax/1.7.0/)
 and [retail guidance](https://ref.gs1.org/guidelines/2d-in-retail/).
 
+## Rulebooks And Semantic Interoperability
+
+Semantic interoperability is a responsibility of domain rulebooks, not an
+additional universal product model for OpenETR. A rulebook may incorporate GS1,
+laboratory, product-passport, or other standards by reference. It should identify
+the applicable versions, vocabularies, units, field mappings, and interpretation
+rules needed for its purpose.
+
+Keep the following evaluations distinct:
+
+| Evaluation | Question |
+| --- | --- |
+| Byte integrity | Are these the exact bytes identified by the digest? |
+| Signed attribution | Does this event verify under the stated signing key? |
+| Semantic interpretation | What do the fields and assertions mean under the domain rules? |
+| Recognition | Is this issuer or evidence accepted for the stated purpose? |
+| Consequential-state evaluation | What state follows from the available evidence under the applicable rules? |
+
+OpenETR defines its core evidence conventions. Domain adapters and rulebooks add
+domain-specific meaning, safeguards, and evaluation requirements. A digest match
+must not be reported as schema conformity, nor a signature match as regulatory
+approval. Missing schemas, ambiguous extraction, or unknown units should be
+reported as unresolved domain checks rather than silently treated as success.
+
+Shared evidence does not require an identical rulebook; interoperable
+interpretation requires sufficient agreement on meaning. Two verifiers may agree
+on a certificate's measurements but reach different acceptance decisions for
+different purposes. Comparisons should expose the evidence scope and rulebook
+version, including incorporated semantic standards. Local rules cannot waive
+applicable legal obligations.
+
+See also [the DPP analysis](EU_DIGITAL_PRODUCT_PASSPORT_REGULATORY_ANALYSIS_NOTE.md#domain-rulebooks-and-semantic-interoperability).
+
 ## URL And Digest Convention
 
 Illustrative template:

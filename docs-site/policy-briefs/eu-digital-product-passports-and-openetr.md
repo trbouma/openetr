@@ -162,6 +162,33 @@ For a Product Passport integration:
 The applicable EU rules and authorities still determine recognition and
 regulatory effect.
 
+## Domain Semantics Belong In The Rulebook
+
+OpenETR does not seek to replace DPP schemas, product vocabularies, or regulatory
+interpretations. Semantic interoperability is part of the domain rulebook: the
+shared definitions and interpretation rules that let systems agree on what fields,
+units, identifiers, and lifecycle statements mean. A rulebook can incorporate
+established standards by reference, including their applicable versions.
+
+The division is complementary. DPP standards and applicable law supply product
+meaning and requirements; OpenETR supplies independently verifiable evidence on
+which domain evaluations can operate. Domain adapters connect the two without
+making product-specific semantics part of the general evidence protocol.
+
+Matching a digest verifies exact bytes, not the meaning of a measurement. A valid
+signature attributes a statement, not a compliance determination. Compatible
+semantic rules enable shared interpretation; recognition rules determine which
+issuers and conclusions a party accepts. Applicable legal obligations still bind
+that party, regardless of its software configuration.
+
+**Shared evidence does not require an identical rulebook; interoperable
+interpretation requires sufficient agreement on meaning.** This preserves room
+for different uses and jurisdictions without suggesting that OpenETR alone
+establishes DPP semantic or regulatory conformity.
+
+See [the GS1 policy brief](gs1-digital-link-and-verifiable-product-information.md#shared-evidence-domain-specific-meaning)
+for how these responsibilities can coexist behind one barcode.
+
 ## Product Identity And Passport Identity Are Different
 
 A trustworthy implementation must keep several identifiers distinct:

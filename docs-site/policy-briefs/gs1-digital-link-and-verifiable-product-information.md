@@ -85,6 +85,26 @@ available evidence, and appropriate access rights. GS1 supplies the standardized
 product-identification structure; the OpenETR extension supports portable evidence;
 each recognizing party retains responsibility for what follows from it.
 
+### Shared Evidence, Domain-Specific Meaning
+
+Semantic interoperability belongs in the domain rulebook. That rulebook can
+incorporate existing standards for fields, identifiers, units, document schemas,
+and versioning rather than inventing new definitions. OpenETR does not prescribe
+what a laboratory measurement means or which product claim satisfies a regulation.
+It provides independently verifiable evidence to which those interpretations and
+requirements can be applied.
+
+This is an intentional division of responsibility, not a missing universal product
+model. OpenETR still defines its own evidence conventions; domain adapters and
+rulebooks provide the additional meaning required for a particular use.
+**Shared evidence does not require an identical rulebook; interoperable
+interpretation requires sufficient agreement on meaning.** Different recognition
+decisions may remain legitimate even where participants agree on the data's meaning.
+This does not let a participant disregard binding regulatory requirements.
+
+See also [the DPP discussion](eu-digital-product-passports-and-openetr.md#domain-semantics-belong-in-the-rulebook)
+and [the OpenETR axioms](../openetr/axioms.md).
+
 ## Information That Can Outlive Its Website
 
 A web address normally tells a reader where to ask for information. A digest

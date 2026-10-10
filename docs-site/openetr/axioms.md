@@ -70,6 +70,10 @@ they do not, by themselves, establish validity or state.
 Events are not overwritten to represent current state. **Consequential State**
 is derived by evaluating signed DCR evidence according to defined rules.
 
+Domain rulebooks supply the additional semantics needed to interpret domain
+assertions, including incorporated schemas, vocabularies, and standards. OpenETR
+defines its core evidence conventions without prescribing a universal domain model.
+
 ### 6. Invalid Claims Remain Visible
 
 Conflicting, unauthorized, or malformed statements remain part of the
@@ -110,6 +114,10 @@ jurisdiction. Domain adapters translate business actions into the general
 OpenETR model, while any conforming system can store, retrieve, and verify the
 resulting DCR.
 
+Portability of evidence does not imply identical interpretation or recognition.
+Semantic interoperability requires compatible domain rules; it does not require
+every participant to use an identical rulebook for every purpose.
+
 ## Five Maxims
 
 The same model can be expressed in five short statements:
@@ -126,6 +134,9 @@ The same model can be expressed in five short statements:
 4. **Rules determine what follows.** Defined protocol and verifier rules
    evaluate the available DCR evidence and derive the Consequential State that
    the evidence supports.
+   Domain rulebooks also specify the meaning of domain assertions, directly or
+   through incorporated standards; cryptographic verification alone supplies
+   neither that meaning nor agreement on it.
 5. **Recognition gives effect.** A relying party, institution, agreement, or law
    determines whether to accept the evidence or derived state for a stated
    purpose and what consequence that acceptance produces.

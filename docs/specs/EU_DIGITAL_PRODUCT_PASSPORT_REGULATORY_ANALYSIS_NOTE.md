@@ -497,6 +497,35 @@ OpenETR DCR:
 OpenETR can act as a consequential-state subgraph within the broader DPP
 evidence environment.
 
+## Domain Rulebooks And Semantic Interoperability
+
+OpenETR's exclusion of product-specific semantics from its core is intentional.
+Semantic interoperability forms part of the domain rulebook, which can incorporate
+applicable schemas, vocabularies, units, identifier conventions, and version rules
+by reference. It need not redefine standards already maintained by the DPP domain.
+
+A domain adapter applies those interpretations to the general evidence model.
+OpenETR retains its own core event and evidence semantics; it does not define
+the meaning of battery chemistry fields, laboratory results, or sustainability
+criteria. A structured DPP credential and a PDF certificate can both be identified
+and supported by signed evidence, without implying they provide equivalent
+machine-readable semantics.
+
+An integration should separately report artifact integrity, signed attribution,
+domain interpretation, issuer recognition, and resulting state. Record the
+rulebook and incorporated schema versions alongside an evaluation so another
+verifier can understand its basis. Unsupported semantic versions or ambiguous
+field mappings are unresolved domain checks, not evidence of conformity.
+
+Shared evidence does not require an identical rulebook; interoperable
+interpretation requires sufficient agreement on meaning. Even when meaning is
+shared, acceptance may differ by purpose or jurisdiction. This separation does
+not allow a verifier to disregard mandatory DPP semantics or legal requirements.
+OpenETR complements their implementation rather than replacing them.
+
+See [the GS1 design note](GS1_DIGITAL_LINK_CONTENT_ADDRESSED_PRODUCT_INFORMATION_DESIGN_NOTE.md#rulebooks-and-semantic-interoperability)
+for the same boundary applied to barcode-based acquisition.
+
 ## Regulatory Mapping
 
 | EU requirement or function | OpenETR contribution | Boundary |
