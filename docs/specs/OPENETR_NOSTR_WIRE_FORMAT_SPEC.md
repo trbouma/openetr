@@ -233,6 +233,59 @@ Current reference CLI usage:
 
 These tags are part of the working wire convention. Their legal or operational effect depends on the applicable recognition profile.
 
+### Optional GS1 Product Association
+
+For kind `1415` Anchor Events carrying a GS1 product association, new publishers
+MUST encode the GTIN as a single `g` tag containing the canonical 14 ASCII digits,
+including meaningful leading zeros and a valid GS1 check digit:
+
+```json
+["g", "09520123456788"]
+```
+
+This is an optional domain convention, not a requirement for every OpenETR anchor
+and not a definition of `g` across all Nostr kinds. Under NIP-01, single-letter
+tags are expected to be indexed by relays; only the first value is indexed.
+Product discovery can therefore use:
+
+```json
+{"kinds": [1415], "#g": ["09520123456788"]}
+```
+
+The `o` tag remains the exact artifact digest. `g` identifies the asserted product
+class, not unique artifact bytes or necessarily an individual physical item.
+Optional lot and serial values remain named tags `gs1_lot` and `gs1_serial`;
+absent optional values MUST be omitted. The application domain defines their
+validation and meaning. These tags and `g` are covered by the event signature.
+
+The optional `gs1_expiry` tag carries the exact six-digit GS1 AI 17 expiry value
+in `YYMMDD`, for example `["gs1_expiry", "270131"]`. It MUST occur at most once,
+be validated under applicable GS1/domain date rules, and be omitted when absent.
+It is named metadata, not a required relay index. Exact matching preserves the
+encoded digits; date interpretation and current-expiry decisions remain separate.
+Readers MUST NOT silently treat a missing expiry as a match to a scanned expiry.
+
+Separate anchors MAY associate different lot/expiry combinations with artifacts;
+the combination is not a uniqueness constraint and does not replace earlier
+events. See the [scanner acquisition and discovery specification](GS1_BARCODE_ACQUISITION_AND_ANCHOR_DISCOVERY_SPEC.md)
+for `#g` discovery, qualifier matching, date handling, and safebox-web integration.
+
+Readers MUST continue to accept legacy `gs1_gtin` in place of `g`. When both are
+present, each MUST occur once and their canonical values MUST be identical.
+Repeated, malformed, or conflicting association tags MUST NOT be silently
+selected or used to claim a verified GS1 association. This failure does not
+erase the event or invalidate unrelated artifact evidence. New publishers use
+`g` only, not both aliases. Existing signed events MUST NOT be edited in place.
+
+Legacy events carrying only `gs1_gtin` are not discoverable through `#g` alone;
+digest-based `#o` retrieval remains compatible. Relay indexing support should be
+tested. Query results still require event validation, expected-kind and digest
+checks, and applicable recognition rules. A GTIN tag is a publisher assertion,
+not proof of GS1 allocation, authorization, or physical authenticity.
+
+See [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md#tags) and the
+[GS1 design note](GS1_DIGITAL_LINK_CONTENT_ADDRESSED_PRODUCT_INFORMATION_DESIGN_NOTE.md).
+
 ### Named Structured Metadata Tags
 
 Named metadata tags may be used when an implementation wants to carry signed structured data without requiring relay-level filtering on that data.

@@ -11,6 +11,7 @@ Suggested starting points:
 - [OpenETR Nostr Wire Format](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [OpenETR QR Resolver Profile 1.0](./OPENETR_QR_RESOLVER_PROFILE_1_0.md)
 - [GS1 Digital Link And Content Addressed Product Information](./GS1_DIGITAL_LINK_CONTENT_ADDRESSED_PRODUCT_INFORMATION_DESIGN_NOTE.md)
+- [GS1 Barcode Acquisition And Anchor Discovery](./GS1_BARCODE_ACQUISITION_AND_ANCHOR_DISCOVERY_SPEC.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)
 
 Current drafts:

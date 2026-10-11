@@ -13,6 +13,11 @@ documents exact FastAPI behaviour and validation boundaries.
 
 ## Complementary Responsibilities
 
+For scanning existing GS1 element strings without a digest, see the
+[GS1 Barcode Acquisition And Anchor Discovery specification](GS1_BARCODE_ACQUISITION_AND_ANCHOR_DISCOVERY_SPEC.md).
+It defines GTIN relay discovery followed by local lot and expiry matching,
+including separate anchors for different lot/expiry combinations.
+
 GS1 Digital Link provides product identification in a web-compatible form.
 A compatible checkout application extracts the identifiers; a consumer browser
 opens the web resource. OpenETR adds signed evidence concerning an exact digital
@@ -103,7 +108,7 @@ Digital Link syntax and is not a full GS1-conformant resolver.
 ## Implemented Binding Through The Anchor
 
 For an uploaded video, datasheet, or other artifact, the anchor signs the
-hexadecimal digest in `o` together with `gs1_gtin`, optional `gs1_lot`, and
+hexadecimal digest in `o` together with `g` (GTIN), optional `gs1_lot`, and
 optional `gs1_serial`. The event is kind 1415 with action `issue`.
 
 ```text
