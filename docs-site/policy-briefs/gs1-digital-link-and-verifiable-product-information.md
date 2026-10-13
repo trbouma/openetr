@@ -133,6 +133,10 @@ publishing a signed OpenETR anchor, and producing both a regular digest link and
 GS1 Digital Link. Supported MP4 files can be presented in a browser player;
 PDF datasheets can be previewed as documents.
 
+See the [to-scale wine bottle mockup](https://github.com/trbouma/openetr/blob/main/docs/images/openetr-wine-bottle-qr-scale.svg)
+showing a 24 mm QR code with a fictional GTIN and lot number on a representative
+750 ml bottle.
+
 Today, the anchor's signature binds the artifact digest to the supplied GTIN and
 optional lot and serial. Verification checks the file bytes and whether the URL's
 product identifiers match a verified anchor's tags. The video need not itself
