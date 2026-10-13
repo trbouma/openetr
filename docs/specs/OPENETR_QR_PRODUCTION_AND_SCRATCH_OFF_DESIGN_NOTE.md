@@ -195,6 +195,12 @@ margin.
 **Figure 1. Representative bottle and QR scale.** The illustration uses one
 SVG unit per millimetre. The bottle is modelled at 300 mm high by 75 mm wide,
 the revealed QR footprint is 24 mm, and the indicated scratch panel is 30 mm.
+The current illustration uses the supplied Chardonnay GS1 Digital Link QR
+(Version 6-M), with test GTIN `09520123456788` and lot `VH-CH23-EM02`.
+Its 41-module symbol plus four-module quiet zone on each side gives 49 modules
+across the footprint, or approximately 0.49 mm per module at 24 mm. This differs
+from the shorter Version 5-M reference payload discussed above. The QR's exact
+module pattern is preserved; the product identifiers are demonstration values.
 The image may be scaled by a viewer, but the relative dimensions remain exact.
 Actual 750 ml bottle and label dimensions vary by manufacturer.
 
