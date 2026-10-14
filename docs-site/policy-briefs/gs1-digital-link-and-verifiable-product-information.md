@@ -149,6 +149,10 @@ not a feature already implemented by OpenQR.
 
 ## Consumer Cameras And Independent Regulatory Readers
 
+For an illustrated inspection workflow, see
+[Beyond the barcode](beyond-the-barcode-independent-verification.md), which
+separates document integrity, issuer recognition, status, and physical inspection.
+
 The same printed symbol can serve different readers. A consumer uses the normal
 mobile camera to open the HTTPS product page. A regulator could build its own
 2D barcode acquisition application that extracts the GTIN, lot number, serial
