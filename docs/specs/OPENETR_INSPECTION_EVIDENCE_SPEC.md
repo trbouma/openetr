@@ -22,9 +22,111 @@ an identified ruleset and the relying party's recognition policy determine
 whether those relationships have consequences. Publication alone confers no
 authority, changes no control, and settles no competing claim globally.
 
+### 1.1 Workflow Selection
+
+An inspection report can be the primary anchored artifact or evidence concerning
+another anchored artifact. Implementations MUST distinguish these workflows;
+they MUST NOT require a redundant inspection event merely because an anchored
+artifact is an inspection report.
+
+| Flow | Initial situation | Evidence published |
+| --- | --- | --- |
+| A: Assess an existing record | A suitable anchor is found and selected. | A `1416` inspection linked to that anchor or a qualifying predecessor. |
+| B: Establish the subject, then assess it | No suitable anchor is found; a separate subject record is needed. | A `1415` anchor for the subject artifact, followed by a `1416` inspection. |
+| C: Issue an inspection report | The completed report is itself the primary artifact. | A `1415` anchor for the report; a separate `1416` inspection is optional and must add a distinct assessment or relationship. |
+
+### 1.2 Acquisition And Anchor Selection
+
+For Flow A, acquire a reference by scanning a barcode, supplying an artifact
+digest, uploading the original file, or selecting a record. Product identifiers
+may discover candidate anchors, but do not replace the exact-byte digest.
+Validate candidate event signatures and artifact associations and identify the
+specific anchor intended as the assessment's context. Retrieve and verify the
+artifact when needed to establish inspection scope; disclose any access limits.
+
+Multiple anchors may identify the same artifact, and multiple artifacts may
+concern the same goods. The application MUST NOT silently equate those cases
+or select an authoritative anchor solely by timestamp. Selection MUST be explicit
+or follow an identified domain policy, with its basis available to the user.
+Selecting an anchor does not endorse its claims or recognize its publisher.
+
+Record search scope, failures, and incomplete results. "No suitable anchor found"
+is not proof that none exists elsewhere. It permits consideration of Flow B or C,
+not a claim of globally unique issuance. The inspector MAY originate an anchor;
+doing so grants neither ownership of the goods nor inspection authority.
+
+The physical inspection may occur before digital lookup or publication. Only
+the linked inspection event requires a known predecessor event ID. Claimed
+observation time and publication or observation evidence remain distinct.
+
+### 1.3 Flow A: Assess An Existing Record
+
+Resolve and select the anchor, establish the subject and scope, and publish the
+assessment as `action=inspection`. Its `e` identifies the selected anchor or
+qualifying predecessor; its `o` retains that anchor's artifact digest. A separate
+report can have its own `report_digest` without replacing `o`. Later notices
+about this assessment derive inspector position under Section 4.
+
+### 1.4 Flow B: Establish The Subject Then Assess It
+
+Create or obtain an artifact describing the subject, such as a lot description
+or shipment manifest. Preserve its exact bytes, calculate its digest, and publish
+a conforming `1415` anchor. The inspector may sign both this anchor and the later
+inspection, but their roles remain distinct: originating a subject record and
+assessing its stated subject.
+
+The artifact may be a document the inspector received, not one they authored.
+Anchoring a received manifest or report records the inspector's signed association
+with those bytes; it does not imply authorship, endorsement, or issuance of its
+contents. Preserve the received bytes unchanged and distinguish the source
+document from any subsequent assessment created by the inspector.
+
+If no suitable artifact exists, the application MUST create or obtain one before
+anchoring. It may generate a subject document from inspector-confirmed inputs,
+or generate the completed inspection report for Flow C. Finalize and preserve
+the exact bytes before computing `o` and signing. A manually entered shipment
+number or subject URL alone is not an artifact digest, and this workflow does
+not permit a digest-free anchor. App-generated content must be reviewed by the
+inspector; file generation does not itself perform an inspection.
+
+Once the anchor event ID is known, publish the `1416` assessment using that ID
+in `e` and the subject artifact digest in `o`. Apply Flow A's validation rules.
+Do not substitute a hash of selected business identifiers for the subject
+artifact's digest. Identify the goods, inspection occurrence, and report as
+distinct domain concepts even if the application presents them together.
+
+### 1.5 Flow C: Anchor The Inspection Report Itself
+
+Preserve the completed report as the artifact and publish its conforming `1415`
+anchor (`action=issue` in the current wire binding). Here `o` identifies the
+report's exact bytes. Core anchoring establishes the key's signed association
+with that artifact; it MUST NOT automatically be presented as proof that the
+publisher performed the inspection, authored the report, or endorsed every finding.
+
+If anchoring is intended to constitute report issuance or endorsement, the domain
+profile MUST define that meaning and the signed evidence supporting it. A verifier
+must be able to distinguish the inspector issuing a report from a third party
+merely anchoring a copy. An application button label or possession of the file
+alone is insufficient. The exact issuance/endorsement declaration is a review
+decision for the domain profile, not a new universal meaning for `action=issue`.
+
+No separate inspection event is required for basic report anchoring. A later
+independent assessment or distinct assertion may use `1416` with this report's
+anchor as its context. The report publisher's own corrections or withdrawal use
+Core 1.0 Publisher Notices targeting the report anchor or its notice ancestry;
+notices about a separate inspection follow Section 4 instead.
+
+Revised report bytes require a new digest and, if independently anchored, a new
+anchor. A correction or successor reference can associate the records without
+rewriting the earlier evidence or crossing digest scope in the parent chain.
+For confidential reports, the profile MUST specify whether the anchored artifact
+is plaintext or an encrypted envelope; their digests are not interchangeable.
+Section 5's encrypted `1416` report convention does not silently define encrypted
+`1415` issuance. That binding remains a separate implementation gate.
+
 ## 2. Inspection Event
 
-An inspection MUST be a signed regular kind `1416` event containing exactly one
+An inspection event, when used, MUST be a signed regular kind `1416` event containing exactly one
 of each required tag:
 
 ```json
@@ -40,6 +142,13 @@ of each required tag:
 `relation` MUST be one of `assesses`, `supplements`, `corrects`, or `supersedes`.
 It expresses the signer's claimed relationship to the event identified by `e`.
 It does not itself establish recognized correction or supersession.
+
+Inspection relationships add assessment evidence; they do not update the earlier
+inspector's derived position. That position is derived from qualifying notices
+under Section 4. A later assessment claiming `supersedes` is not a substitute
+for a withdrawal or supersession notice about the earlier statement. A domain
+policy that assigns additional consequences MUST define its precedence and
+conflict rules explicitly; timestamp order alone is insufficient.
 
 The single `e` link MUST resolve, through qualifying predecessors, to a valid
 kind `1415` anchor. Every event on that path MUST carry the same `o` digest.
@@ -70,6 +179,19 @@ or an inline narrative. Optional named tags are:
 | `encryption` | Identifier and version of an agreed encryption-envelope profile. |
 | `key_ref` | Friendly reference to a separately protected content-key record. |
 | `key_owner` | Canonical public key of the profile holding that key record, when different from the event signer. |
+
+An external plaintext report MUST have a signed `report_digest`, even when it
+is delivered privately rather than through a public URL. A locator alone is
+insufficient. If the report is the anchored artifact, `o` supplies its binding;
+any additional `report_digest` MUST equal `o`. If a separate report is assessed,
+its digest MUST NOT replace the subject artifact's `o`. Inline plaintext content
+is protected by the event signature and need not repeat its digest.
+
+For external encrypted reports, `ciphertext_digest` is required and the plaintext
+digest MUST be authenticated either publicly or within the protected envelope
+as specified in Section 5. In every form, report bytes accepted as verified MUST
+be bound to the signed inspection evidence. A mismatch is an integrity failure;
+an inaccessible report is an access limitation, not a successful integrity check.
 
 Except for `report_url`, these tags MUST NOT repeat. Digest values use 64-character
 lowercase hex. `key_owner` uses the Nostr 32-byte public key in lowercase hex.
@@ -207,9 +329,24 @@ as absence within the retrieval scope, never global nonexistence.
 verified timing. Witnessing, timestamping, freshness, physical association, and
 recognition of authority require their own rules and evidence.
 
+An implementation supporting a domain profile MUST expose the profile and
+acceptance-policy identifiers, subject identifiers, evaluated event IDs, report
+digest and integrity outcome, signer and recognition outcome, notice-derived
+position, competing assessments, retrieval scope and failures, observation time,
+and freshness outcome. Domain acceptance MUST remain separate from successful
+signature validation. A simple UI summary MUST retain these underlying results.
+
+Discovery by a single `o` does not enumerate all inspections of the same goods.
+A domain profile MUST define subject-reference conventions and cross-artifact
+discovery when it claims that capability. See the draft
+[Cargo Inspection Profile](./OPENETR_CARGO_INSPECTION_PROFILE.md) for a bounded
+pilot using privately exchanged PDF reports and public signed references.
+
 ## 9. Implementation Gates And Tests
 
-Before release, implement and test:
+### 9.1 Minimum Inspection Pilot
+
+Before a plaintext or privately exchanged report pilot, implement and test:
 
 1. Plain inspections linked to anchors, inspections, and notices; separate
    inspector and anchor-publisher positions; competing notice branches.
@@ -217,14 +354,36 @@ Before release, implement and test:
    actions without hiding the supplied evidence or changing core state.
 3. Altered report bytes, repeated legitimate inspections, different signers,
    corrections, new report artifacts, and claimed cross-signer supersession.
-4. A selected interoperable encryption profile and private-store binding, with
+4. Mandatory external-report digest binding, changed bytes at an unchanged URL,
+   private file delivery, unavailable reports, and digest mismatches.
+5. All three issuance workflows, including report-only anchoring without a
+   redundant inspection event, subject-first anchoring, and assessment of an
+   existing anchor selected from multiple candidates.
+6. No-results versus failed or incomplete discovery, third-party anchoring of a
+   report versus recognized issuance, and corrections using the appropriate
+   core-publisher or inspector-specific notice ancestry.
+7. A domain profile for subject discovery, signed issuance, recognition, freshness,
+   and reproducible acceptance results; retained decision snapshots and privacy review.
+
+### 9.2 Optional Confidential Report Extension
+
+Encrypted payload support additionally requires:
+
+1. A selected interoperable encryption profile and private-store binding, with
    independent test vectors for exact plaintext, ciphertext, and recipient envelopes.
-5. Wrong keys, modified ciphertext, unsupported formats, substituted key records,
-   mismatched owner/reference/context, and missing encryption metadata.
-6. Empty stores, duplicate references, concurrent allocation, unavailable relays,
-   unauthorized disclosure requests, successful recipient disclosure, and recovery.
-7. Privacy review, secret-free logs, preservation policy, and clear UI distinction
-   between encrypted, decrypted, cryptographically verified, and recognized.
+2. Wrong keys, modified ciphertext, unsupported formats, substituted key records,
+   mismatched owner/reference/context, and missing encryption metadata tests.
+3. Empty stores, duplicate references, concurrent allocation, unavailable relays,
+   unauthorized requests, successful recipient disclosure, and recovery tests.
+4. Secret-free logs and UI distinctions between encrypted, decrypted, verified,
+   and recognized. Do not advertise encryption interoperability before these gates pass.
+
+Private bilateral delivery of a report does not require this encryption extension.
+
+Review decisions before a domain pilot: choose the primary artifact (issued PDF
+or defined structured record), specify any rendition associations, define the
+signed issuance/endorsement declaration, and establish issuer recognition and
+decision-time freshness requirements. These choices may refine this draft.
 
 The first implementation may support plaintext inspection evidence while keeping
 encrypted report support explicitly unavailable until its profile is finalized.

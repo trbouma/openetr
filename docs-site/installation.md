@@ -10,6 +10,19 @@ OpenETR instance.
 
 ## Local Development
 
+### Documentation Preview
+
+Run `poetry run mkdocs serve` from the repository root. Specifications are served
+within the site under `docs/specs/`, both locally and on GitHub Pages. The build
+hook in `scripts/mkdocs_repo_docs.py` includes the original repository specs,
+images, and source documents without maintaining duplicate copies. Links to
+those files on GitHub are converted to relative site links during the build;
+source-code and other external links remain unchanged. Changes under `docs/`
+also trigger the local preview to rebuild. Restart MkDocs after changing its
+configuration or hook. Validate with `poetry run mkdocs build --strict`.
+
+### Application
+
 From the repository root:
 
 ```sh

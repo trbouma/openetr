@@ -8,6 +8,9 @@ edit_uri: edit/main/docs-site/
 docs_dir: docs-site
 site_dir: site
 
+hooks:
+  - scripts/mkdocs_repo_docs.py
+
 theme:
   name: material
   custom_dir: docs-site/overrides
@@ -69,6 +72,7 @@ nav:
       - Digital Controllable Record: https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md
       - Nostr Wire Format: openetr/wire-format.md
       - Inspection Evidence (Draft): https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_INSPECTION_EVIDENCE_SPEC.md
+      - Cargo Inspection Profile (Draft): https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CARGO_INSPECTION_PROFILE.md
       - QR Resolver Profile: https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_QR_RESOLVER_PROFILE_1_0.md
       - Component And CLI: openetr/component-and-cli.md
       - Integration Model: openetr/integration.md
