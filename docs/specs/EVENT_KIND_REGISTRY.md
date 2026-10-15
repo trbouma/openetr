@@ -51,6 +51,11 @@ A single object digest may have more than one Anchor Event. The registry does no
 
 ### `1416` Evidence Event Family
 
+The proposed `action=inspection` extension reuses kind `1416`; no new event
+kind is assigned. Its report-encryption and profile-scoped `key_ref` conventions
+are draft-only. Private key-store and disclosure kinds remain unassigned. See
+[Inspection Evidence](./OPENETR_INSPECTION_EVIDENCE_SPEC.md).
+
 The `1416` event family expresses signed evidence of actions after an Anchor
 Event. Defined rules determine whether an event changes control, contributes to
 other Consequential State, or has no state consequence.

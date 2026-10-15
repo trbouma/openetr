@@ -5,6 +5,7 @@ This directory is reserved for OpenETR specification drafts and supporting docum
 Suggested starting points:
 
 - [OpenETR Core Record Ruleset 1.0](./OPENETR_CORE_RECORD_RULESET_1_0.md)
+- [Inspection Evidence And Encrypted Reports (Draft)](./OPENETR_INSPECTION_EVIDENCE_SPEC.md)
 - [OpenETR Draft National Standard](./OPENETR_DRAFT_NATIONAL_STANDARD.md)
 - [Consequential State Architecture](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [Digital Controllable Record](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)

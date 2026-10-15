@@ -794,6 +794,12 @@ An extension that assigns new consequences SHALL:
 Unknown events SHALL remain visible as evidence. They SHALL have no state
 consequence under Core Record Ruleset 1.0 unless this document defines one.
 
+For a non-transferable extension, see the draft
+[Inspection Evidence specification](./OPENETR_INSPECTION_EVIDENCE_SPEC.md).
+It defines additive assessments and inspector-specific notices without changing
+Core 1.0 Anchor Publisher position. Inspection-targeted notices are not qualifying
+core notices merely because their author also signed the anchor.
+
 ## 24. Transferable Record Considerations
 
 This section is non-normative.

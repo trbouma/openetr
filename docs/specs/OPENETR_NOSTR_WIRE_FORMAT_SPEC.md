@@ -19,6 +19,10 @@ convention using Stroma's `BlossomPool`: opt-in artifact storage precedes signin
 and retrieval combines verified anchor hints with configured servers.
 Existing anchors without hints remain compatible.
 
+The `inspection` action and encrypted-report/key-reference conventions below are
+draft extensions, not claims of current implementation support. See
+[Inspection Evidence](./OPENETR_INSPECTION_EVIDENCE_SPEC.md).
+
 ## Scope
 
 This specification defines:
@@ -124,6 +128,9 @@ Current working `1416` actions are:
 - `discharge`
 - `redeem`
 
+Proposed extension action: `inspection`. Its draft definition below does not
+imply support in the reference CLI or core verifier.
+
 The current reference CLI command mapping is summarized in [OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md](./OPENETR_CLI_IMPLEMENTATION_WALKTHROUGH.md).
 Publisher Notice publication is specified by Core Record Ruleset 1.0 but is not
 yet exposed by the reference CLI.
@@ -176,6 +183,12 @@ In the current model, `e` should reference:
 - the immediately prior control-relevant event for later actions in the chain
 
 This is the primary chain-traversal link.
+
+For the draft inspection extension, the predecessor may instead be an anchor,
+inspection, or notice. This is an evidence relationship, not necessarily a
+control transition. All ancestry retains the same artifact digest; the
+extension defines admissible paths and separates inspector notices from core
+Anchor Publisher notices.
 
 No separate `origin` or `anchor` tag is required. A verifier identifies the
 Anchor Event by following the signed `e` references backward until the chain
@@ -581,6 +594,32 @@ State meaning:
 
 The normative notice vocabulary and state-derivation rules are defined in
 [OPENETR_CORE_RECORD_RULESET_1_0.md](./OPENETR_CORE_RECORD_RULESET_1_0.md).
+
+### Inspection Event (Draft Extension)
+
+- `kind = 1416`
+- exactly one each: `o`, `e`, `action=inspection`, and `relation`
+- `relation`: `assesses`, `supplements`, `corrects`, or `supersedes`
+- optional report tags: `report_digest`, `report_url`, `ciphertext_digest`,
+  `encryption`, `key_ref`, and `key_owner`
+
+The event adds a signed assessment. Its signer need not be the Anchor Publisher.
+Neither the action nor a claimed supersession grants authority or changes
+control automatically. The `o` value remains the anchored artifact digest,
+not a cargo identifier or a separately referenced report digest.
+
+`key_ref` identifies a separately encrypted content-key record within the owning
+profile's scope; it contains no key and grants no access. If `key_owner` is
+absent, the event signer is the owner. These named tags are not assumed to be
+relay-indexed. Structured public metadata stays in tags; confidential report
+content uses an explicitly identified encryption envelope.
+
+Notices about inspections reuse `action=notice` and `notice_type`, but their
+admissible ancestry and inspector-position derivation are extension behavior,
+not changes to Core Record Ruleset 1.0. Full event, confidentiality, and
+validation requirements are in
+[Inspection Evidence](./OPENETR_INSPECTION_EVIDENCE_SPEC.md). Encryption envelope
+profiles and private key-store event assignments remain pending.
 
 ### Encumber Event
 
