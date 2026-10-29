@@ -136,6 +136,53 @@ The application remains responsible for deciding who may initiate signing and fo
 
 Independent verification of past evidence and dependence on a protected signer for future actions are compatible. Portability of public evidence does not require exposing private keys, and a non-exportable key does not prevent exporting the evidence it signed.
 
+### 9.1 Customer And Business Verification
+
+The organization operating an end-user or business application owns the
+integration's customer and business recognition process. It must determine
+which KYC/KYB checks, representative-authority checks, and ongoing review are
+required for its activity and jurisdiction, and implement or arrange them
+accordingly. The allocation of duties among operators, customers, and external
+providers should be explicit. OpenETR supplies neither a universal KYC service
+nor a determination that those duties have been satisfied.
+
+An integration should distinguish account authentication, verification of a
+person or business, authority to perform a particular action, and control of
+the signing key. Recovery or profile import may require reassessing those
+bindings; a successful login or matching profile name is not sufficient.
+This allocation is an OpenETR integration recommendation, not a KYC requirement
+established by SP 800-57.
+
+### 9.2 Rulebook Evaluation And Applicable Law
+
+Evidence Graph evaluation should identify the rulebook and version, purpose,
+evaluation time, relevant actor-recognition evidence, and any material
+retrieval or temporal limitations. It derives the Consequential State supported
+by the evidence. The relying party then determines whether to accept that
+Digital Original and what effect to give it under its recognition framework.
+
+That framework should identify applicable legislation, regulation, contracts,
+and institutional requirements where relevant. The organization is responsible
+for translating those requirements into operating procedures and reviewable
+decision criteria with appropriate domain and legal expertise. A rulebook
+cannot displace applicable law, and software evaluation is not automatically
+a definitive legal determination. Unresolved authority, jurisdiction, or
+interpretation questions should be surfaced for review rather than presented
+as cryptographic verification failures or silent approvals.
+
+For example, an application may establish a warehouse business's standing and
+an employee's authority to use its profile. It can then verify the receipt's
+artifact digest and Evidence Graph, derive state under the selected ruleset,
+and assess acceptance under the relevant receipt framework. The valid signature
+alone establishes neither business standing nor the receipt's legal effect.
+
+Only collect and retain the recognition evidence necessary for the purpose.
+KYC source documents can remain in appropriately controlled systems; public
+evidence portability does not require public disclosure of customer files.
+An assertion that a party passed a check still requires evaluation of the
+asserter's authority, scope, and currency. A party can satisfy KYC and still
+lack authority for a particular transaction.
+
 ## 10. Implementation And Assurance Checklist
 
 Before describing a deployment as production-ready, establish:
@@ -148,6 +195,8 @@ Before describing a deployment as production-ready, establish:
 6. A way for relying parties to assess rotation, compromise, continuity, and historical timing without silently rewriting past evidence.
 7. Audits of successful and failed key operations, with access controls, retention, and no key material in logs.
 8. Demonstrated recovery exercises, removal of departed users' access, and contingency plans for provider or device failure.
+9. Documented responsibility for applicable KYC/KYB, representative authority, and the binding of recognized actors to signing keys.
+10. An identified rulebook and recognition framework for evaluating evidence, acceptance, and effect, including applicable legal requirements and escalation of unresolved questions.
 
 These are integration acceptance criteria, not implemented features established by this review. No new event kinds or wire-format fields are proposed here. Formal conformity requires assessment of the whole system, including algorithms and cryptographic modules. Following SP 800-57 management principles does not make a Nostr deployment NIST-approved or FIPS-validated.
 

@@ -54,10 +54,36 @@ This preserves the records-first model without forcing users to become key-manag
 
 Retiring a signer does not erase its historical evidence. Compromise, however, may change what a relying party should accept. An account password reset cannot neutralize an exposed private key; affected signers, dependencies, and recognition policies need a separate response.
 
+## Business Identity And Recognition Responsibilities
+
+Organizations operating end-user and business applications are responsible for
+determining and implementing the customer and business verification their
+activities require. This includes applicable Know Your Customer (KYC) and
+Know Your Business (KYB) processes, recognition of authorized representatives,
+and the binding between those parties and their signing profiles. Specialist
+providers can support these checks; using OpenETR does not perform or replace them.
+
+Secure login establishes access to an account. A valid event signature
+attributes a statement to a key. Neither, by itself, establishes a verified
+customer, a legitimate business, or authority to act for that business.
+
+The resulting Evidence Graph must be evaluated under an identified rulebook
+to derive Consequential State. The relying application or organization must
+then assess acceptance and effect under the relevant recognition rules,
+including applicable legislation, regulation, and contractual or institutional
+requirements. A private rulebook is not a substitute for applicable law.
+
+KYC is not a universal prerequisite for using OpenETR. The required checks and
+their scope depend on the activity, parties, risk, and jurisdiction. Sensitive
+onboarding documents need not be placed on public relays to establish a
+recognition basis. Different relying parties may reach different acceptance
+decisions from the same signed evidence and should make their reasons explicit.
+
 ## Recommended Direction
 
 - Make protected, application-mediated signing the ordinary user experience.
 - Separate login, authorization to act, administrative key management, and event signing.
+- Establish applicable KYC/KYB and representative-authority checks, and evaluate evidence and effect under an identified rulebook and applicable legal requirements.
 - Specify recovery by key type and purpose, including alternatives to restoring the same private signer.
 - Treat export as an explicit policy choice rather than a mandatory feature or routine task.
 - Preserve public verification evidence and establish clear rotation and compromise procedures.

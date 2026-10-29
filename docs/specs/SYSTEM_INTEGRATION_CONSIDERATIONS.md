@@ -224,6 +224,24 @@ It does not, by itself, decide whether that `npub` satisfies a particular system
 
 Those checks belong to the integrating system, verifier policy, or domain adapter.
 
+The organizations operating end-user and business applications are responsible
+for determining and implementing applicable KYC and Know Your Business (KYB)
+processes for their users, customers, and businesses. They should also establish
+representatives' authority and authenticated bindings to the relevant profile
+keys. External verification providers may support this process; protocol use
+does not replace it. Login, key possession, identity verification, and authority
+to act are distinct determinations.
+
+The Evidence Graph must be evaluated under an identified, versioned rulebook
+to derive Consequential State. Acceptance of the resulting Digital Original
+and its effect must then be assessed under the applicable recognition
+framework, including legislation, regulation, contracts, and institutional
+requirements where relevant. A private rulebook does not override applicable
+law, and a successful cryptographic check is not a legal conclusion.
+Unresolved questions should be made visible and referred for appropriate
+review. The [key-management analysis](OPENETR_NIST_KEY_MANAGEMENT_ANALYSIS_NOTE.md#91-customer-and-business-verification)
+explains how these responsibilities relate to application-managed signers.
+
 This is similar to TCP/IP: the network protocol supports many application protocols without enforcing each application's business rules. OpenETR should support KYC-sensitive and non-KYC-sensitive applications without making one application-level policy mandatory for every OpenETR event.
 
 An integrating system may still use OpenETR evidence to support KYC-aware workflows. For example, a system may:
