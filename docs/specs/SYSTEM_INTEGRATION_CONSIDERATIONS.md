@@ -713,6 +713,18 @@ This offers the most independence from service providers, but it requires the in
 
 ## Security And Operational Considerations
 
+The recommended ordinary-user experience is application-managed key handling:
+authenticate the user, authorize the specific profile operation, and use a
+protected signer without routinely displaying private keys. Export or
+self-managed keys may be supported where deployment policy permits them;
+neither is required for evidence portability.
+
+Account recovery, replacement of an authorized signer, restoration of the same
+private signing key, and decryption recovery are separate decisions. Do not
+assume that every signing key should be backed up indefinitely. See the
+[NIST key-management analysis](OPENETR_NIST_KEY_MANAGEMENT_ANALYSIS_NOTE.md)
+for the signing-key backup caveat, custody options, and proposed controls.
+
 Integrators should decide explicitly:
 
 - where the root key is held;

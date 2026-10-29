@@ -104,6 +104,7 @@ nav:
       - Apostille Documents:
           - Overview: apostille-documents.md
   - Policy Briefs:
+      - Application Managed Keys And OpenETR: policy-briefs/application-managed-keys-and-openetr.md
       - Better Identity Practices And OpenETR: policy-briefs/better-identity-practices-and-openetr.md
       - OpenETR, Verifiable Credentials, And Status Lists: policy-briefs/openetr-verifiable-credentials-and-status-lists.md
       - Beyond The Barcode: policy-briefs/beyond-the-barcode-independent-verification.md
