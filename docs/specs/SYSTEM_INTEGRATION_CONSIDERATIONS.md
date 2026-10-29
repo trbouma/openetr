@@ -10,6 +10,24 @@ Draft.
 
 This note reflects the current relay-backed configuration model, OpenETR Nostr wire format, CLI, reusable service layer, and demonstration FastAPI application.
 
+## Start Here
+
+Use this guide as the starting point for planning an integration. Work through
+the milestones below, with particular attention to the boundary between the
+host application's responsibilities and OpenETR's portable signed evidence.
+
+Before choosing a custody or recovery architecture, read:
+
+- [Application-Managed Keys And OpenETR](../../docs-site/policy-briefs/application-managed-keys-and-openetr.md) for the policy overview: protect signing capabilities behind secure authentication and authorization without routinely exposing private keys.
+- [NIST Key Management And OpenETR: Detailed Analysis](OPENETR_NIST_KEY_MANAGEMENT_ANALYSIS_NOTE.md) for custody options, the distinction between account and key recovery, signing-key backup limitations, and the integration checklist. This is design guidance, not a claim of NIST compliance or an implementation security audit.
+- [Customer And Business Verification](OPENETR_NIST_KEY_MANAGEMENT_ANALYSIS_NOTE.md#91-customer-and-business-verification) and [Rulebook Evaluation And Applicable Law](OPENETR_NIST_KEY_MANAGEMENT_ANALYSIS_NOTE.md#92-rulebook-evaluation-and-applicable-law) for the allocation of applicable KYC/KYB, representative-authority, and recognition responsibilities.
+
+An integration plan should identify who manages keys, who authenticates and
+authorizes users, who performs any required customer or business verification,
+and which rulebook evaluates the Evidence Graph. It should also identify who
+decides acceptance and effect under applicable legislation, regulation, and
+institutional requirements. A valid signature does not settle those questions.
+
 ## Integration Thesis
 
 OpenETR is intended to support multiple independent integration styles:
@@ -866,6 +884,8 @@ flowchart TB
 
 ## Related Documents
 
+- [Application-Managed Keys And OpenETR Policy Brief](../../docs-site/policy-briefs/application-managed-keys-and-openetr.md)
+- [NIST Key Management And OpenETR Detailed Analysis](./OPENETR_NIST_KEY_MANAGEMENT_ANALYSIS_NOTE.md)
 - [Relay-Backed Configuration Design Note](./RELAY_BACKED_CONFIGURATION_DESIGN_NOTE.md)
 - [Root And Profile Identity Model](./ROOT_AND_PROFILE_IDENTITY_MODEL.md)
 - [OpenETR Nostr Wire Format Specification](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
