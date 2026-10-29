@@ -75,7 +75,7 @@ OpenETR begins with the digital thing rather than the agent.
 It separates:
 
 - the **Digital Artifact**, identified by a digest;
-- the **Digital Controllable Record**, containing end-verifiable evidence of
+- the **Evidence Graph**, containing end-verifiable evidence of
   consequential actions;
 - the **Consequential State** derived from that evidence according to defined
   rules; and
@@ -164,10 +164,10 @@ The applicable domain rules must decide which role it plays.
 Suppose an AI agent is instructed to transfer a digital warehouse receipt
 after payment.
 
-The receipt is identified as a Digital Artifact. Its DCR identifies the current
+The receipt is identified as a Digital Artifact. Its Evidence Graph identifies the current
 controller and any guards on transfer. The agent receives a transaction-bounded
 delegation. A Proof-of-Control gateway checks the delegation, counterparty,
-value, payment evidence, policy, and current DCR head before allowing the
+value, payment evidence, policy, and current Evidence Graph head before allowing the
 managed signer to sign the transfer.
 
 The resulting OpenETR event links the receipt, prior event, transferee, and a

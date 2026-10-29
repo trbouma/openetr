@@ -5,8 +5,8 @@ Paperless trade is not just the removal of paper.
 It is the redesign of trade processes so that data, documents, authority, control, signatures, identity, and evidence can move across systems and borders without requiring a paper original as the operational anchor.
 
 OpenETR is intended to complement that transition by identifying trade records
-as Digital Artifacts, preserving portable DCR evidence concerning them, and
-supporting validation of those DCRs under applicable policies to produce
+as Digital Artifacts, preserving portable Evidence Graph records concerning them, and
+supporting validation of those Evidence Graphs under applicable policies to produce
 consequential state.
 
 It is one layer in a broader paperless trade stack, not the whole stack.
@@ -55,7 +55,7 @@ OpenETR provides:
 - signed Anchor Events
 - signed evidence events
 - linked evidence records
-- artifact-centric DCR retrieval
+- artifact-centric Evidence Graph retrieval
 - profile-backed attribution
 - verifier-policy warnings
 - domain-adapter interpretation
@@ -65,7 +65,7 @@ The compact model is:
 
 ```text
 trade record or package -> Digital Artifact by digest
-  -> signed OpenETR DCR
+  -> signed OpenETR Evidence Graph
   -> evaluation under an identified ruleset
   -> consequential state
   -> domain adapter interpretation
@@ -116,7 +116,7 @@ OpenETR can support those technical evidence needs:
 ```text
 identify record -> digest
 retain integrity -> recomputable hash
-control history -> signed DCR graph -> state transition rules -> consequential state
+control history -> signed Evidence Graph -> state transition rules -> consequential state
 exclusive control evidence -> recognized current-controller path
 identify controller -> profile signer plus recognition inputs
 ```
@@ -157,7 +157,7 @@ OpenETR helps by separating:
 - domain interpretation
 - recognition policy
 
-That lets different actors inspect the same DCR evidence and derived state
+That lets different actors inspect the same Evidence Graph records and derived state
 while applying their own rulebooks:
 
 - customs authority

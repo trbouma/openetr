@@ -17,7 +17,7 @@ The technical mapping will examine:
 
 ```text
 Digital Artifact digest
-  -> DCR evidence
+  -> Evidence Graph records
   -> derived controller and exclusive-control state
   -> transfer, pledge, discharge, and termination
 ```
@@ -43,7 +43,7 @@ be satisfied by singular, verifiable consequential and control state. That is
 a plausible technical interpretation, but it requires Chinese legal or
 regulatory validation before being presented as a compliance conclusion.
 
-OpenETR does not currently claim that a valid DCR, a public relay pool, or a
+OpenETR does not currently claim that a valid Evidence Graph, a public relay pool, or a
 signing key independently satisfies the regulation's complete requirements.
 
 Read the detailed [China electronic warehouse-receipt review note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CHINA_ELECTRONIC_WAREHOUSE_RECEIPTS_REVIEW_NOTE.md).

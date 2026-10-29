@@ -421,7 +421,7 @@ regulated DPP architecture.
 ```text
 DPP version or evidence artifact
   -> digest-identified Digital Artifact
-  -> signed DCR evidence
+  -> signed Evidence Graph records
   -> defined state transition rules
   -> independently reproducible Consequential State
 ```
@@ -474,22 +474,22 @@ Without canonicalization, two systems may serialize equivalent data
 differently and produce different digests. Without version semantics, a digest
 can prove content integrity but not which version is current.
 
-### DPP Content And The DCR Are Different Graphs
+### DPP Content And The Evidence Graph Are Different Graphs
 
 A DPP may contain a rich product graph: components, materials, suppliers,
 certificates, carbon data, repair information, and links to other passports.
 
-An OpenETR DCR is a graph of end-verifiable evidence concerning a
+An OpenETR Evidence Graph is a graph of end-verifiable evidence concerning a
 digest-identified Digital Artifact. It should include or link the records that
 matter for the artifact's consequential state under an applicable profile.
 
-The product graph and the DCR may overlap, but they are not identical:
+The product graph and the Evidence Graph may overlap, but they are not identical:
 
 ```text
 DPP product graph:
   what is known or asserted about the product and its lifecycle
 
-OpenETR DCR:
+OpenETR Evidence Graph:
   which signed evidence concerns an exact DPP artifact,
   and what state follows under defined rules
 ```
@@ -691,7 +691,7 @@ Every verifier result should distinguish:
 ```text
 content integrity
 signer attribution
-DCR validity
+Evidence Graph validity
 derived protocol state
 Registry status
 semantic conformity
@@ -744,7 +744,7 @@ The EU is building a regulated DPP ecosystem with:
 OpenETR should not compete with those functions.
 
 Its role is to help an exact DPP version or supporting record become a Digital
-Artifact with a durable DCR, so that defined rules can derive consequential
+Artifact with a durable Evidence Graph, so that defined rules can derive consequential
 state from end-verifiable evidence rather than relying only on the application
 currently displaying the passport.
 
@@ -762,7 +762,7 @@ systems that implement those obligations.
 
 - [Product Passport Requirements Mapping](./DIGITAL_PRODUCT_PASSPORT_REQUIREMENTS_MAPPING.md)
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
-- [Digital Controllable Record Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [Linked Evidence Record Kind Design Note](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
 - [OpenETR Dependency Integrity Design Note](./OPENETR_DEPENDENCY_INTEGRITY_DESIGN_NOTE.md)
 - [OpenETR Organizational Reference Layer Design Note](./OPENETR_ORGANIZATIONAL_REFERENCE_LAYER_DESIGN_NOTE.md)

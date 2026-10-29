@@ -152,14 +152,14 @@ OpenETR can treat the apostilled document package as a Digital Artifact:
 ```text
 public document + Apostille certificate + agreed package structure
   -> Digital Artifact identified by digest
-  -> signed DCR evidence concerning the package
+  -> signed Evidence Graph records concerning the package
   -> Apostille-record lifecycle rules
   -> Consequential State
   -> Convention, authority, and receiving-party recognition
   -> evidentiary, administrative, or legal effect
 ```
 
-The DCR could preserve evidence that:
+The Evidence Graph could preserve evidence that:
 
 - a particular package was recorded;
 - an identified authority signed or attested to the package;
@@ -182,7 +182,7 @@ The simplest initial model treats the public document and Apostille certificate
 as one canonical package:
 
 ```text
-apostilled package bytes -> SHA-256 digest -> DCR evidence
+apostilled package bytes -> SHA-256 digest -> Evidence Graph records
 ```
 
 This is easy to present and verify, but any change to the package creates a new

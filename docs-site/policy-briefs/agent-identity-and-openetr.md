@@ -7,8 +7,8 @@ The Singapore AI Safety Hub paper *Designing Agent IDs* asks what information se
 OpenETR fits that layered model, but it draws a firm protocol boundary.
 
 For each record lifecycle, OpenETR distinguishes the exact **Digital Artifact**
-from the **Digital Controllable Record (DCR)** made up of signed evidence about
-that artifact. An applicable policy validates the DCR as a whole to produce
+from the **Evidence Graph** made up of signed evidence about
+that artifact. An applicable policy validates the Evidence Graph as a whole to produce
 consequential state.
 Identity and governance systems then help a relying party decide whether to
 recognize the signer, its authority, and the resulting state.
@@ -55,7 +55,7 @@ OpenETR can carry or link the evidence needed by an Agent ID framework without b
 | Persistent actor reference | Event signer `npub` | Identity provider or registry maps the key to an agent, provider, deployer, or legal entity |
 | Authentication | Signature proves control of the signing key | OIDC, passkeys, or enterprise IAM authenticates the account or principal |
 | Authorization | Event records the action performed | OAuth, mandates, workflow policy, or domain rules define permitted actions |
-| Accountability | A DCR preserves durable signed action evidence | Governance processes assign responsibility and retain operational logs |
+| Accountability | An Evidence Graph preserves durable signed action evidence | Governance processes assign responsibility and retain operational logs |
 | Incident response | Events identify affected objects and signer history | Providers and deployers supply monitoring, suspension, escalation, and remediation |
 | Recognition | Verifiers can evaluate linked evidence | Trust frameworks, registries, counterparties, and law decide effect |
 
@@ -109,7 +109,7 @@ Agent identity and governance:
   who or what is acting, for whom, under what authority and safeguards
 
 OpenETR protocol model:
-  what DCR evidence exists for which digest-identified artifact,
+  what Evidence Graph records exists for which digest-identified artifact,
   and what Consequential State results under the defined rules
 
 Recognition policy:

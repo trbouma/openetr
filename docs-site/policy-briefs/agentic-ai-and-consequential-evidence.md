@@ -86,8 +86,7 @@ For consequential actions, stronger documentation should be:
 - capable of producing a reproducible state assessment outside the originating
   application.
 
-OpenETR calls the resulting evidence structure a **Digital Controllable Record
-(DCR)**. The DCR does not make every signed assertion true or effective. It
+OpenETR calls the resulting evidence structure an **Evidence Graph**. The Evidence Graph does not make every signed assertion true or effective. It
 provides portable evidence from which a verifier can determine what follows
 under a selected rule book.
 
@@ -98,7 +97,7 @@ AI interpretation
 Digital Artifact
   -> identifies the exact content by digest
 
-DCR evidence
+Evidence Graph records
   -> records attributable consequential statements and relationships
 
 Defined rules
@@ -228,7 +227,7 @@ context.
 
 The immediate OpenETR priorities are therefore to:
 
-- develop agentic-system examples using the existing DCR model;
+- develop agentic-system examples using the existing Evidence Graph model;
 - improve representation of authorization, delegation, revocation, execution,
   and linked evidence;
 - expose verifier results in machine-readable, dimension-specific form;

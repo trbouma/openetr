@@ -33,7 +33,7 @@ Domain adapter
   domain vocabulary, workflows, validation, UI/API, rulebook-specific state
 
 OpenETR protocol layer
-  DCR evidence, evidence records, control graphs, profile signing,
+  Evidence Graph records, evidence records, control graphs, profile signing,
   state transition rules, consequential-state derivation
 
 Wire format
@@ -48,7 +48,7 @@ The domain adapter sits above OpenETR. It translates domain actions into OpenETR
 
 ## What OpenETR Core Does
 
-The OpenETR core provides generic DCR evidence and state-transition
+The OpenETR core provides generic Evidence Graph records and state-transition
 infrastructure.
 
 It defines:

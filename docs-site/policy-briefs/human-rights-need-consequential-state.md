@@ -98,7 +98,7 @@ competent authority acts.
 For example, a person should not become practically undocumented merely
 because a certificate is lost, a portal account is closed, an agency replaces
 its software, a vendor relationship ends, or a registry service is temporarily
-unavailable. An exact artifact and its DCR evidence could be obtained through
+unavailable. An exact artifact and its Evidence Graph records could be obtained through
 authorized channels and verified without treating one physical embodiment or
 live application as the sole source of the consequential answer.
 
@@ -161,7 +161,7 @@ consequential digital records:
 right, law, or policy
   -> institutional process and authorized decision
   -> signed evidence concerning an exact Digital Artifact
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> Consequential State derived under identified rules
   -> recognition by the competent authority or relying party
   -> practical effect, exercise, review, or remedy

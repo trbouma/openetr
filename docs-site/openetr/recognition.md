@@ -1,6 +1,6 @@
 # Recognition Boundary
 
-OpenETR is focused on end-verifiable DCR evidence and the Consequential State
+OpenETR is focused on end-verifiable Evidence Graph records and the Consequential State
 that can be derived from it under an identified ruleset. Control is one
 important class of Consequential State, but not the only one.
 
@@ -20,7 +20,7 @@ real-world object, product, document, or record
   -> effect
 ```
 
-OpenETR preserves DCR evidence and derives Consequential State that a
+OpenETR preserves Evidence Graph records and derives Consequential State that a
 recognition layer can evaluate. OpenETR does not decide external effect.
 
 Ownership is a legal effect, not a cryptographic primitive. A legal regime may
@@ -32,7 +32,7 @@ OpenETR itself does not establish ownership.
 OpenETR can answer questions such as:
 
 - what object digest is being referenced?
-- which Anchor Event began the candidate DCR?
+- which Anchor Event began the candidate Evidence Graph?
 - which signed events reference the same object?
 - how do evidence events link through `e` references?
 - which profile key signed each event?

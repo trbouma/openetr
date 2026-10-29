@@ -16,7 +16,7 @@ They take different routes.
 
 TradeTrust's transferable-record architecture places owner and holder state in
 a blockchain Token Registry and Title Escrow model. OpenETR places signed
-evidence in a Digital Controllable Record and lets identified rules derive
+evidence in an Evidence Graph and lets identified rules derive
 Consequential State.
 
 ```text
@@ -24,7 +24,7 @@ TradeTrust
 verifiable document + tokenized status + smart-contract state
 
 OpenETR
-digest-identified artifact + signed DCR evidence + derivation rules
+digest-identified artifact + signed Evidence Graph records + derivation rules
 ```
 
 This is not a contest between a cryptographic system and a non-cryptographic
@@ -58,7 +58,7 @@ software can verify the document and inspect its transferable status.
 ## The OpenETR Alternative
 
 OpenETR begins with a Digital Artifact identified by digest. Signed Anchor and
-Evidence Records concerning that artifact form a Digital Controllable Record.
+Evidence Records concerning that artifact form an Evidence Graph.
 A verifier validates the evidence and applies an identified rule book to
 derive Consequential State.
 

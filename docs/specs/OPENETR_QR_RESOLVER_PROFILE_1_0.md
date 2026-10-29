@@ -71,7 +71,7 @@ machine-readable metadata.
 This profile is a presentation and discovery profile. It is not:
 
 - an OpenETR Anchor Event;
-- a Digital Controllable Record;
+- an Evidence Graph;
 - proof that an Anchor Event exists;
 - proof that a particular publisher is authoritative;
 - a statement of Consequential State;

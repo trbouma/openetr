@@ -52,7 +52,7 @@ OpenETR addresses a broader and different problem:
 
 ```text
 Digital Artifact
-  + DCR Evidence
+  + Evidence Graph Evidence
   + Defined Rules
   -> Consequential State
 ```
@@ -62,7 +62,7 @@ should not otherwise be conflated.
 
 | Key Transparency | OpenETR |
 | --- | --- |
-| Maintains a versioned label-to-value mapping. | Preserves DCR evidence concerning a digest-identified artifact. |
+| Maintains a versioned label-to-value mapping. | Preserves Evidence Graph records concerning a digest-identified artifact. |
 | Uses a Transparency Log as an authoritative service under explicit auditing or monitoring assumptions. | Permits evidence to be obtained from relays, repositories, archives, bundles, or local stores without making one source authoritative. |
 | Proves inclusion and consistency relative to tree heads. | Verifies event authenticity, graph relationships, and state transitions relative to an evidence set and rule set. |
 | Detects inconsistent directory views under deployment-specific assumptions. | Preserves competing evidence and reports when available evidence does not support a unique state. |
@@ -235,8 +235,8 @@ evidence relevant when an event was evaluated. Examples include:
 - witness or audit attestations.
 
 Stapled evidence remains subject to its own validation rules, expiry,
-revocation model, privacy constraints, and recognition policy. Presence in a
-DCR does not cause it to prove more than its native evidence model supports.
+revocation model, privacy constraints, and recognition policy. Presence in an
+Evidence Graph does not cause it to prove more than its native evidence model supports.
 
 ## Specification Direction
 
@@ -272,7 +272,7 @@ This design does not turn OpenETR into:
 
 OpenETR remains responsible for a narrower proposition:
 
-> Given a Digital Artifact, DCR evidence, and defined rules, derive
+> Given a Digital Artifact, Evidence Graph records, and defined rules, derive
 > Consequential State independently.
 
 Other systems may strengthen the evidence used in that derivation.

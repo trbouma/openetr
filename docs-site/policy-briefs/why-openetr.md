@@ -11,15 +11,14 @@ Those questions are related, but they should not be collapsed into one applicati
 
 OpenETR provides a protocol model for attaching portable, end-verifiable
 evidence to a Digital Artifact and deriving Consequential State from that
-evidence according to defined rules. The signed evidence forms a Digital
-Controllable Record. Different domain systems can then determine whether to
+evidence according to defined rules. The signed evidence forms an Evidence Graph. Different domain systems can then determine whether to
 recognize that state and what effect to give it.
 
-The OpenETR protocol construct is the **Digital Controllable Record**: one
+The OpenETR protocol construct is the **Evidence Graph**: one
 signed end-verifiable record or graph concerning a Digital Artifact. An
-identified ruleset derives Consequential State from validated DCR evidence; the recognition context determines
+identified ruleset derives Consequential State from validated Evidence Graph records; the recognition context determines
 accepted effect. Electronic transferable records are one important
-subclass, but the same DCR evidence and state-derivation pattern can also support non-transferable
+subclass, but the same Evidence Graph records and state-derivation pattern can also support non-transferable
 records, credentials, linked evidence, Product Passports, health records,
 Apostille documents, and authority-recognized records. See the [Controllable
 Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md).
@@ -71,7 +70,7 @@ universal state of every record.
 At the evidence and ruleset layers, OpenETR asks:
 
 - What Digital Artifact is the subject of the record?
-- Which signed Anchor Event began the candidate DCR?
+- Which signed Anchor Event began the candidate Evidence Graph?
 - Which signed records form the Evidence Graph?
 - Which records contribute to Consequential State under the defined rules?
 - For a transferable-record ruleset, who is the candidate Current Controller?
@@ -99,7 +98,7 @@ OpenETR starts from the other direction.
 
 It asks first:
 
-- What Digital Artifact or DCR is being presented?
+- What Digital Artifact or Evidence Graph is being presented?
 - What consequential action is evidenced?
 - What state follows under the identified rules?
 - What additional actor, authority, or relationship evidence does this use
@@ -116,7 +115,7 @@ This gives the project a compact interoperability position:
 > Do not make the authority model interoperable. Make its consequences
 > portable.
 
-For OpenETR, that means making the artifact identity, signed DCR evidence, and
+For OpenETR, that means making the artifact identity, signed Evidence Graph records, and
 identified derivation rules portable. Consequential State is then reproduced,
 not accepted as a status assertion from the originating application. The
 receiving system remains free to decide whether it recognizes the signer,
@@ -144,7 +143,7 @@ external operation, universal authority, or legal effect.
 OpenETR therefore distinguishes three boundaries:
 
 1. **Evidence commitment:** a signer creates an immutable, attributable record.
-2. **Ruleset consequence:** a verifier evaluates that record in its DCR and
+2. **Ruleset consequence:** a verifier evaluates that record in its Evidence Graph and
    derives Consequential State under an identified, versioned ruleset.
 3. **Operational or legal effect:** a host system, registry, institution,
    counterparty, or applicable law decides whether to act on or recognize that
@@ -154,7 +153,7 @@ Relay acceptance means that an event was stored or forwarded. It is not, by
 itself, authorization, execution, consensus, or recognition.
 
 This boundary also makes OpenETR useful inside strongly controlled systems. A
-host can evaluate the current DCR immediately before a protected signing or
+host can evaluate the current Evidence Graph immediately before a protected signing or
 execution operation, refuse an ineligible action, and publish evidence of the
 result. The host supplies the controlled path to execution; OpenETR supplies
 portable evidence and independently derivable state. Other systems can later
@@ -172,7 +171,7 @@ Not every important electronic record is transferable.
 
 Some records need exclusive control and transfer, such as warehouse receipts, bills of lading, or promissory notes. Other records need durable lifecycle evidence without negotiability, such as Product Passports, health records, certificates, Apostille documents, permits, or compliance artifacts. Credentials add another pattern: they may be claim-centric records in their own right, or they may help prove that an actor is authorized to sign an OpenETR event.
 
-The Artifact/DCR/state model gives OpenETR a broader policy vocabulary without
+The Artifact/Evidence Graph/state model gives OpenETR a broader policy vocabulary without
 assuming that every record is negotiable or legally controllable.
 
 It lets policymakers and implementers distinguish:
@@ -184,20 +183,20 @@ It lets policymakers and implementers distinguish:
 - registry or authority-recognized records whose effect depends on an external rulebook.
 
 This terminology keeps the layers clean. A **Digital Artifact** is persistent
-content identified by digest. A **Digital Controllable Record** is the signed
+content identified by digest. An **Evidence Graph** is the signed
 evidence record or graph concerning that artifact. A **Digital Original** is
 the Digital Artifact once consequential state has been established through its
-DCR. Legal and policy categories remain recognition
+Evidence Graph. Legal and policy categories remain recognition
 questions.
 
 That framing keeps OpenETR from becoming too narrow. It can remain deeply
-relevant to electronic transferable records while also applying the same DCR
+relevant to electronic transferable records while also applying the same Evidence Graph
 evidence and state-transition pattern to other durable electronic records.
 
 ## Why An Open Graph
 
 OpenETR treats each Digital Artifact as the subject of one or more candidate
-DCR graphs.
+Evidence Graphs.
 
 The graph may include:
 
@@ -215,7 +214,7 @@ This is different from a digital wallet model.
 
 A digital wallet is primarily a credential container. It holds credentials for a person or organization and helps the holder present selected claims to relying parties.
 
-OpenETR is not mainly a container. It is a shared DCR evidence structure about
+OpenETR is not mainly a container. It is a shared Evidence Graph records structure about
 a Digital Artifact.
 
 The [OpenETR Core Record Ruleset 1.0](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
@@ -272,7 +271,7 @@ A warehouse receipt platform should not have to replace its receipt workflow. A 
 Instead, OpenETR can generate self-contained identifiers and signed events around the record:
 
 - the Digital Artifact is identified by a digest derived from its content;
-- signed records concerning it form a candidate DCR;
+- signed records concerning it form a candidate Evidence Graph;
 - each event is signed by the acting profile key;
 - event ids are content-derived;
 - graph links are carried in signed tags;

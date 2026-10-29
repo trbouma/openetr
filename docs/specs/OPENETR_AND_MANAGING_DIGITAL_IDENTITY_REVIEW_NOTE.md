@@ -24,8 +24,8 @@ identification, authentication, credentials, wallets, public services, trust
 frameworks, record matching, privacy, adoption, and value for money.
 
 OpenETR is primarily concerned with object-centric evidence: identifying an
-exact Digital Artifact, recording attributable consequential actions in a
-Digital Controllable Record (DCR), and deriving Consequential State under
+exact Digital Artifact, recording attributable consequential actions in an
+Evidence Graph, and deriving Consequential State under
 stated rules.
 
 The relationship is complementary:
@@ -37,10 +37,10 @@ digital identity and host account
 
 OpenETR Commitment Profile
   -> signs an object-specific consequential statement
-  -> contributes evidence to the Digital Artifact's DCR
+  -> contributes evidence to the Digital Artifact's Evidence Graph
 
 verifier and recognition policy
-  -> evaluates identity, authority, DCR evidence, and applicable rules
+  -> evaluates identity, authority, Evidence Graph records, and applicable rules
   -> determines whether to rely on the state and what effect it receives
 ```
 
@@ -93,14 +93,14 @@ regulators, and relying parties may all perform different functions.
 | Host login | Account session, passkey, IAM, or other authentication | Belongs to the integrating application. |
 | Identity proofing | KYC, registry, wallet, credential, or identity provider | External to the base protocol. |
 | Attribute proof | Credential, attestation, or linked evidence | May be referenced by OpenETR and evaluated under policy. |
-| Holder service or wallet | Wallet or credential store | Complements OpenETR; a DCR is not a personal wallet. |
+| Holder service or wallet | Wallet or credential store | Complements OpenETR; an Evidence Graph is not a personal wallet. |
 | Delegated authority | Mandate, approval, account role, or delegation evidence | Must connect principal, operator, signer, scope, and time. |
 | Record matching | Mapping from account or organization record to `npub` | Host-system responsibility. |
 | Cross-system identity linking | Registry, trust framework, pairwise mapping, or attestation | Recognition concern requiring an explicit policy basis. |
 | Trust framework | TRQP, DVS-style framework, registry, accreditation, or local policy | Determines which identity evidence is accepted. |
 | Identity assurance level | Risk-based verifier requirement | May vary by action, domain, and consequence. |
 | Credential revocation | Status or revocation service | Must be checked when current validity matters. |
-| Consequential record history | Digital Controllable Record | OpenETR's principal contribution. |
+| Consequential record history | Evidence Graph | OpenETR's principal contribution. |
 
 ### 2.2 What an OpenETR signature establishes
 
@@ -109,7 +109,7 @@ For a valid event, OpenETR can establish that:
 - a particular public key signed the exact event;
 - the event concerns a digest-identified Digital Artifact;
 - the event contains particular signed tags and content;
-- its event references participate in a candidate DCR graph; and
+- its event references participate in a candidate Evidence Graph; and
 - stated protocol rules produce a particular candidate Consequential State.
 
 The signature does not establish that:
@@ -300,14 +300,14 @@ wallet or credential system
 
 OpenETR
   records the signed action concerning the Digital Artifact
-  and derives Consequential State from its DCR
+  and derives Consequential State from its Evidence Graph
 
 relying party
   evaluates both under its policy
 ```
 
 A wallet presentation may support recognition of a Commitment Profile without
-becoming part of the public DCR. Depending on privacy and replay requirements,
+becoming part of the public Evidence Graph. Depending on privacy and replay requirements,
 the integration may retain:
 
 - the presentation locally;
@@ -330,7 +330,7 @@ Examples:
 
 | OpenETR action | Possible assurance posture |
 | --- | --- |
-| Query a public DCR | No user identity required. |
+| Query a public Evidence Graph | No user identity required. |
 | Publish non-consequential linked evidence | Authenticated signer and basic policy checks. |
 | Create a warehouse receipt Anchor | Recognized warehouse Commitment Profile and protected signer access. |
 | Transfer control | Current-controller verification, authenticated operator, target binding, and fresh authorization. |
@@ -350,7 +350,7 @@ OpenETR is compatible with all three:
 - accredited private providers can supply identity or verification services;
 - multiple providers can issue or verify evidence under a shared framework;
 - a private network can apply contractual recognition rules; and
-- independent verifiers can apply different policies to the same DCR evidence.
+- independent verifiers can apply different policies to the same Evidence Graph records.
 
 The OpenETR protocol should not require one institutional model. Its role is to
 make the object-specific evidence portable enough for each model to use.
@@ -426,7 +426,7 @@ warehouse employee authenticates to host system
   -> credential or registry confirms warehouse status where required
   -> host policy authorizes use of warehouse Commitment Profile
   -> Commitment Profile signs Anchor for exact receipt digest
-  -> OpenETR verifies event and reconstructs DCR
+  -> OpenETR verifies event and reconstructs Evidence Graph
   -> MLWR or local verifier evaluates identity and control evidence
   -> relying party determines recognition and effect
 ```

@@ -6,20 +6,20 @@ OpenETR is designed around one governing principle:
 > to defined rules, not merely asserted by applications, databases or
 > blockchains.
 
-## Digital Artifact, Digital Controllable Record, And Digital Original
+## Digital Artifact, Evidence Graph, And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
 identity, normally established by a cryptographic digest. It may exist in many
 locations or byte-for-byte copies; copies with the same digest represent the
 same Digital Artifact.
 
-A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+An **Evidence Graph** is a single end-verifiable record or a
 graph of related end-verifiable records containing evidence of consequential
 actions concerning a Digital Artifact. It is the protocol evidence structure,
 not the artifact itself.
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established through a Digital Controllable Record.
+been established through an Evidence Graph.
 
 > Content makes an artifact identifiable. Consequential state makes it an
 > original.
@@ -28,7 +28,7 @@ Copying content does not copy consequential state.
 
 ```text
 Digital Artifact
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> Consequential State derived according to an identified ruleset
   -> Digital Original
 ```
@@ -41,7 +41,7 @@ application disappears, that state may become inaccessible or impossible to
 verify independently.
 
 OpenETR uses a different boundary. Applications create and present signed
-records that form a DCR. Cryptographic and structural checks validate the
+records that form an Evidence Graph. Cryptographic and structural checks validate the
 evidence; an identified ruleset determines what Consequential State follows.
 An application can cache a projection for performance, but another conforming
 implementation can reconstruct the same result from the evidence and rules.
@@ -66,7 +66,7 @@ system. Consequential State remains a derived result.
 What travels is the basis for reproducing that result:
 
 ```text
-artifact identity + signed DCR evidence + identified rules
+artifact identity + signed Evidence Graph records + identified rules
   -> reproducible consequential state
   -> contextual recognition
   -> external effect
@@ -79,7 +79,7 @@ authority model when the resulting record contains the evidence that its own
 rules require.
 
 This is a **what-first** boundary. The verifier begins by asking what artifact
-and DCR are being presented, what state follows under the identified rules,
+and Evidence Graph are being presented, what state follows under the identified rules,
 and what evidence is required for the proposed use. Actor identity, authority,
 relationships, and other recognition evidence are introduced only to the
 extent required by that use.

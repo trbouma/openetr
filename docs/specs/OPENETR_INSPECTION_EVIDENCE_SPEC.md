@@ -306,7 +306,7 @@ each authorized recipient without changing the report.
 Key-record and disclosure event kinds, indexed lookup tags, storage encryption,
 request authentication, and envelope formats remain implementation decisions to
 be specified before interoperable deployment. No new kind assignment is made
-here. These private application records are not automatically DCR graph events.
+here. These private application records are not automatically Evidence Graph events.
 `key_ref` is a named descriptive tag; NIP-01 single-letter indexing must not be
 assumed for it. A private store may use a separately defined lookup convention.
 

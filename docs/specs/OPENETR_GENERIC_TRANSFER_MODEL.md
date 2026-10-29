@@ -1,7 +1,7 @@
 # OpenETR Generic Transfer Model
 
 This note defines how OpenETR's protocol layer supports transfer of control
-over a Digital Artifact by preserving DCR evidence and applying state
+over a Digital Artifact by preserving Evidence Graph records and applying state
 transition rules.
 
 It is intended to describe control over a transferable electronic record in a way that remains independent of:
@@ -12,15 +12,15 @@ It is intended to describe control over a transferable electronic record in a wa
 
 OpenETR is not a Recognition Layer system. It does not itself provide
 ownership, title, contractual rights, priority, mandate, or legal effect. It
-preserves a Digital Controllable Record concerning a Digital Artifact and
-supports validation of that DCR under an applicable policy. Consequential
+preserves an Evidence Graph concerning a Digital Artifact and
+supports validation of that Evidence Graph under an applicable policy. Consequential
 state is the result of that validation.
 
 ## Purpose
 
 OpenETR provides a protocol layer for electronic transferable records.
 
-Its purpose is to make the DCR evidence, validation policy, and resulting
+Its purpose is to make the Evidence Graph records, validation policy, and resulting
 consequential state concerning a Digital Artifact independently verifiable.
 
 It does not determine:
@@ -63,17 +63,17 @@ The Digital Artifact:
 - is the common subject referenced by candidate assertions and Evidence Events;
 - may have incomplete, invalid, competing, ambiguous, or terminated event
   history; and
-- becomes a Digital Original when validation of its DCR under an applicable
+- becomes a Digital Original when validation of its Evidence Graph under an applicable
   policy establishes consequential state.
 
-### Digital Controllable Record
+### Evidence Graph
 
-A **Digital Controllable Record (DCR)** is one end-verifiable record or a graph
-of related end-verifiable records concerning the Digital Artifact. The DCR is
+An **Evidence Graph** is one end-verifiable record or a graph
+of related end-verifiable records concerning the Digital Artifact. The Evidence Graph is
 the control evidence structure, not the artifact itself.
 
 In OpenETR, the **proof is outside the artifact**. The Digital Artifact remains
-the byte-identifiable content; the DCR is the separate signed evidence
+the byte-identifiable content; the Evidence Graph is the separate signed evidence
 concerning that content. Implementations should not require the artifact bytes
 to be modified, wrapped, watermarked, or re-minted in order to carry OpenETR
 proof.
@@ -85,7 +85,7 @@ This separation is central to the recognition boundary. OpenETR can publish,
 retrieve, and validate signed evidence of control-related events, but it does
 not universally enforce transferability or legal effect. A verifier, registry,
 platform, court, counterparty, or other relying party applies its policy to
-decide whether a particular DCR is recognized for a particular purpose.
+decide whether a particular Evidence Graph is recognized for a particular purpose.
 
 ### Evidence And Disclosure
 
@@ -120,7 +120,7 @@ This is a Protocol Layer statement only. It does not by itself determine who own
 
 ### Control Graph
 
-The Control Graph is the evidence-event portion of the DCR concerning the
+The Control Graph is the evidence-event portion of the Evidence Graph concerning the
 lifecycle of the Digital Artifact.
 
 - nodes represent Participants
@@ -163,8 +163,8 @@ exist outside the model.
 
 ### ISSUE
 
-Creates the first DCR record concerning a Digital Artifact. Validation of that
-one-record DCR under the applicable policy may establish initial consequential
+Creates the first Evidence Graph record concerning a Digital Artifact. Validation of that
+one-record Evidence Graph under the applicable policy may establish initial consequential
 state.
 
 An ISSUE event:
@@ -290,7 +290,7 @@ OpenETR records authenticated facts.
 
 It answers:
 
-- What is the Digital Artifact and what DCR concerns it?
+- What is the Digital Artifact and what Evidence Graph concerns it?
 - Who is the Current Controller?
 - Who made which authenticated assertions?
 - How has control evolved?

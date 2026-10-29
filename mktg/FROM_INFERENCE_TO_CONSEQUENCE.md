@@ -197,7 +197,7 @@ This is the distinction at the heart of
 
 A **Digital Artifact** is persistent content identified by a digest.
 
-A **Digital Controllable Record** is the signed evidence concerning that
+An **Evidence Graph** is the signed evidence concerning that
 artifact.
 
 **Consequential State** is what follows when that evidence is validated and
@@ -310,8 +310,8 @@ The implementation I am working with happens to look like this:
 > **OpenETR provides an implementation of consequence.**
 
 LLMs can interpret an artifact and help us reason about it. Nostr can carry
-signed evidence concerning it. OpenETR can organize that evidence into a
-Digital Controllable Record and determine its Consequential State under an
+signed evidence concerning it. OpenETR can organize that evidence into an
+Evidence Graph and determine its Consequential State under an
 identified rule book.
 
 Then recognition begins.

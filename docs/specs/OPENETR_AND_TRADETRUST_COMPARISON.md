@@ -41,8 +41,7 @@ and title-escrow contracts to maintain a shared owner and holder state. The
 selected blockchain orders accepted transactions, and smart-contract code
 determines which attempted transitions update that state.
 
-OpenETR uses signed Anchor and Evidence Records to form a Digital Controllable
-Record (DCR). A verifier validates the evidence graph and applies identified
+OpenETR uses signed Anchor and Evidence Records to form an Evidence Graph. A verifier validates the evidence graph and applies identified
 rules to derive Consequential State. Relays, archives, applications, or local
 stores may preserve the evidence, but none of them exclusively owns the
 resulting state.
@@ -54,7 +53,7 @@ TradeTrust transferable record
 document identity -> token registry / title escrow -> blockchain state
 
 OpenETR
-artifact digest -> signed DCR evidence -> rules -> Consequential State
+artifact digest -> signed Evidence Graph records -> rules -> Consequential State
 ```
 
 TradeTrust answers:
@@ -185,19 +184,19 @@ representation.
 OpenETR does not need to parse or own the artifact's business content. It needs
 an exact, recomputable content identity.
 
-### Digital Controllable Record
+### Evidence Graph
 
-A Digital Controllable Record is one signed record or a graph of signed records
+An Evidence Graph is one signed record or a graph of signed records
 concerning the artifact. In the current Nostr binding:
 
-- a regular `kind 1415` Anchor Record introduces a candidate DCR;
+- a regular `kind 1415` Anchor Record introduces a candidate Evidence Graph;
 - regular `kind 1416` Evidence Records express later actions;
 - the `o` tag identifies the artifact by digest;
 - `e` tags link records through cryptographic event ids;
 - signatures attribute statements to Key-Based Identifiers; and
 - action and participant tags carry signed structured semantics.
 
-The DCR is evidence. It is not a mutable status row.
+The Evidence Graph is evidence. It is not a mutable status row.
 
 ### Consequential State
 
@@ -268,7 +267,7 @@ recognize the actor and its authority.
 ### Independent verification is a common objective
 
 TradeTrust documents can be verified by compatible viewers and libraries
-outside the issuing platform. OpenETR DCRs can be reconstructed and evaluated
+outside the issuing platform. OpenETR Evidence Graphs can be reconstructed and evaluated
 by conforming verifiers outside the application that originated the events.
 
 The systems differ in the dependencies needed to reproduce the answer, not in
@@ -279,17 +278,17 @@ the value they place on cross-platform verification.
 | Concern | TradeTrust | OpenETR |
 | --- | --- | --- |
 | Primary domain | Digital trade documents, especially verifiable and transferable records. | General consequential records with domain adapters, initially including warehouse receipts and bills of lading. |
-| Core portable object | Verifiable TradeTrust document plus status references. | Digest-identified Digital Artifact plus its signed DCR evidence. |
+| Core portable object | Verifiable TradeTrust document plus status references. | Digest-identified Digital Artifact plus its signed Evidence Graph records. |
 | Content integrity | VC proof or version-specific OpenAttestation wrapping and Merkle evidence. | Recomputed artifact digest plus signed record integrity. |
 | Issuer/source | DID or DNS-based identity method, document proof, and where applicable a registry contract. | Anchor signer KBI plus optional profiles, attestations, registries, and recognition policy. |
-| Transfer representation | Token Registry and Title Escrow contracts maintain owner and holder state. | Signed transition evidence is linked into the DCR; rules derive controller and lifecycle state. |
+| Transfer representation | Token Registry and Title Escrow contracts maintain owner and holder state. | Signed transition evidence is linked into the Evidence Graph; rules derive controller and lifecycle state. |
 | State authority | Accepted blockchain and contract state. | Validated evidence plus identified derivation rules. |
 | Ordering | Blockchain transaction ordering and contract execution. | Explicit cryptographic links, signed timestamps, and verifier conflict rules; no universal global order is presumed. |
 | Invalid attempt | Usually rejected by contract and does not update contract state, though the attempted transaction may remain observable. | Signed statement may remain visible; the verifier excludes it or reports warnings and conflicts. |
 | Competing history | Resolved within the selected chain's consensus and contract state. | Preserved as candidate branches or competing anchors and evaluated under policy. |
 | Identity primitive | Wallet address, DID verification method, domain binding, and contract roles. | Actor-neutral KBI; current Nostr binding uses a 32-byte public key / `npub`. |
 | Recognition | Law, platform rules, issuer identity, governance, and relying-party policy still determine effect. | Explicitly outside the protocol; recognition profiles, institutions, agreements, and law determine effect. |
-| Retrieval dependency | Document plus access to relevant DID/DNS resources and, for transferable status, the selected blockchain and contracts. | Artifact plus sufficient signed DCR evidence and the identified rules; evidence may come from relays, archives, applications, or local packages. |
+| Retrieval dependency | Document plus access to relevant DID/DNS resources and, for transferable status, the selected blockchain and contracts. | Artifact plus sufficient signed Evidence Graph records and the identified rules; evidence may come from relays, archives, applications, or local packages. |
 | Common runtime | EVM-compatible network and deployed contract interfaces for the transferable-record model. | No shared execution environment; verifiers reproduce a rules-based result from the evidence. |
 | Fees and operations | Gas, wallet custody, contract deployment, network selection, and chain indexing are operational concerns. | Relay/storage policy, event retention, key custody, evidence completeness, and verifier-version governance are operational concerns. |
 | Privacy | Business data remains in the document; public token activity and addresses can reveal transaction metadata. Selective disclosure is supported for applicable document formats. | Artifact content can remain off-relay; public events may still expose participants, action types, timing, and graph relationships unless private transport or minimization is used. |
@@ -577,9 +576,9 @@ Existing application
 OpenETR integration boundary
   select Commitment Profile
   calculate artifact digest
-  create and sign DCR record
+  create and sign Evidence Graph record
   publish to configured evidence stores
-  retrieve DCR evidence
+  retrieve Evidence Graph records
   invoke deterministic verifier
           |
           v
@@ -716,7 +715,7 @@ platform, identity method, or state machine on every participant.
 
 ### Evidence is authoritative; no execution environment is exclusive
 
-OpenETR makes signed DCR evidence and identified rules sufficient to reproduce
+OpenETR makes signed Evidence Graph records and identified rules sufficient to reproduce
 the protocol result. A verifier does not need to ask one database, platform,
 contract instance, or blockchain for an authoritative mutable status value.
 
@@ -794,7 +793,7 @@ reads the identified blockchain and contract state.
    termination can be expressed as later signed records.
 5. Each Evidence Record identifies the same artifact and links through exact
    cryptographic event ids.
-6. A verifier obtains the relevant records, validates the DCR, and applies an
+6. A verifier obtains the relevant records, validates the Evidence Graph, and applies an
    identified rule book.
 7. The verifier reports the derived controller and lifecycle state together
    with warnings, conflicts, and its recognition basis.
@@ -811,7 +810,7 @@ TradeTrust
 authorized transaction -> contract execution -> globally shared chain state
 
 OpenETR
-attributable statement -> DCR evidence -> policy evaluation -> derived state
+attributable statement -> Evidence Graph records -> policy evaluation -> derived state
 ```
 
 ## Verification At Time Of Performance
@@ -825,7 +824,7 @@ blockchain history and contract environment.
 OpenETR is designed so that a complete evidence package can be verified
 locally. Public or private relays are convenient discovery and replication
 infrastructure, not the sole authority. An archive can preserve the artifact,
-DCR records, rule-book identifier, and supporting recognition evidence for
+Evidence Graph records, rule-book identifier, and supporting recognition evidence for
 later evaluation.
 
 The OpenETR advantage is therefore not "offline by default." It is that live
@@ -903,7 +902,7 @@ The architectures can complement one another:
 - an OpenETR recognition profile can require current TradeTrust contract state
   before accepting a transition;
 - a migration package can preserve relevant contract transactions and
-  verification evidence in a DCR-oriented archive; and
+  verification evidence in an Evidence Graph-oriented archive; and
 - a domain application can support both models while presenting one business
   vocabulary to its users.
 
@@ -967,7 +966,7 @@ across systems that do not share one application database.
 
 TradeTrust uses verifiable-document technology plus blockchain smart contracts
 to produce a shared transferable-record state. OpenETR uses a digest-identified
-artifact, signed DCR evidence, and identified rules to produce reproducible
+artifact, signed Evidence Graph records, and identified rules to produce reproducible
 Consequential State.
 
 TradeTrust makes a blockchain-backed state accessible across compatible
@@ -991,6 +990,6 @@ determine what follows.
 - [TradeTrust Token Registry](https://docs.tradetrust.io/docs/4.x/tutorial/transferable-records/token-registry/token-registry-cli/)
 - [TradeTrust Document Preview](https://docs.tradetrust.io/docs/introduction/key-components-of-tradetrust/add-ons/document-preview/)
 - [TradeTrust Security And Authenticity](https://www.tradetrust.io/solution/security-and-authenticity/)
-- [OpenETR Digital Controllable Record Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [OpenETR Evidence Graph Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [OpenETR Nostr Wire Format](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md)
 - [OpenETR Consequential State Architecture](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)

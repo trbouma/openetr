@@ -3,7 +3,7 @@
 This note considers introducing a distinct OpenETR event kind for **linked evidence records**.
 
 The motivating use case was Digital Product Passports, but the requirement is
-generic. A DCR Evidence Graph may need to reference authorization decisions,
+generic. An Evidence Graph may need to reference authorization decisions,
 execution receipts, temporal proofs, identity or role credentials, reliable-
 system assessments, repair reports, inspection records, audit certificates,
 or other evidence. Those items may inform verification or recognition without
@@ -177,7 +177,7 @@ minimum verification interface are specified.
 
 The design direction is promising because it preserves the core distinction:
 
-- `1415` begins a candidate DCR with an Anchor Event;
+- `1415` begins a candidate Evidence Graph with an Anchor Event;
 - `1416` records Publisher Notices and other ruleset-specific evidence actions;
 - `1417` links supporting evidence without implying transfer of control or
   recognition of the evidence claim.

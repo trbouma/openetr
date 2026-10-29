@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
   <title id="title">The OpenETR Model</title>
-  <desc id="desc">The OpenETR model has three primitives: Digital Artifact, Digital Controllable Record, and Digital Original. Consequential State is the core concept. Recognition can give consequential state external effect.</desc>
+  <desc id="desc">The OpenETR model has three primitives: Digital Artifact, Evidence Graph, and Digital Original. Consequential State is the core concept. Recognition can give consequential state external effect.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#fbfdff"/>
@@ -69,7 +69,7 @@
   <text x="232" y="194" text-anchor="middle" class="label blue">PRIMITIVE 1</text>
   <text x="232" y="238" text-anchor="middle" class="card-title ink">Digital Artifact</text>
   <text x="232" y="274" text-anchor="middle" class="card-subtitle ink">Uniquely identifiable content.</text>
-  <g transform="translate(174 318)" color="#0b2347">
+  <g transform="translate(174 310) scale(0.9)" color="#0b2347">
     <path class="icon-line" d="M20 0h80l34 34v116H20z"/>
     <path class="icon-line" d="M100 0v36h34"/>
     <path class="icon-line" d="M42 56h54"/>
@@ -81,9 +81,9 @@
 
   <rect x="562" y="158" width="456" height="400" rx="16" fill="url(#dcr)" filter="url(#shadow)"/>
   <text x="790" y="194" text-anchor="middle" class="label green">PRIMITIVE 2</text>
-  <text x="790" y="238" text-anchor="middle" class="card-title ink">Digital Controllable Record</text>
+  <text x="790" y="238" text-anchor="middle" class="card-title ink">Evidence Graph</text>
   <text x="790" y="274" text-anchor="middle" class="card-subtitle ink">End-verifiable evidence.</text>
-  <g transform="translate(704 308)" color="#245c4e">
+  <g transform="translate(712 306) scale(0.8)" color="#245c4e">
     <rect class="icon-line" x="0" y="32" width="100" height="112" rx="10"/>
     <rect class="icon-line" x="22" y="12" width="100" height="112" rx="10"/>
     <path class="icon-line" d="M62 0h106l26 26v118H62z"/>
@@ -95,9 +95,9 @@
     <path class="icon-line" d="M110 69l-18 27 20 36 56-38-58-38"/>
     <path class="icon-line" d="M82 64H56M76 88H56M78 118H56"/>
   </g>
-  <text x="790" y="462" text-anchor="middle" class="body ink">A record or graph of events</text>
-  <text x="790" y="490" text-anchor="middle" class="body ink">that establishes and transitions</text>
-  <text x="790" y="518" text-anchor="middle" class="body ink">state concerning the artifact.</text>
+  <text x="790" y="462" text-anchor="middle" class="body ink">Linked signed statements</text>
+  <text x="790" y="490" text-anchor="middle" class="body ink">evaluated under defined rules</text>
+  <text x="790" y="518" text-anchor="middle" class="body ink">to derive consequential state.</text>
 
   <rect x="1170" y="158" width="380" height="400" rx="16" fill="url(#original)" filter="url(#shadow)"/>
   <text x="1360" y="194" text-anchor="middle" class="label gold">PRIMITIVE 3</text>
@@ -115,23 +115,20 @@
   <path class="arrow" d="M435 344h108"/>
   <text x="489" y="387" text-anchor="middle" class="small ink">Referenced by</text>
   <path class="arrow" d="M1040 344h104"/>
-  <text x="1092" y="387" text-anchor="middle" class="small ink">Establishes</text>
-  <text x="1092" y="411" text-anchor="middle" class="small ink">consequential state</text>
+  <text x="1092" y="387" text-anchor="middle" class="small ink">Evaluated</text>
+  <text x="1092" y="411" text-anchor="middle" class="small ink">under rules</text>
 
   <rect x="316" y="646" width="600" height="180" rx="16" fill="url(#state)" filter="url(#shadow)"/>
   <text x="616" y="688" text-anchor="middle" class="label purple">CORE CONCEPT</text>
   <text x="616" y="728" text-anchor="middle" class="card-title ink">Consequential State</text>
-  <text x="616" y="764" text-anchor="middle" class="body ink">State resulting from consequential actions</text>
+  <text x="616" y="764" text-anchor="middle" class="body ink">State derived from validated evidence under rules</text>
   <text x="616" y="792" text-anchor="middle" class="body ink">that can, when recognized, produce effect.</text>
 
   <path class="soft-arrow" d="M236 575c8 76 42 118 82 137"/>
   <text x="352" y="614" class="small ink">Concerns the artifact</text>
   <path class="soft-arrow" d="M790 578v50"/>
-  <text x="820" y="596" class="small ink">Events are evaluated by</text>
-  <text x="820" y="620" class="small ink">state transition rules</text>
-  <path class="soft-arrow" d="M950 578c-2 40-12 68-34 92"/>
-  <text x="975" y="610" class="small ink">Makes the artifact</text>
-  <text x="975" y="634" class="small ink">a digital original</text>
+  <text x="820" y="596" class="small ink">Evaluated under</text>
+  <text x="820" y="620" class="small ink">defined rules</text>
 
   <rect x="1142" y="616" width="188" height="236" rx="12" fill="url(#recognition)" filter="url(#shadow)"/>
   <text x="1236" y="650" text-anchor="middle" class="label purple" style="letter-spacing:3px">RECOGNITION</text>
@@ -156,8 +153,6 @@
   <path class="arrow" d="M1334 734h38"/>
 
   <line x1="50" y1="886" x2="1550" y2="886" stroke="#9aa8bb" stroke-width="1.5"/>
-  <text x="800" y="930" text-anchor="middle" class="footer-title muted">A SIMPLE IDEA WITH WIDE APPLICATION</text>
-  <text x="800" y="966" text-anchor="middle" class="subtitle muted">Actions have consequences. OpenETR makes evidence of consequential actions end-verifiable.</text>
-  <text x="1464" y="932" text-anchor="middle" class="brand ink">OpenETR</text>
-  <text x="1464" y="958" text-anchor="middle" class="brand-sub muted">PORTABLE CONSEQUENCES</text>
+  <text x="800" y="930" text-anchor="middle" class="footer-title muted" style="letter-spacing:3px">A SIMPLE IDEA WITH WIDE APPLICATION</text>
+  <text x="800" y="966" text-anchor="middle" class="body muted">Actions have consequences. OpenETR makes evidence of consequential actions end-verifiable.</text>
 </svg>

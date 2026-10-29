@@ -42,7 +42,7 @@ Every OpenETR domain should start from the same generic sequence:
 8. present the evidence and policy outcome separately
 
 Where the verifier has the artifact bytes, it should hash those exact bytes and
-match the result to the DCR `o` value. Where the verifier only has a digest or
+match the result to the Evidence Graph `o` value. Where the verifier only has a digest or
 durable link, it can verify the graph for that byte identity, but it has not
 independently verified a file in hand.
 
@@ -288,7 +288,7 @@ Instead, the component gives the verifier a structured view of the available sig
 ## Historical State Derivation
 
 Where sufficient evidence is available, a verifier should be capable of
-deriving Consequential State at an identified point in a candidate DCR path.
+deriving Consequential State at an identified point in a candidate Evidence Graph path.
 The conceptual operations are:
 
 ```text
@@ -375,7 +375,7 @@ Recommended outcome values are:
 - `not_applicable`: the check does not apply in the selected context.
 
 These values are dimension-specific. An unavailable optional Temporal Proof
-does not make an otherwise valid DCR invalid. An authentic credential does not
+does not make an otherwise valid Evidence Graph invalid. An authentic credential does not
 establish that its issuer is recognized for a purpose. A recognized actor does
 not cure a broken graph link.
 

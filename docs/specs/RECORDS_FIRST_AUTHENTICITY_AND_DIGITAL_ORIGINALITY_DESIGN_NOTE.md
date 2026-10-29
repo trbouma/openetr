@@ -34,7 +34,7 @@ identity as the gateway to the record:
 ```text
 exact Digital Artifact
   -> attributable signed events concerning it
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> state-transition rules
   -> Consequential State
   -> recognition for a stated purpose
@@ -67,7 +67,7 @@ interoperability. A verifier begins with the thing being presented and asks:
 
 ```text
 What exact Digital Artifact is this?
-What signed DCR evidence concerns it?
+What signed Evidence Graph records concerns it?
 What Consequential State follows under the identified rules?
 What additional evidence does the proposed use require?
 ```
@@ -100,7 +100,7 @@ It makes portable the inputs required to reproduce a consequential result:
 
 ```text
 digest-identified artifact
-  + signed DCR evidence
+  + signed Evidence Graph records
   + identified rules and evaluation parameters
   -> reproducible Consequential State
 ```
@@ -161,7 +161,7 @@ carried by the object's unique material history. A byte-for-byte digital copy
 does not carry a visibly distinct patina or naturally privileged location.
 
 OpenETR relocates the relevant historical testimony from a particular storage
-instance into a Digital Controllable Record (DCR): one signed event or a graph
+instance into an Evidence Graph: one signed event or a graph
 of signed and linked events concerning the artifact.
 
 The model separates four things that physical practice often combines:
@@ -173,7 +173,7 @@ The model separates four things that physical practice often combines:
 | Consequential history | Event links and transition rules permit a verifier to derive state. |
 | Accepted authority and effect | A recognition context decides which actors, graph, and state it accepts for a purpose. |
 
-The DCR does not create a new physical original. It preserves the evidence
+The Evidence Graph does not create a new physical original. It preserves the evidence
 from which the artifact's consequential history can be reconstructed and
 evaluated without relying exclusively on the application that first displayed
 or stored it.
@@ -186,7 +186,7 @@ create a second artifact identity and does not independently duplicate its
 control state.
 
 Consequential state attaches to the digest-addressed artifact through its
-validated DCR. It does not attach separately to every file-system instance,
+validated Evidence Graph. It does not attach separately to every file-system instance,
 download, attachment, or storage location.
 
 OpenETR therefore separates:
@@ -245,7 +245,7 @@ The records-first decision has the following consequences for OpenETR:
 3. **Consequential state is derived.** No application's mutable status field
    is the exclusive source of truth for the control state.
 4. **Copies remain useful.** Any exact copy can be checked against the same
-   digest and DCR evidence.
+   digest and Evidence Graph records.
 5. **Identity stays composable.** DIDs, credentials, KYC results, registries,
    Nostr Web of Trust attestations, TRQP responses, and host-system accounts
    may support recognition without becoming mandatory dependencies of the
@@ -280,7 +280,7 @@ determine recognition and effect.
 
 - Copies are plural; consequential state is singular.
 - A Digital Original is consequentially original, not physically uncopyable.
-- The digest identifies the artifact; the DCR records what happened to it.
+- The digest identifies the artifact; the Evidence Graph records what happened to it.
 - The control graph carries consequential history without becoming a claim of
   universal authority.
 - Identity informs recognition; it does not exclusively own the record.
@@ -298,7 +298,7 @@ Historical sources provide context rather than normative requirements:
 Related OpenETR documents:
 
 - [Digital Originality, Control, Recognition, And Effect Design Note](./DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
-- [Digital Controllable Record Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [Consequential State Architecture Design Note](./CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
 - [Provenance And Control Design Note](./PROVENANCE_AND_CONTROL_DESIGN_NOTE.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)

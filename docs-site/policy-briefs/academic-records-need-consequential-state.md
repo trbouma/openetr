@@ -67,7 +67,7 @@ attributable record was issued and what its evidenced lifecycle now shows.
 ## The OpenETR Contribution
 
 OpenETR can represent an academic document or canonical data package as a
-Digital Artifact and preserve signed lifecycle evidence as its DCR:
+Digital Artifact and preserve signed lifecycle evidence as its Evidence Graph:
 
 ```text
 transcript, diploma, certificate, or credential package
@@ -94,16 +94,16 @@ records are generally claim-centric and lifecycle-oriented, not transferable.
 OpenETR should not impose warehouse-receipt concepts such as exclusive control
 or transfer where they do not belong.
 
-## Credentials And DCR Evidence
+## Credentials And Evidence Graph Evidence
 
-An academic credential and an OpenETR DCR answer related but different
+An academic credential and an OpenETR Evidence Graph answer related but different
 questions.
 
 ```text
 credential:
   What does this issuer claim about this learner or achievement?
 
-DCR:
+Evidence Graph:
   What attributable records concern this exact artifact, and what lifecycle
   state follows under the identified rules?
 ```

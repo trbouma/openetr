@@ -91,6 +91,7 @@ The policy opportunity is composition: **credentials support confidence in who m
 
 ## Related OpenETR Documents
 
+- [Better Identity Practices And OpenETR](better-identity-practices-and-openetr.md)
 - [Core Record Ruleset 1.0](../docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [Inspection Evidence Specification](../docs/specs/OPENETR_INSPECTION_EVIDENCE_SPEC.md)
 - [Cargo Inspection Profile](../docs/specs/OPENETR_CARGO_INSPECTION_PROFILE.md)

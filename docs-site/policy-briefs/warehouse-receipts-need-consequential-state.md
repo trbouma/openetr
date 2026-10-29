@@ -84,7 +84,7 @@ OpenETR separates the receipt artifact from evidence of actions concerning it:
 ```text
 warehouse receipt PDF or canonical data package
   -> Digital Artifact identified by byte identity
-  -> signed Anchor Events and later evidence records form the DCR
+  -> signed Anchor Events and later evidence records form the Evidence Graph
   -> an identified OpenETR ruleset evaluates the evidence
   -> Consequential State is derived
   -> law, registry, contract, and institutional policy determine effect
@@ -95,7 +95,7 @@ byte identity digest and structured event data needed to understand the signed a
 document may remain in the warehouse system, document repository, lender's
 records, holder's custody, or another authorized store.
 
-The DCR can travel independently of any one copy or storage location. Any exact
+The Evidence Graph can travel independently of any one copy or storage location. Any exact
 copy produces the same digest and can be evaluated against the same signed
 evidence.
 
@@ -108,7 +108,7 @@ come from evidence and state rather than physical scarcity.
 In OpenETR:
 
 - the byte identity digest identifies the exact Digital Artifact;
-- the Anchor begins a candidate DCR for that artifact;
+- the Anchor begins a candidate Evidence Graph for that artifact;
 - signed evidence records preserve attributable consequential actions;
 - graph links establish the claimed transition history;
 - rules derive the current Consequential State; and
@@ -208,7 +208,7 @@ one account and identity model. Their shared requirement can be smaller:
 
 ```text
 receipt digest
-  + attributable DCR evidence
+  + attributable Evidence Graph records
   + graph relationships
   + identified rules and evaluation parameters
   -> reproducible Consequential State
@@ -287,7 +287,7 @@ full implementation remain profile and pilot work.
 
 ## Recognition And Verifier Policy
 
-The same authentic DCR evidence may receive different conclusions from
+The same authentic Evidence Graph records may receive different conclusions from
 different verifiers.
 
 A verifier may need to ask:

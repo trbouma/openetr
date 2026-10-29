@@ -2,7 +2,7 @@
 
 > Status: Legacy / specialized recognition-pattern note.
 >
-> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. It is not an OpenETR DCR wire-format specification. Current OpenETR DCR graphs use regular `1415` Anchor Events and `1416` Evidence Events.
+> This document reflects an earlier authority-centered model in which a designated Title Transfer Authority publishes the current title state for an object. It is not a current OpenETR wire-format specification. Current OpenETR Evidence Graphs use regular `1415` Anchor Events and `1416` Evidence Events.
 >
 > The note remains useful as a specialized pattern for registry-style or attestor-led recognition, and as background for trust-anchor design. It should not be read as the primary current OpenETR model.
 

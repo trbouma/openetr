@@ -256,7 +256,7 @@ OpenETR binds assertions and control transitions to an identified record.
 Used together:
 
 - C2PA can describe content origin, transformation, and provenance assertions.
-- OpenETR can identify the artifact and preserve its signed DCR evidence; a
+- OpenETR can identify the artifact and preserve its signed Evidence Graph records; a
   transfer ruleset can derive a Control Graph and candidate controller.
 - Recognition policy can evaluate both.
 

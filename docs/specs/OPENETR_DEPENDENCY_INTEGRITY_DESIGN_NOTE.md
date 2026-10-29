@@ -13,7 +13,7 @@ Draft.
 ## Summary
 
 OpenETR already models a single Digital Artifact as digest-identified content
-with a signed DCR evidence record or graph.
+with a signed Evidence Graph records record or graph.
 
 Dependency integrity extends that model across objects.
 
@@ -105,12 +105,12 @@ Examples:
 
 The **Dependency Graph** is the linked set of dependency edges among Digital Artifacts, evidence artifacts, and recognized external references.
 
-It is not a replacement for each object's own DCR Evidence Graph.
+It is not a replacement for each object's own Evidence Graph.
 
 It is an overlay:
 
 ```text
-DCR Evidence Graph
+Evidence Graph
   + optional ruleset-specific graph, such as a Control Graph
   + cross-object dependency edges
   -> dependency graph evaluated by policy
@@ -131,7 +131,7 @@ Dependency integrity builds on existing OpenETR primitives.
 | Existing Concept | Dependency Integrity Use |
 | --- | --- |
 | Digital Artifact | Each related record remains separately digest-identified. |
-| DCR Evidence Graph | Each object retains its own Anchor Event and related evidence history. |
+| Evidence Graph | Each object retains its own Anchor Event and related evidence history. |
 | Ruleset-specific graph | A ruleset may select evidence that forms a Control Graph or another consequential subgraph. |
 | Linked Evidence Record | Supporting artifacts can be associated with one or more objects. |
 | Attestation | A signer can assert a relationship, dependency, warning, or status. |

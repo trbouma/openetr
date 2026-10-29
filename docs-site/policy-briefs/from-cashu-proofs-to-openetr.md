@@ -113,7 +113,7 @@ Its [axioms](../openetr/axioms.md) make the distinctions explicit:
 - A digest identifies a **Digital Artifact** independently of its location.
 - A signature attributes a statement to a signing key; it does not alone
   establish that key's institutional authority.
-- An anchor begins a candidate **Digital Controllable Record**, not an
+- An anchor begins a candidate **Evidence Graph**, not an
   automatically recognized or universally unique original.
 - Linked evidence, validated and evaluated under defined rules, supports
   derived **Consequential State**.
@@ -129,7 +129,7 @@ The distinction between wallet records and OpenETR evidence is important.
 Mutable private application state can be maintained through replaceable relay
 events. OpenETR's consequential history is derived from linked signed evidence;
 it is not simply the latest private database snapshot given a new name. Nor does
-every private Safebox record automatically become an OpenETR DCR.
+every private Safebox record automatically become an OpenETR Evidence Graph.
 
 The resulting policy proposition is described in [Why OpenETR](why-openetr.md):
 make consequences portable while keeping verification separate from recognition.

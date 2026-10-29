@@ -39,8 +39,8 @@ evidence, but relying on it retains a dependency on that institution.
 
 ## The Control Layer Remains Central
 
-OpenETR connects a Digital Artifact to external signed evidence forming a
-Digital Controllable Record (DCR). Rules evaluate that evidence to derive
+OpenETR connects a Digital Artifact to external signed evidence forming an
+Evidence Graph. Rules evaluate that evidence to derive
 Consequential State, including control where a transferable-record ruleset
 defines it. Recognition determines what legal, contractual, or institutional
 effect to give that result.

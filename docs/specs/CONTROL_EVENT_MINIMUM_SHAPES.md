@@ -11,7 +11,7 @@ It is intended to extend the current OpenETR working model in which:
 - `kind 1415` represents the Anchor Event
 - `kind 1416` represents the Evidence Event family
 
-The Anchor Event forms a one-record candidate DCR. Validation of that DCR under
+The Anchor Event forms a one-record candidate Evidence Graph. Validation of that Evidence Graph under
 an applicable policy may establish initial consequential state and bring the
 identified Digital Artifact into the OpenETR Digital Original model. The event
 does not by itself determine that the candidate is uniquely authoritative,
@@ -295,7 +295,7 @@ This event should identify the encumbrance event being discharged.
 
 The minimum convention in this note is:
 
-- `o` finds all candidate DCR events for the Digital Artifact
+- `o` finds all candidate Evidence Graph events for the Digital Artifact
 - `e` links each non-anchor graph event to the exact prior event id
 - `action` identifies how the event should be interpreted
 - action-specific tags such as `p`, `enc`, `type`, `notice_type`, and `ref` provide signed structured event data

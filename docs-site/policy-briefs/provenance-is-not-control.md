@@ -72,7 +72,7 @@ A participant may copy:
 
 But copying that evidence should not create a new current controller.
 
-Control depends on consequential state derived from validated DCR evidence
+Control depends on consequential state derived from validated Evidence Graph records
 under an identified ruleset. Whether that state is accepted for a legal or institutional
 purpose is a separate recognition question.
 
@@ -99,8 +99,8 @@ It is not the same as control.
 ## OpenETR As Consequential-Evidence Infrastructure
 
 OpenETR identifies content as a Digital Artifact by digest. Signed records
-concerning the artifact form a DCR spanning its evidenced lifecycle.
-Validation checks the DCR evidence, and an identified ruleset derives
+concerning the artifact form an Evidence Graph spanning its evidenced lifecycle.
+Validation checks the Evidence Graph records, and an identified ruleset derives
 Consequential State. Control is one extension of this more general model.
 
 Core Record Ruleset 1.0 derives anchored state and Publisher Position. A
@@ -122,7 +122,7 @@ What is this record, and who controls it now?
 ```
 
 OpenETR can carry provenance-like evidence too, but its distinctive role is
-the DCR: a signed, artifact-specific record or graph from which consequential
+the Evidence Graph: a signed, artifact-specific record or graph from which consequential
 state can be independently derived.
 
 ## Why They Are Complementary
@@ -135,7 +135,7 @@ The short comparison is:
 
 ```text
 C2PA provides provenance evidence about content.
-OpenETR validates DCR evidence and applies an identified ruleset to derive
+OpenETR validates Evidence Graph records and applies an identified ruleset to derive
 consequential state.
 ```
 
@@ -154,14 +154,14 @@ For example:
 digital trade record
   -> C2PA provenance for content, media, or supporting evidence
   -> OpenETR digest identifying the Digital Artifact
-  -> DCR graph for transfer, encumbrance, redemption, or termination
+  -> Evidence Graph for transfer, encumbrance, redemption, or termination
   -> an identified ruleset deriving consequential state
   -> recognition policy deciding effect
 ```
 
 C2PA can tell a relying party where the content came from.
 
-OpenETR can tell a relying party which Digital Artifact is involved, what DCR
+OpenETR can tell a relying party which Digital Artifact is involved, what Evidence Graph
 evidence exists, and what state follows under an identified ruleset.
 
 Recognition policy decides what legal, commercial, institutional, or operational effect follows.
@@ -179,7 +179,7 @@ This record has authentic provenance, therefore it is controlled.
 Nor should it conclude:
 
 ```text
-This artifact has a DCR, therefore all provenance claims are trusted.
+This artifact has an Evidence Graph, therefore all provenance claims are trusted.
 ```
 
 The better architecture is layered:
@@ -189,7 +189,7 @@ Protocol:
   verify hashes, signatures, manifests, events, and references
 
 Control:
-  validate DCR evidence and derive candidate state under an identified ruleset
+  validate Evidence Graph records and derive candidate state under an identified ruleset
 
 Recognition:
   decide what effect to give the evidence and state
@@ -205,7 +205,7 @@ Provenance explains history.
 
 Control governs state.
 
-C2PA is a strong provenance technology. OpenETR provides DCR evidence and
+C2PA is a strong provenance technology. OpenETR provides Evidence Graph records and
 identified state-derivation rulesets. The useful policy move is to use each where it
 belongs and avoid asking one layer to do the work of the other.
 

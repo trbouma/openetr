@@ -54,7 +54,7 @@ every statement in the document is correct.
 ## The Proof Is Outside The Artifact
 
 OpenETR identifies the Digital Artifact by its exact bytes using a digest.
-Separate signed records form its Digital Controllable Record (DCR). A sealing
+Separate signed records form its Evidence Graph. A sealing
 profile could bind an explicit declaration to that digest and link the
 authority evidence needed to evaluate it.
 

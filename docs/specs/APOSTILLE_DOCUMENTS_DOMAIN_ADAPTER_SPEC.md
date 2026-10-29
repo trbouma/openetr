@@ -30,7 +30,7 @@ become an extra mandatory legalisation requirement.
 ## Purpose
 
 The proposed Apostille Documents domain adapter represents apostilled packages
-as Digital Artifacts identified by exact-byte digests, with separate DCR
+as Digital Artifacts identified by exact-byte digests, with separate Evidence Graph
 evidence concerning those artifacts.
 
 The adapter should make Apostille workflows inspectable by linking:

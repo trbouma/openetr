@@ -2,7 +2,7 @@
 
 This infographic ties together the main OpenETR design idea:
 
-> A cryptographically verifiable Evidence Graph forms the DCR. Defined rules
+> Signed, linked evidence forms an Evidence Graph. Defined rules
 > derive Consequential State, while a Control Graph is the subset relevant to
 > controller and control-transition consequences.
 
@@ -73,7 +73,7 @@ flowchart TB
 
 ## Reading The Diagram
 
-The Evidence Graph is the object-centric DCR graph formed by an Anchor Record
+The Evidence Graph is the signed evidence structure formed by an Anchor Record
 and later linked Evidence Records. The Control Graph is the subset used to
 derive controller or control-transition state.
 

@@ -12,7 +12,7 @@ Draft design note.
 
 This note captures a core design decision for OpenETR and related applications:
 a Digital Artifact becomes a Digital Original, in the OpenETR technical sense,
-when defined rules derive consequential state from its validated DCR evidence.
+when defined rules derive consequential state from its validated Evidence Graph records.
 Recognition accepts that result for a stated purpose and determines external
 effect.
 
@@ -46,12 +46,12 @@ This gives five separate layers:
 | Layer | Question | Example |
 | --- | --- | --- |
 | Artifact | What exact persistent content is identified? | A PDF, scan, JSON document, image, or structured record identified by digest. |
-| DCR | What signed record or record graph exists? | Anchor, transfer, encumber, discharge, terminate. |
-| State transition rules and consequential state | What state results when the DCR is evaluated under the identified policy? | Current controller, active guards, lifecycle state, candidate branches. |
+| Evidence Graph | What signed record or record graph exists? | Anchor, transfer, encumber, discharge, terminate. |
+| State transition rules and consequential state | What state results when the Evidence Graph is evaluated under the identified policy? | Current controller, active guards, lifecycle state, candidate branches. |
 | Recognition | Which actor, graph, object, or state is accepted for a stated purpose? | A verifier recognizes a warehouse operator or candidate graph. |
 | Effect | What consequence follows from recognized state? | Treated as an authoritative copy, transferable record, official record, or evidentiary record. |
 
-Defined rules can derive consequential state from validated DCR evidence. They
+Defined rules can derive consequential state from validated Evidence Graph records. They
 cannot compel external recognition or effect.
 
 ## Definitions
@@ -64,21 +64,21 @@ referenced, transmitted, or rendered without those operations changing its
 identity or consequential state. Byte-for-byte copies with the same digest
 represent the same Digital Artifact.
 
-### Digital Controllable Record
+### Evidence Graph
 
-A Digital Controllable Record (DCR) is one end-verifiable record or a graph of
+An Evidence Graph is one end-verifiable record or a graph of
 related end-verifiable records through which consequential state concerning a
 Digital Artifact can be established and transitioned. It is the signed
 protocol evidence structure, not the artifact itself.
 
-Digital Controllable Record is the preferred protocol term for this evidence
+Evidence Graph is the preferred protocol term for this evidence
 layer. It is not a synonym for the file or for a legally recognized
 Controllable Electronic Record under UCC Article 12.
 
 ### Digital Original
 
 A Digital Original is a Digital Artifact for which consequential state has
-been established by validating its DCR under an identified, versioned ruleset.
+been established by validating its Evidence Graph under an identified, versioned ruleset.
 
 This is a technical architecture term. A **recognized Digital Original** is a
 Digital Original whose actor, graph, object, or derived state has also been
@@ -102,13 +102,13 @@ The important question is not only whether an object was anchored or signed. The
 
 ### Standing As Domain State
 
-Standing may be asserted in a DCR or derived as domain-specific Consequential
+Standing may be asserted in an Evidence Graph or derived as domain-specific Consequential
 State under defined rules. It is not a separate core concept. A standing-related
 state is recognized only when a recognition context accepts it for a purpose.
 Examples include official copy, evidentiary copy, transferable record, retired
 record, cancelled record, or non-authoritative copy.
 
-Defined rules derive consequential state from validated DCR evidence.
+Defined rules derive consequential state from validated Evidence Graph records.
 Recognition determines whether a relying party accepts that state and what
 effect follows.
 
@@ -131,7 +131,7 @@ The following actions do not independently create OpenETR consequential state:
 - Placing a file in a digital wallet.
 
 Each may help establish integrity, authenticity, provenance, or persistence.
-A valid OpenETR Anchor Event forms a one-record DCR. Validation of that DCR
+A valid OpenETR Anchor Event forms a one-record Evidence Graph. Validation of that Evidence Graph
 under OpenETR Core Record Ruleset 1.0 establishes anchored Consequential State. That
 makes the identified Digital Artifact a
 Digital Original in the technical OpenETR sense, while recognition and effect
@@ -142,7 +142,7 @@ Useful shorthand:
 - Hashing establishes integrity, not originality.
 - Signing establishes an assertion, not necessarily authority.
 - Arbitrary anchoring establishes a reference point, not consequential state.
-- Validation of a one-record Anchor DCR under an identified ruleset may
+- Validation of a one-record Anchor Evidence Graph under an identified ruleset may
   establish candidate consequential state, not universal recognition.
 - Control transitions are consequential because conforming implementations can
   derive state from them.
@@ -158,7 +158,7 @@ The term Protocol Layer should be retained and used precisely:
 
 The Protocol Layer has two jobs:
 
-- Preserve DCR evidence concerning a Digital Artifact.
+- Preserve Evidence Graph records concerning a Digital Artifact.
 - Apply state transition rules to derive consequential state.
 
 It lets a system express statements such as:
@@ -214,11 +214,11 @@ The generic action vocabulary includes:
 
 ### Anchor
 
-Anchor creates the first candidate DCR record for a Digital Artifact. It
+Anchor creates the first candidate Evidence Graph record for a Digital Artifact. It
 provides a technical reference point and a starting point for the control
 graph.
 
-When the one-record DCR evidence is valid, defined rules may derive initial
+When the one-record Evidence Graph records are valid, defined rules may derive initial
 consequential state for a candidate control graph. It may therefore
 bring the identified Digital Artifact into the Digital Original model.
 It does not establish that its candidate graph is uniquely authoritative,
@@ -318,7 +318,7 @@ effect path:
 
 ```text
 Digital Artifact
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> OpenETR state transition rules
   -> Consequential state
   -> Digital Original
@@ -342,7 +342,7 @@ particular file instance becoming uniquely original.
 They do not, by themselves, establish OpenETR consequential state for the scan.
 
 The scan becomes a Digital Original in the technical OpenETR sense when defined
-rules derive consequential state from its validated DCR evidence. It becomes a
+rules derive consequential state from its validated Evidence Graph records. It becomes a
 recognized Digital Original for a licensing purpose only if a competent licensing
 authority or relevant recognition regime accepts the actor, graph, object, and
 derived state for that purpose.
@@ -353,7 +353,7 @@ The sequence is:
 Physical licence
   -> Scan
   -> Digital Artifact
-  -> candidate Digital Controllable Record (Anchor)
+  -> candidate Evidence Graph (Anchor)
   -> Digital Original
   -> Recognition by competent authority
   -> Recognized standing and effect
@@ -442,7 +442,7 @@ The following language can be reused in future specs:
 identity established by a cryptographic digest. Byte-for-byte copies with the
 same digest represent the same Digital Artifact.
 
-**Digital Controllable Record:** One end-verifiable record or a graph of
+**Evidence Graph:** One end-verifiable record or a graph of
 related end-verifiable records through which consequential state concerning a
 Digital Artifact can be established and transitioned.
 
@@ -456,7 +456,7 @@ consequential state, independent of any particular technical binding.
 that determines whether a proposed state transition is valid.
 
 **Digital Original:** A Digital Artifact for which consequential state has
-been established through a Digital Controllable Record.
+been established through an Evidence Graph.
 
 **Consequential State:** State that follows from consequential actions
 according to an identified, versioned ruleset. It is capable of affecting control,
@@ -465,7 +465,7 @@ when recognized for a stated purpose.
 
 OpenETR Core Record Ruleset 1.0 defines the universal baseline: anchored state
 and Publisher Notices. Current Controller and other transfer-specific states
-are extension semantics and are not implied by every DCR.
+are extension semantics and are not implied by every Evidence Graph.
 
 **Recognition:** The acceptance of an actor, assertion, object, or control state by a relying party, institution, community, or legal regime for a particular purpose.
 

@@ -15,12 +15,17 @@ specifications define the normative technical details.
 
 The core definitions are repeated here for convenience:
 
+**Evidence Graph** is the current term for the structure formerly called a
+Digital Controllable Record (DCR). It includes evidence beyond control actions;
+the Control Graph remains a ruleset-specific subset. The rename does not
+change the wire format or the meaning of Digital Artifact or Digital Original.
+
 - A **Digital Artifact** is persistent digital content with a unique content
   identity, normally established by a cryptographic digest.
-- A **Digital Controllable Record (DCR)** is the signed evidence structure from
+- An **Evidence Graph** is the signed evidence structure from
   which defined rules derive Consequential State concerning a Digital Artifact
   after the evidence is validated.
-- **Consequential State** is state that follows when validated DCR evidence is
+- **Consequential State** is state that follows when validated Evidence Graph records are
   evaluated according to defined protocol and verifier rules. It is a derived
   result, not another event or authoritative database row.
 - A **Digital Original** is a Digital Artifact with Consequential State.
@@ -38,7 +43,7 @@ The complete set of formal terms is maintained in
 The diagram summarizes how the core terms relate before the axioms state the
 model's foundational propositions.
 
-![OpenETR model showing Digital Artifact, Digital Controllable Record, Consequential State, Digital Original, Recognition, and Effect](../assets/images/openetr-model.png)
+![OpenETR model showing Digital Artifact, Evidence Graph, Consequential State, Digital Original, Recognition, and Effect](../assets/images/openetr-model.png)
 
 ### 1. The Digest Identifies The Artifact
 
@@ -53,13 +58,12 @@ itself, establish authority, recognition, or legal effect.
 
 ### 3. An Anchor Begins A Candidate Record
 
-An **Anchor Event** establishes the starting point of a candidate **Digital
-Controllable Record (DCR)**. It does not, by itself, establish uniqueness,
+An **Anchor Event** establishes the starting point of a candidate **Evidence Graph**. It does not, by itself, establish uniqueness,
 validity, or recognition.
 
 ### 4. Links Construct The Evidence Graph
 
-DCR records reference prior records and related evidence through cryptographic
+Evidence Graph records reference prior records and related evidence through cryptographic
 identifiers. These links construct an **Evidence Graph** from which protocol
 rules can derive Consequential State. The portion concerned specifically with
 control transitions forms the **Control Graph**. Links establish relationships;
@@ -68,7 +72,7 @@ they do not, by themselves, establish validity or state.
 ### 5. Events Are Evidence; State Is Derived
 
 Events are not overwritten to represent current state. **Consequential State**
-is derived by evaluating signed DCR evidence according to defined rules.
+is derived by evaluating signed Evidence Graph records according to defined rules.
 
 Domain rulebooks supply the additional semantics needed to interpret domain
 assertions, including incorporated schemas, vocabularies, and standards. OpenETR
@@ -83,7 +87,7 @@ rule book rather than erasing signed history.
 ### 7. A Digital Original Has Consequential State
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established through a DCR. Identical copies represent the same artifact;
+been established through an Evidence Graph. Identical copies represent the same artifact;
 copying its bytes does not independently create another consequential history.
 
 Whether a person, institution, system, or law recognizes that state as
@@ -107,12 +111,12 @@ In the Nostr binding, the 32-byte public key is the KBI. Its hexadecimal form
 is the canonical wire encoding, while `npub` is the human-readable encoding of
 the same key.
 
-### 10. DCR Evidence Is Portable Across Systems And Domains
+### 10. Evidence Graphs Are Portable Across Systems And Domains
 
 Signed records do not belong to one application, relay, operator, or
 jurisdiction. Domain adapters translate business actions into the general
 OpenETR model, while any conforming system can store, retrieve, and verify the
-resulting DCR.
+resulting Evidence Graph.
 
 Portability of evidence does not imply identical interpretation or recognition.
 Semantic interoperability requires compatible domain rules; it does not require
@@ -132,7 +136,7 @@ The same model can be expressed in five short statements:
    Evidence Graph and establish their claimed relationships, without by
    themselves deciding whether those records are valid or effective.
 4. **Rules determine what follows.** Defined protocol and verifier rules
-   evaluate the available DCR evidence and derive the Consequential State that
+   evaluate the available Evidence Graph records and derive the Consequential State that
    the evidence supports.
    Domain rulebooks also specify the meaning of domain assertions, directly or
    through incorporated standards; cryptographic verification alone supplies
@@ -154,4 +158,4 @@ are required to give the result.
 - [Consequential State](consequential-state.md)
 - [Recognition Boundary](recognition.md)
 - [Nostr Wire Format](wire-format.md)
-- [Digital Controllable Record design note](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph design note](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)

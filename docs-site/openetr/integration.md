@@ -3,12 +3,12 @@
 OpenETR is intended to integrate with multiple independent systems.
 
 The goal is not to require every participant to use one shared application.
-The goal is to make end-verifiable DCR evidence portable.
+The goal is to make end-verifiable Evidence Graph records portable.
 
 OpenETR is not intended to replace existing ETR platforms, warehouse receipt
 systems, registries, document services, or trade networks. It is intended to
 work behind the scenes as a connective evidence layer: content-derived object
-identifiers, signed DCR records, defined rules, and graph links
+identifiers, signed Evidence Graph records, defined rules, and graph links
 can be stored anywhere the signed event data is preserved, while existing
 systems keep their own user interfaces, databases, workflows, and rulebooks.
 
@@ -29,16 +29,16 @@ Integrators do not need to adopt every OpenETR surface at once. A practical inte
 
 | Milestone | Integration Question | OpenETR Concern |
 | --- | --- | --- |
-| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as Digital Artifact, Anchor Event, Evidence Event, DCR, Commitment Profile, Acting Profile, contact, reference, ruleset, and recognition policy. |
-| Separate consequential evidence from document movement | How do documents move today, and where should DCR evidence live? | Use OpenETR to preserve portable signed evidence while allowing PDFs, files, records, registry entries, or business documents to move through existing channels. |
+| Map domain terminology | What does the domain call the issuer, holder, controller, pledgee, secured party, receipt, record, or action? | Map domain words to OpenETR concepts such as Digital Artifact, Anchor Event, Evidence Event, Evidence Graph, Commitment Profile, Acting Profile, contact, reference, ruleset, and recognition policy. |
+| Separate consequential evidence from document movement | How do documents move today, and where should Evidence Graph records live? | Use OpenETR to preserve portable signed evidence while allowing PDFs, files, records, registry entries, or business documents to move through existing channels. |
 | Define the host-system boundary | Which existing or new system owns users, accounts, workflow, documents, and policy? | Treat OpenETR as portable signed evidence underneath the host system rather than as the host system's application database. |
 | Define authentication and recognition | How are users authenticated and recognized in the relevant domain or jurisdiction? | Let the host system, domain adapter, registry, KYC provider, trust framework, or verifier policy decide whether an actor is recognized for a particular role. |
 | Choose an integration surface | Should the system embed OpenETR, call a service, execute the CLI, or implement the protocol directly? | Use the Python component, REST APIs, CLI `--json`, or direct wire-format integration according to the system architecture. |
-| Choose a wire format strategy | Is the Nostr event format sufficient, or does the integrator need another transport or storage format? | Nostr is the initial OpenETR binding, but the protocol model is portable. An integrator may choose another event, message, storage, or transport protocol if it preserves equivalent DCR evidence and state-derivation semantics. |
+| Choose a wire format strategy | Is the Nostr event format sufficient, or does the integrator need another transport or storage format? | Nostr is the initial OpenETR binding, but the protocol model is portable. An integrator may choose another event, message, storage, or transport protocol if it preserves equivalent Evidence Graph records and state-derivation semantics. |
 
 The first milestone is often conceptual rather than technical. OpenETR becomes
 easier to integrate once the domain-specific language is mapped to Digital
-Artifacts, DCR evidence, state transition rules, and recognition policy. For
+Artifacts, Evidence Graph records, state transition rules, and recognition policy. For
 example, a warehouse receipt system may use warehouse operator, depositor,
 holder, secured party, and receipt state, while OpenETR represents those
 concerns through profiles, contacts, references, object ids, signed events,
@@ -80,7 +80,7 @@ Embedded integration is useful when the host application wants OpenETR behavior 
 REST integration is useful when the host application is not Python-based, wants an HTTP service boundary, or wants to share a running OpenETR service across several applications.
 
 Both approaches should use the same OpenETR protocol behavior underneath:
-DCR evidence, state transition rules, and consequential-state derivation.
+Evidence Graph records, state transition rules, and consequential-state derivation.
 
 ## Relay-Backed State
 
@@ -99,7 +99,7 @@ The strongest integration pattern is a stateless or mostly stateless host applic
 
 In this pattern, the host application keeps its own product database, account
 model, document store, workflow state, and recognition policy. OpenETR
-provides portable DCR evidence and Consequential State derivation.
+provides portable Evidence Graph records and Consequential State derivation.
 
 The host application may store very little OpenETR-specific local state:
 

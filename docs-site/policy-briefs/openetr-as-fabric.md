@@ -12,8 +12,8 @@ It supplies a reusable control-and-evidence material:
 
 - digest-based Digital Artifact identity
 - signed events
-- Digital Controllable Records (DCRs)
-- reproducible DCR validation under identified policies
+- Evidence Graphs
+- reproducible Evidence Graph validation under identified policies
 - linked evidence
 - profile-backed attribution
 - artifact-centric retrieval
@@ -60,7 +60,7 @@ Or, more technically:
 
 ```text
 OpenETR:
-common artifact, DCR, and state-derivation substrate
+common artifact, Evidence Graph, and state-derivation substrate
 
 Domain adapter:
 domain vocabulary, workflows, validation, roles, statuses, and presentation
@@ -87,8 +87,8 @@ OpenETR's reusable properties are:
 
 - a Digital Artifact can be identified by digest
 - signed events can be independently verified
-- DCR graphs can be reconstructed from portable signed records
-- DCR evidence can be validated and an explicit ruleset can derive consequential state
+- Evidence Graphs can be reconstructed from portable signed records
+- Evidence Graph records can be validated and an explicit ruleset can derive consequential state
 - linked evidence can be attached without becoming the main object
 - profile keys can attribute actions
 - different verifiers can apply different recognition policies to the same evidence
@@ -113,7 +113,7 @@ OpenETR likewise does not decide:
 
 Those are domain and recognition questions.
 
-OpenETR gives the Digital Artifact a durable DCR evidence structure and derives
+OpenETR gives the Digital Artifact a durable Evidence Graph records structure and derives
 its consequential state. It does not decide every rule that gives that state
 legal, institutional, or commercial effect.
 

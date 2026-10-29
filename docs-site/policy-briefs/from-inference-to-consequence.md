@@ -126,7 +126,7 @@ human creativity       machine inference       human-machine collaboration
          \                    |                        /
           -> persistent digital output -> Digital Artifact
                                          |
-                     no consequential evidence | DCR evidence + rules
+                     no consequential evidence | Evidence Graph records + rules
                               |                 |
                               v                 v
                      informational only   Consequential State
@@ -142,7 +142,7 @@ status, permission, control position, institutional decision, or real-world
 process.
 
 OpenETR does not determine consequence from the prestige, identity, or nature
-of the creator. It asks whether a DCR contains validated evidence from which an
+of the creator. It asks whether an Evidence Graph contains validated evidence from which an
 identified rule book derives Consequential State concerning the artifact.
 
 This gives human and machine creative acts equal technical standing at the
@@ -174,7 +174,7 @@ set of technologies:
 >
 > **Signed Nostr events are the current implementation of portable evidence.**
 >
-> **OpenETR implements consequence through DCR validation and rule-based state derivation.**
+> **OpenETR implements consequence through Evidence Graph validation and rule-based state derivation.**
 
 The relationship is:
 
@@ -182,7 +182,7 @@ The relationship is:
 | --- | --- | --- |
 | Inference | LLMs and other AI systems | Interpret artifacts and evidence, identify likely meaning, propose actions, and explain results. |
 | Evidence | Nostr event format, signatures, identifiers, references, and compatible evidence storage | Produce attributable, tamper-evident statements that can be independently verified. |
-| Consequence | OpenETR Digital Controllable Records, domain adapters, and verifier rule books | Validate related evidence and derive Consequential State concerning a Digital Artifact. |
+| Consequence | OpenETR Evidence Graphs, domain adapters, and verifier rule books | Validate related evidence and derive Consequential State concerning a Digital Artifact. |
 
 Nostr relays are part of the current wire-format infrastructure. They accept,
 store, filter, and return signed events. They help evidence travel and remain
@@ -323,12 +323,12 @@ The appropriate question for this layer is:
 OpenETR separates:
 
 - the **Digital Artifact**, whose persistent content is identified by digest;
-- the **Digital Controllable Record**, containing signed evidence concerning
+- the **Evidence Graph**, containing signed evidence concerning
   that artifact;
-- the **Consequential State**, derived by evaluating validated DCR evidence
+- the **Consequential State**, derived by evaluating validated Evidence Graph records
   under identified rules; and
 - the **Digital Original**, the Digital Artifact for which Consequential State
-  has been established through a DCR.
+  has been established through an Evidence Graph.
 
 OpenETR can derive states such as:
 
@@ -497,7 +497,7 @@ trust infrastructures, and protocols.
 | Framework or system | Primary contribution | Relationship to the layered architecture |
 | --- | --- | --- |
 | UNCITRAL MLETR | Technology-neutral legal framework for electronic transferable records, including identification, integrity, control, and reliable methods. | Supplies a legal recognition framework for a class of consequential records without prescribing one technology. |
-| UCC Article 12 | Commercial-law rules for controllable electronic records and rights associated with control. | Provides legal classifications and effects that a qualifying consequence system may support. An OpenETR DCR is not automatically a UCC controllable electronic record. |
+| UCC Article 12 | Commercial-law rules for controllable electronic records and rights associated with control. | Provides legal classifications and effects that a qualifying consequence system may support. An OpenETR Evidence Graph is not automatically a UCC controllable electronic record. |
 | Gaia-X | Trust-framework and data-space architecture using credentials, governance authorities, ecosystem rule books, and interoperable trust services. | Can supply participant, service, compliance, and recognition evidence around consequential records. |
 | Nostr | Signed event format, key-based attribution, event references, and relay transport. | Implements a portable evidence layer in the current OpenETR stack. It does not determine OpenETR state or legal effect. |
 | Cashu | Open Chaumian ecash protocol in which mints issue and redeem privacy-preserving tokens. | Demonstrates a specialized consequence system for bearer-style digital value, with different trust and spent-state assumptions. |

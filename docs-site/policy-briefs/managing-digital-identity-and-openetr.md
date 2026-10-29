@@ -103,13 +103,13 @@ Separate profiles do not create anonymity. They let an integrating system
 limit unnecessary correlation while retaining accountable mappings where law
 or policy requires them.
 
-## Wallets And Credentials Complement The DCR
+## Wallets And Credentials Complement The Evidence Graph
 
 Digital wallets and verifiable credentials are holder-centric. They help a
 person or organization present identity, attributes, eligibility, roles, or
 mandates.
 
-OpenETR is object-centric. It creates a DCR containing signed evidence about a
+OpenETR is object-centric. It creates an Evidence Graph containing signed evidence about a
 digest-identified Digital Artifact and derives Consequential State from that
 evidence.
 
@@ -119,7 +119,7 @@ Together, they can support a complete interaction:
 wallet credential establishes identity, role, or mandate
   -> host system authenticates and authorizes the operator
   -> Commitment Profile signs an OpenETR record
-  -> DCR evidence is validated and consequential state is derived
+  -> Evidence Graph records are validated and consequential state is derived
   -> relying party applies its recognition policy
 ```
 
@@ -137,11 +137,11 @@ employee account and authentication
   -> warehouse licence or registry evidence
   -> authorization to use a warehouse Commitment Profile
   -> signed Anchor for the exact receipt digest
-  -> DCR reconstruction and consequential-state derivation
+  -> Evidence Graph reconstruction and consequential-state derivation
   -> recognition under MLWR, local law, registry rules, or contract
 ```
 
-OpenETR handles the object-specific signed DCR evidence and derives
+OpenETR handles the object-specific signed Evidence Graph records and derives
 Consequential State. It does not
 perform employee onboarding, license the warehouse, or decide the legal effect
 of the receipt.
@@ -177,7 +177,7 @@ The report reinforces a concise identity boundary:
 Identity systems establish who may be acting.
 Host systems authenticate, match, authorize, and control signer access.
 OpenETR records attributable consequential evidence about the artifact.
-Verifier policies evaluate the DCR and recognition inputs.
+Verifier policies evaluate the Evidence Graph and recognition inputs.
 Relying systems and law determine effect.
 ```
 

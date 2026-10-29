@@ -18,16 +18,16 @@ remain with the relevant community, institution, contract, registry, or law.
 OpenETR separates four ideas that conventional applications often combine:
 
 - **Digital Artifact**: persistent digital content identified by digest.
-- **Digital Controllable Record (DCR)**: one end-verifiable record or a graph
+- **Evidence Graph**: one end-verifiable record or a graph
   of related records containing evidence of consequential actions concerning
   an artifact.
-- **Consequential State**: state derived by applying defined rules to valid DCR
+- **Consequential State**: state derived by applying defined rules to valid Evidence Graph
   evidence.
 - **Digital Original**: a Digital Artifact for which consequential state has
-  been established through a DCR.
+  been established through an Evidence Graph.
 
 ```text
-Digital Artifact -> DCR evidence -> Consequential State -> Digital Original
+Digital Artifact -> Evidence Graph records -> Consequential State -> Digital Original
 
 Consequential State -> Recognition -> Effect
 ```
@@ -67,7 +67,7 @@ conditions while preserving clear boundaries for trust and governance.
 ## Initial implementation
 
 The reference implementation uses ordinary Nostr event kinds `1415` and `1416`
-for linked, signed records. OpenETR DCR events are regular events, not
+for linked, signed records. OpenETR Evidence Graph events are regular events, not
 replaceable events.
 The CLI can issue, query, transfer, encumber, discharge, redeem, and terminate
 records.

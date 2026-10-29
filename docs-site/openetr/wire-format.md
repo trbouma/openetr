@@ -2,9 +2,9 @@
 
 The Nostr wire format is OpenETR's initial interoperability binding.
 
-It defines how OpenETR DCR evidence is represented as signed Nostr events,
+It defines how OpenETR Evidence Graph records are represented as signed Nostr events,
 event kinds, and tags. Nostr supplies event representation, signatures,
-references, relay transport, and discovery. OpenETR supplies DCR semantics,
+references, relay transport, and discovery. OpenETR supplies Evidence Graph semantics,
 validation rules, graph relationships, and Consequential State derivation.
 
 > Nostr carries the events. OpenETR determines their consequences.
@@ -61,8 +61,8 @@ The current regular-event model uses:
 | `1415` | Anchor Event |
 | `1416` | Evidence Event family |
 
-OpenETR DCR events use regular kinds `1415` and `1416`. Replaceable events
-are not part of the DCR wire format.
+OpenETR Evidence Graph events use regular kinds `1415` and `1416`. Replaceable events
+are not part of the Evidence Graph wire format.
 
 ## Core Tags
 
@@ -127,7 +127,7 @@ storage or other available copies.
 
 An anchor's signed hints cannot be edited without changing its event ID.
 Do not silently reissue an anchor to refresh locations; local resolver
-configuration can change independently of the DCR.
+configuration can change independently of the Evidence Graph.
 
 **Implementation status:** the OpenETR reference app uses Stroma's
 `BlossomPool` for opt-in storage and hint-aware retrieval. New anchors advertise

@@ -110,8 +110,7 @@ its exact bytes.
 
 ### 6.2 Anchor Event
 
-A regular Nostr event of kind `1415` that begins a candidate Digital
-Controllable Record concerning a Digital Artifact.
+A regular Nostr event of kind `1415` that begins a candidate Evidence Graph concerning a Digital Artifact.
 
 ### 6.3 Anchor Publisher
 
@@ -141,10 +140,12 @@ Publisher Position is derived state about what the Anchor Publisher has stated.
 It is not an independent determination that the artifact is valid, invalid,
 safe, unsafe, binding, or ineffective.
 
-### 6.7 Candidate DCR
+<a id="67-candidate-dcr"></a>
+
+### 6.7 Candidate Evidence Graph
 
 The Anchor Event and any related evidence records evaluated together as one
-candidate Digital Controllable Record.
+candidate Evidence Graph.
 
 ### 6.8 Evidence Set
 
@@ -165,7 +166,7 @@ The canonical digest representation SHALL be 64 lowercase hexadecimal characters
 
 Byte-identical copies having the same digest SHALL be treated as the same
 Digital Artifact. Copying the bytes SHALL NOT be interpreted as creating a new
-Anchor Event, DCR, Publisher Position, or independently recognized state.
+Anchor Event, Evidence Graph, Publisher Position, or independently recognized state.
 
 An implementation MAY evaluate a supplied digest without possessing the
 artifact bytes. Its result SHALL indicate whether the digest was computed from
@@ -247,7 +248,7 @@ This is Consequential State under this ruleset. It means that the supplied
 evidence proves that the Anchor Publisher signed an anchoring statement
 concerning the identified Digital Artifact.
 
-Because the artifact has Consequential State established through a DCR, it is a
+Because the artifact has Consequential State established through an Evidence Graph, it is a
 Digital Original under this ruleset. Whether a relying party recognizes that
 Digital Original as authoritative for any purpose remains external.
 
@@ -353,7 +354,7 @@ For each candidate Publisher Notice, a conforming verifier SHALL:
 6. confirm that `o` equals the anchored artifact digest;
 7. resolve the exact event identified by `e`;
 8. confirm that the referenced event is the Anchor Event or a qualifying
-   Publisher Notice in the same candidate DCR;
+   Publisher Notice in the same candidate Evidence Graph;
 9. confirm that the notice does not create a graph cycle; and
 10. validate `notice_type` according to Section 9.3.
 
@@ -423,10 +424,10 @@ It SHALL NOT be silently attached to the Anchor Event or another notice.
 
 More than one valid Anchor Event MAY exist for the same Digital Artifact.
 
-Each Anchor Event SHALL begin a separate candidate DCR, even where two Anchor
+Each Anchor Event SHALL begin a separate candidate Evidence Graph, even where two Anchor
 Events have the same author.
 
-Publisher Notices SHALL be evaluated only within the candidate DCR rooted at
+Publisher Notices SHALL be evaluated only within the candidate Evidence Graph rooted at
 the Anchor Event reached through their `e` links.
 
 A verifier SHALL NOT:
@@ -499,7 +500,7 @@ A conforming verifier SHALL perform the following procedure:
 2. record whether the digest was computed or supplied;
 3. accept or retrieve candidate `1415` Anchor Events by `o`;
 4. validate each candidate Anchor Event independently;
-5. create one candidate DCR for each valid Anchor Event;
+5. create one candidate Evidence Graph for each valid Anchor Event;
 6. accept or retrieve candidate `1416` Publisher Notices by `o`;
 7. validate each notice against the candidate anchor it reaches through `e`;
 8. construct qualifying notice chains;
@@ -804,7 +805,7 @@ core notices merely because their author also signed the anchor.
 
 This section is non-normative.
 
-A future transferable-record ruleset may extend a candidate DCR with:
+A future transferable-record ruleset may extend a candidate Evidence Graph with:
 
 - Current Controller;
 - transfer initiation;
@@ -845,7 +846,7 @@ Record Ruleset 1.0.
 This ruleset should be read with:
 
 - [OpenETR Draft National Standard](./OPENETR_DRAFT_NATIONAL_STANDARD.md);
-- [Digital Controllable Record Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md);
+- [Evidence Graph Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md);
 - [OpenETR Nostr Wire Format Specification](./OPENETR_NOSTR_WIRE_FORMAT_SPEC.md);
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md);
 - [Event Kind Registry](./EVENT_KIND_REGISTRY.md); and

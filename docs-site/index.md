@@ -44,13 +44,13 @@ State**.
 
 OpenETR provides a general way for any byte-identifiable **Digital Artifact**
 to become a **Digital Original**. Signed, linked records concerning the
-artifact form a **Digital Controllable Record (DCR)**. When that evidence is
+artifact form an **Evidence Graph**. When that evidence is
 validated and evaluated under defined rules, it produces **Consequential
 State**.
 
 ```text
 Digital Artifact
-  + Digital Controllable Record
+  + Evidence Graph
   + Defined Rules
   -> Consequential State
   -> Digital Original
@@ -87,7 +87,7 @@ state is believed.
 
 An end-verifiable signed record carries enough evidence for another
 implementation to verify its attribution and integrity and determine which
-artifact and prior records it concerns. Given the same sufficient DCR evidence,
+artifact and prior records it concerns. Given the same sufficient Evidence Graph records,
 rules, and evaluation parameters, another conforming implementation should be
 able to reproduce the same Consequential State without depending on the original
 website, service, or database.
@@ -115,7 +115,7 @@ primitives and one core concept fit together, with recognition and effect
 remaining outside the protocol.
 
 <figure class="openetr-model-figure openetr-model-figure--marquee">
-  <img src="assets/images/openetr-model.png" alt="OpenETR model showing Digital Artifact, Digital Controllable Record, Consequential State, Digital Original, Recognition and Effect">
+  <img src="assets/images/openetr-model.png" alt="OpenETR model showing Digital Artifact, Evidence Graph, Consequential State, Digital Original, Recognition and Effect">
   <figcaption>
     Recognition and effect remain outside the protocol.
   </figcaption>
@@ -175,7 +175,7 @@ claim that every Digital Artifact is property.
 
 **What is the digital thing?** The **Digital Artifact**, identified by a digest.
 
-**What happened concerning it?** The **Digital Controllable Record**, containing
+**What happened concerning it?** The **Evidence Graph**, containing
 evidence signed by actors.
 
 **What follows?** **Consequential State**, derived according to defined rules.
@@ -202,19 +202,21 @@ identity established by the exact bytes, normally expressed as a cryptographic
 digest. It may be a document, image, credential, record, data structure, or
 other identifiable content. It is the subject of consequential actions.
 
-### Digital Controllable Record
+<a id="digital-controllable-record"></a>
 
-The **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+### Evidence Graph
+
+The **Evidence Graph** is a single end-verifiable record or a
 graph of related end-verifiable records containing evidence of consequential
 actions concerning a Digital Artifact. It may contain an Anchor and later
 records such as transfer, encumbrance, discharge, relinquishment, attestation,
 redemption, or termination.
 
-The DCR is not the file. It is the portable record of consequential statements
+The Evidence Graph is not the file. It is the portable record of consequential statements
 made about the file.
 
 In OpenETR, the **proof is outside the artifact**. The artifact keeps its byte
-identity; signed DCR evidence records what has been asserted or done concerning
+identity; signed Evidence Graph records records what has been asserted or done concerning
 that artifact. Recognition and effect are then applied by the relevant
 verifier, registry, platform, legal rulebook, or relying party.
 Because the proof is external, OpenETR can remain format agnostic across PDFs,
@@ -237,10 +239,10 @@ lifecycle has ended.
 ### Digital Original
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established through a Digital Controllable Record.
+been established through an Evidence Graph.
 
 Originality does not belong to one physical copy. Identical copies represent
-the same artifact and can be checked against the same DCR and state.
+the same artifact and can be checked against the same Evidence Graph and state.
 
 > A copy can reproduce the content. It cannot independently reproduce the
 > consequential state.
@@ -248,7 +250,7 @@ the same artifact and can be checked against the same DCR and state.
 The complete path is:
 
 ```text
-Digital Artifact -> Digital Controllable Record -> Consequential State -> Digital Original
+Digital Artifact -> Evidence Graph -> Consequential State -> Digital Original
 
 Consequential State -> Recognition -> Effect
 ```
@@ -257,7 +259,7 @@ Consequential State -> Recognition -> Effect
 
 A warehouse issues a PDF receipt for stored grain. Its fingerprint identifies
 the Digital Artifact. The warehouse signs an Anchor Event, and a later signed
-record transfers control to a buyer. Those records form the candidate DCR.
+record transfers control to a buyer. Those records form the candidate Evidence Graph.
 Cryptography validates the evidence, and a transferable-record ruleset derives the candidate
 current-controller state.
 
@@ -288,11 +290,11 @@ stewardship.
 | Area | Purpose |
 | --- | --- |
 | [OpenETR Axioms](openetr/axioms.md) | Start with the ten foundational propositions and five maxims that define the OpenETR model and its boundaries. |
-| [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, DCR evidence, identified rulesets, Consequential State, and Digital Originals fit together. |
+| [The Core Model](policy-briefs/digital-artifact-dcr-digital-original.md) | Read how Digital Artifacts, Evidence Graph records, identified rulesets, Consequential State, and Digital Originals fit together. |
 | [Digital Originality](policy-briefs/digital-originality.md) | Explore consequential state and the model through detailed examples. |
 | [OpenETR Overview](openetr/index.md) | Continue into the architecture, wire format, implementation surfaces, and recognition boundary. |
 | [OpenETR Roadmap](openetr/roadmap.md) | See the prioritized work for verifier results, retrieval coverage, associated evidence, recognition adapters, and domain pilots. |
-| [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over OpenETR DCR evidence and state transition rules. |
+| [Warehouse Receipts](getting-started.md) | Work with warehouse receipt documents using MLWR-style terminology over OpenETR Evidence Graph records and state transition rules. |
 | [Product Passports](product-passports.md) | Start modelling Product Passport evidence records for product data, compliance evidence, and lifecycle attestations. |
 | [Health Records](health-records.md) | Placeholder for future health-record Evidence Graph workflows, with privacy and consent concerns called out early. |
 | [Apostille Documents](apostille-documents.md) | Placeholder for future apostille and legalization document verification workflows. |
@@ -313,14 +315,13 @@ stewardship.
 | --- | --- |
 | Byte Identity | The identity of digital content as determined by its exact bytes, normally expressed as a cryptographic digest. |
 | Digital Artifact | Persistent digital content with byte identity. |
-| Digital Controllable Record | A single end-verifiable record or graph of related end-verifiable records containing evidence of consequential actions concerning a Digital Artifact. |
+| Evidence Graph | A single end-verifiable record or graph of related end-verifiable records containing evidence of consequential actions concerning a Digital Artifact. |
 | Consequential State | State that follows from consequential actions according to an identified ruleset. |
-| Evidence Record | A signed OpenETR lifecycle record within a DCR. |
+| Evidence Record | A signed OpenETR lifecycle record within an Evidence Graph. |
 | Linked Evidence Record | A signed record that associates another document, artifact, or evidence item with a Digital Artifact without necessarily transferring control. |
-| Control Graph | The portion of a DCR Evidence Graph to which a transferable-record ruleset assigns control consequences. |
-| Evidence Graph | The broader DCR graph, including the Anchor Event, Publisher Notices, ruleset-specific actions, and linked-evidence records. |
-| Digital Original | A Digital Artifact for which consequential state has been established through a Digital Controllable Record. |
-| Domain Workspace | A user-facing adapter that speaks domain language while using OpenETR DCR evidence and an identified domain ruleset underneath. |
+| Control Graph | The portion of an Evidence Graph to which a transferable-record ruleset assigns control consequences. |
+| Digital Original | A Digital Artifact for which consequential state has been established through an Evidence Graph. |
+| Domain Workspace | A user-facing adapter that speaks domain language while using OpenETR Evidence Graph records and an identified domain ruleset underneath. |
 | Recognition Layer | Law, registry policy, institutional rules, verifier policy, or contracts that decide whether consequential state is accepted and what effect it receives. |
 
 ## Core Thesis
@@ -334,7 +335,7 @@ derived:
 real-world object, product, document, or record
   -> canonical file or data artifact
   -> Digital Artifact identified by byte identity
-  -> Digital Controllable Record containing an Anchor Event and later records
+  -> Evidence Graph containing an Anchor Event and later records
   -> evidence is validated and an identified ruleset derives Consequential State
   -> Digital Original
   -> durable query link and QR code
@@ -343,7 +344,7 @@ real-world object, product, document, or record
 
 The artifact content can stay with the operator, manufacturer, registry,
 platform, or storage service. OpenETR preserves its cryptographic identity and
-portable DCR evidence.
+portable Evidence Graph records.
 
 OpenETR does not decide universal effect. It preserves durable signed evidence
 and derives Consequential State according to an identified ruleset.

@@ -1,6 +1,6 @@
 # OPENETR/CD 1:2026
 
-# Digital controllable records - Open protocol requirements for end-verifiable evidence and consequential state
+# Evidence Graphs - Open protocol requirements for end-verifiable evidence and consequential state
 
 ## Committee draft
 
@@ -48,8 +48,8 @@ under defined rules.
 OpenETR separates five concerns:
 
 1. the **Digital Artifact**, identified by its content;
-2. the **Digital Controllable Record (DCR)**, containing signed evidence;
-3. **Consequential State**, derived from validated DCR evidence;
+2. the **Evidence Graph**, containing signed evidence;
+3. **Consequential State**, derived from validated Evidence Graph records;
 4. **Recognition**, supplied by an applicable external rule book; and
 5. **Effect**, given to recognized state by a person, system, institution,
    contract, or law.
@@ -57,7 +57,7 @@ OpenETR separates five concerns:
 The model may be summarized as follows:
 
 ```text
-Digital Artifact -> Digital Controllable Record -> Consequential State
+Digital Artifact -> Evidence Graph -> Consequential State
 
 Digital Artifact + established Consequential State -> Digital Original
 
@@ -76,7 +76,7 @@ This document specifies requirements and recommendations for:
 
 a) identifying a Digital Artifact by cryptographic digest;
 
-b) constructing a DCR from signed, end-verifiable records;
+b) constructing an Evidence Graph from signed, end-verifiable records;
 
 c) anchoring and extending a candidate Evidence Graph, including any Control
 Graph subset;
@@ -154,7 +154,7 @@ Note 1 to entry: The protocol does not infer actor type from a public key.
 
 ### 3.2 Anchor Record
 
-first signed record in a candidate DCR graph concerning a Digital Artifact
+first signed record in a candidate Evidence Graph concerning a Digital Artifact
 
 Note 1 to entry: An Anchor Record supplies a candidate starting point. It does
 not by itself establish uniqueness, recognition, or effect.
@@ -176,7 +176,7 @@ applicable policy
 
 ### 3.6 Consequential State
 
-state that follows when validated DCR evidence is evaluated according to
+state that follows when validated Evidence Graph records are evaluated according to
 defined protocol and verifier rules
 
 Note 1 to entry: Consequential State is a derived result, not another event or
@@ -198,7 +198,7 @@ Artifact
 ### 3.9 evidence record
 
 signed, end-verifiable record that provides evidence of an action, assertion,
-or relationship concerning a Digital Artifact and participates in a DCR
+or relationship concerning a Digital Artifact and participates in an Evidence Graph
 
 Note 1 to entry: An evidence record does not necessarily change control or
 Consequential State. Defined rules determine what consequence, if any, follows.
@@ -217,21 +217,26 @@ created by the OpenETR component, not by the underlying signature algorithm.
 persistent digital content with a unique content identity, normally
 established by a cryptographic digest
 
-### 3.12 Digital Controllable Record
+<a id="312-digital-controllable-record"></a>
 
-DCR
+### 3.12 Evidence Graph
 
 signed evidence structure from which defined rules derive Consequential State
 concerning a Digital Artifact after the evidence is validated
 
-Note 1 to entry: A DCR may consist of a single end-verifiable record or a graph
-of related end-verifiable records.
+Note 1 to entry: An Evidence Graph may consist of a single Anchor Record or
+linked end-verifiable records, including later assertions and supporting evidence.
+The Control Graph is the subset to which a ruleset assigns control consequences.
+
+Note 2 to entry: Evidence Graph replaces the former term Digital Controllable
+Record (DCR). This terminology change does not alter event kinds, signatures,
+digest identification, or existing wire-format fields.
 
 ### 3.13 Digital Original
 
 Digital Artifact with Consequential State
 
-Note 1 to entry: Consequential State is established through a DCR. Recognition
+Note 1 to entry: Consequential State is established through an Evidence Graph. Recognition
 and effect remain external determinations.
 
 ### 3.14 domain adapter
@@ -256,10 +261,10 @@ timestamp, type, tags, content, and signature
 
 ### 3.18 Evidence Event
 
-cryptographically signed event that serves as an evidence record in a DCR
+cryptographically signed event that serves as an evidence record in an Evidence Graph
 
 Note 1 to entry: In the OpenETR Nostr binding, a kind `1415` Anchor Event and a
-kind `1416` event are Evidence Events. The Anchor Event begins a candidate DCR;
+kind `1416` event are Evidence Events. The Anchor Event begins a candidate Evidence Graph;
 later Evidence Events extend or relate to it.
 
 Note 2 to entry: The existence of an Evidence Event does not by itself establish
@@ -267,8 +272,8 @@ a state change, recognition, or effect.
 
 ### 3.19 evidence graph
 
-DCR graph including Anchor Records, later evidence records, and any linked
-evidence records
+See 3.12. This clause is retained as a cross-reference to preserve existing
+clause numbering; it does not define a second construct.
 
 ### 3.20 guard policy
 
@@ -312,7 +317,7 @@ acts upon resulting state
 
 ### 3.26 verifier policy
 
-identified and versioned rule book used to validate DCR evidence, enumerate
+identified and versioned rule book used to validate Evidence Graph records, enumerate
 candidate chains, issue findings, and derive Consequential State
 
 ### 3.27 warning
@@ -325,7 +330,6 @@ making otherwise authentic signed evidence disappear
 **AML** anti-money laundering  
 **API** application programming interface  
 **CLI** command-line interface  
-**DCR** Digital Controllable Record  
 **ETR** electronic transferable record  
 **JSON** JavaScript Object Notation  
 **KBI** Key-Based Identifier<br>
@@ -395,7 +399,7 @@ A conforming implementation shall distinguish:
 
 a) Digital Artifact content;
 
-b) signed DCR evidence;
+b) signed Evidence Graph records;
 
 c) derived Consequential State;
 
@@ -404,7 +408,7 @@ d) recognition decisions; and
 e) external effect.
 
 An implementation shall not represent a mutable application state projection
-as if it were the signed DCR evidence that produced it.
+as if it were the signed Evidence Graph records that produced it.
 
 ### 6.2 Layer model
 
@@ -415,7 +419,7 @@ Domain adapter
   domain vocabulary, workflows, validation, and policy presentation
 
 OpenETR protocol layer
-  DCR evidence, graph traversal, state transition rules, and state derivation
+  Evidence Graph records, graph traversal, state transition rules, and state derivation
 
 Wire binding
   signed records, identifiers, tags, transport, storage, and retrieval
@@ -483,25 +487,27 @@ e) how alternate renderings relate to the canonical content.
 Byte-identical copies having the same digest shall be treated as instances of
 the same Digital Artifact.
 
-Copying artifact bytes or DCR evidence shall not be interpreted as creating a
-separate Digital Artifact, a new DCR history, another controller, or independent
+Copying artifact bytes or Evidence Graph records shall not be interpreted as creating a
+separate Digital Artifact, a new Evidence Graph history, another controller, or independent
 Consequential State.
 
-A copy of complete DCR evidence may be used by another conforming verifier to
+A copy of complete Evidence Graph records may be used by another conforming verifier to
 reconstruct the same candidate graph and derive the same Consequential State
 under the same identified rules.
 
 ### 7.4 Disclosure
 
 An implementation may disclose the artifact, retain it privately, or make it
-available through a separate content service. The DCR shall not require the
+available through a separate content service. The Evidence Graph shall not require the
 artifact bytes to be stored inside each evidence record.
 
-## 8 Digital Controllable Record requirements
+<a id="8-digital-controllable-record-requirements"></a>
+
+## 8 Evidence Graph requirements
 
 ### 8.1 General
 
-A DCR shall consist of one signed Anchor Record or a graph beginning with an
+An Evidence Graph shall consist of one signed Anchor Record or a graph beginning with an
 Anchor Record and extended by signed records concerning the same Digital
 Artifact.
 
@@ -576,10 +582,10 @@ action-specific reference.
 
 ### 8.6 Linked evidence
 
-An implementation may associate supporting artifacts or attestations with a
-DCR. Linked evidence shall identify:
+An implementation may associate supporting artifacts or attestations with an
+Evidence Graph. Linked evidence shall identify:
 
-a) the primary Digital Artifact or a specific DCR record;
+a) the primary Digital Artifact or a specific Evidence Graph record;
 
 b) the linked artifact or evidence item;
 
@@ -752,7 +758,7 @@ evaluation parameters on which the conclusion depends.
 
 ### 10.1 Derivation
 
-Consequential State shall be derived from validated DCR evidence under an
+Consequential State shall be derived from validated Evidence Graph records under an
 identified verifier policy.
 
 An implementation shall be able to identify the evidence records and policy
@@ -783,7 +789,7 @@ f) structural and policy findings.
 
 ### 10.4 Digital Original
 
-A Digital Original shall have Consequential State established through a DCR.
+A Digital Original shall have Consequential State established through an Evidence Graph.
 
 An implementation shall not claim that byte possession alone, file location,
 or an application database row establishes a Digital Original.
@@ -794,7 +800,7 @@ for a particular purpose is determined under Clause 13.
 ### 10.5 Historical state derivation
 
 Where sufficient evidence is available, a Core Verifier should be capable of
-deriving Consequential State for a candidate DCR path ending at a specified
+deriving Consequential State for a candidate Evidence Graph path ending at a specified
 event.
 
 A historical-state result shall identify:
@@ -1008,7 +1014,7 @@ and incident response.
 ### 13.1 Boundary
 
 OpenETR verification shall answer which key signed which record concerning
-which Digital Artifact and how the record participates in a candidate DCR.
+which Digital Artifact and how the record participates in a candidate Evidence Graph.
 
 OpenETR core shall not claim that cryptographic validity alone establishes
 legal, institutional, contractual, or regulatory effect.
@@ -1063,7 +1069,7 @@ e) the resulting effect or recommendation.
 ### 14.1 General
 
 A Domain Adapter shall translate domain actions and terms to the generic
-OpenETR model and translate DCR results back into domain language.
+OpenETR model and translate Evidence Graph results back into domain language.
 
 ### 14.2 Required profile information
 
@@ -1097,7 +1103,7 @@ A Domain Adapter may use legal or business terminology appropriate to its
 users. It shall not imply that the generic OpenETR term itself satisfies a
 legal classification.
 
-For example, an OpenETR DCR is not automatically a controllable electronic
+For example, an OpenETR Evidence Graph is not automatically a controllable electronic
 record under UCC Article 12 or an electronic transferable record under an
 MLETR-based enactment.
 
@@ -1113,13 +1119,13 @@ messaging, repository, or API system.
 
 ### 15.1 Independence from a running application
 
-A conforming system shall enable signed DCR evidence to be exported or
+A conforming system shall enable signed Evidence Graph records to be exported or
 retrieved in a form that can be verified without the originating application
 being available at the time of performance.
 
 ### 15.2 Repository neutrality
 
-DCR evidence may be stored on public relays, private relays, local relays,
+Evidence Graph records may be stored on public relays, private relays, local relays,
 databases, archives, files, or other repositories.
 
 Repository acceptance shall not be treated as recognition of an event's
@@ -1289,12 +1295,12 @@ A signed event timestamp shall not be treated as independently trusted time
 unless supported by an accepted timestamping or other time-assurance source.
 
 The term **Anchor Event** is reserved in this document for the initial OpenETR
-record that begins a candidate DCR. External timestamp, transparency-log, or
+record that begins a candidate Evidence Graph. External timestamp, transparency-log, or
 ledger evidence should be described as a **Temporal Proof** or another term
 that does not imply that it creates OpenETR Consequential State.
 
 Failure to obtain or verify optional Temporal Proof evidence shall not, by
-itself, invalidate an otherwise valid DCR. The verifier shall report the
+itself, invalidate an otherwise valid Evidence Graph. The verifier shall report the
 temporal-proof outcome separately.
 
 ### 17.6 Auditing and monitoring
@@ -1413,10 +1419,10 @@ The profile defines:
 
 | Kind | Name | Requirement |
 | --- | --- | --- |
-| `1415` | Anchor Event | Regular event beginning a candidate DCR |
-| `1416` | Evidence Event | Regular event extending or relating to a candidate DCR |
+| `1415` | Anchor Event | Regular event beginning a candidate Evidence Graph |
+| `1416` | Evidence Event | Regular event extending or relating to a candidate Evidence Graph |
 
-OpenETR DCR graphs shall use regular events. Addressable or replaceable event
+OpenETR Evidence Graphs shall use regular events. Addressable or replaceable event
 kinds shall not be used for Anchor Events or Evidence Events.
 
 ## A.3 Common tags
@@ -1522,21 +1528,21 @@ recognition of an event.
    authorship and integrity; it does not, by itself, establish authority,
    recognition, or legal effect.
 3. **An Anchor begins a candidate record.** An Anchor Record establishes the
-   starting point of a candidate DCR. It does not, by itself, establish
+   starting point of a candidate Evidence Graph. It does not, by itself, establish
    uniqueness, validity, or recognition.
-4. **Links construct the Evidence Graph.** DCR records reference prior records
+4. **Links construct the Evidence Graph.** Evidence Graph records reference prior records
    and related evidence through cryptographic identifiers. Links establish
    claimed relationships; they do not, by themselves, establish validity or
    state.
 5. **Events are evidence; state is derived.** Events are not overwritten to
    represent current state. Consequential State is derived by evaluating signed
-   DCR evidence according to defined rules.
+   Evidence Graph records according to defined rules.
 6. **Invalid claims remain visible.** Conflicting, unauthorized, or malformed
    statements remain part of the available evidence. A verifier warns about or
    excludes them according to its rule book rather than erasing signed history.
 7. **A Digital Original has Consequential State.** A Digital Original is a
    Digital Artifact for which Consequential State has been established through
-   a DCR. Identical copies represent the same artifact; copying its bytes does
+   an Evidence Graph. Identical copies represent the same artifact; copying its bytes does
    not independently create another consequential history.
 8. **Verification is separate from recognition.** OpenETR verifies digests,
    signatures, record links, graph structure, and protocol transitions.
@@ -1547,10 +1553,10 @@ recognition of an event.
    associated with a person, organization, service, device, or autonomous agent,
    and whether that actor is recognized or authorized, is determined by the
    applicable context.
-10. **DCR evidence is portable across systems and domains.** Signed records do
+10. **Evidence Graph records are portable across systems and domains.** Signed records do
     not belong to one application, relay, operator, or jurisdiction. Domain
     adapters translate business actions into the general OpenETR model, while
-    any conforming system can store, retrieve, and verify the resulting DCR.
+    any conforming system can store, retrieve, and verify the resulting Evidence Graph.
 
 ## B.2 Five maxims
 
@@ -1564,7 +1570,7 @@ recognition of an event.
    Evidence Graph and establish their claimed relationships, without by
    themselves deciding whether those records are valid or effective.
 4. **Rules determine what follows.** Defined protocol and verifier rules
-   evaluate the available DCR evidence and derive the Consequential State that
+   evaluate the available Evidence Graph records and derive the Consequential State that
    the evidence supports.
 5. **Recognition gives effect.** A relying party, institution, agreement, or law
    determines whether to accept the evidence or derived state for a stated
@@ -1677,7 +1683,7 @@ deviations: []
 
 # Bibliography
 
-- OpenETR, *Digital Controllable Record Design Note*.
+- OpenETR, *Evidence Graph Design Note*.
 - OpenETR, *OpenETR Generic Verifier Policy*.
 - OpenETR, *OpenETR Generic Domain Adapter Specification*.
 - OpenETR, *Root and Profile Identity Model*.

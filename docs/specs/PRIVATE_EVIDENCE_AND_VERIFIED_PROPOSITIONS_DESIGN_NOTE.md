@@ -23,7 +23,7 @@ spent-state database is introduced by this refinement.
 
 In OpenETR, the **proof is outside the artifact**. A Digital Artifact need not
 contain OpenETR metadata, controller information, or its own history. External
-DCR evidence refers to the artifact by digest; the artifact need not refer
+Evidence Graph records refers to the artifact by digest; the artifact need not refer
 back to that evidence.
 
 Byte identity is the concept; digest is the mechanism. In the current binding,
@@ -174,7 +174,7 @@ REST API, web app, and CLI should use the same component result when supported.
 
 This note does not authorize current software to bypass required signed events,
 accept opaque proofs as validated evidence, or claim private controller support.
-It refines the architectural extension point while preserving the DCR and
+It refines the architectural extension point while preserving the Evidence Graph and
 control model.
 
 ## Related Documents

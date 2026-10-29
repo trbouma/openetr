@@ -9,7 +9,7 @@ The warehouse receipt system is the reliable system.
 OpenETR is the correctness protocol between systems.
 ```
 
-OpenETR should provide portable signed DCR evidence and derive Consequential
+OpenETR should provide portable signed Evidence Graph records and derive Consequential
 State under defined rules. It should not replace the account system, KYC
 process, warehouse management system, registry, federation arrangement, or
 recognition policy.
@@ -32,7 +32,7 @@ That includes:
 - business workflow
 - audit and compliance records
 
-OpenETR is responsible for the signed DCR evidence and state derivation:
+OpenETR is responsible for the signed Evidence Graph records and state derivation:
 
 - receipt digest
 - Anchor Event

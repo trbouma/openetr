@@ -34,7 +34,7 @@ What happened concerning this Digital Artifact?
 ```
 
 OpenETR identifies content as a Digital Artifact by digest. Signed records
-concerning it form a DCR. Validation checks that evidence, and an identified
+concerning it form an Evidence Graph. Validation checks that evidence, and an identified
 ruleset derives Consequential State.
 
 The graph may include:
@@ -50,7 +50,7 @@ The graph may include:
 - verifier warnings or recognition annotations.
 
 OpenETR is therefore artifact-centric. The central unit is not the holder's
-wallet; it is the Digital Artifact, its DCR evidence, and the consequential
+wallet; it is the Digital Artifact, its Evidence Graph records, and the consequential
 state derived from that evidence.
 
 Core Record Ruleset 1.0 supplies the minimum anchor-and-notice model. Transfer,
@@ -80,7 +80,7 @@ OpenETR helps answer the object-history question.
 | Primary focus | Identity, credentials, authentication, selective disclosure, presentation. | Durable records, evidence records, linked evidence, object history, recognition inputs. |
 | Main unit | Wallet holder and wallet-held credentials. | Digital Artifact identified by digest. |
 | Main question | What credentials does this person or organization present? | What signed events exist for this object? |
-| Technical center | Wallet, issuer, verifier, service provider interactions. | Digital Artifact, DCR, derived state, verifier policy. |
+| Technical center | Wallet, issuer, verifier, service provider interactions. | Digital Artifact, Evidence Graph, derived state, verifier policy. |
 | Recognition boundary | Relying party decides whether to accept a presented credential. | Verifier, registry, authority, or relying party decides what effect to give the derived state. |
 
 ## How They Can Work Together
@@ -91,8 +91,8 @@ A practical integration could look like this:
 EUDI Wallet credential
   -> proves identity, role, mandate, or authorization
   -> OpenETR profile signs a record event
-  -> OpenETR DCR preserves durable signed evidence
-  -> DCR evidence is validated and an identified ruleset derives consequential state
+  -> OpenETR Evidence Graph preserves durable signed evidence
+  -> Evidence Graph records are validated and an identified ruleset derives consequential state
   -> registry / authority / relying party evaluates effect
 ```
 
@@ -124,7 +124,7 @@ For warehouse receipts, wallet-held credentials could help prove that:
 - a holder is entitled to present a receipt;
 - a regulator or court officer has authority to inspect a record.
 
-OpenETR would still preserve the receipt's artifact digest and DCR: its Anchor,
+OpenETR would still preserve the receipt's artifact digest and Evidence Graph: its Anchor,
 transfer path, encumbrances, discharges, redemption, termination, and related
 evidence.
 
@@ -135,11 +135,11 @@ The legal effect of the graph remains a recognition-layer question.
 Policymakers should avoid treating digital wallets as the only trust layer for durable electronic records.
 
 Wallets are essential for identity, credentials, and user-controlled
-presentation. But many important records also need an artifact-centric DCR
+presentation. But many important records also need an artifact-centric Evidence Graph
 that survives outside any one wallet session, application, registry, or
 platform.
 
-OpenETR offers that artifact-centric DCR evidence layer.
+OpenETR offers that artifact-centric Evidence Graph records layer.
 
 It lets identity systems, registries, institutions, and authorities evaluate durable signed evidence without requiring every domain to collapse into a single wallet model.
 

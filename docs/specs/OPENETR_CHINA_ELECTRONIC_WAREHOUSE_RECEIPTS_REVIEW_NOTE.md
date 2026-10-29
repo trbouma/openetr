@@ -49,7 +49,7 @@ documents should be capable of:
 - identifying the controller; and
 - ensuring that control moves when the document is transferred.
 
-These requirements are closely related to the OpenETR DCR, transition-rule,
+These requirements are closely related to the OpenETR Evidence Graph, transition-rule,
 Consequential State, and Digital Original model. Technical similarity does not
 by itself establish legal equivalence.
 
@@ -69,7 +69,7 @@ complete reliable-system assessment.
 
 The pilot mapping should use two coordinated but separate tracks.
 
-### DCR And Consequential State Track
+### Evidence Graph And Consequential State Track
 
 | Regulatory concern | Candidate OpenETR evidence or behavior |
 | --- | --- |
@@ -102,7 +102,7 @@ identical copies because each copy resolves to the same digest-addressed
 artifact.
 
 OpenETR instead seeks to derive a singular consequential state from accepted
-DCR evidence. The principal legal-design question is therefore:
+Evidence Graph records. The principal legal-design question is therefore:
 
 > Can the regulation's uniqueness requirement be satisfied by singular,
 > verifiable consequential and control state rather than prevention of
@@ -120,7 +120,7 @@ review the hypothesis before it is presented as a compliance conclusion.
 2. Define a China warehouse-receipt Domain Adapter vocabulary and policy
    identifier without changing the generic OpenETR control grammar.
 3. Map issuance, transfer, pledge, discharge, redemption, termination, and
-   change of medium to exact DCR evidence and derived state.
+   change of medium to exact Evidence Graph records and derived state.
 4. Define how the verifier reports competing anchors, branches, missing links,
    unknown retrieval coverage, and outstanding encumbrances.
 5. Create a reliable-system evidence dossier covering identity verification,
@@ -136,7 +136,7 @@ review the hypothesis before it is presented as a compliance conclusion.
 This note does not claim that:
 
 - Order No. 22 is a general enactment of the UNCITRAL MLETR;
-- a valid OpenETR DCR automatically satisfies Chinese law;
+- a valid OpenETR Evidence Graph automatically satisfies Chinese law;
 - a public relay pool is, by itself, a reliable electronic-document system;
 - a signing key is, by itself, a legally identified or authorized user;
 - consequential state conclusively satisfies the legal meaning of uniqueness;

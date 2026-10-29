@@ -19,7 +19,7 @@ responsible economic operator or a DPP service provider.
 OpenETR does not replace the Registry, product-specific delegated acts,
 harmonized standards, economic-operator responsibilities, or
 market-surveillance decisions. It can preserve exact passport versions and
-signed lifecycle evidence as an independently verifiable DCR.
+signed lifecycle evidence as an independently verifiable Evidence Graph.
 
 - [EU Digital Product Passports And OpenETR](policy-briefs/eu-digital-product-passports-and-openetr.md)
 - [Detailed EU Regulatory Analysis](https://github.com/trbouma/openetr/blob/main/docs/specs/EU_DIGITAL_PRODUCT_PASSPORT_REGULATORY_ANALYSIS_NOTE.md)
@@ -30,7 +30,7 @@ In this domain:
 
 - the Product Passport file or data artifact is the **Digital Artifact**;
 - the Product Passport byte identity is the stable object identity, expressed as the digest of its exact bytes;
-- each signed OpenETR Anchor, control, or linked-evidence event is a record in the Product Passport **DCR**;
+- each signed OpenETR Anchor, control, or linked-evidence event is a record in the Product Passport **Evidence Graph**;
 - later lifecycle documents can be attached as **linked evidence records**;
 - the linked set of Anchor Records and later evidence records is the Product Passport **control graph**;
 - the broader linked set of Anchor, control, and evidence records is the Product Passport **evidence graph**.
@@ -99,4 +99,4 @@ Product Passports and Warehouse Receipts should use the same underlying OpenETR 
 | Recognition layer | MLWR law, registry rules, warehouse policy | Product regulation, compliance policy, registry rules, marketplace policy |
 
 This is the domain-adapter pattern: each workspace speaks its own language,
-but the DCR evidence and state-derivation model stay general.
+but the Evidence Graph records and state-derivation model stay general.

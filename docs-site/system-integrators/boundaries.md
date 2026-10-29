@@ -53,7 +53,7 @@ place its checks at that boundary. Depending on the domain, that may be:
 - presentation or redemption of a record
 - invocation of a downstream operational system
 
-Where stronger assurance is required, the host should re-evaluate current DCR
+Where stronger assurance is required, the host should re-evaluate current Evidence Graph
 state, approvals, authority, target, and other material conditions immediately
 before the operation. It should then preserve evidence of success, refusal,
 failure, or later compensation as the domain requires.

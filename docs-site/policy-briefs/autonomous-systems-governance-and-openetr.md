@@ -40,8 +40,7 @@ Governance must identify the point where consequence becomes possible and enforc
 
 OpenETR is not an autonomous-systems governance framework.
 
-It is a correctness protocol for **Digital Artifacts**, **Digital Controllable
-Records (DCRs)**, validation of that evidence, and identified rulesets that
+It is a correctness protocol for **Digital Artifacts**, **Evidence Graphs**, validation of that evidence, and identified rulesets that
 derive Consequential State.
 
 The relationship is:
@@ -51,7 +50,7 @@ autonomous systems governance:
   authority, accountability, delegation, oversight, enforcement, review
 
 OpenETR:
-  artifact identity, DCR evidence, linked evidence, derived state
+  artifact identity, Evidence Graph records, linked evidence, derived state
 ```
 
 OpenETR is useful where autonomous or semi-autonomous systems interact with authoritative records such as:
@@ -82,7 +81,7 @@ OpenETR record:
   signed evidence concerning an identified Digital Artifact
 
 protocol derivation:
-  validation of DCR evidence and derivation of consequential state under the rules
+  validation of Evidence Graph records and derivation of consequential state under the rules
 
 recognition:
   domain system, federation, registry, counterparty, or legal framework gives effect
@@ -93,7 +92,7 @@ An AI agent may recommend transferring a warehouse receipt.
 That recommendation should not itself be the transfer.
 
 The transfer becomes candidate consequential evidence when the relevant event
-is signed. Validation determines whether it forms part of the DCR, and protocol
+is signed. Validation determines whether it forms part of the Evidence Graph, and protocol
 rules determine what consequential state follows; the recognition context decides what
 effect to give that state.
 
@@ -121,7 +120,7 @@ This helps with several governance norms.
 | Human oversight | approvals or countersignatures can be linked evidence |
 | Enforcement | systems can gate execution on valid OpenETR events |
 | Evidence integrity | object digests and signed event history |
-| Traceability | artifact-centric DCR and its signed event graph |
+| Traceability | artifact-centric Evidence Graph and its signed event graph |
 | Cross-system continuity | portable signed events and verifier output |
 | Lifecycle review | event history, warnings, termination, and incident evidence |
 
@@ -166,15 +165,15 @@ The pilot should distinguish:
 agent recommendation
   -> account authorization
   -> time-of-action state validation
-  -> signed OpenETR record added to the DCR
-  -> validation of DCR evidence and application of an identified ruleset
+  -> signed OpenETR record added to the Evidence Graph
+  -> validation of Evidence Graph records and application of an identified ruleset
   -> consequential state
   -> domain or federation recognition
 ```
 
 The warehouse receipt platform remains the reliable system for accounts, KYC, roles, document generation, workflow, and attestations.
 
-OpenETR provides signed DCR evidence and deterministic state derivation.
+OpenETR provides signed Evidence Graph records and deterministic state derivation.
 
 Recognition policy decides effect.
 

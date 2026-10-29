@@ -150,8 +150,7 @@ For a Product Passport integration:
 
 - a canonical passport version can be a **Digital Artifact** identified by its
   digest;
-- signed records concerning that version can form a **Digital Controllable
-  Record**;
+- signed records concerning that version can form an **Evidence Graph**;
 - Registry proofs, conformity documents, repair records, recalls, and
   end-of-life evidence can be linked without silently rewriting earlier
   evidence;

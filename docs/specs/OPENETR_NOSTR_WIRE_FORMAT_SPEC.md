@@ -68,7 +68,7 @@ The current OpenETR wire format uses two event families:
 - `kind 1416` for later Evidence Events
 
 Both are regular events. Addressable or replaceable events are not part of the
-OpenETR DCR graph.
+OpenETR Evidence Graph.
 
 ### Byte Identity
 
@@ -84,11 +84,11 @@ their bytes produce the same digest.
 
 ### `1415` Anchor Event
 
-The Anchor Event is the first candidate DCR record concerning a Digital Artifact.
+The Anchor Event is the first candidate Evidence Graph record concerning a Digital Artifact.
 
-**Digital Controllable Record (DCR)** is the protocol evidence term: it is one
+**Evidence Graph** is the protocol evidence term: it is one
 end-verifiable event or a graph of related events concerning the Digital
-Artifact identified by the `o` digest. A DCR is not the artifact and does not,
+Artifact identified by the `o` digest. An Evidence Graph is not the artifact and does not,
 by itself, assert derived or recognized consequential state.
 
 Its current wire-level role is to:
@@ -98,7 +98,7 @@ Its current wire-level role is to:
   initial anchored state
 - provide the starting point for Publisher Notice chains and extension graphs
 
-A valid Anchor Event forms a one-record candidate DCR. Evaluation of that DCR
+A valid Anchor Event forms a one-record candidate Evidence Graph. Evaluation of that Evidence Graph
 under OpenETR Core Record Ruleset 1.0 establishes initial anchored
 Consequential State and brings the identified Digital Artifact into the
 OpenETR Digital Original model. The
@@ -109,7 +109,7 @@ A single object digest may have more than one Anchor Event. Different issuers, s
 
 ### `1416` Evidence Event Family
 
-The Evidence Event family extends the DCR with signed evidence of later actions
+The Evidence Event family extends the Evidence Graph with signed evidence of later actions
 concerning the same Digital Artifact. Some actions change control; others
 contribute evidence from which different Consequential State may be derived.
 
@@ -163,7 +163,7 @@ The recommended convention is:
 
 ### `o`
 
-`o` is the Digital Artifact byte identity carried forward across the full DCR history.
+`o` is the Digital Artifact byte identity carried forward across the full Evidence Graph history.
 
 In the current model:
 
@@ -175,7 +175,7 @@ The `o` tag is a relay-query anchor. It should not be confused with the `1415` A
 
 ### `e`
 
-`e` links an Evidence Event to the prior event in the candidate DCR graph.
+`e` links an Evidence Event to the prior event in the candidate Evidence Graph.
 
 In the current model, `e` should reference:
 
@@ -424,10 +424,10 @@ Digest verification does not make a file or its declared media type safe to
 render; normal content-handling safeguards still apply.
 
 Malformed or disallowed optional hints SHOULD be ignored with a diagnostic;
-they do not by themselves invalidate otherwise valid DCR evidence. Failure
+they do not by themselves invalidate otherwise valid Evidence Graph records. Failure
 to retrieve the artifact MUST be reported separately from failure to retrieve
 or verify its Anchor Event and Evidence Events. It is not proof that the
-artifact never existed, that the DCR is invalid, or that control changed.
+artifact never existed, that the Evidence Graph is invalid, or that control changed.
 
 #### Compatibility And Immutability
 
@@ -441,7 +441,7 @@ a hint changes the event ID and produces a different candidate anchor; it
 does not update the old anchor or its linked graph. Implementations MUST NOT
 silently reissue an anchor solely to refresh its storage locations. Local
 resolver configuration can evolve without changing artifact identity or the
-DCR. A future signed locator-update convention would require a separate design.
+Evidence Graph. A future signed locator-update convention would require a separate design.
 
 #### Example Anchor Fields
 
@@ -493,7 +493,7 @@ Recommended `content` convention:
 
 Control meaning:
 
-- creates the first candidate DCR record concerning the Digital Artifact
+- creates the first candidate Evidence Graph record concerning the Digital Artifact
 - establishes the initial anchored control state
 - establishes the starting point for later control traversal
 
@@ -504,7 +504,7 @@ Compatibility note:
 
 Recognition boundary:
 
-- provides a one-record candidate DCR from which policy validation may produce
+- provides a one-record candidate Evidence Graph from which policy validation may produce
   consequential state, without deciding external recognition or effect
 - does not, by itself, determine legal authority, ownership, title, mandate, priority, or effect
 - may be one of several candidate Anchor Events for the same object digest
@@ -722,7 +722,7 @@ complete pagination or authentication should preserve the events already
 retrieved and report the retrieval limitation instead of silently treating
 the result as complete.
 
-OpenETR interoperable DCR evidence should continue to use dedicated event
+OpenETR interoperable Evidence Graph records should continue to use dedicated event
 kinds and semantics. Generic NIP-78 application-data kinds are not a substitute
 for kinds `1415`, `1416`, or a future adopted linked-evidence kind.
 
@@ -754,7 +754,7 @@ The chain therefore needs no separate root-pointer tag. A verifier recovers
 the candidate Anchor Event by traversing `e` references to `kind 1415` and
 must not substitute an unverified `origin` or `anchor` tag for that traversal.
 
-This produces a DCR: an independently verifiable sequence of signed statements
+This produces an Evidence Graph: an independently verifiable sequence of signed statements
 about the same Digital Artifact. A verifier can reject events with invalid
 signatures, inconsistent artifact identifiers, missing required tags, or
 broken `e` references without relying on the application that originally

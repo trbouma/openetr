@@ -8,15 +8,15 @@ OpenETR Anchor Events and Evidence Events use regular Nostr event kinds:
 
 | Kind | Purpose |
 | --- | --- |
-| `1415` | Anchor Event beginning a candidate DCR |
-| `1416` | Evidence Event extending or relating to a candidate DCR |
+| `1415` | Anchor Event beginning a candidate Evidence Graph |
+| `1416` | Evidence Event extending or relating to a candidate Evidence Graph |
 
 The reference component, CLI, web application, and current specifications use
-only these kinds for DCR graphs.
+only these kinds for Evidence Graphs.
 
 ## Decision
 
-OpenETR DCR graph nodes shall be regular events. They shall not use addressable
+OpenETR Evidence Graph nodes shall be regular events. They shall not use addressable
 or replaceable event semantics.
 
 The current graph grammar uses:
@@ -28,7 +28,7 @@ The current graph grammar uses:
 | `p` | participant key where participant lookup is required |
 | `action` | semantic subtype |
 
-The `d` tag is not part of the current DCR graph grammar.
+The `d` tag is not part of the current Evidence Graph grammar.
 
 ## Rationale
 
@@ -40,7 +40,7 @@ to stop returning the referenced record.
 
 Regular events preserve the intended model:
 
-1. an Anchor Event begins a candidate DCR;
+1. an Anchor Event begins a candidate Evidence Graph;
 2. each later Evidence Event identifies the same Digital Artifact through `o`;
 3. each graph edge identifies an exact prior record through `e`;
 4. a verifier validates the supplied Evidence Graph;
@@ -58,7 +58,7 @@ broken graph continuity. It shall not silently substitute another event.
 
 ## Configuration Events
 
-This decision applies to DCR evidence. OpenETR may still use replaceable or
+This decision applies to Evidence Graph records. OpenETR may still use replaceable or
 addressable events for information that is naturally mutable, including:
 
 - profile metadata;
@@ -68,12 +68,12 @@ addressable events for information that is naturally mutable, including:
 - indexes; and
 - derived views.
 
-Those records do not become DCR graph nodes merely because they are used by an
+Those records do not become Evidence Graph nodes merely because they are used by an
 OpenETR implementation.
 
 ## Implementation Consequences
 
-- publishers emit only kinds `1415` and `1416` for DCR evidence;
+- publishers emit only kinds `1415` and `1416` for Evidence Graph records;
 - object retrieval queries `#o`;
 - graph traversal follows exact `e` references;
 - event builders do not produce a `d` action slot;

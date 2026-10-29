@@ -121,17 +121,16 @@ for this complementary design direction and its current implementation limits.
 
 ## The OpenETR Role
 
-OpenETR associates a digest-identified **Digital Artifact** with a **Digital
-Controllable Record (DCR)**: one signed end-verifiable record or a graph of
+OpenETR associates a digest-identified **Digital Artifact** with an **Evidence Graph**: one signed end-verifiable record or a graph of
 related signed records concerning that artifact. Anchor, Control, Attestation,
-and linked-evidence records may all form part of the DCR. Their presence does
+and linked-evidence records may all form part of the Evidence Graph. Their presence does
 not itself establish consequential state; that state is the result of
-evaluating the DCR as a whole under an identified ruleset.
+evaluating the Evidence Graph as a whole under an identified ruleset.
 
 The compact model is:
 
 ```text
-exact artifact -> digest -> candidate DCR -> protocol validation
+exact artifact -> digest -> candidate Evidence Graph -> protocol validation
                -> consequential state -> recognition policy
 ```
 
@@ -363,7 +362,7 @@ separate.
 | Is that key authorized or recognized? | Registry, organizational, community, contractual, or legal policy |
 | Is the record current? | Control and lifecycle evidence |
 | Is the presenter the rightful holder? | Holder-binding or control evidence appropriate to the domain |
-| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Validation of the DCR under the applicable domain policy |
+| Has control been surrendered, redeemed, discharged, revoked, or terminated? | Validation of the Evidence Graph under the applicable domain policy |
 | Should the verifier rely on it? | Verifier policy and surrounding facts |
 
 A hash proves integrity relative to exact bytes. A signature proves that a key

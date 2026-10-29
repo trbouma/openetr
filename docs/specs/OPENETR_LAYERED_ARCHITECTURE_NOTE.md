@@ -3,7 +3,7 @@
 This note describes the relationship between:
 
 - the Nostr wire format
-- OpenETR's protocol layer for DCR evidence and consequential state
+- OpenETR's protocol layer for Evidence Graph records and consequential state
 - domain adapters such as the MLWR warehouse receipts surface
 - recognition frameworks that give legal or operational effect to the evidence
 
@@ -11,7 +11,7 @@ The short version is:
 
 ```text
 Domain adapter        MLWR, MLETR, bills of lading, receipts, credentials
-OpenETR control       DCR evidence, state transition rules, consequential state
+OpenETR control       Evidence Graph records, state transition rules, consequential state
 Nostr wire format     signed events, kinds, tags, relays, event ids
 Recognition layer     law, contracts, registry rules, institutional policy
 ```
@@ -44,30 +44,30 @@ It does not decide whether a warehouse receipt is legally valid, whether a trans
 
 The OpenETR protocol layer sits above the wire format.
 
-It interprets signed events as a DCR concerning a Digital Artifact.
+It interprets signed events as an Evidence Graph concerning a Digital Artifact.
 
-A **Digital Controllable Record (DCR)** is one end-verifiable record or a graph
+An **Evidence Graph** is one end-verifiable record or a graph
 of related records concerning a digest-identified Digital Artifact. It is the
 protocol evidence structure, not the artifact itself. A linked set of Anchor
-and Evidence Events is a candidate DCR graph.
+and Evidence Events is a candidate Evidence Graph.
 
 This is distinct from a **Digital Original**, which is a Digital Artifact for
-which evaluation of its DCR under an identified ruleset establishes
-Consequential State. The artifact identifies the content; the DCR is durable
+which evaluation of its Evidence Graph under an identified ruleset establishes
+Consequential State. The artifact identifies the content; the Evidence Graph is durable
 signed evidence spanning the lifecycle; an identified ruleset evaluates the
-DCR to produce Consequential State; and recognition determines
+Evidence Graph to produce Consequential State; and recognition determines
 what effect, if any, follows.
 
 At this layer, OpenETR defines:
 
 - Digital Artifacts identified by cryptographic digest
-- DCRs formed from signed end-verifiable records
-- Anchor Events that begin candidate DCRs for Digital Artifacts
+- Evidence Graphs formed from signed end-verifiable records
+- Anchor Events that begin candidate Evidence Graphs for Digital Artifacts
 - Publisher Notices defined by OpenETR Core Record Ruleset 1.0
 - later evidence records for transfer, encumbrance, discharge, redemption, termination, and attestation
 - profile-backed signing and participant identity
 - Current Controller derivation where a transferable-record ruleset defines it
-- identified, versioned rulesets that evaluate the DCR as a whole and produce
+- identified, versioned rulesets that evaluate the Evidence Graph as a whole and produce
   Consequential State
 - guardrails against ambiguous or duplicate actions where appropriate
 
@@ -75,7 +75,7 @@ The protocol layer is domain-neutral.
 
 It should not need to know whether an object is a warehouse receipt, bill of
 lading, certificate, credential, or another transferable record. It provides
-the common machinery for DCR evidence and ruleset-based Consequential State
+the common machinery for Evidence Graph records and ruleset-based Consequential State
 evaluation.
 
 In implementation terms, this is the role of the `openetr` Python component, CLI, and shared service layer.
@@ -152,7 +152,7 @@ These models complement OpenETR because they mostly answer recognition questions
 OpenETR is focused on control evidence:
 
 - what object exists;
-- which Anchor Event began the candidate DCR;
+- which Anchor Event began the candidate Evidence Graph;
 - which signed events reference the object;
 - how evidence events link through exact `e` references;
 - which profile key signed each event;

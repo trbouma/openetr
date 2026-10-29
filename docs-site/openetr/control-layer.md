@@ -1,18 +1,18 @@
 # Evidence And State
 
 The OpenETR protocol layer represents and links end-verifiable evidence
-concerning a Digital Artifact. Signed records form a DCR; cryptographic and
+concerning a Digital Artifact. Signed records form an Evidence Graph; cryptographic and
 structural checks validate that evidence; an identified ruleset determines
 what Consequential State follows. Control is one possible subject of that
 state, not the name for every event or every consequence.
 
-## Digital Artifact And Digital Controllable Record
+## Digital Artifact And Evidence Graph
 
 A **Digital Artifact** is the persistent content identified by cryptographic
-digest, normally SHA-256. A **Digital Controllable Record (DCR)** is one signed,
+digest, normally SHA-256. An **Evidence Graph** is one signed,
 end-verifiable record or a graph of related records concerning that artifact.
 
-The DCR carries evidence. Its presence does not, by itself, establish that the
+The Evidence Graph carries evidence. Its presence does not, by itself, establish that the
 events are valid, that consequential state or a current controller can be
 derived, or that the artifact is recognized.
 
@@ -24,16 +24,16 @@ The object may be:
 - a verifiable credential;
 - another canonical electronic record.
 
-OpenETR does not need to parse the object to associate DCR evidence with it. It
+OpenETR does not need to parse the object to associate Evidence Graph records with it. It
 needs the digest.
 
-When evaluation of the DCR under an identified ruleset establishes
+When evaluation of the Evidence Graph under an identified ruleset establishes
 Consequential State for the Digital Artifact, it becomes a **Digital Original**
 in the technical OpenETR sense.
 
 ## Anchor Event
 
-An Anchor Event forms a one-record candidate DCR. Evaluation of that DCR under
+An Anchor Event forms a one-record candidate Evidence Graph. Evaluation of that Evidence Graph under
 OpenETR Core Record Ruleset 1.0 establishes candidate anchored state.
 
 It binds:
@@ -76,13 +76,13 @@ The Evidence Graph is reconstructed from signed events:
 
 The Control Graph is the portion of that Evidence Graph to which a
 transferable-record ruleset assigns control consequences. The graph is
-portable evidence. Cryptographic and structural checks validate the DCR as a
+portable evidence. Cryptographic and structural checks validate the Evidence Graph as a
 whole, and an identified ruleset determines what Consequential State follows.
 Recognition separately decides whether to accept that result for a purpose and
 what effect to give it.
 
 ```text
-validated DCR evidence -> identified ruleset -> Consequential State
+validated Evidence Graph records -> identified ruleset -> Consequential State
 Consequential State -> recognition -> effect
 ```
 
@@ -95,7 +95,7 @@ own it. See [Consequential State](./consequential-state.md).
 
 Evidence must be independently verifiable, but its underlying information need
 not always be fully disclosed. Future profiles can define acceptable proofs
-of facts required by a rule, while retaining the artifact digest, DCR, and
+of facts required by a rule, while retaining the artifact digest, Evidence Graph, and
 control model. A private source record alone is not verifiable by a party that
 cannot inspect it; an accepted proof or other sufficient evidence is needed.
 
@@ -109,4 +109,4 @@ This is an extension direction, not implemented private-transfer support. See
 - [Evidence Event Minimum Shapes](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROL_EVENT_MINIMUM_SHAPES.md)
 - [State Transition Note](https://github.com/trbouma/openetr/blob/main/docs/specs/STATE-TRANSITION.md)
 - [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
-- [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)

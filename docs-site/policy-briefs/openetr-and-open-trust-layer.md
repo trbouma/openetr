@@ -4,8 +4,7 @@ Open Trust Layer (`OTL`) and OpenETR address different but complementary parts o
 
 OTL focuses on participant identity, secure communication, compliance
 messaging, payment sessions, and local counterparty trust decisions. OpenETR
-focuses on a digest-identified Digital Artifact and the Digital Controllable
-Record (DCR) spanning the signed evidence concerning it. Consequential state
+focuses on a digest-identified Digital Artifact and the Evidence Graph spanning the signed evidence concerning it. Consequential state
 is what follows when that evidence is validated and evaluated according to
 OpenETR rules.
 
@@ -27,7 +26,7 @@ OTL provides a participant-facing layer. It uses `did:webvh`, Verifiable Credent
 
 OpenETR provides an artifact-facing layer. Anchor, transfer, pledge, release,
 presentation, surrender, redemption, replacement, and dependency records form
-the DCR concerning a digest-identified artifact.
+the Evidence Graph concerning a digest-identified artifact.
 
 These layers can work together:
 
@@ -35,11 +34,11 @@ These layers can work together:
 OTL identity and transport
   -> identify counterparties and exchange messages securely
 
-OpenETR DCR
+OpenETR Evidence Graph
   -> preserve durable signed evidence concerning the Digital Artifact
 
 identified OpenETR ruleset
-  -> evaluate validated DCR evidence and derive consequential state
+  -> evaluate validated Evidence Graph records and derive consequential state
 
 Domain adapter
   -> translate evidence into eBL, eWR, eBoE, ePN, or other domain semantics
@@ -71,10 +70,10 @@ control evidence is portable
 ## Practical Implications
 
 For warehouse receipts, OTL could help identify the warehouse operator,
-depositor, and bank, while OpenETR preserves the DCR evidence from which
+depositor, and bank, while OpenETR preserves the Evidence Graph records from which
 issuance, pledge, release, transfer, and redemption state may be derived.
 
-For bills of lading, OTL could help carriers, shippers, consignees, banks, and agents coordinate securely, while OpenETR preserves the eBL's DCR evidence.
+For bills of lading, OTL could help carriers, shippers, consignees, banks, and agents coordinate securely, while OpenETR preserves the eBL's Evidence Graph records.
 
 For trade finance, OTL payment or settlement messages can become linked evidence in OpenETR, but payment should not automatically be treated as transfer of control unless the domain adapter and recognition policy say so.
 
@@ -86,7 +85,7 @@ OTL address proofs can show control of a blockchain address. They do not prove c
 
 OTL KYC exchanges can support compliance. They do not replace domain authority, registry status, legal recognition, or verifier policy.
 
-OTL sessions can preserve communication continuity. OpenETR DCRs preserve the
+OTL sessions can preserve communication continuity. OpenETR Evidence Graphs preserve the
 evidence needed to reconstruct artifact lifecycle state after the session,
 email, chat, or API context has disappeared.
 

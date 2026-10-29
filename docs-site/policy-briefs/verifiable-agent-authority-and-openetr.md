@@ -58,7 +58,7 @@ This is where OpenETR fits.
 OpenETR separates:
 
 - the **Digital Artifact**, which identifies the digital thing by digest;
-- the **Digital Controllable Record**, which contains end-verifiable evidence
+- the **Evidence Graph**, which contains end-verifiable evidence
   concerning it;
 - the **Consequential State** derived from that evidence under defined rules;
   and
@@ -89,7 +89,7 @@ state independently verifiable.
 | Decide whether the action is currently permitted | Local verifier and Policy Decision Point |
 | Prevent unauthorized execution | Policy Enforcement Point, connector, or gateway |
 | Preserve the authorization and execution decision | Signed action receipt |
-| Preserve consequential record evidence | OpenETR Digital Controllable Record |
+| Preserve consequential record evidence | OpenETR Evidence Graph |
 | Derive the record's consequential state | OpenETR state transition rules |
 | Decide recognition and effect | Individual, community, institution, authority, contract, or applicable law |
 

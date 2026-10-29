@@ -16,7 +16,7 @@ OpenETR provides:
 
 - cryptographically signed event evidence;
 - object identity through document or record digests;
-- a DCR Evidence Graph of Anchor and later evidence events;
+- an Evidence Graph of Anchor and later evidence events;
 - relay-backed publication and retrieval;
 - domain adapters such as the MLWR adapter;
 - identified rulesets that derive candidate state, followed by recognition policies.
@@ -41,7 +41,7 @@ OpenETR separates:
 
 1. **Evidence layer**: signed Nostr events, event ids, object digests, tags, and graph links.
 2. **Ruleset layer**: identified, versioned validation and state-derivation
-   rules applied to the DCR Evidence Graph.
+   rules applied to the Evidence Graph.
 3. **Domain adapter layer**: MLWR, bills of lading, transferable records, credentials, or other domain semantics.
 4. **Recognition layer**: verifier policies, rule books, registries, authorities, and legal or operational effect.
 

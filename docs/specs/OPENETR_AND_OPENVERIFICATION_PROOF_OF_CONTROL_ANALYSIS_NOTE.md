@@ -68,8 +68,7 @@ tier requires the action to fail closed when the required evidence or control
 condition is absent.
 
 OpenETR applies the principle to a digital thing and its lifecycle. It binds
-evidence to a Digital Artifact, links consequential actions into a Digital
-Controllable Record (DCR), and applies defined state transition rules to derive
+evidence to a Digital Artifact, links consequential actions into an Evidence Graph, and applies defined state transition rules to derive
 Consequential State.
 
 The combined pattern is:
@@ -193,7 +192,7 @@ recognition and effect.
 OpenETR uses a small artifact-centred model:
 
 - A **Digital Artifact** is an identifiable digital thing bound to a digest.
-- A **Digital Controllable Record** is the end-verifiable evidence concerning
+- An **Evidence Graph** is the end-verifiable evidence concerning
   consequential actions involving that artifact.
 - **Consequential State** is derived from that evidence according to defined
   state transition rules.
@@ -214,7 +213,7 @@ The two approaches focus on different questions.
 
 | Question | OpenVerification Proof-of-Control | OpenETR |
 | --- | --- | --- |
-| Primary subject | Agent execution and control adherence | Digital Artifact and its DCR |
+| Primary subject | Agent execution and control adherence | Digital Artifact and its Evidence Graph |
 | Central question | Did this agent action stay within the controls, and how can that be verified? | What consequential state follows from valid artifact-specific evidence under defined rules? |
 | Main boundary | Tool or effect invocation | Consequential action concerning an artifact |
 | Main evidence | Execution records, policy decisions, delegation, attestations, chain or Merkle commitments | Anchor and later Evidence Events, prior-event links, signatures, linked evidence |
@@ -305,7 +304,7 @@ social consequence follows. That remains a recognition decision.
 ### Execution-Centred And Artifact-Centred Evidence
 
 A PoC execution record is organized around an agent action and its path through
-an interception mechanism. An OpenETR DCR is organized around the Digital
+an interception mechanism. An OpenETR Evidence Graph is organized around the Digital
 Artifact and the consequential actions concerning it.
 
 One agent run may concern many artifacts. One artifact may accumulate evidence
@@ -348,7 +347,7 @@ an OpenETR deployment by making publication of required evidence inseparable
 from a consequential system action. That would be an integration profile, not
 a new property automatically supplied by the base protocol.
 
-## How Proof-of-Control Evidence Fits Into A DCR
+## How Proof-of-Control Evidence Fits Into An Evidence Graph
 
 Proof-of-Control evidence should not automatically be treated as an OpenETR
 Evidence Event.
@@ -361,10 +360,10 @@ It may play three different roles:
    the PoC evidence that supports authority, policy evaluation, or execution.
 3. **Evidence of a consequential action.** Where the domain rules define the
    evidenced action as consequential, a domain adapter may emit an OpenETR
-   Evidence Event that binds the action to the artifact and prior DCR state.
+   Evidence Event that binds the action to the artifact and prior Evidence Graph state.
 
 The domain adapter must make this classification. Routine agent telemetry
-should not flood the DCR, and a consequential action should not be reduced to
+should not flood the Evidence Graph, and a consequential action should not be reduced to
 an unlinked operational log.
 
 ## Proposed Integration Pattern
@@ -391,7 +390,7 @@ For an OpenETR-relevant action, the evaluated snapshot should include at least:
 
 - Digital Artifact digest and digest algorithm;
 - proposed OpenETR action or domain action;
-- expected prior DCR event or graph head;
+- expected prior Evidence Graph event or graph head;
 - initiating principal and agent identifiers;
 - authorization or delegation reference;
 - policy bundle identifier and digest;
@@ -403,7 +402,7 @@ For an OpenETR-relevant action, the evaluated snapshot should include at least:
 ### 4. Execute Through A Bound Capability
 
 The relying system or managed signer accepts only a capability bound to the
-approved artifact, action, prior state, and target. If the artifact or DCR head
+approved artifact, action, prior state, and target. If the artifact or Evidence Graph head
 changes after approval, the capability must not authorize the stale action.
 
 ### 5. Emit And Link Evidence
@@ -416,7 +415,7 @@ agent trace on a public relay.
 
 ### 6. Derive Consequential State
 
-An OpenETR verifier validates the DCR evidence, applies the identified state
+An OpenETR verifier validates the Evidence Graph records, applies the identified state
 transition rules, and reports the resulting Consequential State. It should
 report the PoC evidence and its verification status as a separate dimension.
 
@@ -437,7 +436,7 @@ artifact:
 openetr_action:
   domain: <domain profile>
   action: <domain action>
-  prior_event: <expected DCR event id>
+  prior_event: <expected Evidence Graph event id>
   event_id: <resulting event id>
   ruleset: <identifier and digest>
 
@@ -546,10 +545,10 @@ Consider an agent asked to transfer a digital warehouse receipt after payment.
 
 ```text
 1. The receipt is a digest-identified Digital Artifact.
-2. Its DCR identifies the current consequential state and controller.
+2. Its Evidence Graph identifies the current consequential state and controller.
 3. The principal delegates a bounded transfer task to the agent.
 4. The PoC gateway receives the exact proposed transfer.
-5. It checks delegation, policy, counterparty, value, expiry, and current DCR head.
+5. It checks delegation, policy, counterparty, value, expiry, and current Evidence Graph head.
 6. It emits the before record and releases an action-bound capability.
 7. The managed signer signs only the approved OpenETR transfer event.
 8. The event links the receipt, prior event, transferee, and PoC evidence commitment.
@@ -561,7 +560,7 @@ Consider an agent asked to transfer a digital warehouse receipt after payment.
 
 The PoC evidence strengthens confidence that the agent acted within the
 defined authority and that the executed request matched the evaluated request.
-The OpenETR DCR preserves the artifact-specific consequence. Neither one
+The OpenETR Evidence Graph preserves the artifact-specific consequence. Neither one
 performs KYC, proves payment finality by itself, or determines legal effect.
 
 ## Observations On The Current OpenVerification Repositories
@@ -616,7 +615,7 @@ than broad labels.
    OpenETR formats do not already cover them.
 6. **Profile non-bypassable signing for high-risk actions.** Test whether an
    agent can reach tools, credentials, or signers outside the approved path.
-7. **Bind approval to the DCR head.** A PoC capability must expire if the
+7. **Bind approval to the Evidence Graph head.** A PoC capability must expire if the
    artifact or expected prior state changes before execution.
 8. **Preserve privacy.** Put commitments and controlled references on public
    relays, not complete agent traces or identity packages.
@@ -675,7 +674,7 @@ changes consequential state.
 
 ## Related OpenETR Notes
 
-- [Digital Controllable Record Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [OpenETR Actor-Neutral Identity Design Note](./OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md)
 - [OpenETR And Spherity M-Trust Architecture Analysis Note](./OPENETR_AND_SPHERITY_M_TRUST_ANALYSIS_NOTE.md)
 - [OpenETR Autonomous Systems Governance Review Note](./OPENETR_AUTONOMOUS_SYSTEMS_GOVERNANCE_REVIEW_NOTE.md)

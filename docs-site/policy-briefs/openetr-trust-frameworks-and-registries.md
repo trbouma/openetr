@@ -8,7 +8,7 @@ OpenETR fits into that landscape differently.
 
 OpenETR is not itself a full trust framework. It is a protocol for deriving
 consequential state from end-verifiable evidence concerning durable electronic
-records. Its job is to identify Digital Artifacts, preserve their DCR
+records. Its job is to identify Digital Artifacts, preserve their Evidence Graph
 evidence, and support policy validation so trust frameworks, registries,
 authorities, and relying parties can decide what effect to give the result.
 
@@ -72,7 +72,7 @@ This evidence can then be evaluated by a trust framework, registry, authority, c
 
 OpenETR does not decide the final recognition outcome.
 
-It supplies signed DCR evidence and derived Consequential State for that
+It supplies signed Evidence Graph records and derived Consequential State for that
 decision.
 
 ## The Under-Appreciated Layer
@@ -85,15 +85,15 @@ But durable electronic records also need an artifact-centric evidence layer:
 
 ```text
 record or artifact -> Digital Artifact by digest
-  -> DCR: Anchor, control, and linked-evidence records
-  -> DCR evidence validated under protocol requirements
+  -> Evidence Graph: Anchor, control, and linked-evidence records
+  -> Evidence Graph records validated under protocol requirements
   -> state transition rules derive consequential state
   -> verifier policy / registry / trust framework decides effect
 ```
 
 Without that layer, trust frameworks can become too dependent on one platform, one registry database, one credential presentation, or one application session.
 
-OpenETR makes the DCR history and derived state independently inspectable.
+OpenETR makes the Evidence Graph history and derived state independently inspectable.
 
 That is the underpinning: not trust by assertion alone, but trust supported by durable signed evidence.
 
@@ -104,7 +104,7 @@ A recent OpenCanada article, **Canada Is Measuring Digital Government Against th
 That diagnosis points to an architectural gap.
 
 Fragmentation is not only a coordination failure. It is also what happens when
-systems lack shared DCR evidence and reproducible state derivation for durable
+systems lack shared Evidence Graph records and reproducible state derivation for durable
 records.
 
 Without that layer, each institution tends to ask the same questions again:
@@ -140,7 +140,7 @@ It requires shared control evidence that can cross institutional boundaries.
 
 | Trust-framework need | OpenETR contribution |
 | --- | --- |
-| Evidence of what happened | DCR containing signed Anchor, control, and linked-evidence records. |
+| Evidence of what happened | Evidence Graph containing signed Anchor, control, and linked-evidence records. |
 | Stable object identity | Digest-based Digital Artifact identifiers. |
 | Auditability | Reconstructable control and evidence graphs. |
 | Interoperability | Shared event grammar and artifact-centric queries. |
@@ -156,7 +156,7 @@ The framework can still define the behavior. The registry can still decide recog
 
 Gaia-X uses trust-framework concepts to support compliance, technical compatibility, policy rules, trust anchors, digital clearing-house services, self-descriptions, and verifiable credentials.
 
-OpenETR could complement such an ecosystem by providing artifact-centric DCR
+OpenETR could complement such an ecosystem by providing artifact-centric Evidence Graph
 evidence and derived state for records that participate in a data space or
 compliance process.
 
@@ -206,7 +206,7 @@ A registry can:
 
 The actual record artifact can remain with an issuer, platform, storage service, archive, holder, or sector-specific system.
 
-OpenETR gives the registry a Digital Artifact digest, its DCR evidence, and
+OpenETR gives the registry a Digital Artifact digest, its Evidence Graph records, and
 derived state to reference.
 
 That reduces pressure to make the registry both governance authority and universal storage provider.
@@ -244,7 +244,7 @@ But durable electronic records also need evidence that can survive outside a sin
 
 OpenETR gives policymakers a way to separate:
 
-- the protocol evidence layer: what DCR evidence exists;
+- the protocol evidence layer: what Evidence Graph records exists;
 - the ruleset layer: what Consequential State derives from that evidence;
 - the trust framework: what behavior and assurance rules apply;
 - the registry: which actors, authorities, statuses, or records are recognized;

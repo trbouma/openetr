@@ -3,10 +3,10 @@
 OpenETR fits between domain systems.
 
 It is not the system of record for every business fact. It provides a protocol
-model for portable DCR evidence and Consequential State derivation.
+model for portable Evidence Graph records and Consequential State derivation.
 
 It can be used before an operation, to provide current Consequential State
-derived from a DCR to a host
+derived from an Evidence Graph to a host
 policy decision, and after an operation, to publish portable evidence of the
 result. The host remains responsible for controlling the operation itself.
 
@@ -22,7 +22,7 @@ Domain adapter
   maps domain actions into OpenETR event semantics
 
 OpenETR protocol model
-  artifact digest, DCR evidence, Evidence Graph, defined rules, Consequential State
+  artifact digest, Evidence Graph, defined rules, Consequential State
 
 Recognition layer
   legal, registry, institutional, contractual, or verifier decision
@@ -44,11 +44,11 @@ For a consequential operation, a strong integration pattern is:
 host receives a proposal
   -> authenticates the human, service, or agent
   -> evaluates domain policy and current authoritative inputs
-  -> queries and verifies the relevant OpenETR DCR
+  -> queries and verifies the relevant OpenETR Evidence Graph
   -> rechecks material conditions at the protected operation
   -> commits or refuses the operation
   -> publishes signed OpenETR evidence of the outcome
-  -> independently verifies the resulting DCR and derives Consequential State
+  -> independently verifies the resulting Evidence Graph and derives Consequential State
 ```
 
 The protected operation might be signing an Anchor, updating a registry,
@@ -65,7 +65,7 @@ scope. The claim should remain bounded to that scope.
 | Boundary | Meaning | Primary Responsibility |
 | --- | --- | --- |
 | Evidence commitment | A key signs an immutable OpenETR statement. | OpenETR signer and wire implementation |
-| Protocol consequence | A verifier evaluates DCR evidence and derives consequential state under stated rules. | OpenETR verifier policy |
+| Protocol consequence | A verifier evaluates Evidence Graph records and derives consequential state under stated rules. | OpenETR verifier policy |
 | Operational or legal effect | A system acts on the state, or a rule book recognizes it. | Host system, registry, institution, contract, or applicable law |
 
 Relay storage sits between publication and retrieval. It does not collapse

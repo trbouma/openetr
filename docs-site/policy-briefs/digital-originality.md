@@ -32,7 +32,7 @@ This is different from ordinary application state. A selected tab, cached
 display value, database row, or background-job status may help an application
 operate, but it does not become authoritative OpenETR state merely because the
 application stores it. Consequential State must be reproducible from portable,
-end-verifiable DCR evidence under the same identified ruleset.
+end-verifiable Evidence Graph records under the same identified ruleset.
 
 An **end-verifiable event** is a signed record that a recipient can verify
 independently, without calling the application that originally produced it.
@@ -51,7 +51,7 @@ Consider a warehouse receipt stored as a PDF:
    Artifact**.
 2. A warehouse signs an Anchor Event concerning the PDF. Later signed records
    may transfer it, encumber it, discharge the encumbrance, or terminate its
-   lifecycle. Together those records are the **Digital Controllable Record**.
+   lifecycle. Together those records are the **Evidence Graph**.
 3. The evidence is validated and OpenETR rules derive the current
    **Consequential State**.
 4. The PDF, now associated with established consequential state, is a
@@ -67,31 +67,31 @@ The deeper conceptual basis for this records-first treatment of copies,
 authenticity, identity, and consequential history is developed in the
 [Records-First Authenticity And Digital Originality Design Note](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md).
 
-## Digital Artifact, Digital Controllable Record, And Digital Original
+## Digital Artifact, Evidence Graph, And Digital Original
 
 A **Digital Artifact** is persistent digital content with a unique content
 identity established by a cryptographic digest. Byte-for-byte copies with the
 same digest represent the same Digital Artifact.
 
-A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+An **Evidence Graph** is a single end-verifiable record or a
 graph of related end-verifiable records through which consequential state
-concerning a Digital Artifact can be established and transitioned. The DCR is
+concerning a Digital Artifact can be established and transitioned. The Evidence Graph is
 the signed evidence structure, not the file.
 
-The name is easiest to understand as **the controllable record concerning the
-artifact**, rather than as a description of the artifact itself.
+The name describes **linked signed evidence concerning the artifact**, not
+the artifact itself or an assumption that every event transfers control.
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established through a Digital Controllable Record.
+been established through an Evidence Graph.
 
 ```text
-Digital Artifact -> referenced by -> Digital Controllable Record
-Digital Controllable Record -> evidence validation -> state transition rules
+Digital Artifact -> referenced by -> Evidence Graph
+Evidence Graph -> evidence validation -> state transition rules
 state transition rules -> Consequential State
 Digital Artifact + established Consequential State -> Digital Original
 ```
 
-![OpenETR model showing Digital Artifact, Digital Controllable Record, Consequential State, Digital Original, Recognition and Effect](../assets/images/openetr-model.png)
+![OpenETR model showing Digital Artifact, Evidence Graph, Consequential State, Digital Original, Recognition and Effect](../assets/images/openetr-model.png)
 
 Creation, scanning, translation, rendering, or transformation may produce a
 new Digital Artifact. Novelty alone does not make it a Digital Original.
@@ -139,7 +139,7 @@ examines the artifact and signs this statement:
 > experience of that source page.
 
 The signed end-verifiable record references the artifact's digest. It becomes
-the first record in a candidate DCR:
+the first record in a candidate Evidence Graph:
 
 ```text
 DIGITAL ARTIFACT
@@ -150,10 +150,10 @@ digest: abc123...
 SIGNED RECORD
         |
         v
-DIGITAL CONTROLLABLE RECORD
+EVIDENCE GRAPH
 ```
 
-The DCR may initially contain only that Anchor Event. It may later grow into
+The Evidence Graph may initially contain only that Anchor Event. It may later grow into
 a graph containing attestations, control transfers, restrictions, superseding
 versions, or termination records.
 
@@ -171,11 +171,11 @@ evidence       = <basis event ids>
 ```
 
 This state is not authoritative merely because an application stored it in a
-database. Another conforming application can obtain the artifact and DCR,
+database. Another conforming application can obtain the artifact and Evidence Graph,
 verify the signatures and references, apply the same identified ruleset, and
 reproduce the applicable Consequential State.
 
-Once Consequential State has been established through the DCR, the artifact is
+Once Consequential State has been established through the Evidence Graph, the artifact is
 an OpenETR Digital Original in the technical sense:
 
 ```text
@@ -186,7 +186,7 @@ DIGITAL ARTIFACT
 uniquely identifiable content
         |
         v
-DIGITAL CONTROLLABLE RECORD
+EVIDENCE GRAPH
 signed end-verifiable evidence spanning the lifecycle
         |
         | validate the evidence
@@ -224,7 +224,7 @@ Copy B --+-- same digest --> DIGITAL ARTIFACT abc123...
 Copy C --+
 ```
 
-Making another copy does not create another DCR, controller, or consequential
+Making another copy does not create another Evidence Graph, controller, or consequential
 history. OpenETR does not make the information scarce; it makes the
 consequential history surrounding its content identity independently
 verifiable.
@@ -232,7 +232,7 @@ verifiable.
 The distinction can therefore be summarized precisely:
 
 > The translated page is created as a new Digital Artifact. OpenETR rules derive
-> Consequential State from its DCR and make it a Digital Original. Recognition
+> Consequential State from its Evidence Graph and make it a Digital Original. Recognition
 > determines whether that state is accepted and what effect it receives for a
 > particular purpose.
 
@@ -241,11 +241,11 @@ The distinction can therefore be summarized precisely:
 Digital originality does not arise from one cryptographic operation or one
 institutional decision. Canonical content first gives the Digital Artifact a
 stable identity. One or more signed records concerning that artifact form a
-candidate DCR spanning its evidenced lifecycle. Those records provide portable
-evidence of what actors attempted or asserted. The DCR is then evaluated as a
+candidate Evidence Graph spanning its evidenced lifecycle. Those records provide portable
+evidence of what actors attempted or asserted. The Evidence Graph is then evaluated as a
 whole. Validation checks the evidence; state transition rules determine what
 Consequential State follows. Consequential State is not another record or
-container beside the DCR.
+container beside the Evidence Graph.
 
 Actions have consequences. OpenETR represents consequential actions as
 end-verifiable events and defines the rules by which those events change
@@ -253,7 +253,7 @@ consequential state.
 
 Recognition and effect follow from that result. A verifier, institution,
 community, contract, or jurisdiction decides whether to accept the signer,
-DCR, and Consequential State for a particular purpose and what practical,
+Evidence Graph, and Consequential State for a particular purpose and what practical,
 institutional, commercial, or legal consequence follows. Keeping these layers
 separate prevents content identity, cryptographic validity, policy validation,
 authority, and external effect from being mistaken for one another.
@@ -264,8 +264,8 @@ together:
 | Layer | Question |
 | --- | --- |
 | Artifact | What persistent content is identified? |
-| DCR | Which signed record or record graph concerns the artifact? |
-| State transition rules and Consequential State | What follows when validated DCR evidence is evaluated according to the rules? |
+| Evidence Graph | Which signed record or record graph concerns the artifact? |
+| State transition rules and Consequential State | What follows when validated Evidence Graph records are evaluated according to the rules? |
 | Recognition | Who accepts that state, and for what purpose? |
 | Effect | What external consequence follows? |
 
@@ -273,14 +273,14 @@ The complete relationship is:
 
 ```text
 Digital Artifact
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> evidence validation and state transition rules
   -> Consequential State and Digital Original
   -> recognition of that state
   -> effect
 ```
 
-A candidate Anchor is a one-record DCR concerning a Digital Artifact. A valid
+A candidate Anchor is a one-record Evidence Graph concerning a Digital Artifact. A valid
 Anchor evaluated under OpenETR Core Record Ruleset 1.0 establishes anchored
 Consequential State and makes the artifact a Digital Original. It does not prove that the
 signer was uniquely authorized, resolve every competing event, compel a relying
@@ -295,7 +295,7 @@ separate.
 
 OpenETR derives Consequential State for Digital Artifacts. Signed records can
 describe anchoring, transfer, encumbrance, discharge, redemption, and
-termination. Validation determines whether the DCR evidence is acceptable;
+termination. Validation determines whether the Evidence Graph records are acceptable;
 state transition rules determine what follows in light of prior state.
 
 This lets an independent verifier ask:
@@ -336,7 +336,7 @@ A driver's licence can be scanned to produce digital content whose digest
 identifies a Digital Artifact. Scanning, hashing, or signing arbitrary content
 does not by itself create a Digital Original. A relevant authority or
 controller must create end-verifiable evidence, and OpenETR rules must derive
-Consequential State from the resulting DCR.
+Consequential State from the resulting Evidence Graph.
 
 A verifier may then recognize the licensing authority's key and accept that
 state for a particular purpose. Only at that point does the verification have
@@ -349,7 +349,7 @@ Physical licence
   -> stable digest
   -> Digital Artifact
   -> authority or controller creates end-verifiable evidence
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> evidence validation and state transition rules
   -> Consequential State
   -> Digital Original
@@ -401,6 +401,6 @@ The architectural objective is simple:
 ## Related Design Notes
 
 - [Consequential State Architecture](https://github.com/trbouma/openetr/blob/main/docs/specs/CONSEQUENTIAL_STATE_ARCHITECTURE_DESIGN_NOTE.md)
-- [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [Digital Originality, Control, Recognition, And Effect](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_ORIGINALITY_CONTROL_AND_STANDING_DESIGN_NOTE.md)
 - [Records-First Authenticity And Digital Originality](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md)

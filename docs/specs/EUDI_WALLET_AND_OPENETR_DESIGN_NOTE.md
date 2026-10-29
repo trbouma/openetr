@@ -62,7 +62,7 @@ The OpenETR graph may include:
 - verifier warnings or recognition annotations.
 
 OpenETR is therefore not primarily a holder wallet or credential container. It
-is an object-centric DCR evidence and ruleset model for a digest-identified
+is an object-centric Evidence Graph records and ruleset model for a digest-identified
 record. Control Graphs are a transferable-record extension, not the universal
 shape of every OpenETR record.
 
@@ -74,7 +74,7 @@ shape of every OpenETR record.
 | Main unit | Wallet Unit and wallet-held credentials. | Digital Artifact identified by digest. |
 | Main interaction | Presenting credentials or attributes to relying parties. | Publishing and querying signed records about an object. |
 | Typical question | What credentials does this holder present? | What signed events exist for this object? |
-| Trust focus | Issuers, wallets, relying parties, trust services, credential formats, and presentation protocols. | Profile keys, event signatures, object digests, DCR Evidence Graphs, identified rulesets, linked evidence records, and recognition policy. |
+| Trust focus | Issuers, wallets, relying parties, trust services, credential formats, and presentation protocols. | Profile keys, event signatures, object digests, Evidence Graphs, identified rulesets, linked evidence records, and recognition policy. |
 | Recognition boundary | Relying party decides whether to accept a wallet presentation. | Verifier, registry, authority, or relying party decides what effect to give the OpenETR graph. |
 
 ## Complementary Integration Pattern
@@ -173,7 +173,7 @@ Recognition frameworks decide effect.
 
 This note complements [VC_AND_MDL_AS_SPECIALIZED_INSTANCES_OF_OPENETR_NOTE.md](./VC_AND_MDL_AS_SPECIALIZED_INSTANCES_OF_OPENETR_NOTE.md).
 
-That note explains how claim-centric credential models can be viewed as specialized instances of a broader record-and-recognition model. This EUDI Wallet note focuses on the ecosystem distinction between wallet-mediated credential presentation and OpenETR's object-centric DCR evidence and ruleset model.
+That note explains how claim-centric credential models can be viewed as specialized instances of a broader record-and-recognition model. This EUDI Wallet note focuses on the ecosystem distinction between wallet-mediated credential presentation and OpenETR's object-centric Evidence Graph records and ruleset model.
 
 ## Open Questions
 

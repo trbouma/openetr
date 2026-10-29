@@ -74,11 +74,11 @@ OpenETR separates those concerns:
 Digital Artifact
   exact persistent content identified by digest
 
-Digital Controllable Record
+Evidence Graph
   signed evidence concerning consequential actions
 
 Consequential State
-  the result derived from validated DCR evidence under identified rules
+  the result derived from validated Evidence Graph records under identified rules
 
 Recognition And Effect
   the commercial, institutional, contractual, or legal conclusion
@@ -155,7 +155,7 @@ OpenETR can supply technical evidence relevant to those functions:
 | --- | --- |
 | Identify the record | A cryptographic digest identifies the exact Digital Artifact. |
 | Preserve integrity | The digest is recomputable and signed events are tamper-evident. |
-| Establish control evidence | A DCR records attributable control transitions. |
+| Establish control evidence | An Evidence Graph records attributable control transitions. |
 | Derive current control | Rules evaluate the valid candidate Control Graph. |
 | Identify the controller | A signing key is cryptographically attributable; external evidence supports actor recognition. |
 | Assess reliability | Verifier output and integration evidence support a method-level and system-level assessment. |
@@ -180,7 +180,7 @@ general protocol model:
 
 ```text
 warehouse receipt PDF or data package -> Digital Artifact
-issuance and evidence records          -> DCR evidence
+issuance and evidence records          -> Evidence Graph records
 transfer, encumbrance, discharge,
 redemption, termination               -> consequential actions
 MLWR and local law                    -> recognition and effect
@@ -205,7 +205,7 @@ The same architecture can support distinct domain adapters:
 | Customs and trade permissions | submitted, accepted, amended, released, suspended, revoked |
 
 Each adapter supplies natural business terminology and domain rules. The
-OpenETR core remains concerned with artifact identity, signed DCR evidence,
+OpenETR core remains concerned with artifact identity, signed Evidence Graph records,
 graph relationships, and state derivation.
 
 OpenETR is not the only architecture pursuing cross-platform digital trade.
@@ -221,7 +221,7 @@ for the focused comparison.
 
 Portable evidence does not make trade law or institutional policy disappear.
 A bank, carrier, warehouse, customs authority, registry, insurer, buyer, or
-court may ask different questions of the same DCR:
+court may ask different questions of the same Evidence Graph:
 
 - Is the issuer recognized for this document type?
 - Does the signing key map to an authorized legal or operational actor?
@@ -288,7 +288,7 @@ OpenETR contributes a focused architectural principle:
 > Trade platforms can manage workflows. They should not have to be the
 > exclusive source from which consequential state can be known.
 
-By making artifact identity and signed DCR evidence portable, OpenETR allows
+By making artifact identity and signed Evidence Graph records portable, OpenETR allows
 another system to reconstruct the record, apply identified rules, derive
 Consequential State, and make its own recognition decision. That is how digital
 trade records can move without requiring the world's trade systems to become

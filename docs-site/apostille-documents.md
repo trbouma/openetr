@@ -62,11 +62,11 @@ same evidence as an authority-signed response. A scan is a distinct artifact,
 and a QR code on paper does not prove that the paper matches the official
 digital record.
 
-## Candidate DCR Records
+## Candidate Evidence Graph Records
 
 An Apostille Documents domain profile could define evidence records such as:
 
-| DCR Record | Purpose |
+| Evidence Graph Record | Purpose |
 | --- | --- |
 | Anchor Record | First OpenETR record for the apostilled document bundle. |
 | Authority attestation | Signed statement by, or linked to, a Competent Authority or recognized registry source. |

@@ -62,7 +62,7 @@ It is not a universal centralized ledger, and it is not a blockchain smart-contr
 existing trade platform
   -> digest of the operative record
   -> signed OpenETR evidence events
-  -> portable Digital Controllable Record
+  -> portable Evidence Graph
   -> state transition rules produce consequential state
   -> independent verifier applies its rule book
 ```
@@ -129,7 +129,7 @@ OpenETR can show the signed sequence of events and identify competing branches o
 ### Tokenisation
 
 A Digital Artifact identifier is not itself the cargo, goods, document of
-title, or underlying claim. Nor does DCR evidence automatically create a
+title, or underlying claim. Nor does Evidence Graph records automatically create a
 tokenized asset. OpenETR binds signed evidence to a digest-identified artifact,
 validates that evidence, and applies an identified ruleset to derive consequential
 state. The applicable legal framework determines what that artifact and state
@@ -148,7 +148,7 @@ That kind of work complements OpenETR particularly well.
 OpenETR separates control evidence from recognition. A legal statement, statute, contract, registry rule book, or institutional policy can explain how a verifier should interpret the evidence.
 
 ```text
-OpenETR DCR and policy validation:
+OpenETR Evidence Graph and policy validation:
   what was signed, by which key, about which artifact, in what sequence,
   and what state results under the identified ruleset
 

@@ -3,12 +3,12 @@
 OpenETR is unequivocal about publishing evidence.
 
 It identifies Digital Artifacts by digest and preserves their Anchor,
-Publisher Notice, control-extension, and linked-evidence records as DCR evidence that can be retrieved and
+Publisher Notice, control-extension, and linked-evidence records as Evidence Graph records that can be retrieved and
 independently verified.
 
 But OpenETR is equally clear about what that evidence does not do by itself.
 
-A signed event is not universal recognition. A DCR and the consequential state
+A signed event is not universal recognition. An Evidence Graph and the consequential state
 produced by evaluating it under an identified ruleset do not automatically have
 legal, regulatory, commercial, or institutional effect. Recognition determines
 whether that result is accepted and what effect it receives.
@@ -60,7 +60,7 @@ OpenETR's base contribution is durable cryptographic evidence.
 At the evidence layer, OpenETR can show:
 
 - the digest of the Digital Artifact;
-- the Anchor Event that begins the candidate DCR;
+- the Anchor Event that begins the candidate Evidence Graph;
 - the profile key that signed each event;
 - the evidence records linked to the Digital Artifact;
 - the prior-event links between records;
@@ -83,7 +83,7 @@ Policy guards are implementation rules that decide whether a particular applicat
 For example, a baseline OpenETR guard may ask:
 
 - Is the Digital Artifact digest well formed?
-- Can the active DCR chain be resolved?
+- Can the active Evidence Graph chain be resolved?
 - Is the signer the current controller before initiating a transfer?
 - Is the signer the intended transferee before accepting a transfer?
 - Is the target chain ambiguous?

@@ -127,12 +127,12 @@ The architectures focus on different objects.
 
 | Question | Spherity M-Trust architecture | OpenETR |
 | --- | --- | --- |
-| Primary subject | Agent, principal, mandate, service, and requested action | Digest-identified Digital Artifact and its DCR |
+| Primary subject | Agent, principal, mandate, service, and requested action | Digest-identified Digital Artifact and its Evidence Graph |
 | Primary decision | Is this action currently authorized? | What consequential state follows from valid evidence under defined rules? |
 | Time orientation | Transaction-time and continuously evaluated | Lifecycle evidence and reproducible state derivation |
 | Main evidence | Identity, credentials, delegation, status, runtime assurance, policy decision | Signed Anchor Events and later Evidence Events, prior-event links, linked evidence |
 | Enforcement | PDP, PEP, connector, gateway, or controlled system | Host system and domain adapter gate publication and effect |
-| Durable output | Signed action receipt and audit trail | Digital Controllable Record and derived consequential state |
+| Durable output | Signed action receipt and audit trail | Evidence Graph and derived consequential state |
 | Final authority | Local relying verifier | Recognition remains with the relevant person, community, institution, authority, or law |
 
 The connecting point is a consequential action concerning a Digital Artifact.
@@ -168,7 +168,7 @@ Integration documents should qualify the term rather than simply saying
 "control." Useful labels are:
 
 - **authority control plane** for identity, mandate, PDP, and PEP functions;
-- **record protocol layer** for OpenETR DCR evidence and state derivation.
+- **record protocol layer** for OpenETR Evidence Graph records and state derivation.
 
 This distinction also protects OpenETR's boundary. OpenETR does not become an
 identity wallet, access-management platform, or universal policy engine merely
@@ -237,7 +237,7 @@ The AI Service Passport, testing, evaluation, verification and validation
 that operates the agent.
 
 These are important authorization inputs for high-impact actions, but they are
-not intrinsic properties of a Digital Artifact or its DCR. OpenETR can link to
+not intrinsic properties of a Digital Artifact or its Evidence Graph. OpenETR can link to
 a versioned assurance snapshot when a domain requires proof of the system state
 under which an action occurred.
 
@@ -245,12 +245,12 @@ under which an action occurred.
 
 This is the closest architectural overlap. Spherity proposes verifiable
 evidence graphs for product, provenance, conformity, testing, and operational
-claims. OpenETR provides an artifact-centric DCR: one end-verifiable record or a
+claims. OpenETR provides an artifact-centric Evidence Graph: one end-verifiable record or a
 graph of records concerning a digest-identified Digital Artifact.
 
 The graphs should not be collapsed without a profile. A broad evidence graph
 may contain many claims and relationships that do not change OpenETR
-consequential state. A DCR includes only the records that the applicable
+consequential state. An Evidence Graph includes only the records that the applicable
 OpenETR rules evaluate for that artifact, together with linked evidence needed
 by policy.
 
@@ -315,7 +315,7 @@ OpenETR should treat the receipt according to its function:
 | Proves why an action was authorized | Linked evidence |
 | Proves execution details without changing artifact state | Linked evidence |
 | Is itself the domain-defined consequential act | Candidate Evidence Event or payload referenced by one |
-| Supports later recognition but contains sensitive data | Private evidence with a digest, commitment, or controlled reference in the DCR |
+| Supports later recognition but contains sensitive data | Private evidence with a digest, commitment, or controlled reference in the Evidence Graph |
 
 Calling every action receipt an Evidence Event would overload the state graph.
 Calling every receipt mere logging would lose the cases where the receipt is
@@ -342,7 +342,7 @@ A combined transaction should proceed as follows.
    decision, execution result, and OpenETR event identifier.
 9. The event and non-sensitive evidence are published; sensitive evidence is
    retained privately with verifiable references or commitments.
-10. OpenETR validation checks the DCR evidence, and defined transition rules
+10. OpenETR validation checks the Evidence Graph records, and defined transition rules
     derive consequential state.
 11. A relying person, community, institution, authority, or applicable law
     determines whether to recognize the state and what effect it should have.
@@ -385,7 +385,7 @@ The paper's **transient cross-domain trust** is intentionally short-lived. It
 answers whether evidence from several source domains is acceptable for one
 decision now.
 
-OpenETR's DCR is intended to remain verifiable after that transaction context
+OpenETR's Evidence Graph is intended to remain verifiable after that transaction context
 has passed. This is a valuable division:
 
 ```text
@@ -434,7 +434,7 @@ An OpenETR verifier can establish that:
 - an event is correctly signed;
 - the event concerns a particular artifact digest;
 - the event links to the expected prior evidence;
-- the DCR satisfies the applicable structural rules; and
+- the Evidence Graph satisfies the applicable structural rules; and
 - defined transition rules produce a candidate consequential state.
 
 The Spherity-aligned authority layer can provide evidence that:
@@ -492,7 +492,7 @@ The Spherity architecture does not require a new OpenETR core primitive.
 The existing model is sufficient:
 
 - **Digital Artifact** identifies the thing by digest.
-- **Digital Controllable Record** contains end-verifiable evidence concerning
+- **Evidence Graph** contains end-verifiable evidence concerning
   it.
 - **Consequential State** is derived from that evidence according to defined
   rules.
@@ -538,7 +538,7 @@ Verifier output should keep separate results for:
 
 ```text
 cryptographic validity
-DCR structural validity
+Evidence Graph structural validity
 state derivation
 authority evidence
 authorization decision
@@ -554,11 +554,11 @@ payment.
 
 ```text
 1. The receipt is a digest-identified Digital Artifact.
-2. Its current DCR shows the transferor as controller and no blocking guard.
+2. Its current Evidence Graph shows the transferor as controller and no blocking guard.
 3. The agent proposes TRANSFER to the named transferee.
 4. The Business Wallet proves the transferor organization and representative.
 5. The Agent Wallet presents a current, transaction-bounded delegation.
-6. The PDP checks mandate, value limit, counterparty, current DCR state,
+6. The PDP checks mandate, value limit, counterparty, current Evidence Graph state,
    payment evidence, credential status, and policy.
 7. The PEP permits the managed signer to sign only the approved TRANSFER.
 8. The OpenETR event references the receipt, prior event, and transferee.
@@ -569,7 +569,7 @@ payment.
 ```
 
 The Business Wallet does not become the warehouse receipt. The authorization
-receipt does not become the whole DCR. OpenETR does not perform company KYC or
+receipt does not become the whole Evidence Graph. OpenETR does not perform company KYC or
 decide whether the transfer has legal effect. Each component stays within its
 proper boundary.
 
@@ -602,7 +602,7 @@ forcing them into one universal wallet, registry, ledger, or application.
 2. Define a linked authorization-decision and action-receipt evidence profile.
 3. Require artifact digest, proposed action, expected prior event, policy
    version, and validity window in high-assurance authorization bindings.
-4. Add verifier output fields that distinguish authority evidence from DCR and
+4. Add verifier output fields that distinguish authority evidence from Evidence Graph and
    state validity.
 5. Test stale mandate, changed graph head, replay, policy downgrade, wallet
    compromise, signer compromise, and unavailable status-service scenarios.
@@ -643,7 +643,7 @@ to durable and independently verifiable consequential state.
 - [OpenETR Actor-Neutral Identity Design Note](./OPENETR_ACTOR_NEUTRAL_IDENTITY_DESIGN_NOTE.md)
 - [OpenETR Autonomous Systems Governance Review Note](./OPENETR_AUTONOMOUS_SYSTEMS_GOVERNANCE_REVIEW_NOTE.md)
 - [OpenETR Layered Architecture Note](./OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
-- [Digital Controllable Record Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph Design Note](./DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [Linked Evidence Record Kind Design Note](./LINKED_EVIDENCE_RECORD_KIND_DESIGN_NOTE.md)
 - [OpenETR Generic Domain Adapter Specification](./OPENETR_GENERIC_DOMAIN_ADAPTER_SPEC.md)
 - [OpenETR Generic Verifier Policy](./OPENETR_GENERIC_VERIFIER_POLICY.md)

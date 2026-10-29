@@ -76,7 +76,7 @@ OpenETR separates the health artifact from signed evidence about its lifecycle:
 ```text
 clinical document or structured package
   -> Digital Artifact identified by digest
-  -> signed DCR evidence concerning that artifact
+  -> signed Evidence Graph records concerning that artifact
   -> record-lifecycle rules
   -> Consequential State
   -> clinical, institutional, and legal recognition
@@ -113,7 +113,7 @@ OpenETR should complement, not replace, FHIR:
 | Provenance | Describe who or what created, transformed, or transmitted a resource. | Preserve independently verifiable signed evidence and cryptographic links concerning the artifact. |
 | Workflow | Coordinate clinical orders, results, referrals, encounters, and care processes. | Record selected consequential lifecycle events without becoming the workflow engine. |
 | Access control | Apply consent, role, purpose-of-use, and legal access rules. | Link or identify relevant evidence while leaving enforcement to protected health systems. |
-| Record state | Maintain local status and versions. | Allow selected state to be reproduced from DCR evidence under an identified policy. |
+| Record state | Maintain local status and versions. | Allow selected state to be reproduced from Evidence Graph records under an identified policy. |
 
 The integration should define exactly which bytes or canonical package the
 digest identifies. It should not assume that semantically equivalent FHIR

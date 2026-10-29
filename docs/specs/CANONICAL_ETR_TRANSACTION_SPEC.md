@@ -494,7 +494,7 @@ In the current working model, Anchor Events are published as:
 
 The Evidence Event family carries signed evidence of later actions after the
 Anchor Event. Some actions are control-relevant; others contribute different
-evidence to the DCR.
+evidence to the Evidence Graph.
 
 It is intended to represent:
 
@@ -541,12 +541,12 @@ This is a working design choice, not yet a final registry decision.
 
 The current regular-event model uses:
 
-- `o` as the Digital Artifact identifier carried across the DCR;
+- `o` as the Digital Artifact identifier carried across the Evidence Graph;
 - `e` as the exact prior-event link for graph traversal;
 - `action` as the semantic subtype for a `1416` Evidence Event; and
 - action-specific tags such as `p`, `enc`, `type`, and `ref` where required.
 
-The `d` tag is not part of the current DCR graph grammar. It shall not be used
+The `d` tag is not part of the current Evidence Graph grammar. It shall not be used
 as the basis for graph reconstruction.
 
 ### Event Kind Split Rationale
@@ -591,7 +591,7 @@ In practice that means an implementation may need to:
 
 1. query the object's Anchor Event using `kind = 1415`
 2. query subsequent evidence events using `kind = 1416`
-3. validate the DCR graph and apply defined state transition rules
+3. validate the Evidence Graph and apply defined state transition rules
 
 In the current reference flow, object-history evaluation is therefore object-centric first.
 
@@ -621,13 +621,13 @@ effect. Relays transport, index, and preserve signed evidence. Implementations
 should use relay diversity, archives, exports, or local stores appropriate to
 their availability and retention requirements.
 
-Attestation is one possible form of DCR evidence. An attestation may identify an
+Attestation is one possible form of Evidence Graph records. An attestation may identify an
 accountable actor that witnessed, evaluated, certified, or recognized another
 record. Whether an attestation is required, sufficient, or effective is
 determined by the identified verifier policy and the applicable recognition
 framework.
 
-Consequential State is derived from validated DCR evidence under defined rules.
+Consequential State is derived from validated Evidence Graph records under defined rules.
 No attestor, relay, or platform is the universal trust anchor for every OpenETR
 record.
 

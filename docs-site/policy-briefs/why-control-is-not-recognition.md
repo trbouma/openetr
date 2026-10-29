@@ -7,7 +7,7 @@ OpenETR separates two questions that digital-record systems often collapse:
 
 Those questions are related, but they are not the same.
 
-OpenETR provides end-verifiable DCR evidence and defined rules for deriving
+OpenETR provides end-verifiable Evidence Graph records and defined rules for deriving
 Consequential State concerning durable electronic records. Control is one
 important class of that state. Recognition frameworks decide what legal,
 regulatory, commercial, or operational effect to give the result.
@@ -19,7 +19,7 @@ Control is a state-derivation question grounded in evidence.
 At the protocol layer, OpenETR can ask:
 
 - What Digital Artifact digest is being referenced?
-- Which signed Anchor Event begins the candidate DCR?
+- Which signed Anchor Event begins the candidate Evidence Graph?
 - Which later signed records reference the same artifact?
 - How do later records link to prior records?
 - Which profile key signed each record?
@@ -28,7 +28,7 @@ At the protocol layer, OpenETR can ask:
 
 These questions can be answered by inspecting cryptographic evidence.
 
-The evidence is a DCR that can be queried and independently verified.
+The evidence is an Evidence Graph that can be queried and independently verified.
 Consequential state is what follows when that evidence is validated and
 evaluated according to an identified ruleset, not a hidden database value.
 
@@ -61,7 +61,7 @@ It can make the technical operator appear to decide legal effect. It can hide po
 OpenETR takes a different approach:
 
 ```text
-Preserve signed DCR evidence.
+Preserve signed Evidence Graph records.
 Verify the Evidence Graph.
 Apply defined rules to derive Consequential State.
 Apply recognition policy separately.
@@ -104,7 +104,7 @@ OpenETR can preserve the evidence needed to reach them, but it should not claim 
 
 ## Policy Layers Are Not Protocol Forks
 
-Different organizations can apply different recognition rules to the same DCR
+Different organizations can apply different recognition rules to the same Evidence Graph
 evidence and derived state.
 
 A warehouse receipt registry may require a licensed warehouse operator profile. A bank may require KYC and encumbrance disclosure. A customs authority may require a specific Product Passport registry response. A marketplace may accept only certain manufacturers or repairer attestations.
@@ -128,7 +128,7 @@ The evidence remains visible even when a policy refuses recognition.
 ### Warehouse Receipts
 
 OpenETR can show which profile keys signed warehouse-receipt lifecycle records
-and what candidate state results when the DCR is validated under the identified
+and what candidate state results when the Evidence Graph is validated under the identified
 policy.
 
 Warehouse receipt law, registry rules, storage agreements, courts, and verifier policy decide whether those actions are legally effective.
@@ -151,7 +151,7 @@ The Apostille Convention framework, Competent Authorities, e-Registers, courts, 
 
 A wallet credential can help show who is acting or what authorization they hold.
 
-OpenETR preserves DCR evidence concerning the Digital Artifact and derives
+OpenETR preserves Evidence Graph records concerning the Digital Artifact and derives
 consequential state from it.
 
 The relying party decides whether the wallet credential and OpenETR graph together satisfy the applicable policy.
@@ -165,14 +165,14 @@ They can:
 - adopt durable electronic records without requiring one central platform;
 - preserve independently verifiable signed evidence;
 - let registries and authorities apply domain-specific rules;
-- allow different sectors to reuse the same DCR evidence and state-derivation model;
+- allow different sectors to reuse the same Evidence Graph records and state-derivation model;
 - support policy-specific recognition without fragmenting the protocol;
 - make disputes easier to inspect because the evidence remains visible.
 
 The core principle is:
 
 ```text
-Control is consequential state derived from validated DCR evidence under an identified ruleset.
+Control is consequential state derived from validated Evidence Graph records under an identified ruleset.
 Recognition is what a rule book does with it.
 ```
 

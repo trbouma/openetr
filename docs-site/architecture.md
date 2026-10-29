@@ -46,7 +46,7 @@ It works with:
 - Consequential State derivation;
 - verifier warnings.
 
-This lets other domains, including Product Passports, reuse the same DCR
+This lets other domains, including Product Passports, reuse the same Evidence Graph
 evidence and state-derivation model without inheriting MLWR-specific
 terminology.
 

@@ -38,7 +38,7 @@ But digital systems are increasingly doing more than moving information. AI agen
 
 That shift exposes questions that the older vocabulary was not designed to keep separate.
 
-OpenETR fits this moment because it does not claim to be the final architecture. It offers a sharper vocabulary for one family of concerns: Digital Artifacts, Digital Controllable Records, consequential state, linked evidence, and recognition context.
+OpenETR fits this moment because it does not claim to be the final architecture. It offers a sharper vocabulary for one family of concerns: Digital Artifacts, Evidence Graphs, consequential state, linked evidence, and recognition context.
 
 ## The Core Insight
 
@@ -70,7 +70,7 @@ That is different from asking where a technology fits in a stack.
 
 A technology may be strong at identity and weak at evidence. Another may be
 strong at recognition inside one rulebook and weak at portability. Another may
-provide reliable DCR evidence and policy validation while intentionally leaving
+provide reliable Evidence Graph records and policy validation while intentionally leaving
 identity recognition and legal effect to other systems.
 
 This distinction helps explain why apparently competing standards may actually be illuminating different parts of the same problem.
@@ -110,7 +110,7 @@ OpenETR is primarily concerned with **evidence** and the derivation of
 It asks:
 
 ```text
-What is the Digital Artifact and which DCR concerns it?
+What is the Digital Artifact and which Evidence Graph concerns it?
 What signed events exist for that object?
 Who signed them?
 How do they link?
@@ -123,7 +123,7 @@ OpenETR does not try to be the whole digital trust stack.
 It does not replace identity wallets, registries, trust frameworks, competent authorities, legal rulebooks, enterprise account systems, or domain platforms.
 
 Instead, it supplies a connective evidence and state-derivation model: Digital Artifact digests,
-signed DCR evidence, linked evidence, derived state, and verifier outputs that
+signed Evidence Graph records, linked evidence, derived state, and verifier outputs that
 can be used by other systems.
 
 That is exactly why OpenETR should remain narrow.
@@ -140,7 +140,7 @@ other questions with their own appropriate methods.
 | --- | --- |
 | Identity | OpenETR profile keys sign events. Profiles may be linked to NIP-05 identifiers, published profiles, known entities, credentials, registries, or trust-framework signals. OpenETR can show which key signed, but external policy decides whether that identity is recognized. |
 | Intent | OpenETR events can carry actions, tags, comments, references, and domain metadata that express what the signer intended to do. Domain adapters and workflow systems provide the user-facing intent capture. |
-| Control | OpenETR derives candidate controller and lifecycle state from validated DCR evidence concerning a digest-identified Digital Artifact. Evidence records to which defined rules assign control consequences form the Control Graph within the broader Evidence Graph. |
+| Control | OpenETR derives candidate controller and lifecycle state from validated Evidence Graph records concerning a digest-identified Digital Artifact. Evidence records to which defined rules assign control consequences form the Control Graph within the broader Evidence Graph. |
 | Evidence | OpenETR creates cryptographically self-contained signed events. Event ids, signatures, object digests, graph links, relay results, and linked evidence records can be independently inspected. |
 | Recognition | OpenETR does not decide final effect. Laws, contracts, registries, courts, competent authorities, trust frameworks, verifier policies, and relying parties decide what the evidence means. |
 
@@ -148,7 +148,7 @@ This mapping keeps OpenETR disciplined.
 
 It can be very strong at control and evidence without pretending to answer every identity, intent, or recognition question by itself.
 
-## Artifact, DCR, State, And Recognition
+## Artifact, Evidence Graph, State, And Recognition
 
 The five-centres model also clarifies why OpenETR keeps content, evidence,
 state, and recognition separate.
@@ -156,17 +156,17 @@ state, and recognition separate.
 In OpenETR:
 
 ```text
-Digital Artifact -> Digital Controllable Record -> consequential state
+Digital Artifact -> Evidence Graph -> consequential state
 consequential state -> recognition -> effect
 ```
 
 The **Digital Artifact** is the persistent content: a document, file, Product
 Passport, warehouse receipt, credential, certificate, registry export, data
-bundle, or other digest-addressed record. A **Digital Controllable Record** is
+bundle, or other digest-addressed record. An **Evidence Graph** is
 the signed record or graph concerning that artifact. Its presence does not, by
 itself, assert derived consequential state or a current controller.
 
-The DCR graph is the signed event history concerning the artifact. Validation
+The Evidence Graph is the signed event history concerning the artifact. Validation
 checks that evidence, and an identified ruleset derives consequential state. That is
 what makes the Digital Artifact a Digital Original.
 
@@ -199,7 +199,7 @@ Existing systems may already handle parts of the model well:
 
 OpenETR can work underneath those systems.
 
-It can generate content-derived object identifiers and preserve signed DCR
+It can generate content-derived object identifiers and preserve signed Evidence Graph
 events that survive outside any one application database. Those events can be
 stored on relays, in archives, in registries, in local files, in private
 databases, or in other repositories.
@@ -207,7 +207,7 @@ databases, or in other repositories.
 The goal is not to force everyone into one OpenETR application.
 
 The goal is to let many systems produce and consume the same kind of portable
-DCR evidence.
+Evidence Graph records.
 
 ## Policy Implication
 

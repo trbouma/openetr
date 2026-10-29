@@ -22,30 +22,30 @@ without having to trust the application displaying it?** OpenETR answers by
 keeping the identifiable content, the signed evidence, the derived state, and
 external recognition separate.
 
-![OpenETR model showing Digital Artifact, Digital Controllable Record, Consequential State, Digital Original, Recognition and Effect](../assets/images/openetr-model.png)
+![OpenETR model showing Digital Artifact, Evidence Graph, Consequential State, Digital Original, Recognition and Effect](../assets/images/openetr-model.png)
 
 It is not limited to warehouse receipts. The Warehouse Receipts workspace is the first focused domain adapter, and the Product Passports workspace is the next domain surface. The underlying OpenETR model is intended to support Digital Artifacts such as bills of lading, certificates, credentials, secured finance records, product data artifacts, and other electronic transferable records.
 
 The model can be read from left to right:
 
 ```text
-Digital Artifact -> Digital Controllable Record -> Consequential State -> Digital Original
+Digital Artifact -> Evidence Graph -> Consequential State -> Digital Original
 
 Consequential State -> Recognition -> Effect
 ```
 
 OpenETR calls the identifiable content a **Digital Artifact**. It calls the
-signed evidence a **Digital Controllable Record (DCR)**. A DCR may be one
+signed evidence an **Evidence Graph**. An Evidence Graph may be one
 independently verifiable signed record or a graph of related records containing
 evidence of consequential actions. Consequential state is what follows when
 validated evidence is evaluated according to an identified ruleset. A Digital
-Artifact for which consequential state has been established through a DCR is a
+Artifact for which consequential state has been established through an Evidence Graph is a
 **Digital Original**.
 
 > Cryptography validates the evidence. An identified ruleset determines what follows.
 
-The DCR is not the file, and the word “controllable” does not automatically
-give it legal status. Legal recognition remains a separate question.
+The Evidence Graph is not the file, and its existence does not automatically
+give the artifact legal status. Legal recognition remains a separate question.
 
 A verifier should therefore report artifact integrity, event authenticity,
 graph continuity, transition validity, consequential state, retrieval
@@ -73,7 +73,7 @@ events; optional private-proof verification remains design work. See
 
 ```text
 Domain adapters       Warehouse Receipts, Product Passports, bills of lading, credentials
-OpenETR protocol      DCR evidence, state transition rules, consequential state
+OpenETR protocol      Evidence Graph records, state transition rules, consequential state
 Nostr event substrate signed events, kinds, tags, relays, event ids
 Outside the protocol  recognition by law, contracts, registries, and institutions
 ```
@@ -84,13 +84,13 @@ The host system remains responsible for the path from request to real-world
 operation: authenticating its users, applying permissions, obtaining approvals,
 and controlling whatever execution boundary it owns. OpenETR records
 attributable evidence concerning the Digital Artifact and derives protocol
-state from the resulting DCR. A recognition layer then determines whether that
+state from the resulting Evidence Graph. A recognition layer then determines whether that
 state is accepted for a particular operational, institutional, commercial, or
 legal purpose.
 
 ```text
 host system       proposal -> authorization -> protected operation
-OpenETR           signed evidence -> DCR validation -> consequential state
+OpenETR           signed evidence -> Evidence Graph validation -> consequential state
 outside protocol  recognition -> operational or legal effect
 ```
 
@@ -104,9 +104,9 @@ evidence; it does not provide global ordering, consensus, or legal effect.
 OpenETR defines:
 
 - digest-addressed Digital Artifacts;
-- Digital Controllable Records made of signed end-verifiable events;
-- state transition rules for deriving state from DCR evidence;
-- Anchor Events that begin candidate DCRs;
+- Evidence Graphs made of signed end-verifiable events;
+- state transition rules for deriving state from Evidence Graph records;
+- Anchor Events that begin candidate Evidence Graphs;
 - evidence events for transfer, encumbrance, discharge, redemption, termination, and attestation;
 - linked evidence records for supporting documents and lifecycle evidence;
 - profile-backed signing;
@@ -144,7 +144,7 @@ property, not a universal property of the open event network.
 
 - [OpenETR Core Record Ruleset 1.0](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CORE_RECORD_RULESET_1_0.md)
 - [Controllable Records Taxonomy](https://github.com/trbouma/openetr/blob/main/docs/specs/CONTROLLABLE_RECORDS_TAXONOMY.md)
-- [Digital Controllable Record](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
+- [Evidence Graph](https://github.com/trbouma/openetr/blob/main/docs/specs/DIGITAL_CONTROLLABLE_RECORD_DESIGN_NOTE.md)
 - [Records-First Authenticity And Digital Originality](https://github.com/trbouma/openetr/blob/main/docs/specs/RECORDS_FIRST_AUTHENTICITY_AND_DIGITAL_ORIGINALITY_DESIGN_NOTE.md)
 - [OpenETR Layered Architecture Note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_LAYERED_ARCHITECTURE_NOTE.md)
 - [OpenETR Generic Transfer Model](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_GENERIC_TRANSFER_MODEL.md)

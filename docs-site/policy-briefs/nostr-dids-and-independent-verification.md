@@ -36,7 +36,7 @@ warehouse, bank, authority, service, or agent remains a separate recognition
 question.
 
 That boundary gives OpenETR broader applicability. Different industries,
-organizations, trust frameworks, and jurisdictions can evaluate the same DCR
+organizations, trust frameworks, and jurisdictions can evaluate the same Evidence Graph
 evidence without first agreeing on one DID method, credential format,
 identity provider, or recognition regime.
 

@@ -14,7 +14,7 @@ events, projections, and application boundaries.
 > blockchains.
 
 **Consequential State Architecture (CSA)** is an architectural approach in
-which signed, independently verifiable records form a DCR spanning an
+which signed, independently verifiable records form an Evidence Graph spanning an
 artifact's evidenced lifecycle. Validation checks that evidence, and defined
 rules derive state affecting control, authority, rights, obligations,
 restrictions, standing, or permitted actions.
@@ -32,13 +32,13 @@ The corresponding interoperability objective is:
 This objective is sometimes shortened to **make consequences portable**. The
 short form must not be read as treating Consequential State as a status object
 copied from one authoritative application to another. OpenETR makes the
-digest-identified artifact, signed DCR evidence, graph relationships, and
+digest-identified artifact, signed Evidence Graph records, graph relationships, and
 identified rules basis available so another conforming verifier can reproduce
 the result.
 
 ```text
 portable inputs                  reproduced result       contextual decision
-artifact + DCR + rules basis  -> Consequential State  -> recognition and effect
+artifact + Evidence Graph + rules basis  -> Consequential State  -> recognition and effect
 ```
 
 The identity, delegation, approval, and authorization machinery that produced
@@ -47,20 +47,20 @@ additional evidence only when its policy requires it. OpenETR therefore does
 not require two organizations to adopt interoperable internal authority models
 merely to exchange independently verifiable consequential records.
 
-## Digital Artifacts, Controllable Records, And Digital Originals
+## Digital Artifacts, Evidence Graphs, And Digital Originals
 
 A **Digital Artifact** is persistent digital content having a unique content
 identity established by a cryptographic digest. It may exist in any number of
 locations or byte-for-byte copies. Copies with the same protocol-defined digest
 represent the same Digital Artifact.
 
-A **Digital Controllable Record (DCR)** is a single end-verifiable record or a
+An **Evidence Graph** is a single end-verifiable record or a
 graph of related end-verifiable records through which consequential state
-concerning a Digital Artifact can be established and transitioned. A DCR is
+concerning a Digital Artifact can be established and transitioned. An Evidence Graph is
 the protocol evidence structure, not the file or content that it concerns.
 
 A **Digital Original** is a Digital Artifact for which consequential state has
-been established by validating its DCR under an identified, versioned ruleset.
+been established by validating its Evidence Graph under an identified, versioned ruleset.
 
 This is a technical architecture definition. It does not claim that an
 external institution, community, contract, or jurisdiction must recognize the
@@ -95,7 +95,7 @@ uniquely identifiable content
         |
         | referenced by
         v
-DIGITAL CONTROLLABLE RECORD
+EVIDENCE GRAPH
 single record or record graph spanning the evidenced lifecycle
         |
         | evaluated by
@@ -124,24 +124,24 @@ artifact as authoritative for purpose X.” OpenETR establishes who signed the
 claim and which artifact it concerns. Recognition of the signer's standing or
 authority remains a separate determination.
 
-## Digital Controllable Record
+## Evidence Graph
 
-A DCR may consist of:
+An Evidence Graph may consist of:
 
 - one end-verifiable record;
 - multiple related records; or
 - a directed graph of control, transfer, encumbrance, discharge, provenance,
   delegation, termination, or related events.
 
-The graph is evidence. Validation checks the DCR graph as a whole, and defined
+The graph is evidence. Validation checks the Evidence Graph as a whole, and defined
 state transition rules derive current consequential state from the valid
-evidence. The DCR therefore spans the signed evidence lifecycle between
+evidence. The Evidence Graph therefore spans the signed evidence lifecycle between
 content identity and state evaluation; it must not be used as a synonym for the
 Digital Artifact itself.
 
-**Digital Controllable Record** is an OpenETR protocol term. It is not legally
+**Evidence Graph** is an OpenETR protocol term. It is not legally
 synonymous with a **Controllable Electronic Record (CER)** under UCC Article
-12. A DCR may qualify as a CER, electronic transferable record, negotiable
+12. An Evidence Graph may qualify as a CER, electronic transferable record, negotiable
 cargo document, or another legally recognized record only where the applicable
 legal requirements are satisfied.
 
@@ -160,7 +160,7 @@ evidence to determine:
 3. which transition or assertion is being made;
 4. whether the event is authentic and unaltered;
 5. which prior state, signatures, guards, or events constrain it; and
-6. how it participates in policy validation of the DCR and the resulting
+6. how it participates in policy validation of the Evidence Graph and the resulting
    consequential state.
 
 The durable primitive is not an application's state row. It is portable,
@@ -174,7 +174,7 @@ rules. A future evidence profile may establish those propositions through
 disclosed records or privacy-preserving proofs with explicit assumptions.
 
 A verified proposition is a conceptual result of evidence verification, not
-a new DCR event type. Rules define what must be proven; an identified evidence
+a new Evidence Graph event type. Rules define what must be proven; an identified evidence
 profile defines acceptable mechanisms. Existing cryptographic and structural
 requirements remain in force. Optional proof support requires further profile
 design and implementation.
@@ -221,24 +221,24 @@ domain interpretation of one or more transitions, or an external recognition
 effect.
 
 Consequential actions deserve durable, end-verifiable evidence. A conforming
-implementation should be able to determine from the DCR and identified policy:
+implementation should be able to determine from the Evidence Graph and identified policy:
 
 1. the prior consequential state;
 2. the consequential action asserted by the event;
 3. whether the signing key was permitted to make that transition;
 4. whether transition guards were satisfied;
-5. whether the event links coherently into the relevant DCR graph; and
+5. whether the event links coherently into the relevant Evidence Graph; and
 6. the new consequential state, if the transition is valid.
 
 ## Derived State
 
-Consequential state is produced by validating the relevant DCR record or graph
+Consequential state is produced by validating the relevant Evidence Graph record or graph
 under an identified, versioned ruleset. A ruleset defines the validation and
 state-derivation rules for that evaluation. Recognition policy remains a
 separate boundary and decides whether to accept the resulting state:
 
 ```text
-DCR Record Or Graph + Identified Ruleset
+Evidence Graph Record Or Graph + Identified Ruleset
           |
           | validate and apply state transition rules
           v
@@ -258,14 +258,14 @@ Applications **MAY** maintain databases, indexes, caches, APIs, snapshots, and
 materialized views. These are projections of consequential state rather than
 its ultimate source of authority.
 
-A projection must be reproducible or auditable from the DCR evidence and the
+A projection must be reproducible or auditable from the Evidence Graph records and the
 identified ruleset version used for validation.
 
 ### Historical State
 
 Historical state derivation is a first-class verification capability. Where
 sufficient evidence is available, an implementation **SHOULD** be able to
-derive Consequential State for a candidate DCR path ending at an identified
+derive Consequential State for a candidate Evidence Graph path ending at an identified
 event.
 
 The result is relative to:
@@ -284,8 +284,8 @@ evidence set.
 Conceptually:
 
 ```text
-derive_state(DCR evidence, rules)
-derive_state(DCR evidence, rules, at_event=E)
+derive_state(Evidence Graph records, rules)
+derive_state(Evidence Graph records, rules, at_event=E)
 ```
 
 The evidence basis and rules used for either result should be exportable so
@@ -343,7 +343,7 @@ or applicable rule for a stated purpose.
 acted upon.
 
 ```text
-DCR OR DCR GRAPH + DEFINED RULES
+EVIDENCE GRAPH + DEFINED RULES
   |
   | validate evidence and derive state
   v
@@ -356,7 +356,7 @@ RECOGNITION
 EFFECT
 ```
 
-OpenETR can derive consequential state from end-verifiable DCR evidence
+OpenETR can derive consequential state from end-verifiable Evidence Graph records
 according to defined rules without claiming that
 every external party or jurisdiction must recognize it or give it a particular
 legal, institutional, contractual, community, or operational effect.
@@ -444,8 +444,8 @@ OpenETR should distinguish:
 | Layer | Responsibility |
 | --- | --- |
 | Artifact Layer | Establish the unique content identity of persistent digital content. |
-| DCR Layer | Carry the signed, end-verifiable record or record graph concerning the artifact. |
-| State Layer | Validate the DCR under an identified, versioned policy and expose the resulting consequential state. |
+| Evidence Graph Layer | Carry the signed, end-verifiable record or record graph concerning the artifact. |
+| State Layer | Validate the Evidence Graph under an identified, versioned policy and expose the resulting consequential state. |
 | Recognition Layer | Determine which actors, graphs, objects, or states are accepted for a purpose. |
 | Effect Layer | Apply legal, institutional, contractual, community, or operational consequences. |
 
@@ -459,7 +459,7 @@ DIGITAL ARTIFACT
       |
       | referenced by
       v
-DIGITAL CONTROLLABLE RECORD
+EVIDENCE GRAPH
       |
       | validate as a whole under an identified policy
       v
@@ -506,7 +506,7 @@ C2PA and OpenETR are complementary.
 
 C2PA binds signed provenance assertions to content and describes creation,
 transformation, ingredients, and publication history. OpenETR identifies the
-Digital Artifact and validates its portable DCR graph under an applicable
+Digital Artifact and validates its portable Evidence Graph under an applicable
 policy to produce consequential state.
 Recognition determines what effect a relying party gives both forms of
 evidence.
@@ -561,7 +561,7 @@ Future OpenETR specifications and reviews should:
 For every feature, reviewers should also ask:
 
 1. What is the Digital Artifact and which digest identifies it?
-2. What DCR record or graph establishes the relevant state?
+2. What Evidence Graph record or graph establishes the relevant state?
 3. Who is authorized to produce those records, and what prior state constrains
    the transition?
 4. Can another implementation reproduce the same state and trace it to

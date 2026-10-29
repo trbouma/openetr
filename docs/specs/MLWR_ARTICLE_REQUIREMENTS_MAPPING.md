@@ -7,7 +7,7 @@ It lists each MLWR article, gives a short project-oriented summary, and leaves a
 The matrix is intentionally about **recognition and effect**. Those questions are technically outside the base OpenETR protocol, but they can be closely mapped to protocol evidence.
 
 This is not legal advice and does not assert that OpenETR satisfies any enacted
-warehouse receipt law by itself. OpenETR preserves signed DCR evidence and
+warehouse receipt law by itself. OpenETR preserves signed Evidence Graph records and
 derives consequential state under defined transition rules. It can show what
 was signed, linked, retrieved, transferred, pledged, discharged, presented, or
 terminated. Legal validity, authorization, protected-holder status, priority,

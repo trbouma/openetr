@@ -136,8 +136,7 @@ Priority: primary domain focus.
 
 Priority: after the verifier result model stabilizes.
 
-- maintain UCC Article 12 as an external legal profile and keep Digital
-  Controllable Record distinct from statutory Controllable Electronic Record;
+- maintain UCC Article 12 as an external legal profile and keep Evidence Graph distinct from statutory Controllable Electronic Record;
 - continue bills of lading, Product Passport, apostille, and other domain
   mappings;
 - document the evidence each profile requires and the conclusions it is
@@ -187,7 +186,7 @@ of any conformance claim.
 
 The roadmap does not call for OpenETR to:
 
-- turn optional Temporal Proof into a condition of DCR validity;
+- turn optional Temporal Proof into a condition of Evidence Graph validity;
 - claim global evidence completeness from one relay result;
 - make KYC or one credential format part of the base protocol;
 - import an autonomous-agent authorization framework into evidence events;

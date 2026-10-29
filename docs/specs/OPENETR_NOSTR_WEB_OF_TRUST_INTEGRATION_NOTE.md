@@ -18,7 +18,7 @@ OpenETR asks:
 - Which key signed it?
 - Does the event id verify?
 - Does the event carry the required OpenETR tags?
-- How does this event link into the object's DCR Evidence Graph through `e` references?
+- How does this event link into the object's Evidence Graph through `e` references?
 - What state can be derived by applying an identified ruleset?
 
 Nostr Web of Trust asks:
@@ -31,7 +31,7 @@ Nostr Web of Trust asks:
 
 The architectural fit is:
 
-> OpenETR preserves and verifies the signed DCR Evidence Graph. Nostr Web of Trust can help a verifier decide which signers, profiles, assertions, relays, or graph branches deserve recognition, ranking, filtering, or warning treatment.
+> OpenETR preserves and verifies the signed Evidence Graph. Nostr Web of Trust can help a verifier decide which signers, profiles, assertions, relays, or graph branches deserve recognition, ranking, filtering, or warning treatment.
 
 WoT belongs in the OpenETR recognition and verifier-policy layer, not in the base OpenETR wire format.
 
@@ -140,7 +140,7 @@ Safebox's current model is intentionally shallow: configured root authorities pl
 - NIP-85-style provider scores should remain advisory unless a selected rule book makes them binding;
 - attestation checks should be kept separate from recognition checks.
 
-This is especially relevant to OpenETR because the same signed DCR Evidence
+This is especially relevant to OpenETR because the same signed Evidence Graph Evidence
 Graph and ruleset-derived state may be viewed in different contexts. One
 verifier may treat a root-follow recognition path as sufficient for display
 confidence. Another may require TRQP authorization, an explicit OpenETR

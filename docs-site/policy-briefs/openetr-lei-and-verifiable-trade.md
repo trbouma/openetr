@@ -70,14 +70,14 @@ The Verifiable.Trade articles argue for trade data that carries verifiable evide
 
 OpenETR is compatible with that direction.
 
-It provides a concrete DCR and state-derivation pattern:
+It provides a concrete Evidence Graph and state-derivation pattern:
 
 ```text
 record artifact or canonical package
   -> digest
-  -> signed Anchor Event in a DCR
+  -> signed Anchor Event in an Evidence Graph
   -> signed control, attestation, and evidence events
-  -> DCR evidence is validated and an identified ruleset derives consequential state
+  -> Evidence Graph records are validated and an identified ruleset derives consequential state
   -> recognition policy decides effect
 ```
 

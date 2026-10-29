@@ -90,7 +90,7 @@ OpenETR begins with the record:
 ```text
 exact Digital Artifact
   -> attributable signed events concerning it
-  -> Digital Controllable Record
+  -> Evidence Graph
   -> state-transition rules
   -> Consequential State
 ```
@@ -394,7 +394,7 @@ public key
   -> kind 0: human-facing profile metadata
   -> kind 10002: relay discovery
   -> dedicated kinds: protocol capabilities or service conventions
-  -> OpenETR kinds: DCR evidence
+  -> OpenETR kinds: Evidence Graph records
 ```
 
 This model keeps each claim typed and independently signed instead of placing
