@@ -5,6 +5,7 @@ This directory is reserved for OpenETR specification drafts and supporting docum
 Suggested starting points:
 
 - [OpenETR Core Record Ruleset 1.0](./OPENETR_CORE_RECORD_RULESET_1_0.md)
+- [Evidence Retention and Deletion Design Note](./OPENETR_EVIDENCE_RETENTION_AND_DELETION_DESIGN_NOTE.md)
 - [Inspection Evidence And Encrypted Reports (Draft)](./OPENETR_INSPECTION_EVIDENCE_SPEC.md)
 - [Cargo Inspection Profile (Draft)](./OPENETR_CARGO_INSPECTION_PROFILE.md)
 - [OpenETR Draft National Standard](./OPENETR_DRAFT_NATIONAL_STANDARD.md)
