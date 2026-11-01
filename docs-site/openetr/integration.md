@@ -14,6 +14,21 @@ systems keep their own user interfaces, databases, workflows, and rulebooks.
 
 ## Integration Styles
 
+An optional experimental convention lets participating applications discover
+[Relay Witness Records](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_RELAY_WITNESS_RECORDS_DESIGN_NOTE.md)
+alongside anchors and notices. These are independently signed observation
+receipts assessed under a separate witness trust policy, not additional
+Core Record Ruleset 1.0 transitions. Spurline implements receipt generation;
+Oakgate implements discovery, signature and exact signed-event binding checks,
+and display. Full witness authorization and trust-policy evaluation is separate.
+The convention uses existing Nostr events and filters without changing the
+transport or event envelope. Its experimental kind 1418 and receipt schema are
+not an approved NIP or normative OpenETR standard. They could inform future relay
+and OpenETR standards through review, interoperability testing and explicit
+versioning; existing ruleset semantics remain unchanged.
+See [Relays as Accountable Witnesses](../policy-briefs/relays-as-accountable-witnesses.md)
+for the architectural rationale.
+
 An implementation can use OpenETR by:
 
 - importing the Python component;
