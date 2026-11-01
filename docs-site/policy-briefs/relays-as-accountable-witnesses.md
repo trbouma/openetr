@@ -184,6 +184,11 @@ their meaning.**
 
 ## Supporting design
 
+The [Witness Record Specification (draft 0.1)](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_WITNESS_RECORD_SPEC.md)
+proposes interoperable requirements based on the experimental convention.
+Kind 1418 remains provisional; publication does not imply standards adoption
+or certification of current implementations.
+
 The [Relay Witness Records design note](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_RELAY_WITNESS_RECORDS_DESIGN_NOTE.md)
 describes discovery, verification, trust boundaries, and integration milestones.
 Spurline's [operator runbook](https://github.com/trbouma/spurline/blob/main/docs/witness-operator-runbook.md)

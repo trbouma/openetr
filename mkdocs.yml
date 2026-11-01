@@ -73,6 +73,7 @@ nav:
       - Nostr Wire Format: openetr/wire-format.md
       - Evidence Retention and Deletion: https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_EVIDENCE_RETENTION_AND_DELETION_DESIGN_NOTE.md
       - Relay Witness Records: https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_RELAY_WITNESS_RECORDS_DESIGN_NOTE.md
+      - Witness Records (Draft): https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_WITNESS_RECORD_SPEC.md
       - Inspection Evidence (Draft): https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_INSPECTION_EVIDENCE_SPEC.md
       - Cargo Inspection Profile (Draft): https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_CARGO_INSPECTION_PROFILE.md
       - QR Resolver Profile: https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_QR_RESOLVER_PROFILE_1_0.md

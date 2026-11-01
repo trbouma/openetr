@@ -2,6 +2,10 @@
 
 *Design note | 31 October 2026 | Experimental implemented convention, non-normative*
 
+The companion [Witness Record Specification, draft 0.1](./OPENETR_WITNESS_RECORD_SPEC.md)
+now proposes explicit conformance requirements. This note retains the rationale
+and standards roadmap; publication of the draft is not standards adoption.
+
 ## Convention and standards status
 
 Witness Records are an **optional extension to relay capabilities and OpenETR

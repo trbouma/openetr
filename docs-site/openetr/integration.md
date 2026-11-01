@@ -29,6 +29,11 @@ versioning; existing ruleset semantics remain unchanged.
 See [Relays as Accountable Witnesses](../policy-briefs/relays-as-accountable-witnesses.md)
 for the architectural rationale.
 
+The [Witness Record Specification (draft 0.1)](https://github.com/trbouma/openetr/blob/main/docs/specs/OPENETR_WITNESS_RECORD_SPEC.md)
+defines proposed producer and verifier requirements, compatible receipt
+versions, and separate cryptographic, authorization and time-policy outcomes.
+It is an optional draft, not a change to Core Record Ruleset 1.0.
+
 An implementation can use OpenETR by:
 
 - importing the Python component;

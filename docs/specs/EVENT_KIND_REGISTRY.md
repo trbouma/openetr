@@ -28,8 +28,17 @@ Suggested status values:
 |------|------|--------|---------|-------|
 | `1415` | Anchor Event | working | Initial signed event establishing an anchored control state for an object | Regular event used as the starting point for a candidate control graph |
 | `1416` | Evidence Event family | working | Signed evidence of actions after an Anchor Event | Regular event family subtyped by the `action` tag |
+| `1418` | Witness Record | draft | Signed observation receipt for an exact signed anchor or evidence event | Optional; provisional OpenETR assignment, not a Nostr reservation; schema and signature binding checks required |
 
 ## Current Interpretation
+
+### `1418` Witness Record (Draft)
+
+The [Witness Record Specification, draft 0.1](./OPENETR_WITNESS_RECORD_SPEC.md)
+defines the experimental Spurline-compatible receipt profiles and separate
+verification/trust assessment. Witness Records do not themselves change Core
+Record Ruleset 1.0 results. This local registry entry does not claim global
+allocation or approval by the Nostr standards community.
 
 ### `1415` Anchor Event
 
