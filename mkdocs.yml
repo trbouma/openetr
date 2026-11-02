@@ -107,6 +107,7 @@ nav:
       - Apostille Documents:
           - Overview: apostille-documents.md
   - Policy Briefs:
+      - Records First — Actors, Evidence, And Authority: policy-briefs/records-first-actors-evidence-and-authority.md
       - Relays as Accountable Witnesses: policy-briefs/relays-as-accountable-witnesses.md
       - Preserving OpenETR Evidence: policy-briefs/preserving-openetr-evidence.md
       - Application Managed Keys And OpenETR: policy-briefs/application-managed-keys-and-openetr.md
